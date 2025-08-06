@@ -1,0 +1,68 @@
+/* Animation classes for dropdown */
+.animate-in {
+  animation-duration: 150ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+
+.fade-in-0 {
+  animation-name: fadeIn;
+}
+
+.zoom-in-95 {
+  animation-name: zoomIn;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Smooth transitions */
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-colors {
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Rotate animation for dropdown arrow */
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Focus styles */
+button:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+/* Hover effects */
+.group:hover .group-hover\:text-gray-900 {
+  color: rgb(17 24 39);
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .group:hover .dark\:group-hover\:text-white {
+    color: rgb(255 255 255);
+  }
+}

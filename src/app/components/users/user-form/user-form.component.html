@@ -1,0 +1,201 @@
+<div *ngIf="isOpen" class="fixed inset-0 z-50 overflow-y-auto" (click)="onBackdropClick($event)">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+    <!-- Dialog -->
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full dark:bg-gray-800" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+            {{ isEditing ? t('user_management.edit_user') : t('user_management.create_user') }}
+          </h3>
+          <button type="button" (click)="close()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Content -->
+      <div class="bg-white px-4 pb-4 sm:p-6 dark:bg-gray-800">
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="space-y-4">
+          
+          <!-- Profile Image Section -->
+          <div class="flex flex-col items-center space-y-3">
+            <!-- Image Preview -->
+            <div class="relative">
+              <div class="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2 border-gray-300">
+                <img *ngIf="imagePreview" 
+                     [src]="imagePreview" 
+                     alt="Profile preview" 
+                     class="h-full w-full object-cover">
+                <svg *ngIf="!imagePreview" class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+              </div>
+              
+              <!-- Remove Image Button -->
+              <button *ngIf="imagePreview"
+                      type="button"
+                      (click)="removeImage()"
+                      class="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            
+            <!-- Upload Button -->
+            <div>
+              <input type="file" 
+                     accept="image/*" 
+                     (change)="onImageSelect($event)" 
+                     class="hidden" 
+                     #imageInput>
+              <button type="button" 
+                      (click)="imageInput.click()"
+                      class="px-3 py-1 text-sm font-medium text-[#00113f] bg-white border border-[#00113f] rounded hover:bg-[#00113f] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]">
+                {{ t('user_management.select_image') }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Name Fields -->
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <!-- First Name -->
+            <div>
+              <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('user_management.first_name') }}
+              </label>
+              <input type="text" 
+                     id="first_name"
+                     formControlName="first_name"
+                     [placeholder]="t('user_management.first_name_placeholder')"
+                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                     [class.border-red-500]="isFieldInvalid('first_name')"
+                     [class.focus:ring-red-500]="isFieldInvalid('first_name')"
+                     [class.focus:border-red-500]="isFieldInvalid('first_name')">
+              <p *ngIf="isFieldInvalid('first_name')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('first_name') }}
+              </p>
+            </div>
+
+            <!-- Last Name -->
+            <div>
+              <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('user_management.last_name') }}
+              </label>
+              <input type="text" 
+                     id="last_name"
+                     formControlName="last_name"
+                     [placeholder]="t('user_management.last_name_placeholder')"
+                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                     [class.border-red-500]="isFieldInvalid('last_name')"
+                     [class.focus:ring-red-500]="isFieldInvalid('last_name')"
+                     [class.focus:border-red-500]="isFieldInvalid('last_name')">
+              <p *ngIf="isFieldInvalid('last_name')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('last_name') }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t('user_management.email_address') }}
+            </label>
+            <input type="email" 
+                   id="email"
+                   formControlName="email"
+                   [placeholder]="t('user_management.email_address_placeholder')"
+                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                   [class.border-red-500]="isFieldInvalid('email')"
+                   [class.focus:ring-red-500]="isFieldInvalid('email')"
+                   [class.focus:border-red-500]="isFieldInvalid('email')">
+            <p *ngIf="isFieldInvalid('email')" class="mt-1 text-sm text-red-600">
+              {{ getFieldError('email') }}
+            </p>
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ isEditing ? t('user_management.change_password_optional') : t('user_management.password') }}
+            </label>
+            <input type="password" 
+                   id="password"
+                   formControlName="password"
+                   [placeholder]="isEditing ? t('user_management.leave_blank_to_keep_current_password') : t('user_management.enter_password')"
+                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                   [class.border-red-500]="isFieldInvalid('password')"
+                   [class.focus:ring-red-500]="isFieldInvalid('password')"
+                   [class.focus:border-red-500]="isFieldInvalid('password')">
+            <p *ngIf="isEditing" class="text-xs text-gray-500 mt-1 dark:text-gray-400">
+              {{ t('user_management.only_enter_password_if_you_want_to_change_it') }}
+            </p>
+            <p *ngIf="isFieldInvalid('password')" class="mt-1 text-sm text-red-600">
+              {{ getFieldError('password') }}
+            </p>
+          </div>
+
+          <!-- Hidden User ID field -->
+          <input type="hidden" formControlName="id">
+
+          <!-- Role and Status -->
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <!-- Role -->
+            <div>
+              <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('user_management.role') }}
+              </label>
+              <select id="role"
+                      formControlName="role"
+                      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <option value="admin">Admin</option>
+                <option value="operator">Operator</option>
+              </select>
+            </div>
+
+            <!-- Status -->
+            <div>
+              <label for="is_active" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('user_management.status') }}
+              </label>
+              <select id="is_active"
+                      formControlName="is_active"
+                      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <option [value]="true">{{ t('active') }}</option>
+                <option [value]="false">{{ t('inactive') }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              (click)="close()"
+              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+            >
+              {{ t('cancel') }}
+            </button>
+            <button
+              type="submit"
+              [disabled]="userForm.invalid || isSubmitting"
+              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg *ngIf="isSubmitting" class="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isSubmitting ? t('saving') : (isEditing ? t('update') : t('create')) }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

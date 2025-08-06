@@ -1,0 +1,106 @@
+/* User Management Component Styles */
+.page-container {
+  @apply space-y-6;
+}
+
+.page-header {
+  @apply flex justify-between items-center;
+}
+
+.page-title-section {
+  @apply space-y-2;
+}
+
+.page-title {
+  @apply text-2xl font-semibold text-gray-900;
+}
+
+.page-description {
+  @apply mt-2 text-sm text-gray-700;
+}
+
+.action-buttons {
+  @apply flex gap-2;
+}
+
+.action-button {
+  @apply flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.action-button.primary {
+  @apply border-transparent text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500;
+}
+
+.action-button.secondary {
+  @apply border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-blue-500;
+}
+
+.action-button.import {
+  @apply hover:bg-blue-600 hover:text-white;
+}
+
+.content-card {
+  @apply bg-white shadow rounded-lg;
+}
+
+.card-content {
+  @apply px-4 py-5 sm:p-6;
+}
+
+.dialog-overlay {
+  @apply fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity;
+}
+
+.dialog-container {
+  @apply inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle;
+}
+
+.dialog-header {
+  @apply bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4;
+}
+
+.dialog-title {
+  @apply text-lg leading-6 font-medium text-gray-900;
+}
+
+.dialog-content {
+  @apply bg-white px-4 pb-4 sm:p-6;
+}
+
+.create-dialog {
+  @apply sm:max-w-2xl sm:w-full;
+}
+
+.import-dialog {
+  @apply sm:max-w-lg sm:w-full;
+}
+
+/* Icon styles */
+.icon {
+  @apply h-4 w-4 mr-2;
+}
+
+/* Button hover effects */
+.hover-effect {
+  @apply transition-colors duration-200;
+}
+
+/* Loading states */
+.loading-spinner {
+  @apply animate-spin rounded-full h-4 w-4 border-b-2 border-white;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .page-header {
+    @apply flex-col space-y-4 items-stretch;
+  }
+  
+  .action-buttons {
+    @apply flex-col space-y-2;
+  }
+  
+  .action-button {
+    @apply w-full justify-center;
+  }
+}

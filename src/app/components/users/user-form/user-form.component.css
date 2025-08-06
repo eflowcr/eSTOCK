@@ -1,0 +1,72 @@
+/* User Form Component Styles */
+.form-container {
+  @apply w-full;
+}
+
+.form-title {
+  @apply text-xl font-semibold text-center text-gray-900;
+}
+
+.profile-image-section {
+  @apply flex flex-col items-center space-y-3;
+}
+
+.image-preview-container {
+  @apply relative;
+}
+
+.image-preview {
+  @apply h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2 border-gray-300;
+}
+
+.image-preview img {
+  @apply h-full w-full object-cover;
+}
+
+.remove-image-button {
+  @apply absolute -top-1 -right-1 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500;
+}
+
+.upload-button {
+  @apply px-3 py-1 text-sm font-medium text-blue-600 bg-white border border-blue-600 rounded hover:bg-blue-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+}
+
+.form-field {
+  @apply space-y-1;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.form-input {
+  @apply mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500;
+}
+
+.form-input.invalid {
+  @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+}
+
+.form-select {
+  @apply mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500;
+}
+
+.error-message {
+  @apply mt-1 text-sm text-red-600;
+}
+
+.help-text {
+  @apply text-xs text-gray-500 mt-1;
+}
+
+.submit-button {
+  @apply px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.grid-2-cols {
+  @apply grid grid-cols-1 gap-4 sm:grid-cols-2;
+}
+
+.centered-button {
+  @apply w-full flex justify-center mt-6;
+}

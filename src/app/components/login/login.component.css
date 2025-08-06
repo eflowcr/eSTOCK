@@ -1,0 +1,123 @@
+/* Custom styles for the login component */
+
+/* Animation for form transitions */
+.tab-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom focus styles */
+.form-input:focus {
+  @apply ring-2 ring-blue-500 ring-opacity-50 border-blue-500;
+}
+
+/* Custom button hover effects */
+.auth-button {
+  @apply transition-all duration-200 transform;
+}
+
+.auth-button:hover {
+  @apply scale-105;
+}
+
+.auth-button:active {
+  @apply scale-95;
+}
+
+/* Custom tab styles */
+.tab-button {
+  @apply transition-all duration-200;
+}
+
+.tab-button.active {
+  @apply shadow-sm;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Custom gradient background */
+.hero-gradient {
+  background: linear-gradient(135deg, #00113f 0%, #1e3a8a 100%);
+}
+
+/* Custom card shadows */
+.auth-card {
+  @apply shadow-xl;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Dark mode specific styles */
+@media (prefers-color-scheme: dark) {
+  .auth-card {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .hero-section {
+    display: none;
+  }
+}
+
+/* Custom input focus ring */
+.custom-input:focus {
+  @apply ring-2 ring-blue-500 ring-opacity-50 border-blue-500 outline-none;
+}
+
+/* Error state styles */
+.input-error {
+  @apply border-red-300 ring-red-200;
+}
+
+.input-error:focus {
+  @apply ring-red-500 border-red-500;
+}
+
+/* Success state styles (for future use) */
+.input-success {
+  @apply border-green-300 ring-green-200;
+}
+
+.input-success:focus {
+  @apply ring-green-500 border-green-500;
+}
+
+/* Custom scrollbar for dark mode */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 dark:bg-gray-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500 dark:bg-gray-500;
+}

@@ -1,0 +1,73 @@
+<div class="relative inline-block text-left">
+  <!-- Language Switcher Button -->
+  <button
+    (click)="toggleDropdown()"
+    class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] transition-all duration-200"
+    type="button"
+    [attr.aria-expanded]="isDropdownOpen"
+    aria-haspopup="true"
+    title="Cambiar idioma / Change language"
+  >
+    <!-- Globe Icon -->
+    <svg class="w-5 h-5 mr-2 text-[#00113f] dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+    </svg>
+    
+    <!-- Current Language Code -->
+    <span class="text-sm font-medium text-[#00113f] dark:text-gray-200">{{ currentLanguage?.code }}</span>
+    
+    <!-- Dropdown Arrow -->
+    <svg 
+      class="w-4 h-4 ml-2 transition-transform duration-200 text-[#00113f] dark:text-gray-300"
+      [class.rotate-180]="isDropdownOpen"
+      fill="none" 
+      stroke="currentColor" 
+      viewBox="0 0 24 24"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+    </svg>
+  </button>
+
+  <!-- Dropdown Menu -->
+  <div
+    *ngIf="isDropdownOpen"
+    class="absolute right-0 z-50 mt-2 w-48 origin-top-right bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in-0 zoom-in-95"
+    role="menu"
+    aria-orientation="vertical"
+  >
+    <div class="py-1" role="none">
+      <!-- Language Options -->
+      <button
+        *ngFor="let language of availableLanguages"
+        (click)="selectLanguage(language)"
+        class="group flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-150"
+        [class.bg-gray-100]="currentLanguage?.code === language.code"
+        [class.dark:bg-gray-700]="currentLanguage?.code === language.code"
+        role="menuitem"
+      >
+        <!-- Flag -->
+        <span class="mr-3 text-lg">{{ language.flag }}</span>
+        
+        <!-- Language Name -->
+        <span class="flex-1 text-left">{{ language.name }}</span>
+        
+        <!-- Check Mark for Current Language -->
+        <svg
+          *ngIf="currentLanguage?.code === language.code"
+          class="w-4 h-4 text-[#3e66ea]"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Backdrop to close dropdown when clicking outside -->
+  <div
+    *ngIf="isDropdownOpen"
+    class="fixed inset-0 z-40"
+    (click)="closeDropdown()"
+  ></div>
+</div>
