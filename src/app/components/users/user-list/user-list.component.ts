@@ -4,7 +4,7 @@ import { User } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
-import { AuthorizationService } from '../../../services/authorization.service';
+import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { UserFormComponent } from '../user-form/user-form.component';
 
 @Component({

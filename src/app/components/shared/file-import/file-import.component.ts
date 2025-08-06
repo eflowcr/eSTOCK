@@ -121,9 +121,13 @@ export class FileImportComponent {
   downloadTemplate(): void {
     if (!this.config.templateFields?.length) return;
     
-    // Si es para usuarios, descargar el archivo Excel específico
     if (this.config.templateType === 'users') {
       this.downloadUsersExcelTemplate();
+      return;
+    }
+
+    if (this.config.templateType === 'locations') {
+      this.downloadLocationsExcelTemplate();
       return;
     }
     
@@ -144,6 +148,16 @@ export class FileImportComponent {
     const link = document.createElement('a');
     link.href = '/assets/files/ImportUsers.xlsx';
     link.download = 'ImportUsers.xlsx';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  private downloadLocationsExcelTemplate(): void {
+    const link = document.createElement('a');
+    link.href = '/assets/files/ImportLocations.xlsx';
+    link.download = 'ImportLocations.xlsx';
     link.target = '_blank';
     document.body.appendChild(link);
     link.click();

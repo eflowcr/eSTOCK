@@ -14,7 +14,7 @@ import { AlertService } from '../../../services/extras/alert.service';
   styleUrls: ['./user-form.component.css']
 })
 export class UserFormComponent implements OnInit, OnChanges {
-  @Input() initialData?: User;
+  @Input() initialData?: User | null;
   @Input() isOpen = false;
   @Output() success = new EventEmitter<void>();
   @Output() closed = new EventEmitter<void>();

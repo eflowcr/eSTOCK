@@ -1,13 +1,39 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { AlertService, Alert } from '../../../services/extras/alert.service';
+import { AlertService, Alert } from '../../../../services/extras/alert.service';
 
 @Component({
   selector: 'app-alert',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './alert.component.html'
+  templateUrl: './alert.component.html',
+  styles: [`
+    @keyframes slide-in-right {
+      from {
+        transform: translateX(100%) scale(0.95);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+    }
+    
+    .animate-slide-in-right {
+      animation: slide-in-right 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    /* Responsive para móviles */
+    @media (max-width: 640px) {
+      .fixed.bottom-4.right-4 {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+        max-width: none;
+      }
+    }
+  `]
 })
 export class AlertComponent implements OnInit, OnDestroy {
   alerts: Alert[] = [];
@@ -29,47 +55,51 @@ export class AlertComponent implements OnInit, OnDestroy {
     this.alertService.dismiss(id);
   }
 
+  trackByAlertId(index: number, alert: Alert): string {
+    return alert.id;
+  }
+
   getAlertClasses(type: string): string {
-    const baseClasses = 'border';
+    const baseClasses = 'border-l-4';
     switch (type) {
       case 'success':
-        return `${baseClasses} bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800`;
+        return `${baseClasses} bg-white border-green-400 shadow-green-100 dark:bg-gray-800 dark:border-green-500 dark:shadow-green-900/20`;
       case 'error':
-        return `${baseClasses} bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800`;
+        return `${baseClasses} bg-white border-red-400 shadow-red-100 dark:bg-gray-800 dark:border-red-500 dark:shadow-red-900/20`;
       case 'warning':
-        return `${baseClasses} bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800`;
+        return `${baseClasses} bg-white border-yellow-400 shadow-yellow-100 dark:bg-gray-800 dark:border-yellow-500 dark:shadow-yellow-900/20`;
       case 'info':
-        return `${baseClasses} bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800`;
+        return `${baseClasses} bg-white border-blue-400 shadow-blue-100 dark:bg-gray-800 dark:border-blue-500 dark:shadow-blue-900/20`;
       default:
-        return `${baseClasses} bg-gray-50 border-gray-200 dark:bg-gray-900/20 dark:border-gray-800`;
+        return `${baseClasses} bg-white border-gray-400 shadow-gray-100 dark:bg-gray-800 dark:border-gray-500 dark:shadow-gray-900/20`;
     }
   }
 
   getTitleClasses(type: string): string {
     switch (type) {
       case 'success':
-        return 'text-green-800 dark:text-green-200';
+        return 'text-green-800 dark:text-green-200 font-semibold';
       case 'error':
-        return 'text-red-800 dark:text-red-200';
+        return 'text-red-800 dark:text-red-200 font-semibold';
       case 'warning':
-        return 'text-yellow-800 dark:text-yellow-200';
+        return 'text-yellow-800 dark:text-yellow-200 font-semibold';
       case 'info':
-        return 'text-blue-800 dark:text-blue-200';
+        return 'text-blue-800 dark:text-blue-200 font-semibold';
       default:
-        return 'text-gray-800 dark:text-gray-200';
+        return 'text-gray-800 dark:text-gray-200 font-semibold';
     }
   }
 
   getMessageClasses(type: string): string {
     switch (type) {
       case 'success':
-        return 'text-green-700 dark:text-green-300';
+        return 'text-gray-700 dark:text-gray-300';
       case 'error':
-        return 'text-red-700 dark:text-red-300';
+        return 'text-gray-700 dark:text-gray-300';
       case 'warning':
-        return 'text-yellow-700 dark:text-yellow-300';
+        return 'text-gray-700 dark:text-gray-300';
       case 'info':
-        return 'text-blue-700 dark:text-blue-300';
+        return 'text-gray-700 dark:text-gray-300';
       default:
         return 'text-gray-700 dark:text-gray-300';
     }

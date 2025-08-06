@@ -1,0 +1,128 @@
+<app-dialog
+  [isOpen]="isOpen"
+  [title]="isEditing ? t('edit_location') : t('create_location')"
+  (closed)="onClose()"
+>
+  <form [formGroup]="locationForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    <!-- Location Code -->
+    <div>
+      <label for="location_code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        {{ t('location_code') }} <span class="text-red-500">*</span>
+      </label>
+      <input
+        type="text"
+        id="location_code"
+        formControlName="location_code"
+        [placeholder]="t('enter_location_code')"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+        [class.border-red-500]="isFieldInvalid('location_code')"
+        [class.focus:ring-red-500]="isFieldInvalid('location_code')"
+        [class.focus:border-red-500]="isFieldInvalid('location_code')"
+      />
+      <p *ngIf="getFieldError('location_code')" class="mt-1 text-sm text-red-600">
+        {{ getFieldError('location_code') }}
+      </p>
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        {{ t('location_description') }}
+      </label>
+      <input
+        type="text"
+        id="description"
+        formControlName="description"
+        [placeholder]="t('enter_description')"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+        [class.border-red-500]="isFieldInvalid('description')"
+        [class.focus:ring-red-500]="isFieldInvalid('description')"
+        [class.focus:border-red-500]="isFieldInvalid('description')"
+      />
+      <p *ngIf="getFieldError('description')" class="mt-1 text-sm text-red-600">
+        {{ getFieldError('description') }}
+      </p>
+    </div>
+
+    <!-- Zone -->
+    <div>
+      <label for="zone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        {{ t('location_zone') }}
+      </label>
+      <input
+        type="text"
+        id="zone"
+        formControlName="zone"
+        [placeholder]="t('enter_zone')"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+        [class.border-red-500]="isFieldInvalid('zone')"
+        [class.focus:ring-red-500]="isFieldInvalid('zone')"
+        [class.focus:border-red-500]="isFieldInvalid('zone')"
+      />
+      <p *ngIf="getFieldError('zone')" class="mt-1 text-sm text-red-600">
+        {{ getFieldError('zone') }}
+      </p>
+    </div>
+
+    <!-- Type -->
+    <div>
+      <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        {{ t('location_type') }} <span class="text-red-500">*</span>
+      </label>
+      <select
+        id="type"
+        formControlName="type"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        [class.border-red-500]="isFieldInvalid('type')"
+        [class.focus:ring-red-500]="isFieldInvalid('type')"
+        [class.focus:border-red-500]="isFieldInvalid('type')"
+      >
+        <option value="" disabled>{{ t('select_type') }}</option>
+        <option *ngFor="let type of locationTypes" [value]="type.value">
+          {{ t(type.label) }}
+        </option>
+      </select>
+      <p *ngIf="getFieldError('type')" class="mt-1 text-sm text-red-600">
+        {{ getFieldError('type') }}
+      </p>
+    </div>
+
+    <!-- Active Status -->
+    <div class="flex items-center">
+      <input
+        type="checkbox"
+        id="is_active"
+        formControlName="is_active"
+        class="h-4 w-4 text-[#4465ec] focus:ring-[#4465ec] border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"
+      />
+      <label for="is_active" class="ml-2 block text-sm text-gray-900 dark:text-white">
+        {{ t('active_location') }}
+      </label>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-600">
+      <button
+        type="button"
+        (click)="onClose()"
+        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4465ec] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+        [disabled]="isSubmitting"
+      >
+        {{ t('cancel') }}
+      </button>
+      <button
+        type="submit"
+        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#4465ec] hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4465ec] disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="isSubmitting || locationForm.invalid"
+      >
+        <div *ngIf="isSubmitting" class="flex items-center">
+          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+          {{ t('location_saving') }}...
+        </div>
+        <span *ngIf="!isSubmitting">
+          {{ isEditing ? t('update_location') : t('create_location') }}
+        </span>
+      </button>
+    </div>
+  </form>
+</app-dialog>

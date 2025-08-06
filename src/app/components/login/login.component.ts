@@ -6,8 +6,8 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { AlertService } from '../../services/extras/alert.service';
 import { LanguageService } from '../../services/extras/language.service';
-import { LanguageSwitcherComponent } from '../extras/language-switcher/language-switcher.component';
-import { AlertComponent } from '../extras/alert/alert.component';
+import { LanguageSwitcherComponent } from '../shared/extras/language-switcher/language-switcher.component';
+import { AlertComponent } from '../shared/extras/alert/alert.component';
 import { LoginRequest, RegisterRequest } from '../../models/auth.model';
 import { User } from '../../models/user.model';
 

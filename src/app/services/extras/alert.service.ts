@@ -82,6 +82,8 @@ export class AlertService {
     });
   }
 
+
+
   dismiss(id: string): void {
     const currentAlerts = this.alertsSubject.value;
     this.alertsSubject.next(currentAlerts.filter(alert => alert.id !== id));

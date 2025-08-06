@@ -1,16 +1,15 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { User } from '../../../models/user.model';
-import { UserService } from '../../../services/user.service';
-import { LanguageService } from '../../../services/extras/language.service';
+import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { AlertService } from '../../../services/extras/alert.service';
-import { AuthorizationService } from '../../../services/authorization.service';
-import { UserListComponent } from '../user-list/user-list.component';
-import { UserFormComponent } from '../user-form/user-form.component';
-import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
-import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { LanguageService } from '../../../services/extras/language.service';
+import { UserService } from '../../../services/user.service';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
+import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
+import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
+import { UserFormComponent } from '../user-form/user-form.component';
+import { UserListComponent } from '../user-list/user-list.component';
 
 @Component({
   selector: 'app-user-management',
@@ -21,7 +20,6 @@ import { MainLayoutComponent } from '../../layout/main-layout.component';
     UserFormComponent, 
     FileImportComponent, 
     DataExportComponent,
-    ConfirmationDialogComponent,
     MainLayoutComponent
   ],
   templateUrl: './user-management.component.html',
