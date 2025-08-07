@@ -40,13 +40,21 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   
+  // Inventory Management route - requires authentication
+  {
+    path: 'inventory',
+    loadComponent: () => import('./components/inventory/inventory-management/inventory-management.component').then(m => m.InventoryManagementComponent),
+    canActivate: [AuthGuard]
+  },
+  
+  // Article Management route - requires authentication
+  {
+    path: 'articles',
+    loadComponent: () => import('./components/articles/article-management/article-management.component').then(m => m.ArticleManagementComponent),
+    canActivate: [AuthGuard]
+  },
+
   // Future protected routes can be added here
-  // Example:
-  // {
-  //   path: 'inventory',
-  //   loadComponent: () => import('./components/inventory/inventory.component').then(m => m.InventoryComponent),
-  //   canActivate: [AuthGuard]
-  // },
   
   // Wildcard route - redirect to dashboard
   {

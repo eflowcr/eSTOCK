@@ -1,0 +1,320 @@
+<div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-6">
+  <!-- Search and Controls -->
+  <div class="p-4 sm:p-6">
+    <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+      <!-- Search -->
+      <div class="flex-1">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearch($event)"
+            [placeholder]="t('search_inventory')"
+            class="pl-9 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+          />
+        </div>
+      </div>
+
+      <!-- Sort and Filters -->
+      <div class="flex items-center gap-3">
+        <select [(ngModel)]="sortBy" (ngModelChange)="onSort($event)" class="block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+          <option value="sku">{{ t('sku_code') }}</option>
+          <option value="name">{{ t('name') }}</option>
+          <option value="location">{{ t('location') }}</option>
+          <option value="quantity">{{ t('quantity') }}</option>
+        </select>
+        
+        <button type="button" (click)="toggleFilters()" class="flex items-center px-3 py-2 border rounded-md text-sm font-medium bg-gray-50 text-gray-600 hover:bg-gray-100">
+          {{ t('filters') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Expandable Filters -->
+    <div *ngIf="filtersExpanded" class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <select [(ngModel)]="statusFilter" class="block w-full px-3 py-2 border border-gray-300 rounded-md">
+          <option value="">{{ t('all_status') }}</option>
+          <option value="available">{{ t('available') }}</option>
+          <option value="reserved">{{ t('reserved') }}</option>
+          <option value="damaged">{{ t('damaged') }}</option>
+        </select>
+        
+        <select [(ngModel)]="locationFilter" class="block w-full px-3 py-2 border border-gray-300 rounded-md">
+          <option value="">{{ t('all_locations') }}</option>
+          <option *ngFor="let location of uniqueLocations" [value]="location">{{ location }}</option>
+        </select>
+        
+        <select [(ngModel)]="presentationFilter" class="block w-full px-3 py-2 border border-gray-300 rounded-md">
+          <option value="">{{ t('all_presentations') }}</option>
+          <option *ngFor="let presentation of uniquePresentations" [value]="presentation">{{ t(presentation) }}</option>
+        </select>
+        
+        <select [(ngModel)]="trackingFilter" class="block w-full px-3 py-2 border border-gray-300 rounded-md">
+          <option value="">{{ t('all_tracking') }}</option>
+          <option value="lot">{{ t('tracking_lot') }}</option>
+          <option value="serial">{{ t('tracking_serial') }}</option>
+          <option value="both">{{ t('tracking_both') }}</option>
+          <option value="none">{{ t('tracking_none') }}</option>
+        </select>
+      </div>
+      
+      <!-- Clear Filters Button -->
+      <div *ngIf="hasActiveFilters()" class="mt-4">
+        <button
+          type="button"
+          (click)="clearFilters()"
+          class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-red-900 dark:text-red-200 dark:hover:bg-red-800">
+          <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          {{ t('clear_filters') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+      <thead class="bg-gray-50 dark:bg-gray-700">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('sku_code') }}</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('description') }}</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('location') }}</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">{{ t('quantity') }}</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">{{ t('status') }}</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">{{ t('actions') }}</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+        <tr *ngFor="let item of paginatedInventory" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ item.sku }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ item.name || item.description || '-' }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ item.location }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-center">{{ item.quantity }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            <span [class]="getStatusBadgeClass(item.status)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+              {{ item.status }}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+            <div class="flex items-center justify-center space-x-2">
+              <button (click)="viewInventory(item)" class="text-gray-400 hover:text-[#4465ec] focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 rounded">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+              </button>
+              <button *ngIf="isAdmin()" (click)="editInventoryItem(item)" class="text-gray-400 hover:text-[#4465ec] focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 rounded">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+              <button *ngIf="isAdmin()" (click)="confirmDelete(item)" class="text-gray-400 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- View Inventory Modal -->
+<div *ngIf="viewingInventory" class="fixed inset-0 z-50 overflow-y-auto" (click)="onBackdropClick($event)">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    
+    <!-- Center modal -->
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+    
+    <!-- Modal content -->
+    <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+            {{ t('inventory_details') }}
+          </h3>
+          <button type="button" (click)="closeViewModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 rounded">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6">
+        <div class="space-y-6">
+          <!-- Basic Information -->
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{{ t('basic_information') }}</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('sku_code') }}</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingInventory.sku }}</p>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('name') }}</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingInventory.name || '-' }}</p>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('location') }}</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingInventory.location }}</p>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('quantity') }}</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingInventory.quantity }}</p>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('status') }}</label>
+                <span [class]="getStatusBadgeClass(viewingInventory.status)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full mt-1">
+                  {{ t(viewingInventory.status) }}
+                </span>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('presentation') }}</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ t(viewingInventory.presentation) }}</p>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('unit_price') }}</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">${{ viewingInventory.unit_price || '0.00' }}</p>
+              </div>
+            </div>
+            <div *ngIf="viewingInventory.description" class="mt-4">
+              <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('description') }}</label>
+              <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingInventory.description }}</p>
+            </div>
+          </div>
+
+          <!-- Tracking Information -->
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{{ t('tracking_information') }}</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="flex items-center">
+                <div class="h-2 w-2 rounded-full mr-2" [class]="viewingInventory.track_by_lot ? 'bg-green-500' : 'bg-gray-300'"></div>
+                <span class="text-sm text-gray-700 dark:text-gray-300">{{ t('track_by_lot') }}</span>
+              </div>
+              <div class="flex items-center">
+                <div class="h-2 w-2 rounded-full mr-2" [class]="viewingInventory.track_by_serial ? 'bg-green-500' : 'bg-gray-300'"></div>
+                <span class="text-sm text-gray-700 dark:text-gray-300">{{ t('track_by_serial') }}</span>
+              </div>
+              <div class="flex items-center">
+                <div class="h-2 w-2 rounded-full mr-2" [class]="viewingInventory.track_expiration ? 'bg-green-500' : 'bg-gray-300'"></div>
+                <span class="text-sm text-gray-700 dark:text-gray-300">{{ t('track_expiration') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stock Limits -->
+          <div *ngIf="viewingInventory.min_quantity || viewingInventory.max_quantity">
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{{ t('stock_limits') }}</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div *ngIf="viewingInventory.min_quantity">
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('min_quantity') }}</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingInventory.min_quantity }}</p>
+              </div>
+              <div *ngIf="viewingInventory.max_quantity">
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('max_quantity') }}</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingInventory.max_quantity }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timestamps -->
+          <div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div *ngIf="viewingInventory.created_at">
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('created_at') }}</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingInventory.created_at | date:'medium' }}</p>
+              </div>
+              <div *ngIf="viewingInventory.updated_at">
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('updated_at') }}</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingInventory.updated_at | date:'medium' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button
+          type="button"
+          (click)="closeViewModal()"
+          class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700">
+          {{ t('close') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="deletingInventoryId" class="fixed inset-0 z-50 overflow-y-auto" (click)="onBackdropClick($event)">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    
+    <!-- Center modal -->
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+    
+    <!-- Modal content -->
+    <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
+            <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+          </div>
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+              {{ t('confirm_delete_inventory') }}
+            </h3>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ t('delete_inventory_warning') }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button
+          type="button"
+          (click)="deleteInventoryItem()"
+          [disabled]="isDeleting"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg *ngIf="isDeleting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ isDeleting ? t('deleting') : t('delete') }}
+        </button>
+        
+        <button
+          type="button"
+          (click)="closeDeleteDialog()"
+          [disabled]="isDeleting"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+          {{ t('cancel') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

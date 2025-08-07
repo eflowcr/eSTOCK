@@ -1,0 +1,295 @@
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 overflow-y-auto" (click)="onBackdropClick($event)">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    
+    <!-- Center modal -->
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+    
+    <!-- Modal content -->
+    <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+            {{ isEditing ? t('edit_inventory_item') : t('add_inventory_entry') }}
+          </h3>
+          <button type="button" (click)="close()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 rounded">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6">
+        <form [formGroup]="inventoryForm" (ngSubmit)="onSubmit()" class="space-y-4">
+          
+          <!-- SKU and Location Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- SKU -->
+            <div>
+              <label for="sku" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('sku_code') }} *
+              </label>
+              <input
+                type="text"
+                id="sku"
+                formControlName="sku"
+                [class.border-red-500]="isFieldInvalid('sku')"
+                [class.focus:ring-red-500]="isFieldInvalid('sku')"
+                [class.focus:border-red-500]="isFieldInvalid('sku')"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                [placeholder]="t('enter_sku_code')"
+              />
+              <p *ngIf="isFieldInvalid('sku')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('sku') }}
+              </p>
+            </div>
+
+            <!-- Location -->
+            <div>
+              <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('location') }} *
+              </label>
+              <select
+                id="location"
+                formControlName="location"
+                [class.border-red-500]="isFieldInvalid('location')"
+                [class.focus:ring-red-500]="isFieldInvalid('location')"
+                [class.focus:border-red-500]="isFieldInvalid('location')"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <option value="">{{ t('select_location') }}</option>
+                <option *ngFor="let location of locations" [value]="location.location_code">
+                  {{ location.location_code }} - {{ location.description }}
+                </option>
+              </select>
+              <p *ngIf="isFieldInvalid('location')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('location') }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Name -->
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t('name') }}
+            </label>
+            <input
+              type="text"
+              id="name"
+              formControlName="name"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+              [placeholder]="t('enter_product_name')"
+            />
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t('description') }}
+            </label>
+            <textarea
+              id="description"
+              formControlName="description"
+              rows="3"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+              placeholder="Ingresa la descripción">
+            </textarea>
+          </div>
+
+          <!-- Quantity, Status, and Presentation Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- Quantity -->
+            <div>
+              <label for="quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('quantity') }} *
+              </label>
+              <input
+                type="number"
+                id="quantity"
+                formControlName="quantity"
+                min="0"
+                step="0.01"
+                [class.border-red-500]="isFieldInvalid('quantity')"
+                [class.focus:ring-red-500]="isFieldInvalid('quantity')"
+                [class.focus:border-red-500]="isFieldInvalid('quantity')"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                [placeholder]="t('enter_quantity')"
+              />
+              <p *ngIf="isFieldInvalid('quantity')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('quantity') }}
+              </p>
+            </div>
+
+            <!-- Status -->
+            <div>
+              <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('status') }} *
+              </label>
+              <select
+                id="status"
+                formControlName="status"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <option *ngFor="let status of statusOptions" [value]="status.value">
+                  {{ t(status.label) }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Presentation -->
+            <div>
+              <label for="presentation" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('presentation') }} *
+              </label>
+              <select
+                id="presentation"
+                formControlName="presentation"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <option *ngFor="let presentation of presentationOptions" [value]="presentation.value">
+                  {{ t(presentation.label) }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Unit Price -->
+          <div>
+            <label for="unit_price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t('unit_price') }}
+            </label>
+            <input
+              type="number"
+              id="unit_price"
+              formControlName="unit_price"
+              min="0"
+              step="0.01"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+              [placeholder]="t('enter_unit_price')"
+            />
+          </div>
+
+          <!-- Image URL -->
+          <div>
+            <label for="image_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t('image_url') }}
+            </label>
+            <input
+              type="url"
+              id="image_url"
+              formControlName="image_url"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+              [placeholder]="t('enter_image_url')"
+            />
+          </div>
+
+          <!-- Stock Limits Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Min Quantity -->
+            <div>
+              <label for="min_quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('min_quantity') }}
+              </label>
+              <input
+                type="number"
+                id="min_quantity"
+                formControlName="min_quantity"
+                min="0"
+                step="1"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                [placeholder]="t('enter_min_quantity')"
+              />
+            </div>
+
+            <!-- Max Quantity -->
+            <div>
+              <label for="max_quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('max_quantity') }}
+              </label>
+              <input
+                type="number"
+                id="max_quantity"
+                formControlName="max_quantity"
+                min="0"
+                step="1"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                [placeholder]="t('enter_max_quantity')"
+              />
+            </div>
+          </div>
+
+          <!-- Tracking Options -->
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{{ t('tracking_options') }}</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                <input
+                  type="checkbox"
+                  id="track_by_lot"
+                  formControlName="track_by_lot"
+                  class="h-4 w-4 text-[#3e66ea] focus:ring-[#3e66ea] border-gray-300 rounded"
+                />
+                <label for="track_by_lot" class="ml-3 cursor-pointer">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('track_by_lot') }}</span>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Control por lotes</p>
+                </label>
+              </div>
+              
+              <div class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                <input
+                  type="checkbox"
+                  id="track_by_serial"
+                  formControlName="track_by_serial"
+                  class="h-4 w-4 text-[#3e66ea] focus:ring-[#3e66ea] border-gray-300 rounded"
+                />
+                <label for="track_by_serial" class="ml-3 cursor-pointer">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('track_by_serial') }}</span>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Control por serie</p>
+                </label>
+              </div>
+              
+              <div class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                <input
+                  type="checkbox"
+                  id="track_expiration"
+                  formControlName="track_expiration"
+                  class="h-4 w-4 text-[#3e66ea] focus:ring-[#3e66ea] border-gray-300 rounded"
+                />
+                <label for="track_expiration" class="ml-3 cursor-pointer">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('track_expiration') }}</span>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Control de vencimiento</p>
+                </label>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button
+          type="button"
+          (click)="onSubmit()"
+          [disabled]="isSubmitting || inventoryForm.invalid"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#00113f] text-base font-medium text-white hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg *ngIf="isSubmitting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ isSubmitting ? t('saving') : (isEditing ? t('update') : t('create')) }}
+        </button>
+        
+        <button
+          type="button"
+          (click)="onCancel()"
+          [disabled]="isSubmitting"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+          {{ t('cancel') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

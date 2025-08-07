@@ -1,0 +1,201 @@
+/* Article Form Component Styles */
+
+/* Form container */
+.form-container {
+  @apply bg-white dark:bg-gray-800 rounded-lg shadow-lg;
+}
+
+/* Header styles */
+.form-header {
+  @apply flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700;
+}
+
+.form-title {
+  @apply text-lg font-medium text-gray-900 dark:text-white;
+}
+
+.close-button {
+  @apply text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none;
+}
+
+/* Form styles */
+.form-content {
+  @apply p-6;
+}
+
+.form-section {
+  @apply space-y-6;
+}
+
+/* Input styles */
+.form-input {
+  @apply mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400;
+}
+
+.form-input.error {
+  @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+}
+
+.form-textarea {
+  @apply mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400;
+}
+
+.form-select {
+  @apply mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white;
+}
+
+/* Label styles */
+.form-label {
+  @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+}
+
+.form-label.required::after {
+  content: ' *';
+  @apply text-red-500;
+}
+
+/* Error message styles */
+.error-message {
+  @apply mt-1 text-sm text-red-600;
+}
+
+/* Tracking options styles */
+.tracking-section {
+  @apply space-y-4;
+}
+
+.tracking-section-title {
+  @apply text-lg font-semibold text-gray-900 dark:text-white;
+}
+
+.tracking-option {
+  @apply flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700;
+}
+
+.tracking-option-content {
+  @apply space-y-1;
+}
+
+.tracking-option-label {
+  @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+}
+
+.tracking-option-description {
+  @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+.tracking-option-control {
+  @apply flex items-center;
+}
+
+/* Checkbox styles */
+.tracking-checkbox {
+  @apply h-4 w-4 border-gray-300 rounded focus:ring-2 focus:ring-offset-2;
+}
+
+.tracking-checkbox.lot {
+  @apply text-green-600 focus:ring-green-500;
+}
+
+.tracking-checkbox.serial {
+  @apply text-blue-600 focus:ring-blue-500;
+}
+
+.tracking-checkbox.expiration {
+  @apply text-yellow-600 focus:ring-yellow-500;
+}
+
+.tracking-checkbox.active {
+  @apply text-green-600 focus:ring-green-500;
+}
+
+/* Status indicators */
+.status-indicator {
+  @apply ml-2 text-sm;
+}
+
+.status-indicator.enabled {
+  @apply text-green-600;
+}
+
+.status-indicator.disabled {
+  @apply text-red-600;
+}
+
+/* Form actions */
+.form-actions {
+  @apply flex justify-center pt-6 border-t border-gray-200 dark:border-gray-700 mt-6;
+}
+
+.form-buttons {
+  @apply flex gap-3;
+}
+
+.cancel-button {
+  @apply px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700;
+}
+
+.submit-button {
+  @apply px-6 py-2 bg-[#00113f] text-white rounded-md text-sm font-medium hover:bg-[#001a5c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  @apply animate-spin -ml-1 mr-3 h-4 w-4 text-white;
+}
+
+/* Grid layouts */
+.grid-2 {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-content {
+    @apply p-4;
+  }
+  
+  .form-header {
+    @apply p-4;
+  }
+  
+  .form-buttons {
+    @apply flex-col w-full;
+  }
+  
+  .cancel-button,
+  .submit-button {
+    @apply w-full;
+  }
+}
+
+/* Focus states */
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  @apply ring-2 ring-[#3e66ea] ring-opacity-50;
+}
+
+/* Disabled states */
+.form-input:disabled,
+.form-textarea:disabled,
+.form-select:disabled {
+  @apply bg-gray-100 dark:bg-gray-600 cursor-not-allowed opacity-50;
+}
+
+.tracking-checkbox:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Validation states */
+.form-input.valid {
+  @apply border-green-500 focus:ring-green-500 focus:border-green-500;
+}
+
+.form-textarea.valid {
+  @apply border-green-500 focus:ring-green-500 focus:border-green-500;
+}
+
+.form-select.valid {
+  @apply border-green-500 focus:ring-green-500 focus:border-green-500;
+}

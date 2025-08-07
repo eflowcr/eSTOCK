@@ -1,0 +1,73 @@
+/* Inventory Management Component Styles */
+
+.inventory-header {
+  @apply flex justify-between items-center mb-6;
+}
+
+.inventory-title {
+  @apply text-2xl font-semibold text-gray-900 dark:text-white;
+}
+
+.inventory-description {
+  @apply mt-2 text-sm text-gray-700 dark:text-gray-300;
+}
+
+.action-buttons {
+  @apply flex gap-2;
+}
+
+.btn-primary {
+  @apply flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+}
+
+.btn-secondary {
+  @apply flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700;
+}
+
+.dialog-overlay {
+  @apply fixed inset-0 z-50 overflow-y-auto;
+}
+
+.dialog-backdrop {
+  @apply fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity;
+}
+
+.dialog-container {
+  @apply flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0;
+}
+
+.dialog-content {
+  @apply inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full;
+}
+
+.dialog-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.dialog-title {
+  @apply text-lg leading-6 font-medium text-gray-900 dark:text-white;
+}
+
+.dialog-close-btn {
+  @apply text-gray-400 hover:text-gray-600 dark:hover:text-gray-300;
+}
+
+.dialog-body {
+  @apply max-h-[70vh] overflow-y-auto;
+}
+
+/* Loading states */
+.loading-spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .inventory-header {
+    @apply flex-col gap-4 items-start;
+  }
+  
+  .action-buttons {
+    @apply w-full justify-end;
+  }
+}

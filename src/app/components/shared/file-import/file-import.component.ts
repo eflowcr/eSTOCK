@@ -133,6 +133,11 @@ export class FileImportComponent {
       this.downloadLocationsExcelTemplate();
       return;
     }
+
+    if (this.config.templateType === 'articles') {
+      this.downloadArticlesExcelTemplate();
+      return;
+    }
     
     // Para otros casos, generar CSV
     const csvContent = this.config.templateFields.join(',') + '\n';
@@ -161,6 +166,16 @@ export class FileImportComponent {
     const link = document.createElement('a');
     link.href = '/assets/files/ImportLocations.xlsx';
     link.download = 'ImportLocations.xlsx';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  private downloadArticlesExcelTemplate(): void {
+    const link = document.createElement('a');
+    link.href = '/assets/files/ImportArticles.xlsx';
+    link.download = 'ImportArticles.xlsx';
     link.target = '_blank';
     document.body.appendChild(link);
     link.click();
