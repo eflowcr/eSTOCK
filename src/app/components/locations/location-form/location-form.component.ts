@@ -5,12 +5,11 @@ import { Location } from '../../../models/location.model';
 import { LocationService } from '../../../services/location.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
-import { DialogComponent } from '../../shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-location-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DialogComponent],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './location-form.component.html',
   styleUrls: ['./location-form.component.css']
 })
@@ -44,11 +43,15 @@ export class LocationFormComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['initialData'] && this.locationForm) {
+    if (changes['initialData']) {
       this.isEditing = !!this.initialData;
+      if (this.locationForm) {
+        this.loadLocationData();
+      }
+    }
+    if (changes['isOpen'] && this.isOpen && this.locationForm) {
       this.loadLocationData();
     }
-    
     if (changes['isOpen'] && !changes['isOpen'].currentValue) {
       // Reset form when dialog closes
       this.locationForm?.reset();
@@ -129,7 +132,19 @@ export class LocationFormComponent implements OnInit, OnChanges {
 
   onClose(): void {
     this.locationForm.reset();
+    this.isEditing = false;
+    this.isSubmitting = false;
     this.closed.emit();
+  }
+
+  close(): void {
+    this.onClose();
+  }
+
+  onBackdropClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.close();
+    }
   }
 
   private markFormGroupTouched(): void {

@@ -115,6 +115,16 @@
                 </svg>
               </button>
               
+              <!-- Change Password Button - Only for admin -->
+              <button *ngIf="isAdmin()"
+                      (click)="onChangePassword(user)"
+                      class="text-gray-400 hover:text-orange-600 p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                      [title]="t('user_management.change_password')">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2a2 2 0 00-2 2m2-2V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0a2 2 0 002 2h6a2 2 0 002-2m0 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V9z"></path>
+                </svg>
+              </button>
+              
               <!-- Delete Button - Only for admin -->
               <button *ngIf="isAdmin()"
                       (click)="onDelete(user.id)"
@@ -133,19 +143,12 @@
 </div>
 
 <!-- Edit User Dialog -->
-<div *ngIf="editingUser" class="fixed inset-0 z-50 overflow-y-auto">
-  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <!-- Background overlay -->
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeEditDialog()"></div>
-
-    <!-- Dialog -->
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full dark:bg-gray-800">
-      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 dark:bg-gray-800">
-        <app-user-form [initialData]="editingUser" (success)="onEditSuccess()"></app-user-form>
-      </div>
-    </div>
-  </div>
-</div>
+<app-user-form 
+  [initialData]="editingUser" 
+  [isOpen]="!!editingUser"
+  (success)="onEditSuccess()"
+  (closed)="closeEditDialog()">
+</app-user-form>
 
 <!-- View User Details Dialog -->
 <div *ngIf="viewingUser" class="fixed inset-0 z-50 overflow-y-auto">
@@ -275,3 +278,11 @@
     </div>
   </div>
 </div>
+
+<!-- Change Password Dialog -->
+<app-password-change 
+  [user]="changingPasswordUser"
+  [isOpen]="!!changingPasswordUser"
+  (success)="onPasswordChangeSuccess()"
+  (closed)="closePasswordDialog()">
+</app-password-change>

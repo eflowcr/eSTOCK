@@ -23,7 +23,7 @@ export class UserService {
 	 */
 	async getAll(): Promise<ApiResponse<User[]>> {
 		return await this.fetchService.get<ApiResponse<User[]>>({
-			API_Gateway: `${USER_URL}`,
+			API_Gateway: `${USER_URL}/`,
 		});
 	}
 
@@ -45,7 +45,7 @@ export class UserService {
 	 */
 	async create(user: Partial<User>): Promise<ApiResponse<any>> {
 		return await this.fetchService.post<ApiResponse<any>>({
-			API_Gateway: `${USER_URL}`,
+			API_Gateway: `${USER_URL}/`,
 			values: user,
 		});
 	}
@@ -81,8 +81,8 @@ export class UserService {
 	 * @returns Promise<ApiResponse<any>>
 	 */
 	async updatePassword(id: string, newPassword: string): Promise<ApiResponse<any>> {
-		return await this.fetchService.post<ApiResponse<any>>({
-			API_Gateway: `${USER_URL}/${id}/update-password`,
+		return await this.fetchService.put<ApiResponse<any>>({
+			API_Gateway: `${USER_URL}/${id}/password`,
 			values: { newPassword },
 		});
 	}
@@ -110,7 +110,7 @@ export class UserService {
 	 */
 	async exportFile(format: string = 'xlsx'): Promise<Blob> {
 		return await this.fetchService.download({
-			API_Gateway: `${USER_URL}/export?format=${format}`,
+			API_Gateway: `${USER_URL}/export/?format=${format}`,
 		});
 	}
 }

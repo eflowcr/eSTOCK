@@ -22,7 +22,7 @@ export class LocationService {
 	 */
 	async getAll(): Promise<ApiResponse<Location[]>> {
 		return await this.fetchService.get<ApiResponse<Location[]>>({
-			API_Gateway: `${LOCATION_URL}`,
+			API_Gateway: `${LOCATION_URL}/`,
 		});
 	}
 
@@ -40,7 +40,7 @@ export class LocationService {
 	 */
 	async create(data: Partial<Location>): Promise<ApiResponse<any>> {
 		return await this.fetchService.post<ApiResponse<any>>({
-			API_Gateway: `${LOCATION_URL}`,
+			API_Gateway: `${LOCATION_URL}/`,
 			values: data,
 		});
 	}
@@ -72,7 +72,7 @@ export class LocationService {
 		formData.append('file', file);
 
 		return await this.fetchService.post<ApiResponse<any>>({
-			API_Gateway: `${LOCATION_URL}/import`,
+			API_Gateway: `${LOCATION_URL}/import/`,
 			values: formData,
 		});
 	}
@@ -82,7 +82,7 @@ export class LocationService {
 	 */
 	async exportFile(format: string = 'xlsx'): Promise<Blob> {
 		return await this.fetchService.download({
-			API_Gateway: `${LOCATION_URL}/export?format=${format}`,
+			API_Gateway: `${LOCATION_URL}/export/?format=${format}`,
 		});
 	}
 }

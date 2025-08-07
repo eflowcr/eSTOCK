@@ -65,7 +65,7 @@ export const esTranslations = {
   'loading': 'Cargando...',
 
   // User Management
-  'user_management.description': 'Administra usuarios del sistema, roles y permisos',
+  'user_management.description': 'Control de los usuarios del sistema y sus roles',
   'user_management.add_user': 'Agregar Usuario',
   'user_management.create_user': 'Crear Usuario',
   'user_management.edit_user': 'Editar Usuario',
@@ -122,6 +122,18 @@ export const esTranslations = {
   'user_management.access_denied': 'Acceso denegado',
   'user_management.admin_only': 'Solo administradores',
   'user_management.insufficient_permissions': 'Permisos insuficientes',
+  'user_management.change_password': 'Cambiar Contraseña',
+  'user_management.change_password_for': 'Cambiar contraseña para',
+  'user_management.new_password': 'Nueva Contraseña',
+  'user_management.confirm_password': 'Confirmar Contraseña',
+  'user_management.enter_new_password': 'Ingresa la nueva contraseña',
+  'user_management.confirm_new_password': 'Confirma la nueva contraseña',
+  'user_management.update_password': 'Actualizar Contraseña',
+  'user_management.password_updated': 'Contraseña actualizada exitosamente',
+  'user_management.failed_update_password': 'Error al actualizar la contraseña',
+  'password_mismatch': 'Las contraseñas no coinciden',
+  'password_update_failed': 'Error al actualizar la contraseña',
+  'updating': 'Actualizando...',
 
   // Generic terms
   'import': 'Importar',
@@ -178,7 +190,6 @@ export const esTranslations = {
   // Validation messages
   'first_name_required': 'El nombre es requerido',
   'last_name_required': 'El apellido es requerido',
-  'password_min_length': 'La contraseña debe tener al menos 6 caracteres',
   'invalid_file_type': 'Tipo de archivo inválido',
   'please_select_image_file': 'Por favor selecciona un archivo de imagen',
   'max_image_size_5mb': 'El tamaño máximo de imagen es 5MB',
@@ -204,7 +215,7 @@ export const esTranslations = {
 
   // Location Management
   'location_management': 'Gestión de Ubicaciones',
-  'location_management.description': 'Administra las ubicaciones de tu almacén',
+  'location_management.description': 'Gestión de ubicaciones en el sistema',
   'add_location': 'Agregar Ubicación',
   'create_location': 'Crear Ubicación',
   'edit_location': 'Editar Ubicación',

@@ -228,4 +228,8 @@ export class LocationListComponent {
   trackByLocationId(index: number, location: Location): number {
     return location.id;
   }
+
+  onSearch(term: string): void {
+    this.searchTerm = term;
+  }
 }

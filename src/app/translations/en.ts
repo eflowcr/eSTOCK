@@ -64,7 +64,7 @@ export const enTranslations = {
   'loading': 'Loading...',
 
   // User Management
-  'user_management.description': 'Manage system users, roles and permissions',
+  'user_management.description': 'Manage system users and roles',
   'user_management.add_user': 'Add User',
   'user_management.create_user': 'Create User',
   'user_management.edit_user': 'Edit User',

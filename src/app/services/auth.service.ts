@@ -110,7 +110,7 @@ export class AuthService {
 			this.updateAuthState({ isLoading: true, error: null });
 
 			const response = await this.fetchService.post<ApiResponse<AuthData>>({
-				API_Gateway: `${AUTH_URL}/register`,
+				API_Gateway: `${AUTH_URL}/register/`,
 				values: userData,
 			});
 
@@ -138,7 +138,7 @@ export class AuthService {
 			if (authData?.token) {
 				// Call logout endpoint
 				await this.fetchService.post<ApiResponse<any>>({
-					API_Gateway: `${AUTH_URL}/logout`,
+					API_Gateway: `${AUTH_URL}/logout/`,
 					values: {},
 				});
 			}

@@ -46,11 +46,11 @@
       </div>
     </div>
 
-    <!-- Location List -->
-    <app-location-list [locations]="locations" [isLoading]="isLoading" (refresh)="loadLocations()"
-      (edit)="onEditLocation($event)" (updated)="onLocationUpdated()"
-      (deleted)="onLocationDeleted()"></app-location-list>
   </div>
+  <!-- Location List -->
+<app-location-list [locations]="locations" [isLoading]="isLoading" (refresh)="loadLocations()"
+    (edit)="onEditLocation($event)" (updated)="onLocationUpdated()"
+    (deleted)="onLocationDeleted()"></app-location-list>
   <!-- Create/Edit Location Dialog -->
   <app-location-form *ngIf="isCreateDialogOpen" [initialData]="selectedLocation" [isOpen]="isCreateDialogOpen"
     (success)="onLocationCreated()" (closed)="closeCreateDialog()"></app-location-form>

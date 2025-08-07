@@ -56,13 +56,11 @@
 
   <!-- Users Table Card -->
   <div class="bg-white shadow rounded-lg dark:bg-gray-800">
-    <div class="px-4 py-5 sm:p-6">
       <app-user-list 
         [users]="users" 
         [isLoading]="isLoading"
         (refresh)="onRefresh()">
       </app-user-list>
-    </div>
   </div>
 </div>
 

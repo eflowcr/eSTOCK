@@ -6,11 +6,12 @@ import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { UserFormComponent } from '../user-form/user-form.component';
+import { PasswordChangeComponent } from '../password-change/password-change.component';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, UserFormComponent],
+  imports: [CommonModule, UserFormComponent, PasswordChangeComponent],
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css']
 })
@@ -23,6 +24,7 @@ export class UserListComponent {
   viewingUser: User | null = null;
   deletingUserId: string | null = null;
   isDeleting = false;
+  changingPasswordUser: User | null = null;
 
   constructor(
     private userService: UserService,
@@ -87,6 +89,10 @@ export class UserListComponent {
     this.deletingUserId = userId;
   }
 
+  onChangePassword(user: User): void {
+    this.changingPasswordUser = user;
+  }
+
   closeEditDialog(): void {
     this.editingUser = null;
   }
@@ -99,9 +105,17 @@ export class UserListComponent {
     this.deletingUserId = null;
   }
 
+  closePasswordDialog(): void {
+    this.changingPasswordUser = null;
+  }
+
   onEditSuccess(): void {
     this.closeEditDialog();
     this.refresh.emit();
+  }
+
+  onPasswordChangeSuccess(): void {
+    this.closePasswordDialog();
   }
 
   async confirmDelete(): Promise<void> {

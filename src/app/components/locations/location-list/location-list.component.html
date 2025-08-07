@@ -1,80 +1,88 @@
-<div class="bg-white dark:bg-gray-800 shadow rounded-lg">
-  <!-- Search and Sort Bar -->
-  <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-    <div class="flex gap-4 items-center w-full">
-      <!-- Search Input - 50% -->
-      <div class="relative" style="flex: 0 0 50%;">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
+<div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-6">
+  <!-- Modern Search and Controls Bar -->
+  <div class="p-4 sm:p-6">
+    <!-- Main Controls Row -->
+    <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+      <!-- Search Section -->
+      <div class="flex-1">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearch($event)"
+            [placeholder]="t('search_locations')"
+            class="pl-9 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+          />
         </div>
-        <input
-          type="text"
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="onSearch($event)"
-          [placeholder]="t('search_locations')"
-          class="pl-10 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-        />
       </div>
 
-      <!-- Sort Controls - 35% -->
-      <div class="flex gap-2 items-center" style="flex: 0 0 35%;">
-        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ t('sort_by') }}:</span>
-        <select
-          [(ngModel)]="sortBy"
-          (ngModelChange)="onSort($event)"
-          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        >
-          <option value="location_code">{{ t('sort_by_code') }}</option>
-          <option value="description">{{ t('sort_by_description') }}</option>
-          <option value="zone">{{ t('sort_by_zone') }}</option>
-          <option value="type">{{ t('sort_by_type') }}</option>
-        </select>
-      </div>
+      <!-- Controls Section -->
+      <div class="flex flex-wrap items-center gap-3 flex-shrink-0">
+        <!-- Sort Dropdown -->
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ t('sort_by') }}</span>
+          <select
+            [(ngModel)]="sortBy"
+            (ngModelChange)="onSort($event)"
+            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          >
+            <option value="location_code">{{ t('sort_by_code') }}</option>
+            <option value="description">{{ t('sort_by_description') }}</option>
+            <option value="zone">{{ t('sort_by_zone') }}</option>
+            <option value="type">{{ t('sort_by_type') }}</option>
+          </select>
+        </div>
 
-      <!-- Filters Toggle Button -->
-      <div class="flex-shrink-0">
+        <!-- Filters Toggle -->
         <button
           type="button"
           (click)="toggleFilters()"
-          class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4465ec] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 transition-colors dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+          [class.bg-blue-50]="filtersExpanded"
+          [class.text-blue-600]="filtersExpanded"
+          [class.border-blue-200]="filtersExpanded"
         >
-          <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
           </svg>
           {{ t('filters') }}
-          <svg class="h-4 w-4 ml-1 transform transition-transform" [class.rotate-180]="filtersExpanded" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-4 w-4 ml-2 transform transition-transform duration-200" [class.rotate-180]="filtersExpanded" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
           </svg>
         </button>
+
+        <!-- Clear Filters Button -->
+        <button
+          *ngIf="hasActiveFilters()"
+          type="button"
+          (click)="clearFilters()"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/30"
+        >
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          {{ t('clear_filters') }}
+        </button>
       </div>
-
-      <!-- Clear Filters Button - Only show when filters are active -->
-      <button
-        *ngIf="hasActiveFilters()"
-        type="button"
-        (click)="clearFilters()"
-        class="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-red-900 dark:text-red-200 dark:border-red-700 dark:hover:bg-red-800"
-      >
-        {{ t('clear_filters') }}
-      </button>
     </div>
-  </div>
 
-  <!-- Expandable Filters Card -->
-  <div *ngIf="filtersExpanded" class="border-b border-gray-200 dark:border-gray-700">
-    <div class="p-6 bg-gray-50 dark:bg-gray-700">
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- Expandable Filters Section -->
+    <div *ngIf="filtersExpanded" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <!-- Type Filter -->
         <div>
-          <label for="typeFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label for="typeFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {{ t('location_type') }}
           </label>
           <select
             id="typeFilter"
             [(ngModel)]="typeFilter"
-            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           >
             <option value="">{{ t('all_types') }}</option>
             <option *ngFor="let type of uniqueTypes" [value]="type">{{ t(type.toLowerCase()) }}</option>
@@ -83,13 +91,13 @@
 
         <!-- Zone Filter -->
         <div>
-          <label for="zoneFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label for="zoneFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {{ t('location_zone') }}
           </label>
           <select
             id="zoneFilter"
             [(ngModel)]="zoneFilter"
-            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           >
             <option value="">{{ t('all_zones') }}</option>
             <option *ngFor="let zone of uniqueZones" [value]="zone">{{ zone }}</option>
@@ -98,13 +106,13 @@
 
         <!-- Status Filter -->
         <div>
-          <label for="statusFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label for="statusFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {{ t('location_status') }}
           </label>
           <select
             id="statusFilter"
             [(ngModel)]="statusFilter"
-            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           >
             <option value="">{{ t('all_statuses') }}</option>
             <option value="active">{{ t('user_management.active') }}</option>
@@ -114,15 +122,6 @@
       </div>
     </div>
   </div>
-
-
-
-  <!-- Results Summary -->
-  <!-- <div class="px-6 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-    <p class="text-sm text-gray-700 dark:text-gray-300">
-      {{ t('showing_results').replace('{{count}}', filteredAndSortedLocations.length.toString()).replace('{{total}}', locations.length.toString()) }}
-    </p>
-  </div> -->
 
   <!-- Table -->
   <div class="overflow-x-auto">
@@ -226,7 +225,7 @@
               <button
                 type="button"
                 (click)="onView(location)"
-                class="text-[#4465ec] hover:text-[#3e66ea] p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                class="text-gray-400 hover:text-[#4465ec] p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]"
                 [title]="t('view_location')"
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -240,7 +239,7 @@
                 *ngIf="isAdmin()"
                 type="button"
                 (click)="onEdit(location)"
-                class="text-yellow-600 hover:text-yellow-500 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                class="text-gray-400 hover:text-[#4465ec] p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]"
                 [title]="t('edit_location')"
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,7 +252,7 @@
                 *ngIf="isAdmin()"
                 type="button"
                 (click)="onDelete(location)"
-                class="text-red-600 hover:text-red-500 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                class="text-gray-400 hover:text-red-600 p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 [title]="t('delete_location')"
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -269,51 +268,64 @@
 </div>
 
 <!-- View Location Dialog -->
-<div *ngIf="viewingLocation" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" (click)="closeViewDialog()">
-  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800" (click)="$event.stopPropagation()">
-    <div class="mt-3">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ t('location_details') }}</h3>
-        <button
-          type="button"
-          (click)="closeViewDialog()"
-          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-        >
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
+<div *ngIf="viewingLocation" class="fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeViewDialog()"></div>
+
+    <!-- Dialog -->
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full dark:bg-gray-800">
+      <!-- Header -->
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+          {{ t('location_details') }}
+        </h3>
       </div>
       
-      <div class="space-y-3">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('location_code') }}</label>
-          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingLocation.location_code }}</p>
+      <!-- Content -->
+      <div class="bg-white px-4 pb-4 sm:p-6 space-y-4 dark:bg-gray-800">
+        <!-- Location Info Grid -->
+        <div class="grid grid-cols-1 gap-4">
+          <div>
+            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('location_code') }}</label>
+            <p class="text-sm text-gray-900 dark:text-white font-medium">{{ viewingLocation.location_code }}</p>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('location_description') }}</label>
+            <p class="text-sm text-gray-900 dark:text-white">{{ viewingLocation.description || '-' }}</p>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('location_zone') }}</label>
+            <p class="text-sm text-gray-900 dark:text-white">{{ viewingLocation.zone || '-' }}</p>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('location_type') }}</label>
+              <p class="text-sm">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" [ngClass]="getTypeBadgeClass(viewingLocation.type)">
+                  {{ t(viewingLocation.type.toLowerCase()) }}
+                </span>
+              </p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('location_status') }}</label>
+              <p class="text-sm">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusBadgeClass(viewingLocation.is_active)">
+                  {{ viewingLocation.is_active ? t('user_management.active') : t('user_management.inactive') }}
+                </span>
+              </p>
+            </div>
+          </div>
         </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('location_description') }}</label>
-          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingLocation.description || '-' }}</p>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('location_zone') }}</label>
-          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingLocation.zone || '-' }}</p>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('location_type') }}</label>
-          <span class="mt-1 inline-flex px-2 py-1 text-xs font-semibold rounded-full" [ngClass]="getTypeBadgeClass(viewingLocation.type)">
-            {{ t(viewingLocation.type.toLowerCase()) }}
-          </span>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('location_status') }}</label>
-          <span class="mt-1 inline-flex px-2 py-1 text-xs font-semibold rounded-full" [ngClass]="getStatusBadgeClass(viewingLocation.is_active)">
-            {{ viewingLocation.is_active ? t('user_management.active') : t('user_management.inactive') }}
-          </span>
-        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse dark:bg-gray-700">
+        <button type="button" 
+                (click)="closeViewDialog()"
+                class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-500">
+          {{ t('close') }}
+        </button>
       </div>
     </div>
   </div>

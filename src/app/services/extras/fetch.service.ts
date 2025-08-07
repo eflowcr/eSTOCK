@@ -7,6 +7,7 @@ import { lastValueFrom, Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { RedirectService } from './redirect.service';
+import { environment } from '@environment';
 
 @Injectable({
   providedIn: 'root',
@@ -17,8 +18,9 @@ export class FetchService {
     private redirectService: RedirectService,
   ) {}
 
+  enviroment = environment.API.BASE;
   Simple() {
-    this.http.get('http://localhost:8080/api/...');
+    this.http.get(`${this.enviroment}/`);
   }
 
   // #region Deprecated

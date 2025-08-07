@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@
 import { CommonModule } from '@angular/common';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
+import { FetchService } from '../../../services/extras/fetch.service';
+import { ApiResponse } from '../../../models';
 
 export interface ImportResult {
   successful: number;
@@ -42,7 +44,8 @@ export class FileImportComponent {
 
   constructor(
     private languageService: LanguageService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private fetchService: FetchService
   ) {}
 
   get t() {
@@ -182,25 +185,26 @@ export class FileImportComponent {
         }
       }, 200);
       
-      const response = await fetch(this.config.endpoint, {
-        method: 'POST',
-        body: formData
+      // Use FetchService for consistent API calls
+      const response = await this.fetchService.upload<ApiResponse<any>>({
+        API_Gateway: this.config.endpoint,
+        data: formData
       });
       
       clearInterval(progressInterval);
       this.importProgress = 100;
       
-      if (!response.ok) {
-        throw new Error(this.t('http_error_status').replace('{status}', response.status.toString()));
+      if (!response.result.success) {
+        throw new Error(response.result.message || this.t('import_failed'));
       }
       
-      const result = await response.json();
+      const data = response.data;
       
-      // Simulate result structure
+      // Extract import result from response data
       const importResult: ImportResult = {
-        successful: result.successful || 0,
-        failed: result.failed || 0,
-        errors: result.errors || []
+        successful: data?.successful || 0,
+        failed: data?.failed || 0,
+        errors: data?.errors || []
       };
       
       this.importResult = importResult;
