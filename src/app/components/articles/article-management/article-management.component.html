@@ -52,24 +52,19 @@
       (editArticle)="openEditForm($event)">
     </app-article-list>
 
-    <!-- Create/Edit Form Modal -->
-    <div *ngIf="showCreateForm" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div
-        class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 shadow-lg rounded-md bg-white dark:bg-gray-800">
-        <app-article-form [article]="editingArticle" (success)="onFormSuccess()" (cancel)="closeForm()">
-        </app-article-form>
-      </div>
-    </div>
+    <!-- Create/Edit Article Dialog -->
+    <app-article-form *ngIf="isCreateDialogOpen" [initialData]="selectedArticle" [isOpen]="isCreateDialogOpen"
+      (success)="onArticleSaved()" (closed)="closeCreateDialog()"></app-article-form>
 
     <!-- Import Dialog -->
-    <app-file-import *ngIf="showImportDialog" [config]="importConfig" [isOpen]="showImportDialog"
+    <app-file-import *ngIf="isImportDialogOpen" [config]="importConfig" [isOpen]="isImportDialogOpen"
       (success)="onImportSuccess($event)" (error)="onImportError($event)"
       (closed)="closeImportDialog()">
     </app-file-import>
 
     <!-- Export Dialog -->
-    <app-data-export *ngIf="showExportDialog" [config]="exportConfig" [isOpen]="showExportDialog"
-      (success)="onExportSuccess()" (error)="onExportError($event)"
+    <app-data-export *ngIf="isExportDialogOpen" [config]="exportConfig" [isOpen]="isExportDialogOpen"
+      (success)="onExportSuccess()"
       (closed)="closeExportDialog()">
     </app-data-export>
   </div>

@@ -63,6 +63,10 @@ export const enTranslations = {
   'user_management': 'User Management',
   'loading': 'Loading...',
 
+  // Search
+  'search.placeholder': 'Search menu...',
+  'search.no_results': 'No results',
+
   // User Management
   'user_management.description': 'Manage system users and roles',
   'user_management.add_user': 'Add User',

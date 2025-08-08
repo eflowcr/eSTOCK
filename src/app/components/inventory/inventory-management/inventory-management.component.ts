@@ -197,11 +197,4 @@ export class InventoryManagementComponent implements OnInit {
     this.closeExportDialog();
     this.alertService.success(this.t('export_completed_successfully'));
   }
-
-  /**
-   * @description Handle export error
-   */
-  onExportError(error: string): void {
-    this.alertService.error(error);
-  }
 }

@@ -70,7 +70,6 @@
       *ngIf="isExportDialogOpen"
       [config]="exportConfig"
       (success)="onExportSuccess()"
-      (error)="onExportError($event)"
       (cancel)="closeExportDialog()">
     </app-data-export>
   </div>

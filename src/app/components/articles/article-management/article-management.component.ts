@@ -28,10 +28,10 @@ import { ArticleListComponent } from '../article-list/article-list.component';
 export class ArticleManagementComponent implements OnInit {
   articles: Article[] = [];
   isLoading = false;
-  showImportDialog = false;
-  showExportDialog = false;
-  showCreateForm = false;
-  editingArticle: Article | null = null;
+  isImportDialogOpen = false;
+  isExportDialogOpen = false;
+  isCreateDialogOpen = false;
+  selectedArticle: Article | null = null;
 
   // Export configuration
   exportConfig: DataExportConfig = {
@@ -85,50 +85,32 @@ export class ArticleManagementComponent implements OnInit {
     return this.authorizationService.isAdmin();
   }
 
-  /**
-   * Open create form
-   */
   openCreateForm(): void {
-    this.editingArticle = null;
-    this.showCreateForm = true;
+    this.selectedArticle = null;
+    this.isCreateDialogOpen = true;
   }
 
-  /**
-   * Open edit form
-   */
   openEditForm(article: Article): void {
-    this.editingArticle = { ...article };
-    this.showCreateForm = true;
+    this.selectedArticle = { ...article };
+    this.isCreateDialogOpen = true;
   }
 
-  /**
-   * Close form
-   */
-  closeForm(): void {
-    this.showCreateForm = false;
-    this.editingArticle = null;
+  closeCreateDialog(): void {
+    this.isCreateDialogOpen = false;
+    this.selectedArticle = null;
   }
 
-  /**
-   * Handle form success
-   */
-  onFormSuccess(): void {
-    this.closeForm();
+  onArticleSaved(): void {
+    this.closeCreateDialog();
     this.loadArticles();
   }
 
-  /**
-   * Open import dialog
-   */
   openImportDialog(): void {
-    this.showImportDialog = true;
+    this.isImportDialogOpen = true;
   }
 
-  /**
-   * Close import dialog
-   */
   closeImportDialog(): void {
-    this.showImportDialog = false;
+    this.isImportDialogOpen = false;
   }
 
   /**
@@ -149,19 +131,13 @@ export class ArticleManagementComponent implements OnInit {
     this.alertService.error(error);
   }
 
-  /**
-   * Open export dialog
-   */
   openExportDialog(): void {
     this.exportConfig.data = this.articles;
-    this.showExportDialog = true;
+    this.isExportDialogOpen = true;
   }
 
-  /**
-   * Close export dialog
-   */
   closeExportDialog(): void {
-    this.showExportDialog = false;
+    this.isExportDialogOpen = false;
   }
 
   /**
@@ -172,12 +148,6 @@ export class ArticleManagementComponent implements OnInit {
     this.closeExportDialog();
   }
 
-  /**
-   * Handle export error
-   */
-  onExportError(error: string): void {
-    this.alertService.error(error);
-  }
 
   /**
    * Get translation

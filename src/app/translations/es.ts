@@ -64,6 +64,10 @@ export const esTranslations = {
   'user_management': 'Gestión de Usuarios',
   'loading': 'Cargando...',
 
+  // Search
+  'search.placeholder': 'Buscar en el menú...',
+  'search.no_results': 'Sin resultados',
+
   // User Management
   'user_management.description': 'Control de los usuarios del sistema y sus roles',
   'user_management.add_user': 'Agregar Usuario',
@@ -230,7 +234,7 @@ export const esTranslations = {
 
   // Location Management
   'location_management': 'Gestión de Ubicaciones',
-  'location_management.description': 'Gestión de ubicaciones en el sistema',
+  'location_management.description': 'Control de ubicaciones en el sistema',
   'add_location': 'Agregar Ubicación',
   'create_location': 'Crear Ubicación',
   'edit_location': 'Editar Ubicación',
@@ -242,6 +246,7 @@ export const esTranslations = {
   'location_code_required': 'código de ubicación *',
   'enter_location_code': 'Ingresa el código de ubicación',
   'location_description': 'Descripción',
+  'description': 'Descripción',
   'enter_description': 'Ingresa la descripción',
   'location_zone': 'Zona',
   'enter_zone': 'Ingresa la zona',
@@ -370,8 +375,8 @@ export const esTranslations = {
   'select_presentation': 'Selecciona una presentación',
 
   // Articles Management
-  'article_management': 'Gestión de Artículos',
-  'article_management.description': 'Administra el maestro de SKUs y definiciones de productos',
+  'article_management': 'Maestro de SKUs',
+  'article_management.description': 'Control de artículos en el sistema',
   'article': 'Artículo',
   'create_article': 'Crear Artículo',
   'edit_article': 'Editar Artículo',
@@ -393,10 +398,10 @@ export const esTranslations = {
 
   // Article fields
   'sku': 'SKU',
-  'sku_code_required': 'código sku *',
+  'sku_code_required': 'Código sku *',
   'sku_placeholder': 'Ingresa el código SKU',
   'product_name': 'Nombre del Producto',
-  'product_name_required': 'nombre del producto *',
+  'product_name_required': 'Nombre del producto *',
   'product_name_placeholder': 'Ingresa el nombre del producto',
   'unit_price_placeholder': 'Ingresa el precio unitario',
   'minimum_stock_level': 'Nivel Mínimo de Stock',
@@ -432,6 +437,8 @@ export const esTranslations = {
   'article_active_description': 'Define si el artículo está disponible para uso en el sistema',
   'enabled': 'Habilitado',
   'disabled': 'Deshabilitado',
+  'status': 'Estado',
+  'actions': 'Acciones',
 
   // Presentations
   'case': 'Caja',

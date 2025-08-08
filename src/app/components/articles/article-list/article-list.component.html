@@ -96,14 +96,14 @@
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer" (click)="sort('sku')">
             {{ t('sku') }}
           </th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer" (click)="sort('name')">
-            {{ t('name') }}
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer" (click)="sort('name')">
+            {{ t('product_name') }}
           </th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
             {{ t('description') }}
           </th>
-          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer" (click)="sort('unit_price')">
-            {{ t('price') }}
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer" (click)="sort('unit_price')">
+            {{ t('unit_price') }}
           </th>
           <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
             {{ t('presentation') }}
@@ -127,14 +127,14 @@
           <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-medium text-gray-900 dark:text-white">
             {{ article.sku }}
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white text-center">
             {{ article.name }}
           </td>
           <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-300 max-w-xs truncate">
             {{ article.description || '-' }}
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
-            {{ formatPrice(article.unit_price) }}
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-center">
+            {{ formatPrice(article.unit_price || 0) }}
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-center">
             <span [class]="getPresentationBadgeClass(article.presentation)">
@@ -156,12 +156,12 @@
                 {{ t('expiration') }}
               </span>
               <span *ngIf="!article.track_by_lot && !article.track_by_serial && !article.track_expiration" class="text-xs text-gray-400">
-                {{ t('none') }}
+                {{ t('no_tracking') }}
               </span>
             </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-center">
-            <span [class]="getStatusBadgeClass(article.is_active)">
+            <span [class]="getStatusBadgeClass(article.is_active || false)">
               {{ article.is_active ? t('active') : t('inactive') }}
             </span>
           </td>
@@ -261,7 +261,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('price') }}</label>
-          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ formatPrice(viewingArticle.unit_price) }}</p>
+          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ formatPrice(viewingArticle.unit_price || 0) }}</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('presentation') }}</label>
@@ -294,7 +294,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('status') }}</label>
-          <span [class]="getStatusBadgeClass(viewingArticle.is_active)">
+          <span [class]="getStatusBadgeClass(viewingArticle.is_active || false)">
             {{ viewingArticle.is_active ? t('active') : t('inactive') }}
           </span>
         </div>

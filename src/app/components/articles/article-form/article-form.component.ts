@@ -14,43 +14,41 @@ import { LanguageService } from '../../../services/extras/language.service';
   styleUrls: ['./article-form.component.css']
 })
 export class ArticleFormComponent implements OnInit, OnChanges {
-  @Input() article: Article | null = null;
+  @Input() initialData?: Article | null;
+  @Input() isOpen = false;
   @Output() success = new EventEmitter<void>();
-  @Output() cancel = new EventEmitter<void>();
+  @Output() closed = new EventEmitter<void>();
 
-  articleForm: FormGroup;
+  articleForm!: FormGroup;
   isLoading = false;
   isEditMode = false;
-
 
   constructor(
     private fb: FormBuilder,
     private articleService: ArticleService,
     private alertService: AlertService,
     private languageService: LanguageService
-  ) {
-    this.articleForm = this.createForm();
-  }
+  ) {}
 
   ngOnInit(): void {
-    this.isEditMode = !!this.article;
-    if (this.article) {
-      this.populateForm(this.article);
-    }
+    this.initializeForm();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['article']) {
-      this.isEditMode = !!this.article;
-      if (this.article) {
-        this.populateForm(this.article);
-      } else {
-        this.articleForm.reset();
-        this.articleForm.patchValue({
-          presentation: 'unit',
-          is_active: true
-        });
+    if (changes['initialData']) {
+      this.isEditMode = !!this.initialData;
+      if (this.articleForm) {
+        this.loadArticleData();
       }
+    }
+    if (changes['isOpen'] && this.isOpen && this.articleForm) {
+      this.loadArticleData();
+    }
+    if (changes['isOpen'] && !changes['isOpen'].currentValue) {
+      // Reset form when dialog closes
+      this.articleForm?.reset();
+      this.articleForm?.patchValue({ presentation: 'unit', is_active: true });
+      this.isEditMode = false;
     }
   }
 
@@ -58,11 +56,8 @@ export class ArticleFormComponent implements OnInit, OnChanges {
     return this.languageService.t.bind(this.languageService);
   }
 
-  /**
-   * Create reactive form
-   */
-  private createForm(): FormGroup {
-    return this.fb.group({
+  private initializeForm(): void {
+    this.articleForm = this.fb.group({
       sku: ['', [Validators.required, Validators.maxLength(50)]],
       name: ['', [Validators.required, Validators.maxLength(255)]],
       description: ['', Validators.maxLength(500)],
@@ -76,30 +71,37 @@ export class ArticleFormComponent implements OnInit, OnChanges {
       image_url: ['', Validators.maxLength(500)],
       is_active: [true]
     });
+
+    this.loadArticleData();
   }
 
-  /**
-   * Populate form with article data
-   */
-  private populateForm(article: Article): void {
-    this.articleForm.patchValue({
-      sku: article.sku,
-      name: article.name,
-      description: article.description || '',
-      unit_price: article.unit_price,
-      presentation: article.presentation,
-      track_by_lot: article.track_by_lot,
-      track_by_serial: article.track_by_serial,
-      track_expiration: article.track_expiration,
-      min_quantity: article.min_quantity,
-      max_quantity: article.max_quantity,
-      image_url: article.image_url || '',
-      is_active: article.is_active !== false
-    });
+  private loadArticleData(): void {
+    if (this.initialData && this.articleForm) {
+      this.articleForm.patchValue({
+        sku: this.initialData.sku,
+        name: this.initialData.name,
+        description: this.initialData.description || '',
+        unit_price: this.initialData.unit_price,
+        presentation: this.initialData.presentation,
+        track_by_lot: this.initialData.track_by_lot,
+        track_by_serial: this.initialData.track_by_serial,
+        track_expiration: this.initialData.track_expiration,
+        min_quantity: this.initialData.min_quantity,
+        max_quantity: this.initialData.max_quantity,
+        image_url: this.initialData.image_url || '',
+        is_active: this.initialData.is_active !== false
+      });
 
-    // Disable SKU field in edit mode
-    if (this.isEditMode) {
-      this.articleForm.get('sku')?.disable();
+      // Disable SKU field in edit mode
+      if (this.isEditMode) {
+        this.articleForm.get('sku')?.disable();
+      } else {
+        this.articleForm.get('sku')?.enable();
+      }
+    } else if (this.articleForm) {
+      this.articleForm.reset();
+      this.articleForm.patchValue({ presentation: 'unit', is_active: true });
+      this.articleForm.get('sku')?.enable();
     }
   }
 
@@ -156,13 +158,13 @@ export class ArticleFormComponent implements OnInit, OnChanges {
       // Ensure 'is_active' is always boolean
       formData['is_active'] = !!formData['is_active'];
 
-      if (this.isEditMode && this.article) {
+      if (this.isEditMode && this.initialData) {
         // Update existing article
         const updateData: UpdateArticleRequest = {
           ...formData,
-          sku: this.article.sku // Always include original SKU for update
+          sku: this.initialData.sku // Always include original SKU for update
         };
-        await this.articleService.update(this.article.id, updateData);
+        await this.articleService.update(this.initialData.id, updateData);
         this.alertService.success(this.t('article_updated_successfully'));
       } else {
         // Create new article
@@ -199,11 +201,15 @@ export class ArticleFormComponent implements OnInit, OnChanges {
     });
   }
 
-  /**
-   * Handle cancel
-   */
-  onCancel(): void {
-    this.cancel.emit();
+  onClose(): void {
+    this.articleForm.reset();
+    this.isEditMode = false;
+    this.isLoading = false;
+    this.closed.emit();
+  }
+
+  close(): void {
+    this.onClose();
   }
 
   /**
@@ -211,7 +217,7 @@ export class ArticleFormComponent implements OnInit, OnChanges {
    */
   onBackdropClick(event: Event): void {
     if (event.target === event.currentTarget) {
-      this.onCancel();
+      this.close();
     }
   }
 
@@ -219,9 +225,9 @@ export class ArticleFormComponent implements OnInit, OnChanges {
   /**
    * Handle track expiration dependency
    */
-  onTrackByLotChange(value: boolean): void {
-    if (!value) {
-      // If lot tracking is disabled, also disable expiration tracking
+  onTrackByLotChange(event: Event): void {
+    const checked = (event.target as HTMLInputElement | null)?.checked ?? false;
+    if (!checked) {
       this.articleForm.patchValue({ track_expiration: false });
     }
   }
