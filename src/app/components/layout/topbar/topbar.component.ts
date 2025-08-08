@@ -8,12 +8,14 @@ import { LanguageService } from '../../../services/extras/language.service';
 import { User } from '../../../models/user.model';
 import { NavigationItem, NavigationItems } from '../../../models/navigation.model';
 import { NavigationService } from '../../../services/extras/navigation.service';
+import { AuthorizationService } from '../../../services/extras/authorization.service';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmationDialogComponent],
   template: `
     <div class="sticky top-0 z-40 flex h-16 bg-white shadow-sm border-b border-gray-200">
       <div class="flex-1 px-4 flex justify-between items-center">
@@ -62,21 +64,20 @@ import { Subscription } from 'rxjs';
         <!-- User Section -->
         <div class="ml-4 flex items-center space-x-4">
           <div class="flex items-center space-x-3">
-            <!-- User Name -->
-            <span class="text-sm text-gray-700">
-              {{ user?.first_name }} {{ user?.last_name }}
-            </span>
-            
             <!-- User Avatar -->
+            <span class="text-sm text-gray-700 whitespace-nowrap" [title]="fullName">
+              {{ fullName }}
+            </span>
             <div class="h-8 w-8 rounded-full bg-[#00113f] flex items-center justify-center">
               <span class="text-white text-sm font-medium">
-                {{ getInitials(user?.first_name, user?.last_name) }}
+                {{ getInitials(firstName, lastName) }}
               </span>
             </div>
             
+            
             <!-- Logout Button -->
             <button 
-              (click)="handleLogout()"
+              (click)="openLogoutConfirm()"
               class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] transition-colors duration-200"
             >
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,6 +88,16 @@ import { Subscription } from 'rxjs';
         </div>
       </div>
     </div>
+
+    <!-- Logout Confirmation Dialog -->
+    <app-confirmation-dialog
+      [isOpen]="isLogoutDialogOpen"
+      [title]="t('confirm') || 'Confirmar'"
+      [message]="t('auth.logout_confirm') || '¿Deseas cerrar sesión?'"
+      [confirmText]="t('auth.logout') || t('confirm') || 'Confirmar'"
+      (confirmed)="handleLogout()"
+      (cancelled)="isLogoutDialogOpen = false"
+    ></app-confirmation-dialog>
   `,
   styles: []
 })
@@ -98,6 +109,12 @@ export class TopbarComponent implements OnInit, OnDestroy {
   showSuggestions = false;
   activeIndex = 0;
   private subs = new Subscription();
+  
+  // Display data from localStorage auth_estock
+  fullName = '';
+  firstName = '';
+  lastName = '';
+  isLogoutDialogOpen = false;
 
   constructor(
     private authService: AuthService,
@@ -105,6 +122,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
     private languageService: LanguageService,
     private router: Router,
     private navigationService: NavigationService,
+    private authorizationService: AuthorizationService,
   ) {}
 
   ngOnInit(): void {
@@ -115,9 +133,40 @@ export class TopbarComponent implements OnInit, OnDestroy {
 
   private loadCurrentUser(): void {
     // Subscribe to auth state changes
-    this.authService.authState$.subscribe((authState: any) => {
-      this.user = authState.user;
-    });
+    this.subs.add(
+      this.authService.authState$.subscribe((_authState: any) => {
+        this.refreshUserDisplay();
+      })
+    );
+    // Initial load from localStorage
+    this.refreshUserDisplay();
+  }
+
+  openLogoutConfirm(): void {
+    this.isLogoutDialogOpen = true;
+  }
+
+  private refreshUserDisplay(): void {
+    const stored = this.authorizationService.getCurrentUser() as any;
+    let first = stored?.first_name || stored?.name || '';
+    let last = stored?.last_name || '';
+
+    // Fallbacks: derive missing parts from user_name in auth state or stored
+    if (!first || !last) {
+      const stateUser = this.authService.getCurrentUser() as any;
+      const userName: string | undefined = stateUser?.user_name || stored?.user_name;
+      if (userName) {
+        const tokens = userName.trim().split(/\s+/);
+        if (!first && tokens.length >= 1) first = tokens[0];
+        if (!last && tokens.length >= 2) last = tokens[tokens.length - 1];
+        if (!last && tokens.length === 1 && !first) first = userName;
+      }
+    }
+
+    this.firstName = first;
+    this.lastName = last;
+    const parts = [first, last].filter(Boolean);
+    this.fullName = parts.length ? parts.join(' ') : '';
   }
 
   getInitials(firstName?: string, lastName?: string): string {
