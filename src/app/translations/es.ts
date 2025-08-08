@@ -65,6 +65,23 @@ export const esTranslations = {
   'locations': 'Ubicaciones',
   'user_management': 'Gestión de Usuarios',
   'loading': 'Cargando...',
+  // Dashboard widgets
+  'total_skus': 'Total de SKUs',
+  'inventory_value': 'Valor de Inventario',
+  'low_stock_count': 'Bajo Stock',
+  'active_tasks': 'Tareas Activas',
+  'daily_movement': 'Movimiento Diario',
+  'inbound_vs_outbound_chart': 'Entradas vs Salidas',
+  'chart_implementation_placeholder': 'Implementación de gráfico pendiente',
+  'recent_activity': 'Actividad Reciente',
+  'view_all': 'Ver todo',
+  'critical': 'Crítico',
+  'high': 'Alto',
+  'medium': 'Medio',
+  'recent_alerts': 'Alertas recientes',
+  'no_active_alerts': 'No hay alertas activas',
+  'units_remaining': 'unidades restantes',
+  'manage_all_alerts': 'Gestionar alertas',
 
   // Search
   'search.placeholder': 'Buscar en el menú...',

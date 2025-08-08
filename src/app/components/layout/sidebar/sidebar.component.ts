@@ -101,9 +101,12 @@ import { NavigationService } from '../../../services/extras/navigation.service';
           </div>
         </div>
       </nav>
+          
+      <!-- Divider line -->
+      <div class="w-full h-px bg-gradient-to-r from-transparent via-[#3e66ea]/30 to-transparent mt-3"></div>
 
       <!-- Footer with Logo and Version -->
-      <div class="absolute bottom-0 left-0 right-0 p-4">
+      <div class="absolute bottom-0 left-0 right-0 pb-4 mb-4">
         <div class="flex flex-col items-center">
           <!-- Logo ePRAC -->
           <div class="flex items-center justify-center">
@@ -119,9 +122,7 @@ import { NavigationService } from '../../../services/extras/navigation.service';
           <span class="text-white text-xs font-medium tracking-wide">
             {{ appVersion }}
           </span>
-          
-          <!-- Divider line -->
-          <div class="w-full h-px bg-gradient-to-r from-transparent via-[#3e66ea]/30 to-transparent"></div>
+
         </div>
       </div>
     </div>

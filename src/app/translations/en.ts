@@ -64,6 +64,23 @@ export const enTranslations = {
   'locations': 'Locations',
   'user_management': 'User Management',
   'loading': 'Loading...',
+  // Dashboard widgets
+  'total_skus': 'Total SKUs',
+  'inventory_value': 'Inventory Value',
+  'low_stock_count': 'Low Stock',
+  'active_tasks': 'Active Tasks',
+  'daily_movement': 'Daily Movement',
+  'inbound_vs_outbound_chart': 'Inbound vs Outbound',
+  'chart_implementation_placeholder': 'Chart implementation pending',
+  'recent_activity': 'Recent Activity',
+  'view_all': 'View all',
+  'critical': 'Critical',
+  'high': 'High',
+  'medium': 'Medium',
+  'recent_alerts': 'Recent alerts',
+  'no_active_alerts': 'No active alerts',
+  'units_remaining': 'units remaining',
+  'manage_all_alerts': 'Manage alerts',
 
   // Search
   'search.placeholder': 'Search menu...',

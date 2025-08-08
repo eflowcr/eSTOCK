@@ -70,6 +70,7 @@ export interface AuthState {
 export * from './auth.model';
 export * from './inventory.model';
 export * from './article.model';
+export * from './dashboard.model';
 
 // Import Observable for FetchResponseT
 import { Observable } from 'rxjs';

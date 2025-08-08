@@ -6,4 +6,5 @@ export * from './user.service';
 export * from './extras/fetch.service';
 export * from './extras/language.service';
 export * from './extras/loading.service';
+export * from './dashboard.service';
 
