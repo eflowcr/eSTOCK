@@ -94,27 +94,54 @@ export class StockAlertsWidgetComponent implements OnInit {
   }
 
   get warningSvg(): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(`
-    <svg class='h-4 w-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z'></path>
+    <svg class='h-4 w-4' fill='none' viewBox='0 0 24 24'>
+      <defs>
+        <linearGradient id='gradWarn' x1='0' y1='0' x2='1' y2='1'>
+          <stop offset='0%' stop-color='#ef4444'/>
+          <stop offset='100%' stop-color='#f97316'/>
+        </linearGradient>
+      </defs>
+      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' stroke='url(#gradWarn)'
+        d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z'></path>
     </svg>`); }
 
   get trendingDownSvg(): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(`
-    <svg class='h-4 w-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 15l-7-7-4 4-6-6'></path>
+    <svg class='h-4 w-4' fill='none' viewBox='0 0 24 24'>
+      <defs>
+        <linearGradient id='gradHigh' x1='0' y1='1' x2='1' y2='0'>
+          <stop offset='0%' stop-color='#f97316'/>
+          <stop offset='100%' stop-color='#fb923c'/>
+        </linearGradient>
+      </defs>
+      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' stroke='url(#gradHigh)'
+        d='M21 15l-7-7-4 4-6-6'></path>
     </svg>`); }
 
   get clockSvg(): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(`
-    <svg class='h-4 w-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-      <circle cx='12' cy='12' r='9' stroke-width='2'></circle>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 7v5l3 3'></path>
+    <svg class='h-4 w-4' fill='none' viewBox='0 0 24 24'>
+      <defs>
+        <linearGradient id='gradMed' x1='0' y1='1' x2='1' y2='0'>
+          <stop offset='0%' stop-color='#eab308'/>
+          <stop offset='100%' stop-color='#fde047'/>
+        </linearGradient>
+      </defs>
+      <circle cx='12' cy='12' r='9' stroke-width='2' stroke='url(#gradMed)' fill='none'></circle>
+      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' stroke='url(#gradMed)'
+        d='M12 7v5l3 3'></path>
     </svg>`); }
 
   get barMiniSvg(): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(`
-    <svg class='h-4 w-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M3 3v18h18'></path>
-      <rect x='6' y='10' width='2' height='7' fill='currentColor' stroke='none'></rect>
-      <rect x='11' y='7' width='2' height='10' fill='currentColor' stroke='none'></rect>
-      <rect x='16' y='12' width='2' height='5' fill='currentColor' stroke='none'></rect>
+    <svg class='h-4 w-4' fill='none' viewBox='0 0 24 24'>
+      <defs>
+        <linearGradient id='gradBars' x1='0' y1='1' x2='1' y2='0'>
+          <stop offset='0%' stop-color='#3e66ea'/>
+          <stop offset='100%' stop-color='#7ea7ff'/>
+        </linearGradient>
+      </defs>
+      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' stroke='url(#gradBars)' d='M3 3v18h18'></path>
+      <rect x='6' y='10' width='2' height='7' fill='url(#gradBars)' stroke='none' rx='0.5'></rect>
+      <rect x='11' y='7' width='2' height='10' fill='url(#gradBars)' stroke='none' rx='0.5'></rect>
+      <rect x='16' y='12' width='2' height='5' fill='url(#gradBars)' stroke='none' rx='0.5'></rect>
     </svg>`); }
 
   t(key: string): string { return this.languageService.t(key); }

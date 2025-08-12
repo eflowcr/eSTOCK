@@ -74,25 +74,51 @@ export class KpiCardsComponent {
   sanitize(svg: string): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(svg); }
 
   private get packageSvg() { return `
-    <svg width='24' height='24' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'></path>
+    <svg width='24' height='24' fill='none' viewBox='0 0 24 24'>
+      <defs>
+        <linearGradient id='gradKpiPackage' x1='0' y1='0' x2='1' y2='1'>
+          <stop offset='0%' stop-color='#00113f'/>
+          <stop offset='100%' stop-color='#3e66ea'/>
+        </linearGradient>
+      </defs>
+      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' stroke='url(#gradKpiPackage)'
+        d='M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'></path>
     </svg>`; }
 
   private get trendingUpSvg() { return `
-    <svg width='24' height='24' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M3 3v18h18'></path>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M7 13l4-4 3 3 6-6'></path>
+    <svg width='24' height='24' fill='none' viewBox='0 0 24 24'>
+      <defs>
+        <linearGradient id='gradKpiTrend' x1='0' y1='1' x2='1' y2='0'>
+          <stop offset='0%' stop-color='#00113f'/>
+          <stop offset='100%' stop-color='#3e66ea'/>
+        </linearGradient>
+      </defs>
+      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' stroke='url(#gradKpiTrend)' d='M3 3v18h18'></path>
+      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' stroke='url(#gradKpiTrend)' d='M7 13l4-4 3 3 6-6'></path>
     </svg>`; }
 
   private get alertTriangleSvg() { return `
-    <svg width='24' height='24' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z'></path>
+    <svg width='24' height='24' fill='none' viewBox='0 0 24 24'>
+      <defs>
+        <linearGradient id='gradKpiAlert' x1='0' y1='0' x2='1' y2='1'>
+          <stop offset='0%' stop-color='#00113f'/>
+          <stop offset='100%' stop-color='#3e66ea'/>
+        </linearGradient>
+      </defs>
+      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' stroke='url(#gradKpiAlert)'
+        d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z'></path>
     </svg>`; }
 
   private get checkCircleSvg() { return `
-    <svg width='24' height='24' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 12l2 2 4-4'></path>
-      <circle cx='12' cy='12' r='9' stroke-width='2' stroke='currentColor' fill='none'></circle>
+    <svg width='24' height='24' fill='none' viewBox='0 0 24 24'>
+      <defs>
+        <linearGradient id='gradKpiCheck' x1='0' y1='1' x2='1' y2='0'>
+          <stop offset='0%' stop-color='#00113f'/>
+          <stop offset='100%' stop-color='#3e66ea'/>
+        </linearGradient>
+      </defs>
+      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' stroke='url(#gradKpiCheck)' d='M9 12l2 2 4-4'></path>
+      <circle cx='12' cy='12' r='9' stroke-width='2.2' stroke='url(#gradKpiCheck)' fill='none'></circle>
     </svg>`; }
 }
 
