@@ -176,8 +176,6 @@ export class TopbarComponent implements OnInit, OnDestroy {
 
   async handleLogout(): Promise<void> {
     try {
-      console.log('Logout button clicked');
-      
       await this.authService.logout();
       
       this.alertService.success(

@@ -1,37 +1,37 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { EnhancedInventory } from '../../../models/inventory.model';
+import { Inventory } from '../../../models/inventory.model';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
-import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
-import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
 import { InventoryListComponent } from '../inventory-list/inventory-list.component';
 import { InventoryFormComponent } from '../inventory-form/inventory-form.component';
+import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
+import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
 
 @Component({
   selector: 'app-inventory-management',
   standalone: true,
   imports: [
     CommonModule,
-    FileImportComponent,
-    DataExportComponent,
     MainLayoutComponent,
     InventoryListComponent,
-    InventoryFormComponent
+    InventoryFormComponent,
+    FileImportComponent,
+    DataExportComponent
   ],
   templateUrl: './inventory-management.component.html',
   styleUrls: ['./inventory-management.component.css']
 })
 export class InventoryManagementComponent implements OnInit {
-  inventory: EnhancedInventory[] = [];
+  inventory: Inventory[] = [];
   isLoading = false;
   isCreateDialogOpen = false;
+  selectedInventory: Inventory | null = null;
   isImportDialogOpen = false;
   isExportDialogOpen = false;
-  selectedInventory: EnhancedInventory | null = null;
 
   // Export configuration
   exportConfig: DataExportConfig = {
@@ -46,7 +46,7 @@ export class InventoryManagementComponent implements OnInit {
     title: 'import_inventory',
     endpoint: '/api/inventory/import',
     acceptedFormats: ['.csv', '.xlsx', '.xls'],
-    templateFields: ['sku', 'name', 'description', 'location', 'quantity', 'status', 'presentation', 'unit_price'],
+    templateFields: ['sku', 'name', 'description', 'location', 'quantity', 'status', 'presentation', 'unit_price', 'track_by_lot', 'track_by_serial', 'track_expiration', 'min_quantity', 'max_quantity', 'image_url'],
     maxFileSize: 10,
     templateType: 'inventory'
   };
@@ -84,7 +84,7 @@ export class InventoryManagementComponent implements OnInit {
       this.isLoading = true;
       const response = await this.inventoryService.getAll();
       
-      if (response.result.success) {
+      if (response.result.success && response.data) {
         this.inventory = response.data;
         this.exportConfig.data = this.inventory;
       } else {
@@ -117,7 +117,7 @@ export class InventoryManagementComponent implements OnInit {
   /**
    * @description Open edit dialog
    */
-  openEditDialog(inventory: EnhancedInventory): void {
+  openEditDialog(inventory: Inventory): void {
     this.selectedInventory = inventory;
     this.isCreateDialogOpen = true;
   }
@@ -142,59 +142,38 @@ export class InventoryManagementComponent implements OnInit {
     this.alertService.success(this.t('inventory_deleted_successfully'));
   }
 
-  /**
-   * @description Open import dialog
-   */
   openImportDialog(): void {
     this.isImportDialogOpen = true;
   }
 
-  /**
-   * @description Close import dialog
-   */
   closeImportDialog(): void {
     this.isImportDialogOpen = false;
   }
 
-  /**
-   * @description Handle successful import
-   */
-  onImportSuccess(result: ImportResult): void {
-    this.closeImportDialog();
-    this.loadInventory();
-    this.alertService.success(
-      this.t('import_completed_successfully') + 
-      ` (${result.successful} ${this.t('items_processed')})`
-    );
-  }
-
-  /**
-   * @description Handle import error
-   */
-  onImportError(error: string): void {
-    this.alertService.error(error);
-  }
-
-  /**
-   * @description Open export dialog
-   */
   openExportDialog(): void {
-    this.exportConfig.data = this.inventory;
     this.isExportDialogOpen = true;
   }
 
-  /**
-   * @description Close export dialog
-   */
   closeExportDialog(): void {
     this.isExportDialogOpen = false;
   }
 
-  /**
-   * @description Handle successful export
-   */
-  onExportSuccess(): void {
-    this.closeExportDialog();
-    this.alertService.success(this.t('export_completed_successfully'));
+  onImportSuccess(result: ImportResult): void {
+    this.alertService.success(
+      this.t('import_successful')
+    );
+    this.closeImportDialog();
+    this.loadInventory();
   }
+
+  onImportError(error: string): void {
+    this.alertService.error(error || this.t('failed_to_import_inventory'));
+  }
+
+  onExportSuccess(): void {
+    this.alertService.success(this.t('export_successful'));
+    this.closeExportDialog();
+  }
+
+
 }

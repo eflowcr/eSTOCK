@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { EnhancedInventory } from '../../../models/inventory.model';
+import { Inventory } from '../../../models/inventory.model';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
@@ -15,14 +15,14 @@ import { InventoryService } from '../../../services/inventory.service';
   styleUrls: ['./inventory-list.component.css']
 })
 export class InventoryListComponent {
-  @Input() inventory: EnhancedInventory[] = [];
+  @Input() inventory: Inventory[] = [];
   @Input() isLoading = false;
-  @Output() refresh = new EventEmitter<void>();
-  @Output() editInventory = new EventEmitter<EnhancedInventory>();
+  @Output() editInventory = new EventEmitter<Inventory>();
   @Output() deleteInventory = new EventEmitter<void>();
 
-  viewingInventory: EnhancedInventory | null = null;
-  deletingInventoryId: string | null = null;
+  viewingInventory: Inventory | null = null;
+  deletingInventoryId: number | null = null;
+  deletingLocation: string | null = null;
   isDeleting = false;
 
   // Search and filter properties
@@ -36,8 +36,9 @@ export class InventoryListComponent {
   filtersExpanded = false;
 
   // Pagination
-  currentPage = 1;
-  itemsPerPage = 25;
+  itemsPerPage = 25; // batch size for infinite scroll
+  visibleCount = this.itemsPerPage;
+  isLoadingMore = false;
 
   constructor(
     private inventoryService: InventoryService,
@@ -84,7 +85,7 @@ export class InventoryListComponent {
     this.locationFilter = '';
     this.presentationFilter = '';
     this.trackingFilter = '';
-    this.currentPage = 1;
+    this.resetVisible();
   }
 
   /**
@@ -92,13 +93,13 @@ export class InventoryListComponent {
    */
   onSearch(term: string): void {
     this.searchTerm = term;
-    this.currentPage = 1;
+    this.resetVisible();
   }
 
   /**
    * @description Get filtered and sorted inventory
    */
-  get filteredInventory(): EnhancedInventory[] {
+  get filteredInventory(): Inventory[] {
     let filtered = this.inventory.filter(item => {
       const matchesSearch = !this.searchTerm || 
         item.sku.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -109,24 +110,15 @@ export class InventoryListComponent {
       const matchesLocation = !this.locationFilter || item.location === this.locationFilter;
       const matchesPresentation = !this.presentationFilter || item.presentation === this.presentationFilter;
       
-      let matchesTracking = true;
-      if (this.trackingFilter === 'lot') {
-        matchesTracking = item.track_by_lot === true;
-      } else if (this.trackingFilter === 'serial') {
-        matchesTracking = item.track_by_serial === true;
-      } else if (this.trackingFilter === 'both') {
-        matchesTracking = item.track_by_lot === true && item.track_by_serial === true;
-      } else if (this.trackingFilter === 'none') {
-        matchesTracking = !item.track_by_lot && !item.track_by_serial;
-      }
+      const matchesTracking = !this.trackingFilter || this.matchesTrackingFilter(item, this.trackingFilter);
 
       return matchesSearch && matchesStatus && matchesLocation && matchesPresentation && matchesTracking;
     });
 
     // Sort
     filtered.sort((a, b) => {
-      let aValue: any = a[this.sortBy as keyof EnhancedInventory];
-      let bValue: any = b[this.sortBy as keyof EnhancedInventory];
+      let aValue: any = a[this.sortBy as keyof Inventory];
+      let bValue: any = b[this.sortBy as keyof Inventory];
 
       if (this.sortBy === 'quantity') {
         aValue = Number(aValue) || 0;
@@ -145,19 +137,17 @@ export class InventoryListComponent {
   }
 
   /**
-   * @description Get paginated inventory
+   * @description Get inventory currently visible (infinite scroll window)
    */
-  get paginatedInventory(): EnhancedInventory[] {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.filteredInventory.slice(startIndex, endIndex);
+  get visibleInventory(): Inventory[] {
+    return this.filteredInventory.slice(0, this.visibleCount);
   }
 
   /**
-   * @description Get total pages
+   * @description Whether all items are loaded in current view
    */
-  get totalPages(): number {
-    return Math.ceil(this.filteredInventory.length / this.itemsPerPage);
+  get allLoaded(): boolean {
+    return this.visibleCount >= this.filteredInventory.length;
   }
 
   /**
@@ -184,24 +174,40 @@ export class InventoryListComponent {
       this.sortBy = field;
       this.sortOrder = 'asc';
     }
-    this.currentPage = 1;
+    this.resetVisible();
   }
 
   /**
-   * @description Change page
+   * @description Handle filter changes (reset visible window)
    */
-  changePage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-    }
+  onFilterChange(): void {
+    this.resetVisible();
   }
 
   /**
-   * @description Change items per page
+   * @description Change items per page (batch size)
    */
   changeItemsPerPage(items: number): void {
     this.itemsPerPage = items;
-    this.currentPage = 1;
+    this.resetVisible();
+  }
+
+  /**
+   * @description Check if item matches tracking filter
+   */
+  matchesTrackingFilter(item: Inventory, filter: string): boolean {
+    switch (filter) {
+      case 'lot_only':
+        return item.track_by_lot && !item.track_by_serial;
+      case 'serial_only':
+        return !item.track_by_lot && item.track_by_serial;
+      case 'both':
+        return item.track_by_lot && item.track_by_serial;
+      case 'none':
+        return !item.track_by_lot && !item.track_by_serial;
+      default:
+        return true;
+    }
   }
 
   /**
@@ -219,7 +225,7 @@ export class InventoryListComponent {
   /**
    * @description View inventory details
    */
-  viewInventory(inventory: EnhancedInventory): void {
+  viewInventory(inventory: Inventory): void {
     this.viewingInventory = inventory;
   }
 
@@ -233,15 +239,16 @@ export class InventoryListComponent {
   /**
    * @description Edit inventory
    */
-  editInventoryItem(inventory: EnhancedInventory): void {
+  editInventoryItem(inventory: Inventory): void {
     this.editInventory.emit(inventory);
   }
 
   /**
    * @description Confirm delete inventory
    */
-  confirmDelete(inventory: EnhancedInventory): void {
-    this.deletingInventoryId = inventory.id.toString();
+  confirmDelete(inventory: Inventory): void {
+    this.deletingInventoryId = inventory.id;
+    this.deletingLocation = inventory.location;
   }
 
   /**
@@ -249,17 +256,18 @@ export class InventoryListComponent {
    */
   closeDeleteDialog(): void {
     this.deletingInventoryId = null;
+    this.deletingLocation = null;
   }
 
   /**
    * @description Delete inventory
    */
   async deleteInventoryItem(): Promise<void> {
-    if (!this.deletingInventoryId) return;
+    if (!this.deletingInventoryId || !this.deletingLocation) return;
 
     try {
       this.isDeleting = true;
-      const response = await this.inventoryService.delete(this.deletingInventoryId);
+      const response = await this.inventoryService.delete(this.deletingInventoryId, this.deletingLocation);
       
       if (response.result.success) {
         this.alertService.success(this.t('inventory_deleted_successfully'));
@@ -277,6 +285,21 @@ export class InventoryListComponent {
   }
 
   /**
+   * @description Get page numbers for pagination
+   */
+  getPageNumbers(): (number | string)[] {
+    // Not used with infinite scroll; kept for compatibility if needed
+    return [];
+  }
+
+  /**
+   * @description Math object for template access
+   */
+  get Math() {
+    return Math;
+  }
+
+  /**
    * @description Handle backdrop click
    */
   onBackdropClick(event: Event): void {
@@ -284,5 +307,34 @@ export class InventoryListComponent {
       this.closeViewModal();
       this.closeDeleteDialog();
     }
+  }
+
+  /**
+   * @description Handle internal table scroll to implement infinite loading
+   */
+  onTableScroll(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target) return;
+    const thresholdPx = 200;
+    const reachedBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - thresholdPx;
+    if (reachedBottom) {
+      this.loadMore();
+    }
+  }
+
+  private loadMore(): void {
+    if (this.isLoadingMore || this.allLoaded) return;
+    this.isLoadingMore = true;
+    // Simulate async to avoid blocking UI; adjust count in next macrotask
+    setTimeout(() => {
+      const remaining = this.filteredInventory.length - this.visibleCount;
+      const toAdd = Math.min(this.itemsPerPage, remaining);
+      this.visibleCount += toAdd;
+      this.isLoadingMore = false;
+    }, 0);
+  }
+
+  private resetVisible(): void {
+    this.visibleCount = this.itemsPerPage;
   }
 }

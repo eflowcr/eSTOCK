@@ -68,11 +68,17 @@ export class ArticleFormComponent implements OnInit, OnChanges {
       track_expiration: [false],
       min_quantity: [null, [Validators.min(0)]],
       max_quantity: [null, [Validators.min(0)]],
-      image_url: ['', Validators.maxLength(500)],
       is_active: [true]
     });
 
     this.loadArticleData();
+
+    // Enforce dependency: expiration tracking requires lot tracking
+    this.articleForm.get('track_by_lot')?.valueChanges.subscribe((enabled: boolean) => {
+      if (!enabled) {
+        this.articleForm.patchValue({ track_expiration: false });
+      }
+    });
   }
 
   private loadArticleData(): void {
@@ -88,9 +94,13 @@ export class ArticleFormComponent implements OnInit, OnChanges {
         track_expiration: this.initialData.track_expiration,
         min_quantity: this.initialData.min_quantity,
         max_quantity: this.initialData.max_quantity,
-        image_url: this.initialData.image_url || '',
         is_active: this.initialData.is_active !== false
       });
+
+      // Coerce invalid combination: expiration without lot
+      if (!this.articleForm.get('track_by_lot')?.value && this.articleForm.get('track_expiration')?.value) {
+        this.articleForm.patchValue({ track_expiration: false });
+      }
 
       // Disable SKU field in edit mode
       if (this.isEditMode) {
@@ -145,18 +155,19 @@ export class ArticleFormComponent implements OnInit, OnChanges {
       this.isLoading = true;
       const formData = this.articleForm.value;
 
-      // Clean up empty values, but always keep 'image_url' and 'is_active' fields
+      // Clean up empty values, but always keep 'is_active' field
       Object.keys(formData).forEach(key => {
-        if ((key !== 'image_url' && key !== 'is_active') && (formData[key] === '' || formData[key] === null)) {
+        if ((key !== 'is_active') && (formData[key] === '' || formData[key] === null)) {
           delete formData[key];
         }
       });
-      // Ensure 'image_url' is always a string
-      if (typeof formData['image_url'] !== 'string') {
-        formData['image_url'] = '';
-      }
       // Ensure 'is_active' is always boolean
       formData['is_active'] = !!formData['is_active'];
+
+      // Enforce dependency at submit time
+      if (!formData['track_by_lot']) {
+        formData['track_expiration'] = false;
+      }
 
       if (this.isEditMode && this.initialData) {
         // Update existing article

@@ -412,6 +412,11 @@ export const enTranslations = {
   'items_processed': 'items processed',
   'failed_to_load_inventory': 'Failed to load inventory',
   'export_completed_successfully': 'Export completed successfully',
+  'import_inventory': 'Import Inventory',
+  'import_inventory_description': 'Import inventory products from an Excel or CSV file',
+  'inventory_imported_successfully': 'Inventory imported successfully',
+  'inventory_exported_successfully': 'Inventory exported successfully',
+  'failed_to_import_inventory': 'Failed to import inventory',
 
   // Location Management
   'location_management': 'Location Management',
@@ -462,4 +467,27 @@ export const enTranslations = {
   // Users additions
   'user_management.invalid_email': 'Invalid email address',
   'import_successful': 'Import successful',
+  'all_tracking_types': 'All Tracking Types',
+  'lot_tracking_only': 'Lot Tracking Only',
+  'serial_tracking_only': 'Serial Tracking Only',
+  'both_lot_serial': 'Lot and Serial',
+
+  // Inventory Form
+  'search_sku': 'Search SKU...',
+  'search_location': 'Search location...',
+  'select_sku': 'Select SKU',
+  'add_serial': 'Add Serial',
+  'add_lot': 'Add Lot',
+  'serial_tracking_disabled': 'Serial tracking disabled',
+  'lot_tracking_disabled': 'Lot tracking disabled',
+  'enter_serial_number': 'Enter serial number',
+  'enter_lot_number': 'Enter lot number',
+  'remove': 'Remove',
+  'serial_numbers': 'Serial Numbers',
+  'serials_count': 'Serials',
+  'lots_count': 'Lots',
+  'lot_quantity_mismatch': 'Total lot quantity must match inventory quantity',
+  'serial_quantity_mismatch': 'Number of serials must match inventory quantity',
+  'max_lots_reached': 'Maximum number of lots reached',
+  'max_serials_reached': 'Maximum number of serials reached',
 };

@@ -51,7 +51,6 @@ export class DashboardComponent implements OnInit {
   async onLogout(): Promise<void> {
     try {
       await this.authService.logout();
-      console.log('Logout successful');
     } catch (error) {
       console.error('Logout error:', error);
       // Even if logout fails, we'll be redirected to login

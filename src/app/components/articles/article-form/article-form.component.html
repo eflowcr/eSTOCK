@@ -128,19 +128,8 @@
       </div>
     </div>
 
-    <!-- Image URL -->
-    <div>
-      <label for="image_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        {{ t('image_url') }}
-      </label>
-      <input type="url" id="image_url" formControlName="image_url" [placeholder]="t('image_url_placeholder')"
-        [class.border-red-500]="isFieldInvalid('image_url')" [class.focus:ring-red-500]="isFieldInvalid('image_url')"
-        [class.focus:border-red-500]="isFieldInvalid('image_url')"
-        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400" />
-      <p *ngIf="isFieldInvalid('image_url')" class="mt-1 text-sm text-red-600">
-        {{ getFieldError('image_url') }}
-      </p>
-    </div>
+    <!-- Imagen deshabilitada temporalmente -->
+    <!-- Campo de URL de imagen removido por requerimiento -->
 
     <!-- Tracking Options -->
     <div class="space-y-4">
@@ -158,11 +147,19 @@
           </p>
         </div>
         <div class="flex items-center">
-          <input type="checkbox" id="track_by_lot" formControlName="track_by_lot"
-            (change)="onTrackByLotChange($event)"
-            class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" />
-          <span class="ml-2 text-sm"
-            [class]="articleForm.get('track_by_lot')?.value ? 'text-green-600' : 'text-red-600'">
+          <label class="relative inline-flex items-center cursor-pointer select-none">
+            <input
+              type="checkbox"
+              id="track_by_lot"
+              formControlName="track_by_lot"
+              (change)="onTrackByLotChange($event)"
+              class="sr-only peer"
+            />
+            <div class="relative w-11 h-6 bg-gray-300 rounded-full transition-colors duration-200 peer-checked:bg-green-600">
+              <span class="absolute top-[2px] left-[2px] h-5 w-5 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-5"></span>
+            </div>
+          </label>
+          <span class="ml-2 text-sm" [class]="articleForm.get('track_by_lot')?.value ? 'text-green-600' : 'text-gray-600'">
             {{ articleForm.get('track_by_lot')?.value ? t('enabled') : t('disabled') }}
           </span>
         </div>
@@ -180,10 +177,18 @@
           </p>
         </div>
         <div class="flex items-center">
-          <input type="checkbox" id="track_by_serial" formControlName="track_by_serial"
-            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-          <span class="ml-2 text-sm"
-            [class]="articleForm.get('track_by_serial')?.value ? 'text-green-600' : 'text-red-600'">
+          <label class="relative inline-flex items-center cursor-pointer select-none">
+            <input
+              type="checkbox"
+              id="track_by_serial"
+              formControlName="track_by_serial"
+              class="sr-only peer"
+            />
+            <div class="relative w-11 h-6 bg-gray-300 rounded-full transition-colors duration-200 peer-checked:bg-green-600">
+              <span class="absolute top-[2px] left-[2px] h-5 w-5 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-5"></span>
+            </div>
+          </label>
+          <span class="ml-2 text-sm" [class]="articleForm.get('track_by_serial')?.value ? 'text-green-600' : 'text-gray-600'">
             {{ articleForm.get('track_by_serial')?.value ? t('enabled') : t('disabled') }}
           </span>
         </div>
@@ -200,12 +205,20 @@
             {{ t('expiration_tracking_description') }}
           </p>
         </div>
-        <div class="flex items-center">
-          <input type="checkbox" id="track_expiration" formControlName="track_expiration"
-            [disabled]="!articleForm.get('track_by_lot')?.value"
-            class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded disabled:opacity-50" />
-          <span class="ml-2 text-sm"
-            [class]="articleForm.get('track_expiration')?.value ? 'text-green-600' : 'text-red-600'">
+        <div class="flex items-center" [class.opacity-50]="!articleForm.get('track_by_lot')?.value" [class.cursor-not-allowed]="!articleForm.get('track_by_lot')?.value">
+          <label class="relative inline-flex items-center select-none" [class.cursor-not-allowed]="!articleForm.get('track_by_lot')?.value" [class.cursor-pointer]="articleForm.get('track_by_lot')?.value">
+            <input
+              type="checkbox"
+              id="track_expiration"
+              formControlName="track_expiration"
+              [disabled]="!articleForm.get('track_by_lot')?.value"
+              class="sr-only peer"
+            />
+            <div class="relative w-11 h-6 bg-gray-300 rounded-full transition-colors duration-200 peer-checked:bg-green-600">
+              <span class="absolute top-[2px] left-[2px] h-5 w-5 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-5"></span>
+            </div>
+          </label>
+          <span class="ml-2 text-sm" [class]="articleForm.get('track_expiration')?.value ? 'text-green-600' : 'text-gray-600'">
             {{ articleForm.get('track_expiration')?.value ? t('enabled') : t('disabled') }}
           </span>
         </div>
@@ -223,9 +236,18 @@
           </p>
         </div>
         <div class="flex items-center">
-          <input type="checkbox" id="is_active" formControlName="is_active"
-            class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" />
-          <span class="ml-2 text-sm" [class]="articleForm.get('is_active')?.value ? 'text-green-600' : 'text-red-600'">
+          <label class="relative inline-flex items-center cursor-pointer select-none">
+            <input
+              type="checkbox"
+              id="is_active"
+              formControlName="is_active"
+              class="sr-only peer"
+            />
+            <div class="relative w-11 h-6 bg-gray-300 rounded-full transition-colors duration-200 peer-checked:bg-green-600">
+              <span class="absolute top-[2px] left-[2px] h-5 w-5 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-5"></span>
+            </div>
+          </label>
+          <span class="ml-2 text-sm" [class]="articleForm.get('is_active')?.value ? 'text-green-600' : 'text-gray-600'">
             {{ articleForm.get('is_active')?.value ? t('active') : t('inactive') }}
           </span>
         </div>

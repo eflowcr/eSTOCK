@@ -3,6 +3,7 @@ import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse, Htt
 import { Observable } from 'rxjs';
 import { tap, finalize } from 'rxjs/operators';
 import { LoadingService } from '../services/extras/loading.service';
+import { environment } from '../../enviroment/environment.base';
 
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
@@ -37,16 +38,16 @@ export class LoadingInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       tap({
         next: (event: HttpEvent<any>) => {
-          // Opcional: Log de respuestas exitosas
-          if (event instanceof HttpResponse) {
+          if (event instanceof HttpResponse && environment.TESTING) {
             const duration = Date.now() - startTime;
             console.log(`✅ HTTP ${req.method} ${req.url} - Status: ${event.status} (${duration}ms)`);
           }
         },
         error: (error: HttpErrorResponse) => {
-          // Opcional: Log de errores
-          const duration = Date.now() - startTime;
-          console.error(`❌ HTTP ${req.method} ${req.url} - Error: ${error.status} ${error.statusText} (${duration}ms)`);
+          if (environment.TESTING) {
+            const duration = Date.now() - startTime;
+            console.error(`❌ HTTP ${req.method} ${req.url} - Error: ${error.status} ${error.statusText} (${duration}ms)`);
+          }
         }
       }),
       finalize(() => {

@@ -311,4 +311,11 @@ export class ArticleListComponent {
       expiration: article.track_expiration
     };
   }
+
+  /**
+   * Math object for template access
+   */
+  get Math() {
+    return Math;
+  }
 }

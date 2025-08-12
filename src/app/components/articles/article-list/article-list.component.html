@@ -55,7 +55,6 @@
     <div *ngIf="filtersExpanded" class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('presentation') }}</label>
           <select [(ngModel)]="presentationFilter" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
             <option value="">{{ t('all_presentations') }}</option>
             <option value="unit">{{ t('unit') }}</option>
@@ -66,7 +65,6 @@
         </div>
         
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('tracking_type') }}</label>
           <select [(ngModel)]="trackingFilter" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
             <option value="">{{ t('all_tracking') }}</option>
             <option value="lot">{{ t('lot_only') }}</option>
@@ -77,7 +75,6 @@
         </div>
         
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('status') }}</label>
           <select [(ngModel)]="statusFilter" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
             <option value="">{{ t('all_status') }}</option>
             <option value="active">{{ t('active') }}</option>

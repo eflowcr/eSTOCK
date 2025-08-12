@@ -222,7 +222,7 @@ export const esTranslations = {
   'data_exported_successfully': 'Datos de {title} exportados exitosamente en formato {format}',
   'export_failed': 'Error de Exportación',
   'failed_to_export_data': 'Error al exportar los datos',
-  'no_data': 'Sin Datos',
+  'no_data': 'No hay datos',
   'no_data_to_export': 'No hay datos para exportar',
 
   // Validation messages
@@ -261,6 +261,11 @@ export const esTranslations = {
   'failed_to_load_inventory': 'Error al cargar el inventario',
   'export_completed_successfully': 'Exportación completada exitosamente',
   'import_successful': 'Importación exitosa',
+  'import_inventory': 'Importar Inventario',
+  'import_inventory_description': 'Importa productos de inventario desde un archivo Excel o CSV',
+  'inventory_imported_successfully': 'Inventario importado exitosamente',
+  'inventory_exported_successfully': 'Inventario exportado exitosamente',
+  'failed_to_import_inventory': 'Error al importar el inventario',
   'dismiss': 'Descartar',
   'cancelar': 'Cancelar',
   'confirmar': 'Confirmar',
@@ -359,6 +364,7 @@ export const esTranslations = {
   'inventory_updated_successfully': 'Producto actualizado exitosamente',
   'view_inventory_details': 'Ver Detalles del Producto',
   'inventory_details': 'Detalles del Producto',
+  'serial_numbers': 'Números de Serie',
   'basic_information': 'Información Básica',
   'tracking_information': 'Información de Rastreo',
   'stock_limits': 'Límites de Stock',
@@ -496,4 +502,22 @@ export const esTranslations = {
   // Form actions
   'update_article': 'Actualizar Artículo',
   'creating': 'Creando',
+
+  // Inventory Form
+  'search_sku': 'Buscar SKU...',
+  'search_location': 'Buscar ubicación...',
+  'select_sku': 'Selecciona SKU',
+  'add_serial': 'Agregar Serie',
+  'add_lot': 'Agregar Lote',
+  'serial_tracking_disabled': 'Rastreo por serie deshabilitado',
+  'lot_tracking_disabled': 'Rastreo por lote deshabilitado',
+  'enter_serial_number': 'Ingresa número de serie',
+  'enter_lot_number': 'Ingresa número de lote',
+  'remove': 'Eliminar',
+  'serials_count': 'Series',
+  'lots_count': 'Lotes',
+  'lot_quantity_mismatch': 'La cantidad total de lotes debe coincidir con la cantidad del inventario',
+  'serial_quantity_mismatch': 'El número de series debe coincidir con la cantidad del inventario',
+  'max_lots_reached': 'Se ha alcanzado el máximo número de lotes permitidos',
+  'max_serials_reached': 'Se ha alcanzado el máximo número de series permitidas',
 };
