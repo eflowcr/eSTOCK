@@ -61,6 +61,13 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
 
+  // Picking Tasks Management route - requires authentication
+  {
+    path: 'picking-tasks',
+    loadComponent: () => import('./components/picking-tasks/picking-task-management/picking-task-management.component').then(m => m.PickingTaskManagementComponent),
+    canActivate: [AuthGuard]
+  },
+
   // Future protected routes can be added here
   
   // Wildcard route - redirect to dashboard

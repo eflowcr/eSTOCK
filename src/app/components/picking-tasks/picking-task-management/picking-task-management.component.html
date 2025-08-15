@@ -1,0 +1,158 @@
+<app-main-layout>
+
+<div class="space-y-6">
+	<!-- Header Section -->
+	<div class="flex justify-between items-center">
+		<div>
+			<h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
+				{{ t('picking_tasks') }}
+			</h1>
+			<p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+				{{ t('picking_tasks_management') }}
+			</p>
+		</div>
+		<div class="flex gap-2">
+			<!-- Export Button -->
+			<button 
+				type="button"
+				(click)="openExportDialog()"
+				class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-[#4465ec] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-[#4465ec]">
+				<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+				</svg>
+				{{ t('export') }}
+			</button>
+			
+			<!-- Import Button -->
+			<button 
+				type="button"
+				(click)="openImportDialog()"
+				class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-[#4465ec] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-[#4465ec]">
+				<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+				</svg>
+				{{ t('import') }}
+			</button>
+			
+			<!-- Create Task Button -->
+			<button 
+				(click)="isCreateDialogOpen = true"
+				class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]">
+				<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+				</svg>
+				{{ t('create_task') }}
+			</button>
+		</div>
+	</div>
+
+	<!-- Tabs Section -->
+	<div class="bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-hidden">
+		<!-- Tabs Navigation -->
+		<div class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+			<nav class="flex" aria-label="Tabs">
+				<button 
+					(click)="setActiveTab('active')"
+					[class]="getTabClass('active')"
+					class="flex items-center justify-center min-w-0 flex-1">
+					<div class="flex items-center">
+						<span class="truncate">{{ t('active_tasks') }}</span>
+						<span [class]="getTabBadgeClass('active')">
+							{{ activeTasks.length }}
+						</span>
+					</div>
+				</button>
+				<button 
+					(click)="setActiveTab('processed')"
+					[class]="getTabClass('processed')"
+					class="flex items-center justify-center min-w-0 flex-1">
+					<div class="flex items-center">
+						<span class="truncate">{{ t('processed_tasks') }}</span>
+						<span [class]="getTabBadgeClass('processed')">
+							{{ processedTasks.length }}
+						</span>
+					</div>
+				</button>
+			</nav>
+		</div>
+
+		<!-- Tab Content -->
+		<div class="p-6">
+			<!-- Tab Header -->
+			<div class="mb-6">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+							{{ currentTabDescription }}
+						</p>
+					</div>
+					<div class="flex items-center space-x-2">
+						<div class="text-sm text-gray-500 dark:text-gray-400">
+							{{ t('showing') }} {{ currentTabTasks.length }} {{ t('of') }} {{ pickingTasks.length }} {{ t('results') }}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Tasks List -->
+			<div class="max-h-[390px] overflow-y-auto rounded-lg">
+				<app-picking-task-list 
+					[tasks]="currentTabTasks" 
+					[isLoading]="isLoading" 
+					(refresh)="onRefresh()"
+					(edit)="handleEdit($event)">
+				</app-picking-task-list>
+			</div>
+
+			<!-- Empty State -->
+			<div *ngIf="currentTabTasks.length === 0 && !isLoading" class="text-center py-12">
+				<div class="mx-auto h-12 w-12 text-gray-400">
+					<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+					</svg>
+				</div>
+				<h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+					{{ activeTab === 'active' ? t('no_active_tasks') : t('no_processed_tasks') }}
+				</h3>
+				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+					{{ activeTab === 'active' ? t('tasks_open_or_in_progress') : t('completed_tasks_will_appear_here') }}
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Import Dialog -->
+	<app-file-import 
+		*ngIf="isImportDialogOpen" 
+		[config]="importConfig" 
+		[isOpen]="isImportDialogOpen"
+		(success)="onImportSuccess()" 
+		(closed)="isImportDialogOpen = false">
+	</app-file-import>
+
+	<!-- Export Dialog -->
+	<app-data-export 
+		*ngIf="isExportDialogOpen" 
+		[config]="exportConfig" 
+		[isOpen]="isExportDialogOpen"
+		(success)="onExportSuccess()" 
+		(closed)="closeExportDialog()">
+	</app-data-export>
+
+	<!-- Create Task Dialog -->
+	<app-picking-task-form 
+		*ngIf="isCreateDialogOpen"
+		(success)="onTaskCreated()"
+		(cancel)="isCreateDialogOpen = false">
+	</app-picking-task-form>
+
+	<!-- Edit Task Dialog -->
+	<app-picking-task-form 
+		*ngIf="isEditDialogOpen"
+		[task]="editingTask"
+		(success)="onTaskUpdated()"
+		(cancel)="isEditDialogOpen = false; editingTask = null">
+	</app-picking-task-form>
+</div>
+
+</app-main-layout>

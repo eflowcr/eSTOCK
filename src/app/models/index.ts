@@ -72,6 +72,7 @@ export * from './inventory.model';
 export * from './article.model';
 export * from './dashboard.model';
 export * from './receiving-task.model';
+export * from './picking-task.model';
 
 // Import Observable for FetchResponseT
 import { Observable } from 'rxjs';
