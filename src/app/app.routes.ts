@@ -54,6 +54,13 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
 
+  // Receiving Tasks Management route - requires authentication
+  {
+    path: 'receiving-tasks',
+    loadComponent: () => import('./components/receiving-tasks/receiving-task-management/receiving-task-management.component').then(m => m.ReceivingTaskManagementComponent),
+    canActivate: [AuthGuard]
+  },
+
   // Future protected routes can be added here
   
   // Wildcard route - redirect to dashboard

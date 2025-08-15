@@ -1,0 +1,9 @@
+<app-dashboard-card [title]="t('daily_movement')">
+  <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+    <div class="text-center">
+      <div class="mx-auto h-12 w-12 text-primary" [innerHTML]="barChartSvg"></div>
+      <p class="mt-2 text-sm text-gray-500">{{ t('inbound_vs_outbound_chart') }}</p>
+      <p class="text-xs text-gray-400 mt-1">{{ t('chart_implementation_placeholder') }}</p>
+    </div>
+  </div>
+</app-dashboard-card>

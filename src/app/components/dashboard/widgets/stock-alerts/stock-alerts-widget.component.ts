@@ -1,66 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { CardContainerComponent } from './card-container.component';
 import { LanguageService } from '@app/services/extras/language.service';
 import { DashboardService } from '@app/services/dashboard.service';
 import { StockAlert } from '@app/models/dashboard.model';
+import { CardContainerComponent } from '../card-container/card-container.component';
 
 @Component({
   selector: 'app-dashboard-stock-alerts',
   standalone: true,
   imports: [CommonModule, CardContainerComponent],
-  template: `
-    <app-dashboard-card [title]="t('stock_alerts')">
-      <div class="flex flex-row items-center justify-between space-y-0 pb-2"></div>
-      <div class="space-y-4">
-        <div class="grid grid-cols-3 gap-4">
-          <div class="text-center">
-            <div class="text-2xl font-bold text-red-600">{{ criticalAlerts.length }}</div>
-            <div class="text-xs text-muted-foreground flex items-center justify-center">
-              <span class="text-red-600" [innerHTML]="warningSvg"></span>
-              <span class="ml-1 text-[var(--foreground)]">{{ t('critical') }}</span>
-            </div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-orange-600">{{ highAlerts.length }}</div>
-            <div class="text-xs text-muted-foreground flex items-center justify-center">
-              <span class="text-orange-600" [innerHTML]="trendingDownSvg"></span>
-              <span class="ml-1 text-[var(--foreground)]">{{ t('high') }}</span>
-            </div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-yellow-600">{{ mediumAlerts.length }}</div>
-            <div class="text-xs text-muted-foreground flex items-center justify-center">
-              <span class="text-yellow-600" [innerHTML]="clockSvg"></span>
-              <span class="ml-1 text-[var(--foreground)]">{{ t('medium') }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <h4 class="text-sm font-medium text-muted-foreground">{{ t('recent_alerts') }}</h4>
-          <div *ngIf="alerts.length === 0" class="text-center py-4 text-sm text-muted-foreground">{{ t('no_active_alerts') }}</div>
-          <div *ngIf="alerts.length > 0" class="space-y-2">
-            <div *ngFor="let alert of alerts | slice:0:3" class="flex items-center justify-between p-2 rounded-lg border">
-              <div class="flex items-center space-x-2">
-                <span class="text-primary" [innerHTML]="getAlertIcon(alert.alertLevel)"></span>
-                <div>
-                  <div class="text-sm font-medium text-[var(--foreground)]">{{ alert.sku }}</div>
-                  <div class="text-xs text-muted-foreground text-primary">{{ alert.currentStock }} {{ t('units_remaining') }}</div>
-                </div>
-              </div>
-              <span class="text-xs px-2 py-1 rounded border" [ngClass]="getBadgeClass(alert.alertLevel)">{{ t(alert.alertLevel) }}</span>
-            </div>
-          </div>
-        </div>
-
-        <button *ngIf="alerts.length > 0" class="w-full text-sm bg-primary text-white rounded px-3 py-2" disabled>
-          {{ t('manage_all_alerts') }} ({{ alerts.length }})
-        </button>
-      </div>
-    </app-dashboard-card>
-  `,
+  templateUrl: './stock-alerts-widget.component.html'
 })
 export class StockAlertsWidgetComponent implements OnInit {
   alerts: StockAlert[] = [];

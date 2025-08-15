@@ -8,9 +8,9 @@ import { DashboardService } from '../../services/dashboard.service';
 import { DashboardStats } from '../../models/dashboard.model';
 import { LanguageService } from '../../services/extras/language.service';
 import { KpiCardsComponent } from './kpi-cards/kpi-cards.component';
-import { ActivityFeedComponent } from './widgets/activity-feed.component';
-import { MovementChartComponent } from './widgets/movement-chart.component';
-import { StockAlertsWidgetComponent } from './widgets/stock-alerts-widget.component';
+import { ActivityFeedComponent } from './widgets/activity-feed/activity-feed.component';
+import { MovementChartComponent } from './widgets/movement-chart/movement-chart.component';
+import { StockAlertsWidgetComponent } from './widgets/stock-alerts/stock-alerts-widget.component';
 
 @Component({
   selector: 'app-dashboard',
