@@ -1,3 +1,4 @@
+export * from './adjustment.service';
 export * from './article.service';
 export * from './auth.service';
 export * from './inventory.service';

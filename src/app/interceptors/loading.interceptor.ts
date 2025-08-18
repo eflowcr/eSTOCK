@@ -11,25 +11,21 @@ export class LoadingInterceptor implements HttpInterceptor {
   constructor(private loadingService: LoadingService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // URLs que queremos excluir del spinner (opcional)
     const excludedUrls = [
       '/assets/',
       '/health',
       '/ping'
     ];
 
-    // Verificar si la URL debe ser excluida
     const shouldExclude = excludedUrls.some(url => req.url.includes(url));
     
     if (shouldExclude) {
       return next.handle(req);
     }
 
-    // Marcar el inicio de la petición
     const startTime = Date.now();
     let hasShownSpinner = false;
     
-    // Mostrar spinner con un pequeño delay para peticiones que tarden más de 200ms
     const showSpinnerTimeout = setTimeout(() => {
       this.loadingService.show();
       hasShownSpinner = true;
@@ -51,10 +47,8 @@ export class LoadingInterceptor implements HttpInterceptor {
         }
       }),
       finalize(() => {
-        // Limpiar el timeout si la petición termina antes
         clearTimeout(showSpinnerTimeout);
         
-        // Solo ocultar si se mostró el spinner
         if (hasShownSpinner) {
           this.loadingService.hide();
         }

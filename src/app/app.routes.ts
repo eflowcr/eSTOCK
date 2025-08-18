@@ -68,9 +68,13 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
 
-  // Future protected routes can be added here
-  
-  // Wildcard route - redirect to dashboard
+  // Adjustments Management route - requires authentication
+  {
+    path: 'stock-adjustments',
+    loadComponent: () => import('./components/adjustments/adjustment-management/adjustment-management.component').then(m => m.AdjustmentManagementComponent),
+    canActivate: [AuthGuard]
+  },
+
   {
     path: '**',
     redirectTo: '/dashboard'

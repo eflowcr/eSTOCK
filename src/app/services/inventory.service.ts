@@ -46,8 +46,8 @@ export class InventoryService {
 	 * @returns Promise<ApiResponse<any>>
 	 */
 	async update(id: number, data: UpdateInventoryRequest): Promise<ApiResponse<any>> {
-		return await this.fetchService.put<ApiResponse<any>>({
-			API_Gateway: `${INVENTORY_URL}/${id}`,
+		return await this.fetchService.patch<ApiResponse<any>>({
+			API_Gateway: `${INVENTORY_URL}/id/${id}`,
 			values: data,
 		});
 	}

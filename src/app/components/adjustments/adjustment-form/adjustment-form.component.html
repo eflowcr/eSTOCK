@@ -1,0 +1,172 @@
+<!-- Modal Overlay -->
+<div *ngIf="isOpen" class="fixed inset-0 z-50 overflow-y-auto" (click)="onBackdropClick($event)">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+    <!-- Center modal -->
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+
+    <!-- Modal content -->
+    <div
+      class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
+      (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div
+        class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+            {{ t('new_stock_adjustment') }}
+          </h3>
+          <button type="button" (click)="closeModal()"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 rounded">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 max-h-[80vh] overflow-y-auto">
+        <form [formGroup]="adjustmentForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+          <!-- Row 1: SKU and Location with search dropdowns -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- SKU Combobox -->
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('sku_code') }} *
+              </label>
+              <div class="mt-1">
+                <input type="text"
+                  (focus)="showSkuDropdown = true"
+                  (blur)="closeSkuDropdownLater()"
+                  [(ngModel)]="skuSearchTerm"
+                  (input)="filterArticles()"
+                  (keydown.enter)="$event.preventDefault(); confirmFirstArticleIfAny()"
+                  [ngModelOptions]="{standalone: true}"
+                  placeholder="{{ t('select_sku') }}"
+                  class="block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  [class.border-red-500]="isFieldInvalid('sku')"
+                />
+                <input type="hidden" formControlName="sku" />
+              </div>
+              <div *ngIf="showSkuDropdown" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-56 overflow-auto shadow-lg">
+                <button type="button" *ngFor="let article of filteredArticles" (mousedown)="$event.preventDefault()" (click)="onArticleSelected(article)"
+                  class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
+                  {{ article.sku }} - {{ article.name }}
+                </button>
+                <div *ngIf="filteredArticles.length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                  {{ t('no_results') }}
+                </div>
+              </div>
+              <p *ngIf="isFieldInvalid('sku')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('sku') }}
+              </p>
+            </div>
+
+            <!-- Location Combobox -->
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('location') }} *
+              </label>
+              <div class="mt-1">
+                <input type="text"
+                  (focus)="showLocationDropdown = true"
+                  (blur)="closeLocationDropdownLater()"
+                  [(ngModel)]="locationSearchTerm"
+                  (input)="filterLocations()"
+                  (keydown.enter)="$event.preventDefault(); confirmFirstLocationIfAny()"
+                  [ngModelOptions]="{standalone: true}"
+                  placeholder="{{ t('select_location') }}"
+                  class="block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  [class.border-red-500]="isFieldInvalid('location')"
+                />
+                <input type="hidden" formControlName="location" />
+              </div>
+              <div *ngIf="showLocationDropdown" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-56 overflow-auto shadow-lg">
+                <button type="button" *ngFor="let location of filteredLocations" (mousedown)="$event.preventDefault()" (click)="onLocationSelected(location)"
+                  class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
+                  {{ location.location_code }} - {{ location.description }}
+                </button>
+                <div *ngIf="filteredLocations.length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                  {{ t('no_results') }}
+                </div>
+              </div>
+              <p *ngIf="isFieldInvalid('location')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('location') }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Row 2: Adjustment Quantity and Reason -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Adjustment Quantity -->
+            <div>
+              <label for="adjustmentQuantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('adjustment_quantity') }} *
+              </label>
+              <input type="number" formControlName="adjustmentQuantity" id="adjustmentQuantity"
+                placeholder="{{ t('enter_adjustment_quantity') }}"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                [class.border-red-500]="isFieldInvalid('adjustmentQuantity')">
+              <p *ngIf="isFieldInvalid('adjustmentQuantity')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('adjustmentQuantity') }}
+              </p>
+            </div>
+
+            <!-- Reason Selection -->
+            <div>
+              <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('reason') }} *
+              </label>
+              <select formControlName="reason" id="reason"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                [class.border-red-500]="isFieldInvalid('reason')">
+                <option value="">{{ t('select_reason') }}</option>
+                <option value="damaged">{{ t('damaged') }}</option>
+                <option value="lost">{{ t('lost') }}</option>
+                <option value="found">{{ t('found') }}</option>
+                <option value="cycle_count_correction">{{ t('cycle_count_correction') }}</option>
+                <option value="other">{{ t('other') }}</option>
+              </select>
+              <p *ngIf="isFieldInvalid('reason')" class="mt-1 text-sm text-red-600">
+                {{ getFieldError('reason') }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t('notes') }}
+            </label>
+            <textarea formControlName="notes" id="notes" rows="3" placeholder="{{ t('additional_notes_placeholder') }}"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"></textarea>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div
+        class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200 dark:border-gray-600">
+        <button type="button" (click)="onSubmit()" [disabled]="isLoading || adjustmentForm.invalid"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#3e66ea] text-base font-medium text-white hover:bg-[#2d5bd9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          {{ isLoading ? t('submitting') : t('submit_adjustment') }}
+        </button>
+        <button type="button" (click)="onCancel()"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+          {{ t('cancel') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

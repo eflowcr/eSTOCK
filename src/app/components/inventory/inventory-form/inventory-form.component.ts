@@ -62,16 +62,21 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     private alertService: AlertService
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.initializeForm();
-    this.loadInitialData();
+    await this.loadInitialData();
+    
+    // Load inventory data after initial data is loaded
+    if (this.inventory) {
+      await this.loadInventoryData();
+    }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes['inventory']) {
       this.isEditing = !!this.inventory;
-      if (this.inventoryForm) {
-        this.loadInventoryData();
+      if (this.inventoryForm && this.articles.length > 0 && this.locations.length > 0) {
+        await this.loadInventoryData();
       }
     }
   }
@@ -135,7 +140,10 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       serialNumbers: this.fb.array([])
     });
 
-    this.loadInventoryData();
+    // Load inventory data asynchronously
+    if (this.inventory) {
+      this.loadInventoryData();
+    }
   }
 
   /**
@@ -194,12 +202,15 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         this.serialService.getBySku(sku)
       ]);
 
+      // Store the existing data
       if (lotsResponse.result.success && lotsResponse.data) {
         this.existingLots = lotsResponse.data;
+        this.populateLotsFromExistingData();
       }
 
       if (serialsResponse.result.success && serialsResponse.data) {
         this.existingSerials = serialsResponse.data;
+        this.populateSerialsFromExistingData();
       }
     } catch (error) {
       console.error('Error loading existing tracking data:', error);
@@ -207,9 +218,56 @@ export class InventoryFormComponent implements OnInit, OnChanges {
   }
 
   /**
+   * @description Populate lots form array from existing data
+   */
+  private populateLotsFromExistingData(): void {
+    if (!this.existingLots || this.existingLots.length === 0) return;
+
+    console.log('Populating lots from existing data:', this.existingLots);
+
+    // Clear existing lots first
+    this.lotsArray.clear();
+
+    // Add each existing lot to the form
+    this.existingLots.forEach(lot => {
+      const expirationDate = lot.expiration_date ? 
+        new Date(lot.expiration_date).toISOString().split('T')[0] : '';
+      
+      this.lotsArray.push(this.fb.group({
+        lotNumber: [lot.lot_number || '', Validators.required],
+        quantity: [lot.quantity || 0, [Validators.required, Validators.min(0)]],
+        expirationDate: [expirationDate]
+      }));
+    });
+
+    console.log('Lots array after population:', this.lotsArray.length);
+  }
+
+  /**
+   * @description Populate serials form array from existing data
+   */
+  private populateSerialsFromExistingData(): void {
+    if (!this.existingSerials || this.existingSerials.length === 0) return;
+
+    console.log('Populating serials from existing data:', this.existingSerials);
+
+    // Clear existing serials first
+    this.serialNumbersArray.clear();
+
+    // Add each existing serial to the form
+    this.existingSerials.forEach(serial => {
+      this.serialNumbersArray.push(
+        this.fb.control(serial.serial_number || '', Validators.required)
+      );
+    });
+
+    console.log('Serials array after population:', this.serialNumbersArray.length);
+  }
+
+  /**
    * @description Handle SKU selection and auto-fill fields
    */
-  onSkuSelected(article: any): void {
+  async onSkuSelected(article: any): Promise<void> {
     this.selectedArticle = article;
     
     // Auto-fill form fields
@@ -228,13 +286,13 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     this.skuSearchTerm = `${article.sku} - ${article.name}`;
     this.showSkuDropdown = false;
 
-    // Clear existing lots and serials
+    // Clear existing lots and serials first
     this.lotsArray.clear();
     this.serialNumbersArray.clear();
 
     // Load existing tracking data if editing
     if (this.isEditing) {
-      this.loadExistingTrackingData(article.sku);
+      await this.loadExistingTrackingData(article.sku);
     }
   }
 
@@ -346,7 +404,7 @@ export class InventoryFormComponent implements OnInit, OnChanges {
   /**
    * @description Load inventory data into form
    */
-  private loadInventoryData(): void {
+  private async loadInventoryData(): Promise<void> {
     if (this.inventory && this.inventoryForm) {
       this.inventoryForm.patchValue({
         sku: this.inventory.sku || '',
@@ -377,29 +435,33 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         this.locationSearchTerm = '';
       }
 
-      // Load lots
-      if (this.inventory.lots && this.inventory.lots.length > 0) {
-        this.lotsArray.clear();
-        this.inventory.lots.forEach(lot => {
-          this.lotsArray.push(this.fb.group({
-            lotNumber: [lot.lotNumber, Validators.required],
-            quantity: [lot.quantity, [Validators.required, Validators.min(0)]],
-            expirationDate: [lot.expirationDate || '']
-          }));
-        });
-      }
+      // Clear arrays first
+      this.lotsArray.clear();
+      this.serialNumbersArray.clear();
 
-      // Load serials
-      if (this.inventory.serials && this.inventory.serials.length > 0) {
-        this.serialNumbersArray.clear();
-        this.inventory.serials.forEach(serial => {
-          this.serialNumbersArray.push(this.fb.control(serial.serialNumber, Validators.required));
-        });
+      // Load existing tracking data from API if editing
+      if (this.isEditing && this.inventory.sku) {
+        await this.loadExistingTrackingData(this.inventory.sku);
       }
+      // Otherwise, load from inventory object (for new items with pre-filled data)
+      else {
+        // Load lots from inventory object
+        if (this.inventory.lots && this.inventory.lots.length > 0) {
+          this.inventory.lots.forEach(lot => {
+            this.lotsArray.push(this.fb.group({
+              lotNumber: [lot.lotNumber, Validators.required],
+              quantity: [lot.quantity, [Validators.required, Validators.min(0)]],
+              expirationDate: [lot.expirationDate || '']
+            }));
+          });
+        }
 
-      // Load existing tracking data
-      if (this.isEditing) {
-        this.loadExistingTrackingData(this.inventory.sku);
+        // Load serials from inventory object
+        if (this.inventory.serials && this.inventory.serials.length > 0) {
+          this.inventory.serials.forEach(serial => {
+            this.serialNumbersArray.push(this.fb.control(serial.serialNumber, Validators.required));
+          });
+        }
       }
     }
   }
