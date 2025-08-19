@@ -1,0 +1,147 @@
+/* Stock Alerts List Styles */
+
+.alert-card {
+  @apply bg-white dark:bg-gray-800 shadow rounded-lg border-l-4 transition-all duration-200 hover:shadow-md;
+}
+
+.alert-card.critical {
+  @apply border-red-500;
+}
+
+.alert-card.high {
+  @apply border-orange-500;
+}
+
+.alert-card.medium {
+  @apply border-yellow-500;
+}
+
+.alert-card.low {
+  @apply border-blue-500;
+}
+
+.alert-card.resolved {
+  @apply border-green-500 opacity-75;
+}
+
+.alert-level-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border;
+}
+
+.alert-level-critical {
+  @apply bg-red-100 text-red-800 border-red-300 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700;
+}
+
+.alert-level-high {
+  @apply bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-700;
+}
+
+.alert-level-medium {
+  @apply bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700;
+}
+
+.alert-level-low {
+  @apply bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700;
+}
+
+.action-button {
+  @apply inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.action-button.primary {
+  @apply text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500;
+}
+
+.action-button.resolve {
+  @apply text-blue-600 bg-blue-100 hover:bg-blue-200 focus:ring-blue-500;
+}
+
+.search-input {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white;
+}
+
+.filter-select {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white;
+}
+
+.pagination-button {
+  @apply relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700;
+}
+
+.pagination-button.active {
+  @apply z-10 bg-blue-50 border-blue-500 text-blue-600 dark:bg-blue-900/20 dark:border-blue-500 dark:text-blue-300;
+}
+
+.loading-overlay {
+  @apply absolute inset-0 bg-white dark:bg-gray-800 bg-opacity-75 flex items-center justify-center z-10;
+}
+
+.expiration-warning {
+  @apply text-red-600 dark:text-red-400;
+}
+
+.expiration-caution {
+  @apply text-orange-600 dark:text-orange-400;
+}
+
+.expiration-normal {
+  @apply text-gray-900 dark:text-gray-100;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .alert-card {
+    @apply mx-2;
+  }
+  
+  .action-button {
+    @apply text-xs px-2;
+  }
+}
+
+/* Animation for resolved alerts */
+.alert-resolved {
+  @apply opacity-75 transition-opacity duration-300;
+}
+
+/* Custom scrollbar for list container */
+.list-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(156 163 175) rgb(243 244 246);
+}
+
+.list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.list-container::-webkit-scrollbar-track {
+  background: rgb(243 244 246);
+  border-radius: 4px;
+}
+
+.list-container::-webkit-scrollbar-thumb {
+  background: rgb(156 163 175);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.list-container::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
+}
+
+/* Dark mode scrollbar */
+.dark .list-container {
+  scrollbar-color: rgb(107 114 128) rgb(55 65 81);
+}
+
+.dark .list-container::-webkit-scrollbar-track {
+  background: rgb(55 65 81);
+}
+
+.dark .list-container::-webkit-scrollbar-thumb {
+  background: rgb(107 114 128);
+}
+
+.dark .list-container::-webkit-scrollbar-thumb:hover {
+  background: rgb(156 163 175);
+}

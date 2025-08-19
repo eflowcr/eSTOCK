@@ -75,6 +75,13 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
 
+  // Stock Alerts Management route - requires authentication
+  {
+    path: 'stock-alerts',
+    loadComponent: () => import('./components/stock-alerts/stock-alerts-management/stock-alerts-management.component').then(m => m.StockAlertsManagementComponent),
+    canActivate: [AuthGuard]
+  },
+
   {
     path: '**',
     redirectTo: '/dashboard'
