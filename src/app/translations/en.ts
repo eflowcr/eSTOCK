@@ -764,4 +764,5 @@ export const enTranslations = {
   'PRIORITY.URGENT': 'Urgent',
 
   'COMMON.INFO': 'Information',
+  'Low_stock':'Inventario bajo',
 };
