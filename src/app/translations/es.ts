@@ -112,11 +112,12 @@ export const esTranslations = {
   'lots_count': 'Conteo de Lotes',
   'error_loading_data': 'Error al cargar los datos',
   'stock_alerts': 'Alertas de Stock',
+  'users': 'Usuarios',
+  'locations': 'Ubicaciones',
   'barcode_generator': 'Generador de Códigos',
+  'gamification': 'Gamificación',
   'performance': 'Rendimiento',
   'control_center': 'Centro de Control',
-  'locations': 'Ubicaciones',
-  'user_management': 'Gestión de Usuarios',
   'loading': 'Cargando...',
   // Dashboard widgets
   'total_skus': 'SKUs en Inventarios',
@@ -238,6 +239,13 @@ export const esTranslations = {
   'price': 'Precio',
   'location': 'Ubicación',
   'quantity': 'Cantidad',
+  'filters': 'Filtros',
+  'sort_by': 'Ordenar por',
+  'clear_filters': 'Limpiar filtros',
+  'search_users': 'Buscar usuarios...',
+  'all_roles': 'Todos los roles',
+  'all_statuses': 'Todos los estados',
+  'no_users_match_search': 'No se encontraron usuarios que coincidan con la búsqueda',
   
   // File operations
   'choose_file': 'Elegir Archivo',
@@ -350,10 +358,8 @@ export const esTranslations = {
   'active_location': 'Ubicación activa',
   'location_status': 'Estado',
   'search_locations': 'Buscar ubicaciones...',
-  'clear_filters': 'Limpiar filtros',
   'all_types': 'Todos los tipos',
   'all_zones': 'Todas las zonas',
-  'all_statuses': 'Todos los estados',
   'sort_by_code': 'Ordenar por código',
   'sort_by_description': 'Ordenar por descripción',
   'sort_by_zone': 'Ordenar por zona',
@@ -377,8 +383,6 @@ export const esTranslations = {
   'field_min_value': 'Valor por debajo del mínimo',
   'location_saving': 'Guardando',
   'deleting': 'Eliminando...',
-  'filters': 'Filtros',
-  'sort_by': 'Ordenar por',
 
   // Location Types
   'location_pallet': 'Pallet',
@@ -491,6 +495,7 @@ export const esTranslations = {
   'export_articles': 'Exportar Artículos',
   'sku_already_exists': 'El SKU ya existe en el sistema',
 
+  'COMMON.INFO': 'Información',
   // Article fields
   'sku': 'SKU',
   'sku_code_required': 'Código SKU *',
@@ -746,8 +751,6 @@ export const esTranslations = {
   'STOCK_ALERTS.NO_CRITICAL': 'No hay alertas críticas',
   'STOCK_ALERTS.NO_HIGH': 'No hay alertas de alta prioridad',
   'STOCK_ALERTS.ALL_ALERTS_SHOWN': 'Todas las alertas mostradas',
-  'STOCK_ALERTS.DEMO_DATA': 'Datos de demostración',
-  'STOCK_ALERTS.DEMO_DATA_LOADED': 'Datos de demostración cargados para pruebas',
   'STOCK_ALERTS.SEARCH': 'Buscar',
   'STOCK_ALERTS.SEARCH_PLACEHOLDER': 'Buscar por SKU o mensaje...',
   'STOCK_ALERTS.ALL_LEVELS': 'Todos los niveles',
@@ -784,4 +787,152 @@ export const esTranslations = {
   'COMMON.JUST_NOW': 'Ahora mismo',
   'COMMON.HOURS_AGO': 'hace {{hours}} horas',
   'COMMON.DAYS_AGO': 'hace {{days}} días',
+
+  // Barcode Generator
+  'BARCODE.TITLE': 'Generador de Códigos de Barras y QR',
+  'BARCODE.DESCRIPTION': 'Genera etiquetas profesionales para SKUs, ubicaciones y tareas',
+  'BARCODE.GENERATE_LABELS': 'Generar Etiquetas',
+  'BARCODE.GENERATE_LABELS_COUNT': 'Generar Etiquetas',
+  'BARCODE.SELECTED_ITEMS': '{{count}} seleccionados',
+  'BARCODE.CLEAR_SELECTION': 'Limpiar Selección',
+  'BARCODE.NO_ITEMS_SELECTED': 'No hay elementos seleccionados',
+  'BARCODE.SELECT_ITEMS_TO_GENERATE': 'Selecciona elementos para generar etiquetas',
+  'BARCODE.ITEMS_SELECTED': 'Elementos seleccionados',
+  'BARCODE.PRINT': 'Imprimir',
+  'BARCODE.DOWNLOAD_PDF': 'Descargar',
+  'BARCODE.PREVIEW': 'Vista Previa',
+  'BARCODE.NO_PREVIEW_ITEMS': 'Sin elementos para vista previa',
+  'BARCODE.SELECT_ITEMS_TO_PREVIEW': 'Selecciona elementos para ver vista previa',
+  'BARCODE.AND_MORE_ITEMS': 'y más elementos...',
+  'BARCODE.GENERATING': 'Generando...',
+  'BARCODE.GENERATION_ERROR': 'Error al generar código',
+  'BARCODE.IMAGE_LOAD_ERROR': 'Error al cargar imagen',
+  'BARCODE.ALT_TEXT': 'Código de barras',
+
+  // Tabs
+  'BARCODE.SKUS': 'SKUs',
+  'BARCODE.LOCATIONS': 'Ubicaciones',
+  'BARCODE.TASKS': 'Tareas',
+
+  // Search
+  'BARCODE.SEARCH_SKUS_PLACEHOLDER': 'Buscar SKUs por código o nombre...',
+  'BARCODE.SEARCH_LOCATIONS_PLACEHOLDER': 'Buscar ubicaciones por código o descripción...',
+  'BARCODE.SEARCH_TASKS_PLACEHOLDER': 'Buscar tareas por ID o descripción...',
+
+  // Selection
+  'BARCODE.SELECT_ALL': 'Seleccionar Todo',
+  'BARCODE.DESELECT_ALL': 'Deseleccionar Todo',
+  'BARCODE.VIEW_DETAILS': 'Ver Detalles',
+  'BARCODE.HIDE': 'Ocultar',
+
+  // Lot and Serial tracking
+  'BARCODE.LOT_NUMBERS_COUNT': 'Números de Lote ({{count}})',
+  'BARCODE.SERIAL_NUMBERS_COUNT': 'Números de Serie ({{count}})',
+
+  // Status translations
+  'STATUS.COMPLETED': 'Completado',
+  'STATUS.COMPLETADO': 'Completado', 
+
+  'ARTICLE.ITEMS_COUNT': 'Artículos',
+
+  'STATUS.OPEN': 'Abierto',
+  'STATUS.ABIERTO': 'Abierto',
+  'STATUS.IN_PROGRESS': 'En Progreso',
+  'STATUS.EN_PROGRESO': 'En Progreso',
+  'STATUS.CANCELLED': 'Cancelado',
+  'STATUS.CANCELADO': 'Cancelado',
+  'STATUS.SELECCION': 'Selección',
+  
+  // Priority translations
+  'PRIORITY.HIGH': 'Alto',
+  'PRIORITY.ALTO': 'Alto',
+  'PRIORITY.MEDIUM': 'Medio',
+  'PRIORITY.MEDIO': 'Medio', 
+  'PRIORITY.LOW': 'Bajo',
+  'PRIORITY.BAJO': 'Bajo',
+  'PRIORITY.NORMAL': 'Normal',
+  'PRIORITY.URGENT': 'Urgente',
+  
+  // Task type translations
+  'TASK_TYPE.RECEIVING': 'Recepción',
+  'TASK_TYPE.PICKING': 'Picking',
+  'TASK_TYPE.TASK': 'Tarea',
+  
+  // Location type translations
+  'LOCATION.PALLET': 'Pallet',
+  'LOCATION.BLOCK': 'Block',
+  'LOCATION.ZONE': 'Zona',
+  'LOCATION.INACTIVE': 'Inactivo',
+  
+  // Article tracking translations
+  'ARTICLE.LOT_TRACKING': 'Lote',
+  'ARTICLE.SERIAL_TRACKING': 'Serie', 
+  'ARTICLE.EXPIRATION_TRACKING': 'Exp',
+  'ARTICLE.PRESENTATION': 'Presentación',
+  'ARTICLE.PRICE': 'Precio',
+  'ARTICLE.MIN_QTY': 'Mín',
+  'ARTICLE.MAX_QTY': 'Máx',
+  'ARTICLE.ASSIGNED_TO': 'Asignado a',
+  'BARCODE.QTY_LABEL': 'Cant: {{quantity}}',
+  'BARCODE.EXP_LABEL': 'Exp: {{expiration}}',
+
+  // Configuration
+  'BARCODE.LABEL_CONFIGURATION': 'Configuración de Etiquetas',
+  'BARCODE.CODE_TYPE': 'Tipo de Código',
+  'BARCODE.LABEL_SIZE': 'Tamaño de Etiqueta',
+  'BARCODE.LABEL_SIZE_4X2': 'label_size_4x2',
+  'BARCODE.LABEL_SIZE_2X1': 'label_size_2x1',
+  'BARCODE.LABEL_SIZE_3X1': 'label_size_3x1',
+  'BARCODE.COMPANY_NAME': 'Nombre de la Empresa',
+  'BARCODE.ENTER_COMPANY_NAME': 'Ingresa el nombre de la empresa',
+  'BARCODE.INCLUDE_IN_LABELS': 'Incluir en Etiquetas',
+  'BARCODE.ITEM_NAME': 'Nombre del Artículo',
+
+  // Preview
+  'BARCODE.PREVIEW_ITEMS': 'Vista Previa ({{count}} elementos)',
+  'BARCODE.GENERATED_LABELS_SUCCESS': 'Se generaron {{count}} etiquetas exitosamente',
+  'BARCODE.PRINT_SUCCESS': 'Etiquetas enviadas a imprimir',
+  'BARCODE.FAILED_TO_GENERATE_PDF': 'Error al generar PDF de etiquetas',
+  'BARCODE.FAILED_TO_PRINT': 'Error al imprimir etiquetas',
+
+  // Empty states
+  'BARCODE.NO_ITEMS_AVAILABLE': 'No hay elementos disponibles',
+  'BARCODE.NO_ITEMS_DESCRIPTION': 'No se encontraron elementos para mostrar en esta categoría',
+
+  // Data loading
+  'BARCODE.LOAD_DATA_ERROR': 'Error al cargar los datos',
+
+  // Gamification translations
+  'gamification.badges': 'Insignias',
+  'gamification.badges_description': 'Visualiza tu progreso y logros en el sistema',
+  'gamification.userPerformance': 'Rendimiento de Usuarios',
+  'gamification.loading': 'Cargando datos de gamificación...',
+  'gamification.level': 'Nivel',
+  'gamification.performanceStats': 'Estadísticas de Rendimiento',
+  'gamification.receivingTasks': 'Tareas de Recepción',
+  'gamification.pickingTasks': 'Tareas de Picking',
+  'gamification.pickAccuracy': 'Precisión de Picking',
+  'gamification.avgPickTime': 'Tiempo Promedio de Picking',
+  'gamification.yourBadgesCount': 'Tus Insignias ({{count}})',
+  'gamification.noBadgesEarned': 'Aún no has ganado insignias',
+  'gamification.completeTasksFirstBadge': 'Completa tareas para ganar tu primera insignia',
+  'gamification.earnedDate': 'Ganada el {{date}}',
+  'gamification.badgeProgress': 'Progreso de Insignias',
+  'gamification.earned': 'Ganada',
+  'gamification.progress': 'Progreso',
+  'gamification.demoActions': 'Acciones de Demostración',
+  'gamification.completeReceivingTask': 'Completar Tarea de Recepción',
+  'gamification.completePickingTask': 'Completar Tarea de Picking',
+  'gamification.demoActionsDescription': 'Estas son acciones de demostración para probar el sistema de gamificación',
+  'gamification.taskCompleted': 'Tarea completada exitosamente',
+  'gamification.statsUpdated': 'Estadísticas actualizadas',
+  'gamification.badgeEarned': '¡Nueva insignia ganada!',
+  'gamification.taskError': 'Error al completar la tarea',
+  'gamification.errorLoading': 'Error al cargar los datos de gamificación',
+  'gamification.loadError': 'Error al cargar datos',
+  'gamification.error': 'Error',
+  'gamification.failed_load_stats': 'Error al cargar las estadísticas',
+  'gamification.export_warning': 'Sin datos para exportar',
+  'gamification.no_data_to_export': 'No tienes insignias ganadas ni progreso para exportar',
+  'user_management': 'Usuarios',
 };

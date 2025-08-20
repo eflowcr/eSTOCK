@@ -1,0 +1,479 @@
+<app-main-layout>
+
+<div class="space-y-6">
+	<!-- Header Section -->
+	<div class="flex justify-between items-center">
+		<div>
+			<h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
+				{{ t('BARCODE.TITLE') }}
+			</h1>
+			<p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+				{{ t('BARCODE.DESCRIPTION') }}
+			</p>
+		</div>
+		<div class="flex gap-2">
+			<!-- Badge con contador de seleccionados -->
+			<div *ngIf="selectedItems().length > 0" class="flex items-center gap-2">
+				<button 
+					type="button"
+					(click)="clearSelection()"
+					class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+					{{ t('BARCODE.CLEAR_SELECTION') }}
+				</button>
+			</div>
+			
+			<button 
+				type="button"
+				(click)="generateLabels()"
+				[disabled]="selectedItems().length === 0"
+				class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] disabled:opacity-50 disabled:cursor-not-allowed">
+				<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h4"></path>
+				</svg>
+				{{ t('BARCODE.GENERATE_LABELS') }}	
+			</button>
+		</div>
+	</div>
+
+	<!-- Loading State -->
+	<div *ngIf="isLoading()" class="flex justify-center py-8">
+		<app-loading-spinner></app-loading-spinner>
+	</div>
+
+	<!-- Main Content -->
+	<div *ngIf="!isLoading()" class="bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-hidden">
+		<!-- Tabs Navigation -->
+		<div class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+			<nav class="flex" aria-label="Tabs">
+				<button 
+					(click)="setActiveTab('skus')"
+					[class.border-[#3e66ea]]="activeTab() === 'skus'"
+					[class.text-[#3e66ea]]="activeTab() === 'skus'"
+					[class.bg-white]="activeTab() === 'skus'"
+					[class.dark:bg-gray-800]="activeTab() === 'skus'"
+					[class.border-transparent]="activeTab() !== 'skus'"
+					[class.text-gray-500]="activeTab() !== 'skus'"
+					[class.hover:text-gray-700]="activeTab() !== 'skus'"
+					[class.hover:border-gray-300]="activeTab() !== 'skus'"
+					class="py-3 px-4 border-b-2 font-medium text-sm transition-all duration-200 cursor-pointer flex items-center justify-center min-w-0 flex-1">
+					<div class="flex items-center">
+						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+						</svg>
+						<span class="truncate">{{ t('BARCODE.SKUS') }}</span>
+						<span class="ml-2 text-xs px-2.5 py-1 rounded-full font-medium"
+							[class.bg-[#3e66ea]]="activeTab() === 'skus'"
+							[class.text-white]="activeTab() === 'skus'"
+							[class.bg-gray-100]="activeTab() !== 'skus'"
+							[class.text-gray-600]="activeTab() !== 'skus'"
+							[class.dark:bg-gray-700]="activeTab() !== 'skus'"
+							[class.dark:text-gray-300]="activeTab() !== 'skus'">
+							{{ getSkuCount() }}
+						</span>
+					</div>
+				</button>
+				<button 
+					(click)="setActiveTab('locations')"
+					[class.border-[#3e66ea]]="activeTab() === 'locations'"
+					[class.text-[#3e66ea]]="activeTab() === 'locations'"
+					[class.bg-white]="activeTab() === 'locations'"
+					[class.dark:bg-gray-800]="activeTab() === 'locations'"
+					[class.border-transparent]="activeTab() !== 'locations'"
+					[class.text-gray-500]="activeTab() !== 'locations'"
+					[class.hover:text-gray-700]="activeTab() !== 'locations'"
+					[class.hover:border-gray-300]="activeTab() !== 'locations'"
+					class="py-3 px-4 border-b-2 font-medium text-sm transition-all duration-200 cursor-pointer flex items-center justify-center min-w-0 flex-1">
+					<div class="flex items-center">
+						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+						</svg>
+						<span class="truncate">{{ t('BARCODE.LOCATIONS') }}</span>
+						<span class="ml-2 text-xs px-2.5 py-1 rounded-full font-medium"
+							[class.bg-[#3e66ea]]="activeTab() === 'locations'"
+							[class.text-white]="activeTab() === 'locations'"
+							[class.bg-gray-100]="activeTab() !== 'locations'"
+							[class.text-gray-600]="activeTab() !== 'locations'"
+							[class.dark:bg-gray-700]="activeTab() !== 'locations'"
+							[class.dark:text-gray-300]="activeTab() !== 'locations'">
+							{{ getLocationCount() }}
+						</span>
+					</div>
+				</button>
+				<button 
+					(click)="setActiveTab('tasks')"
+					[class.border-[#3e66ea]]="activeTab() === 'tasks'"
+					[class.text-[#3e66ea]]="activeTab() === 'tasks'"
+					[class.bg-white]="activeTab() === 'tasks'"
+					[class.dark:bg-gray-800]="activeTab() === 'tasks'"
+					[class.border-transparent]="activeTab() !== 'tasks'"
+					[class.text-gray-500]="activeTab() !== 'tasks'"
+					[class.hover:text-gray-700]="activeTab() !== 'tasks'"
+					[class.hover:border-gray-300]="activeTab() !== 'tasks'"
+					class="py-3 px-4 border-b-2 font-medium text-sm transition-all duration-200 cursor-pointer flex items-center justify-center min-w-0 flex-1">
+					<div class="flex items-center">
+						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+						</svg>
+						<span class="truncate">{{ t('BARCODE.TASKS') }}</span>
+						<span class="ml-2 text-xs px-2.5 py-1 rounded-full font-medium"
+							[class.bg-[#3e66ea]]="activeTab() === 'tasks'"
+							[class.text-white]="activeTab() === 'tasks'"
+							[class.bg-gray-100]="activeTab() !== 'tasks'"
+							[class.text-gray-600]="activeTab() !== 'tasks'"
+							[class.dark:bg-gray-700]="activeTab() !== 'tasks'"
+							[class.dark:text-gray-300]="activeTab() !== 'tasks'">
+							{{ getTaskCount() }}
+						</span>
+					</div>
+				</button>
+			</nav>
+		</div>
+
+		<!-- Tab Content -->
+		<div class="p-6">
+			<!-- SKUs Tab -->
+			<div *ngIf="activeTab() === 'skus'" class="space-y-4">
+				<!-- Search and Select All -->
+				<div class="flex gap-4">
+					<div class="relative flex-1">
+						<svg class="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+						</svg>
+						<input
+							type="text"
+							[value]="skuSearch()"
+							(input)="updateSkuSearch($any($event.target).value)"
+							[placeholder]="t('BARCODE.SEARCH_SKUS_PLACEHOLDER')"
+							class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400" />
+					</div>
+					<button
+						type="button"
+						(click)="handleSelectAll(skuBarcodeItems(), !isAllSelected(skuBarcodeItems()))"
+						[disabled]="filteredArticles().length === 0"
+						class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+						{{ isAllSelected(skuBarcodeItems()) ? t('BARCODE.DESELECT_ALL') : t('BARCODE.SELECT_ALL') }}
+					</button>
+				</div>
+
+				<!-- SKUs List -->
+				<div class="space-y-4 max-h-96 overflow-y-auto">
+					<div *ngFor="let item of skuBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg overflow-hidden">
+						<!-- Main SKU item -->
+						<div class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+							<div class="flex items-start gap-3">
+								<input
+									type="checkbox"
+									[checked]="isItemSelected(item)"
+									(change)="handleItemSelect(item, $any($event.target).checked)"
+									class="mt-1 rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
+								<div class="flex-1 min-w-0">
+									<div class="flex items-center gap-2">
+										<svg class="h-4 w-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+										</svg>
+										<span class="font-mono text-sm font-bold text-gray-900 dark:text-white truncate">{{ item.code }}</span>
+										
+										<!-- Status badges -->
+										<div class="flex gap-1 ml-2">
+											<span *ngIf="getArticleForSku(item.code)?.track_by_lot" class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+												{{ t('ARTICLE.LOT_TRACKING') }}
+											</span>
+											<span *ngIf="getArticleForSku(item.code)?.track_by_serial" class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+												{{ t('ARTICLE.SERIAL_TRACKING') }}
+											</span>
+											<span *ngIf="getArticleForSku(item.code)?.track_expiration" class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+												{{ t('ARTICLE.EXPIRATION_TRACKING') }}
+											</span>
+										</div>
+										
+										<!-- Ver Detalles button -->
+										<button
+											*ngIf="getArticleForSku(item.code) && hasTracking(getArticleForSku(item.code))"
+											type="button"
+											(click)="toggleSkuExpansion(item.code)"
+											class="ml-auto px-2 py-1 h-7 border-blue-200 hover:border-blue-300 hover:bg-blue-50 text-blue-700 border rounded text-xs font-medium flex items-center dark:border-blue-600 dark:text-blue-400 dark:hover:bg-blue-900">
+											<svg *ngIf="!isSkuExpanded(item.code)" class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+											</svg>
+											<svg *ngIf="isSkuExpanded(item.code)" class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+											</svg>
+											<span>{{ isSkuExpanded(item.code) ? t('BARCODE.HIDE') : t('BARCODE.VIEW_DETAILS') }}</span>
+										</button>
+									</div>
+									
+									<!-- Article details -->
+									<div class="mt-2 space-y-1">
+										<p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ item.name }}</p>
+										<p *ngIf="item.description" class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{{ item.description }}</p>
+										
+										<!-- Additional info row -->
+										<div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+											<span *ngIf="getArticleForSku(item.code)?.presentation">
+												<strong>{{ t('ARTICLE.PRESENTATION') }}:</strong> {{ getArticleForSku(item.code)?.presentation }}
+											</span>
+											<!-- <span *ngIf="getArticleForSku(item.code)?.unit_price">
+												<strong>Precio:</strong> {{ getArticleForSku(item.code)?.unit_price | number:'1.2-2' }}
+											</span> -->
+										</div>
+										
+										<!-- Stock info if available -->
+										<!-- <div *ngIf="getArticleForSku(item.code)?.min_quantity || getArticleForSku(item.code)?.max_quantity" class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+											<span *ngIf="getArticleForSku(item.code)?.min_quantity">
+												<strong>Mín:</strong> {{ getArticleForSku(item.code)?.min_quantity }}
+											</span>
+											<span *ngIf="getArticleForSku(item.code)?.max_quantity">
+												<strong>Máx:</strong> {{ getArticleForSku(item.code)?.max_quantity }}
+											</span>
+										</div> -->
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Expandable lot/serial section -->
+						<div *ngIf="getArticleForSku(item.code) && hasTracking(getArticleForSku(item.code)) && isSkuExpanded(item.code)" 
+							 class="border-t bg-gray-50 dark:bg-gray-800 p-3">
+							
+							<!-- Lots section -->
+							<div *ngIf="getLotsForSku(item.code).length > 0" class="mb-3">
+								<div class="flex items-center gap-2 mb-2">
+									<svg class="h-4 w-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+									</svg>
+									<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+										{{ t('BARCODE.LOT_NUMBERS_COUNT', { count: getLotsForSku(item.code).length }) }}
+									</span>
+								</div>
+								<div class="grid grid-cols-1 gap-2">
+									<div *ngFor="let lot of getLotsForSku(item.code)" class="flex items-center gap-2 p-2 bg-white dark:bg-gray-700 rounded border">
+										<input
+											type="checkbox"
+											[checked]="isLotSelected(lot, item.code)"
+											(change)="handleLotSelect(lot, item.code, $any($event.target).checked)"
+											class="rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
+										<div class="flex-1 min-w-0">
+											<div class="flex items-center gap-2">
+												<span class="font-mono text-xs font-medium">{{ lot.lotNumber }}</span>
+												<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+													{{ t('BARCODE.QTY_LABEL', { quantity: lot.quantity || 0 }) }}
+												</span>
+											</div>
+											<p class="text-xs text-gray-500 dark:text-gray-400">
+												{{ t('BARCODE.EXP_LABEL', { expiration: formatDate(lot.expirationDate) }) }}
+											</p>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Serials section -->
+							<div *ngIf="getSerialsForSku(item.code).length > 0">
+								<div class="flex items-center gap-2 mb-2">
+									<svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+									</svg>
+									<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+										{{ t('BARCODE.SERIAL_NUMBERS_COUNT', { count: getSerialsForSku(item.code).length }) }}
+									</span>
+								</div>
+								<div class="grid grid-cols-2 gap-2">
+									<div *ngFor="let serial of getSerialsForSku(item.code)" class="flex items-center gap-2 p-2 bg-white dark:bg-gray-700 rounded border">
+										<input
+											type="checkbox"
+											[checked]="isSerialSelected(serial, item.code)"
+											(change)="handleSerialSelect(serial, item.code, $any($event.target).checked)"
+											class="rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
+										<span class="font-mono text-xs font-medium truncate">{{ serial.serialNumber }}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Locations Tab -->
+			<div *ngIf="activeTab() === 'locations'" class="space-y-4">
+				<!-- Search and Select All -->
+				<div class="flex gap-4">
+					<div class="relative flex-1">
+						<svg class="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+						</svg>
+						<input
+							type="text"
+							[value]="locationSearch()"
+							(input)="updateLocationSearch($any($event.target).value)"
+							[placeholder]="t('BARCODE.SEARCH_LOCATIONS_PLACEHOLDER')"
+							class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400" />
+					</div>
+					<button
+						type="button"
+						(click)="handleSelectAll(locationBarcodeItems(), !isAllSelected(locationBarcodeItems()))"
+						[disabled]="filteredLocations().length === 0"
+						class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+						{{ isAllSelected(locationBarcodeItems()) ? t('BARCODE.DESELECT_ALL') : t('BARCODE.SELECT_ALL') }}
+					</button>
+				</div>
+
+				<!-- Locations Grid -->
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+					<div *ngFor="let item of locationBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+						<div class="flex items-start gap-3">
+							<input
+								type="checkbox"
+								[checked]="isItemSelected(item)"
+								(change)="handleItemSelect(item, $any($event.target).checked)"
+								class="mt-1 rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
+							<div class="flex-1 min-w-0">
+								<div class="flex items-center gap-2">
+									<svg class="h-4 w-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+									</svg>
+									<span class="font-mono text-sm font-bold text-gray-900 dark:text-white truncate">{{ item.code }}</span>
+								</div>
+								
+								<!-- Location details -->
+								<div class="mt-2 space-y-1">
+									<p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ item.name }}</p>
+									<p *ngIf="item.description" class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{{ item.description }}</p>
+									
+									<!-- Location type and zone -->
+									<div class="flex items-center gap-2 flex-wrap">
+										<span *ngIf="getLocationForCode(item.code)?.type" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+											{{ translateLocationType(getLocationForCode(item.code)?.type) }}
+										</span>
+										<span *ngIf="getLocationForCode(item.code)?.zone" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+											{{ t('LOCATION.ZONE') }}: {{ getLocationForCode(item.code)?.zone }}
+										</span>
+										<span *ngIf="getLocationForCode(item.code)?.is_active === false" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+											{{ t('LOCATION.INACTIVE') }}
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Tasks Tab -->
+			<div *ngIf="activeTab() === 'tasks'" class="space-y-4">
+				<!-- Search and Select All -->
+				<div class="flex gap-4">
+					<div class="relative flex-1">
+						<svg class="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+						</svg>
+						<input
+							type="text"
+							[value]="taskSearch()"
+							(input)="updateTaskSearch($any($event.target).value)"
+							[placeholder]="t('BARCODE.SEARCH_TASKS_PLACEHOLDER')"
+							class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400" />
+					</div>
+					<button
+						type="button"
+						(click)="handleSelectAll(taskBarcodeItems(), !isAllSelected(taskBarcodeItems()))"
+						[disabled]="filteredTasks().length === 0"
+						class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+						{{ isAllSelected(taskBarcodeItems()) ? t('BARCODE.DESELECT_ALL') : t('BARCODE.SELECT_ALL') }}
+					</button>
+				</div>
+
+				<!-- Tasks Grid -->
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+					<div *ngFor="let item of taskBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+						<div class="flex items-start gap-3">
+							<input
+								type="checkbox"
+								[checked]="isItemSelected(item)"
+								(change)="handleItemSelect(item, $any($event.target).checked)"
+								class="mt-1 rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
+							<div class="flex-1 min-w-0">
+								<div class="flex items-center gap-2">
+									<svg class="h-4 w-4 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+									</svg>
+									<span class="font-mono text-sm font-bold text-gray-900 dark:text-white truncate">{{ item.code }}</span>
+								</div>
+								
+								<!-- Task details -->
+								<div class="mt-2 space-y-1">
+									<p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ item.name }}</p>
+									<p *ngIf="item.description" class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{{ item.description }}</p>
+									
+									<!-- Task status and info -->
+									<div class="flex items-center gap-2 flex-wrap">
+										<!-- Task type badge -->
+										<span *ngIf="getTaskForCode(item.code)?.metadata?.task_type" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+											{{ getTaskForCode(item.code)?.metadata?.task_type }}
+										</span>
+										
+										<!-- Status badge -->
+										<span *ngIf="getTaskForCode(item.code)?.metadata?.status" 
+											[class]="getStatusBadgeClass(getTaskForCode(item.code)?.metadata?.status)">
+											{{ translateStatus(getTaskForCode(item.code)?.metadata?.status) }}
+										</span>
+										
+										<!-- Priority badge -->
+										<span *ngIf="getTaskForCode(item.code)?.metadata?.priority" 
+											[class]="getPriorityBadgeClass(getTaskForCode(item.code)?.metadata?.priority)">
+											{{ translatePriority(getTaskForCode(item.code)?.metadata?.priority) }}
+										</span>
+									</div>
+									
+									<!-- Additional task info -->
+									<div class="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
+										<div *ngIf="getTaskForCode(item.code)?.metadata?.assigned_to">
+											<strong>{{ t('ARTICLE.ASSIGNED_TO') }}:</strong> {{ getTaskForCode(item.code)?.metadata?.assigned_to }}
+										</div>
+										<div *ngIf="getTaskForCode(item.code)?.metadata?.items?.length">
+											<strong>{{ t('ARTICLE.ITEMS_COUNT') }}:</strong> {{ getTaskForCode(item.code)?.metadata?.items?.length }}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Empty State -->
+			<div *ngIf="getCurrentTabItems().length === 0" class="text-center py-12">
+				<div class="mx-auto h-12 w-12 text-gray-400">
+					<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+					</svg>
+				</div>
+				<h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+					{{ t('BARCODE.NO_ITEMS_AVAILABLE') }}
+				</h3>
+				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+					{{ t('BARCODE.NO_ITEMS_DESCRIPTION') }}
+				</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Barcode Generator Dialog -->
+<app-barcode-generator-dialog
+  *ngIf="showDialog()"
+  [items]="selectedItems()"
+  (close)="onDialogClose($event)">
+</app-barcode-generator-dialog>
+
+</app-main-layout>

@@ -28,7 +28,7 @@ export interface CreateInventoryRequest {
 	quantity: number;
 	status: string;
 	presentation: string;
-	unitPrice?: string;
+	unitPrice?: number;
 	lots?: CreateLotRequest[];
 	serialNumbers?: string[];
 	trackByLot: boolean;

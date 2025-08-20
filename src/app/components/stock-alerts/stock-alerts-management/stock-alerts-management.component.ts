@@ -279,14 +279,7 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 				}
 			})
 			.catch(error => {
-				console.warn('Error analyzing stock, loading mock data for demo:', error);
-				// Load mock data when API fails
-				this.loadMockAlerts();
-				
-				this.alertService.success(
-					this.languageService.translate('STOCK_ALERTS.DEMO_DATA_LOADED'),
-					this.languageService.translate('COMMON.INFO')
-				);
+				console.error('Error analyzing stock:', error);
 			})
 			.finally(() => {
 				this.loadingService.hide();

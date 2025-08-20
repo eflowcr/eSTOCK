@@ -1,48 +1,184 @@
-<!-- Loading State -->
-<div *ngIf="isLoading" class="animate-pulse space-y-4">
-  <div *ngFor="let item of [1,2,3]" class="h-12 bg-gray-200 rounded dark:bg-gray-700"></div>
-</div>
+<div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-6">
+  <!-- Modern Search and Controls Bar -->
+  <div class="p-4 sm:p-6">
+    <!-- Main Controls Row -->
+    <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+      <!-- Search Section -->
+      <div class="flex-1">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearch($event)"
+            [placeholder]="t('search_users')"
+            class="pl-9 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+          />
+        </div>
+      </div>
 
-<!-- Empty State -->
-<div *ngIf="!isLoading && users.length === 0" class="text-center py-8">
-  <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-  </svg>
-  <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ t('user_management.no_users_found') }}</h3>
-  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('user_management.get_started_by_creating_user') }}</p>
-</div>
+      <!-- Controls Section -->
+      <div class="flex flex-wrap items-center gap-3 flex-shrink-0">
+        <!-- Sort Dropdown -->
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ t('sort_by') }}</span>
+          <select
+            [(ngModel)]="sortBy"
+            (ngModelChange)="onSort($event)"
+            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          >
+            <option value="first_name">{{ t('user_management.name') }}</option>
+            <option value="email">{{ t('user_management.email') }}</option>
+            <option value="role">{{ t('user_management.role') }}</option>
+            <option value="created_at">{{ t('user_management.created') }}</option>
+          </select>
+        </div>
 
-<!-- Users Table -->
-<div *ngIf="!isLoading && users.length > 0" class="rounded-md border border-gray-200 dark:border-gray-700">
+        <!-- Filters Toggle -->
+        <button
+          type="button"
+          (click)="toggleFilters()"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 transition-colors dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+          [class.bg-blue-50]="filtersExpanded"
+          [class.text-blue-600]="filtersExpanded"
+          [class.border-blue-200]="filtersExpanded"
+        >
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
+          </svg>
+          {{ t('filters') }}
+          <svg class="h-4 w-4 ml-2 transform transition-transform duration-200" [class.rotate-180]="filtersExpanded" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+
+        <!-- Clear Filters Button -->
+        <button
+          *ngIf="hasActiveFilters()"
+          type="button"
+          (click)="clearFilters()"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/30"
+        >
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          {{ t('clear_filters') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Expandable Filters Section -->
+    <div *ngIf="filtersExpanded" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Role Filter -->
+        <div>
+          <label for="roleFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {{ t('user_management.role') }}
+          </label>
+          <select
+            id="roleFilter"
+            [(ngModel)]="roleFilter"
+            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          >
+            <option value="">{{ t('all_roles') }}</option>
+            <option *ngFor="let role of uniqueRoles" [value]="role">{{ role }}</option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div>
+          <label for="statusFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {{ t('user_management.status') }}
+          </label>
+          <select
+            id="statusFilter"
+            [(ngModel)]="statusFilter"
+            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          >
+            <option value="">{{ t('all_statuses') }}</option>
+            <option value="active">{{ t('user_management.active') }}</option>
+            <option value="inactive">{{ t('user_management.inactive') }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
   <div class="overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-      <!-- Table Header -->
-      <thead class="bg-gray-50 dark:bg-gray-800">
+      <thead class="bg-gray-50 dark:bg-gray-700">
         <tr>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
-            {{ t('user_management.name') }}
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" (click)="onSort('first_name')">
+            <div class="flex items-center space-x-1">
+              <span>{{ t('user_management.name') }}</span>
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+              </svg>
+            </div>
           </th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
-            {{ t('user_management.email') }}
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" (click)="onSort('email')">
+            <div class="flex items-center space-x-1">
+              <span>{{ t('user_management.email') }}</span>
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+              </svg>
+            </div>
           </th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
-            {{ t('user_management.role') }}
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" (click)="onSort('role')">
+            <div class="flex items-center space-x-1">
+              <span>{{ t('user_management.role') }}</span>
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+              </svg>
+            </div>
           </th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
             {{ t('user_management.status') }}
           </th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
-            {{ t('user_management.created') }}
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" (click)="onSort('created_at')">
+            <div class="flex items-center space-x-1">
+              <span>{{ t('user_management.created') }}</span>
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+              </svg>
+            </div>
           </th>
-          <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+          <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
             {{ t('user_management.actions') }}
           </th>
         </tr>
       </thead>
       
-      <!-- Table Body -->
-      <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
-        <tr *ngFor="let user of users" class="hover:bg-gray-50 dark:hover:bg-gray-800">
+      <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+        <!-- Loading State -->
+        <tr *ngIf="isLoading">
+          <td colspan="6" class="px-6 py-4 text-center">
+            <div class="flex justify-center items-center space-x-2">
+              <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#4465ec]"></div>
+              <span class="text-gray-500 dark:text-gray-400">{{ t('loading') }}...</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- No Results -->
+        <tr *ngIf="!isLoading && filteredAndSortedUsers.length === 0">
+          <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+            <div class="flex flex-col items-center space-y-2">
+              <svg class="h-12 w-12 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+              </svg>
+              <p>{{ searchTerm ? t('no_users_match_search') : t('user_management.no_users_found') }}</p>
+            </div>
+          </td>
+        </tr>
+
+        <!-- User Rows -->
+        <tr *ngFor="let user of filteredAndSortedUsers; trackBy: trackByUserId" class="hover:bg-gray-50 dark:hover:bg-gray-700">
           <!-- Name with Avatar -->
           <td class="px-6 py-4 whitespace-nowrap">
             <div class="flex items-center">

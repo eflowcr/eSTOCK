@@ -1,0 +1,93 @@
+/* Barcode Display Component Styles */
+
+/* Container styling */
+.barcode-container {
+  transition: all 0.2s ease-in-out;
+}
+
+.barcode-container:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Canvas styling */
+canvas {
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Loading animation */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error state styling */
+.error-state {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 1px solid #fecaca;
+}
+
+.dark .error-state {
+  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+  border-color: #dc2626;
+}
+
+/* Fallback barcode styling */
+.fallback-barcode {
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border: 2px dashed #d1d5db;
+  transition: all 0.2s ease-in-out;
+}
+
+.fallback-barcode:hover {
+  border-color: #9ca3af;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.dark .fallback-barcode {
+  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+  border-color: #6b7280;
+}
+
+.dark .fallback-barcode:hover {
+  border-color: #9ca3af;
+  background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+}
+
+/* Image styling */
+img {
+  transition: opacity 0.2s ease-in-out;
+}
+
+img:hover {
+  opacity: 0.9;
+}
+
+/* Text styling */
+.barcode-text {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .fallback-barcode {
+    padding: 0.75rem;
+  }
+}

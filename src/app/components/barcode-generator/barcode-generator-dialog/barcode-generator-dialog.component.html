@@ -1,0 +1,181 @@
+<!-- Backdrop -->
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" (click)="onBackdropClick($event)">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h4"></path>
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ t('BARCODE.GENERATE_LABELS') }}</h2>
+          <p class="text-sm text-gray-500">{{ items.length }} {{ t('BARCODE.ITEMS_SELECTED') }}</p>
+        </div>
+      </div>
+      <button (click)="onCancel()" class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6 max-h-[calc(90vh-200px)] overflow-y-auto space-y-6">
+      
+      <!-- Configuration Panel -->
+      <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+        <div class="flex items-center gap-2 mb-6">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('BARCODE.LABEL_CONFIGURATION') }}</h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          <!-- Code Type -->
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('BARCODE.CODE_TYPE') }}</label>
+            <select [(ngModel)]="options.codeType" (ngModelChange)="onConfigurationChange()" 
+                    class="config-field w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-gray-900">
+              <option value="qr">
+                <span class="flex items-center gap-2">
+                  QR Code
+                </span>
+              </option>
+              <option value="code128">Code 128</option>
+              <option value="ean13">EAN-13</option>
+            </select>
+          </div>
+
+          <!-- Label Size -->
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('BARCODE.LABEL_SIZE') }}</label>
+            <select [(ngModel)]="options.labelSize" (ngModelChange)="onConfigurationChange()" 
+                    class="config-field w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-gray-900">
+              <option value="4x2">{{ t('BARCODE.LABEL_SIZE_4X2') }} (4" x 2")</option>
+              <option value="2x1">{{ t('BARCODE.LABEL_SIZE_2X1') }} (2" x 1")</option>
+              <option value="3x1">{{ t('BARCODE.LABEL_SIZE_3X1') }} (3" x 1")</option>
+            </select>
+          </div>
+
+          <!-- Company Name -->
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('BARCODE.COMPANY_NAME') }}</label>
+            <input type="text" [(ngModel)]="options.companyName" (ngModelChange)="onConfigurationChange()" 
+                   [placeholder]="t('BARCODE.ENTER_COMPANY_NAME')" 
+                   class="config-field w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-gray-900">
+          </div>
+
+          <!-- Include Options -->
+          <div class="space-y-3">
+            <label class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('BARCODE.INCLUDE_IN_LABELS') }}</label>
+            
+            <div class="space-y-3">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="options.includeName" (ngModelChange)="onConfigurationChange()" 
+                       class="checkbox-custom w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ t('BARCODE.ITEM_NAME') }}</span>
+              </label>
+              
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="options.includeDescription" (ngModelChange)="onConfigurationChange()" 
+                       class="checkbox-custom w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ t('BARCODE.DESCRIPTION') }}</span>
+              </label>
+              
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="options.includeCompanyLogo" (ngModelChange)="onConfigurationChange()" 
+                       class="checkbox-custom w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ t('BARCODE.COMPANY_NAME') }}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview Panel -->
+      <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+        <div class="flex items-center gap-2 mb-6">
+          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('BARCODE.PREVIEW') }} ({{ previewItems().length }})</h3>
+        </div>
+
+        <div class="preview-scroll max-h-80 overflow-y-auto">
+          <div class="grid grid-cols-2 gap-4">
+            
+            <div *ngFor="let item of previewItems(); trackBy: trackByItemId" 
+                 class="preview-item border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800">
+              <div class="text-center space-y-3">
+                <!-- Company Name -->
+                <div *ngIf="options.includeCompanyLogo && options.companyName" 
+                     class="text-xs font-bold text-gray-900 dark:text-white">
+                  {{ options.companyName }}
+                </div>
+
+                <!-- Barcode Display Component -->
+                <app-barcode-display 
+                  [code]="item.code"
+                  [type]="options.codeType"
+                  [name]="options.includeName ? item.name : undefined"
+                  [width]="options.codeType === 'qr' ? 80 : 120"
+                  [height]="options.codeType === 'qr' ? 80 : 50">
+                </app-barcode-display>
+
+                <!-- Description -->
+                <div *ngIf="options.includeDescription && item.description" 
+                     class="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                  {{ item.description }}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Empty state -->
+            <div *ngIf="previewItems().length === 0" class="col-span-2 text-center py-12">
+              <div class="empty-state">
+                <div class="text-gray-400 mb-4">
+                  <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                </div>
+                <p class="text-lg font-medium text-gray-500 mb-2">{{ t('BARCODE.NO_PREVIEW_ITEMS') }}</p>
+                <p class="text-sm text-gray-400">{{ t('BARCODE.SELECT_ITEMS_TO_PREVIEW') }}</p>
+              </div>
+            </div>
+            
+            <!-- More items indicator -->
+            <div *ngIf="items.length > 4" class="text-center text-sm text-gray-500 py-4 col-span-2 border-t border-gray-200 dark:border-gray-600 mt-4 pt-4">
+              {{ t('BARCODE.AND_MORE_ITEMS') }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-center gap-3 p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+      <button (click)="onPrint()" [disabled]="items.length === 0"
+              class="action-button px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+        </svg>
+        {{ t('BARCODE.PRINT') }}
+      </button>
+
+      <button (click)="onDownloadPDF()" [disabled]="items.length === 0"
+              class="action-button px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        {{ t('BARCODE.DOWNLOAD_PDF') }}
+      </button>
+    </div>
+  </div>
+</div>

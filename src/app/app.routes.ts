@@ -82,6 +82,20 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
 
+  // Barcode Generator route - requires authentication
+  {
+    path: 'barcode-generator',
+    loadComponent: () => import('./components/barcode-generator/barcode-generator-management/barcode-generator-management.component').then(m => m.BarcodeGeneratorManagementComponent),
+    canActivate: [AuthGuard]
+  },
+
+  // Gamification route - requires authentication
+  {
+    path: 'gamification',
+    loadComponent: () => import('./components/gamification/gamification-management/gamification-management.component').then(m => m.GamificationManagementComponent),
+    canActivate: [AuthGuard]
+  },
+
   {
     path: '**',
     redirectTo: '/dashboard'

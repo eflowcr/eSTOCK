@@ -13,4 +13,6 @@ export * from './extras/language.service';
 export * from './extras/loading.service';
 export * from './dashboard.service';
 export * from './stock-alert.service';
+export * from './barcode.service';
+export * from './gamification.service';
 

@@ -707,7 +707,6 @@ export const enTranslations = {
   'STOCK_ALERTS.NO_HIGH': 'No high priority alerts',
   'STOCK_ALERTS.ALL_ALERTS_SHOWN': 'All alerts shown',
   'STOCK_ALERTS.DEMO_DATA': 'Demo data',
-  'STOCK_ALERTS.DEMO_DATA_LOADED': 'Demo data loaded for testing',
   'STOCK_ALERTS.SEARCH': 'Search',
   'STOCK_ALERTS.SEARCH_PLACEHOLDER': 'Search by SKU or message...',
   'STOCK_ALERTS.ALL_LEVELS': 'All levels',
@@ -744,4 +743,25 @@ export const enTranslations = {
   'COMMON.JUST_NOW': 'Just now',
   'COMMON.HOURS_AGO': '{{hours}} hours ago',
   'COMMON.DAYS_AGO': '{{days}} days ago',
+
+  // Barcode Generator
+  'BARCODE.PRINT': 'Print',
+  'BARCODE.DOWNLOAD_PDF': 'Download',
+  'BARCODE.PREVIEW': 'Preview',
+  'BARCODE.NO_PREVIEW_ITEMS': 'No preview items',
+  'BARCODE.SELECT_ITEMS_TO_PREVIEW': 'Select items to preview',
+  'BARCODE.AND_MORE_ITEMS': 'and more items...',
+  'BARCODE.GENERATING': 'Generating...',
+  'BARCODE.GENERATION_ERROR': 'Error generating code',
+  'BARCODE.IMAGE_LOAD_ERROR': 'Error loading image',
+  'BARCODE.ALT_TEXT': 'Barcode',
+
+  // Priority translations
+  'PRIORITY.HIGH': 'High',
+  'PRIORITY.MEDIUM': 'Medium',
+  'PRIORITY.LOW': 'Low',
+  'PRIORITY.NORMAL': 'Normal',
+  'PRIORITY.URGENT': 'Urgent',
+
+  'COMMON.INFO': 'Information',
 };

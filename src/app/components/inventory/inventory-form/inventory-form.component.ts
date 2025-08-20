@@ -594,7 +594,11 @@ export class InventoryFormComponent implements OnInit, OnChanges {
 
     try {
       this.isSubmitting = true;
-      const formData = this.inventoryForm.value;
+      const formData = { ...this.inventoryForm.value };
+      
+      if (formData.unitPrice) {
+        formData.unitPrice = parseFloat(formData.unitPrice);
+      }
 
       let response;
       if (this.isEditing && this.inventory) {
