@@ -51,8 +51,18 @@ export interface GamificationStats {
 }
 
 export interface OperatorStats extends UserStat {
-	user_name?: string;
-	user_email?: string;
-	total_tasks: number;
-	rank: number;
+	user: {
+		id: string;
+		email: string;
+		first_name: string;
+		last_name: string;
+		role: string;
+	};
+	badges: {
+		id: number;
+		user_id: string;
+		badge_id: number;
+		awarded_at: string;
+		badge: Badge;
+	}[];
 }

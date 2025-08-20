@@ -146,6 +146,18 @@ export class FileImportComponent {
       return;
     }
 
+    if (this.config.templateType === 'picking_tasks') {
+      this.downloadPickingTasksExcelTemplate();
+      return;
+    }
+
+    if (this.config.templateType === 'inventory') {
+      this.downloadInventoryExcelTemplate();
+      return;
+    }
+
+
+
     // Para otros casos, generar CSV
     const csvContent = this.config.templateFields.join(',') + '\n';
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -189,10 +201,30 @@ export class FileImportComponent {
     document.body.removeChild(link);
   }
 
+  private downloadInventoryExcelTemplate(): void {
+    const link = document.createElement('a');
+    link.href = '/assets/files/ImportInventory.xlsx';
+    link.download = 'ImportInventory.xlsx';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   private downloadReceivingTasksExcelTemplate(): void {
     const link = document.createElement('a');
     link.href = '/assets/files/ImportReceivingTasks.xlsx';
     link.download = 'ImportReceivingTasks.xlsx';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  private downloadPickingTasksExcelTemplate(): void {
+    const link = document.createElement('a');
+    link.href = '/assets/files/ImportPickingTasks.xlsx';
+    link.download = 'ImportPickingTasks.xlsx';
     link.target = '_blank';
     document.body.appendChild(link);
     link.click();

@@ -96,6 +96,13 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
 
+  // Admin Control Center route - requires authentication
+  {
+    path: 'admin-control-center',
+    loadComponent: () => import('./components/admin-control-center/admin-control-center-list.component').then(m => m.AdminControlCenterListComponent),
+    canActivate: [AuthGuard]
+  },
+
   {
     path: '**',
     redirectTo: '/dashboard'

@@ -1,0 +1,234 @@
+<app-main-layout>
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
+        {{ t('admin.title') }}
+      </h1>
+      <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+        {{ t('admin.live_performance_dashboard') }}
+      </p>
+    </div>
+    <button type="button" (click)="openExportDialog()"
+      [disabled]="operatorStats().length === 0"
+      class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-[#4465ec] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-[#4465ec] disabled:opacity-50 disabled:cursor-not-allowed">
+      <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+      {{ t('export') }}
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="flex items-center justify-center min-h-screen">
+    <div class="text-center space-y-4">
+      <div class="animate-spin rounded-full border-4 border-[#4465ec] border-t-transparent w-12 h-12 mx-auto"></div>
+      <p class="text-gray-500 dark:text-gray-400">{{ t('admin.loading_operator_performance_data') }}</p>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading()">
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-white dark:bg-gray-800 rounded-lg border border-border shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
+        <div class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <h3 class="text-sm font-medium text-gray-800 dark:text-gray-300">{{ t('admin.active_operators') }}</h3>
+          <svg class="h-6 w-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM10 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2z"/>
+            <path d="M18 8.5c-.83 0-1.5.67-1.5 1.5v4c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-4c0-.83-.67-1.5-1.5-1.5zM6 8.5c-.83 0-1.5.67-1.5 1.5v4c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-4c0-.83-.67-1.5-1.5-1.5zM12 8.5c-.83 0-1.5.67-1.5 1.5v4c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-4c0-.83-.67-1.5-1.5-1.5z"/>
+            <circle cx="6" cy="18" r="2" fill="currentColor" opacity="0.8"/>
+            <circle cx="12" cy="18" r="2" fill="currentColor" opacity="0.8"/>
+            <circle cx="18" cy="18" r="2" fill="currentColor" opacity="0.8"/>
+          </svg>
+        </div>
+        <div class="text-2xl font-bold text-[#4465ec]">{{ totalOperators() }}</div>
+        <p class="text-xs text-gray-600 dark:text-gray-400">{{ t('admin.registered_in_system') }}</p>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-lg border border-border shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
+        <div class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <h3 class="text-sm font-medium text-gray-800 dark:text-gray-300">{{ t('admin.total_tasks') }}</h3>
+          <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="text-2xl font-bold text-green-600">{{ totalTasksCompleted() }}</div>
+        <p class="text-xs text-gray-600 dark:text-gray-400">{{ t('admin.completed_across_all_operators') }}</p>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-lg border border-border shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
+        <div class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <h3 class="text-sm font-medium text-gray-800 dark:text-gray-300">{{ t('admin.average_accuracy') }}</h3>
+          <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+          </svg>
+        </div>
+        <div class="text-2xl font-bold text-blue-600">{{ averageAccuracy().toFixed(1) }}%</div>
+        <p class="text-xs text-gray-600 dark:text-gray-400">{{ t('admin.fleet_wide_performance') }}</p>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-lg border border-border shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
+        <div class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <h3 class="text-sm font-medium text-gray-800 dark:text-gray-300">{{ t('admin.badges_earned') }}</h3>
+          <svg class="h-5 w-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <div class="text-2xl font-bold text-amber-600">{{ totalBadgesEarned() }}</div>
+        <p class="text-xs text-gray-600 dark:text-gray-400">{{ t('admin.achievement_milestones') }}</p>
+      </div>
+    </div>
+
+    <!-- Operator Leaderboard -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-border shadow-sm mt-4 mb-4">
+      <div class="p-6 border-b border-border">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <svg class="h-5 w-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C13.1 2 14 2.9 14 4V6H18C18.5 6 19 6.4 19 7V10C19 11.1 18.1 12 17 12H16.5C16.1 13.8 14.8 15.3 13 16.1V18H16C16.6 18 17 18.4 17 19S16.6 20 16 20H8C7.4 20 7 19.6 7 19S7.4 18 8 18H11V16.1C9.2 15.3 7.9 13.8 7.5 12H7C5.9 12 5 11.1 5 10V7C5 6.4 5.5 6 6 6H10V4C10 2.9 10.9 2 12 2ZM7 8V10H7.5C7.5 9.3 7.6 8.6 7.8 8H7ZM16.2 8C16.4 8.6 16.5 9.3 16.5 10H17V8H16.2ZM12 4V14C13.7 14 15.1 12.7 15.4 11H14.5C14.2 11 14 10.8 14 10.5S14.2 10 14.5 10H15.5C15.5 9.7 15.4 9.3 15.3 9H14.5C14.2 9 14 8.8 14 8.5S14.2 8 14.5 8H15C14.4 6.8 13.3 6 12 6V4Z"/>
+          </svg>
+          {{ t('admin.operator_performance_leaderboard') }}
+        </h2>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4">
+          <div *ngFor="let operator of sortedOperators(); let i = index; trackBy: trackByOperatorId" 
+               class="flex items-center justify-between p-4 border border-border rounded-lg bg-white dark:bg-gray-800 hover:shadow-sm transition-shadow duration-200">
+            <div class="flex items-center gap-4">
+              <!-- Rank Badge -->
+              <div class="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold"
+                   [class]="getRankBadgeClass(i + 1)">
+                #{{ i + 1 }}
+              </div>
+
+              <!-- Operator Info -->
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-semibold text-gray-900 dark:text-white">
+                    {{ operator.username || t('admin.unknown') }}
+                  </h3>
+                  <svg *ngIf="i < 3" class="h-4 w-4" [class]="getTrophyClass(i + 1)" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">{{ operator.email }}</p>
+              </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="flex items-center gap-10">
+              <div class="text-center">
+                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ (operator.receiving_tasks_completed || 0) + (operator.picking_tasks_completed || 0) }}
+                </div>
+                <div class="text-xs text-gray-700 dark:text-gray-300">{{ t('admin.tasks') }}</div>
+              </div>
+              
+              <div class="text-center">
+                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ getAccuracyDisplay(operator).display }}
+                </div>
+                <div class="text-xs text-gray-700 dark:text-gray-300">{{ t('admin.accuracy') }}</div>
+              </div>
+              
+              <div class="text-center">
+                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ ((operator.avg_pick_time || 0) / 60).toFixed(1) }}{{ t('admin.min') }}
+                </div>
+                <div class="text-xs text-gray-700 dark:text-gray-300">{{ t('admin.avg_time') }}</div>
+              </div>
+              
+              <div class="text-center">
+                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ operator.badges.length }}</div>
+                <div class="text-xs text-gray-700 dark:text-gray-300">{{ t('admin.badges') }}</div>
+              </div>
+
+              <div class="text-center">
+                <div class="text-sm font-medium text-[#4465ec]">
+                  {{ (((operator.receiving_tasks_completed || 0) + (operator.picking_tasks_completed || 0)) * ((operator.picking_tasks_completed || 0) > 0 ? (operator.pick_accuracy || 0) : 0) / 100).toFixed(1) }}
+                </div>
+                <div class="text-xs text-gray-700 dark:text-gray-300">{{ t('admin.score') }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="operatorStats().length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+            <svg class="h-12 w-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 515.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 919.288 0M15 7a3 3 0 11-6 0 3 3 0 616 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            <p>{{ t('admin.no_operator_performance_data') }}</p>
+            <p class="text-sm">{{ t('admin.operators_will_appear_message') }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Performance Breakdown -->
+    <div *ngIf="operatorStats().length > 0" class="bg-white dark:bg-gray-800 rounded-lg border border-border shadow-sm">
+      <div class="p-6 border-b border-border">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          {{ t('admin.detailed_performance_metrics') }}
+        </h2>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
+          <div *ngFor="let operator of sortedOperators(); trackBy: trackByOperatorId" 
+               class="p-4 border border-border rounded-lg space-y-4 bg-white dark:bg-gray-800 hover:shadow-sm transition-shadow duration-200">
+            <div class="flex items-center justify-between">
+              <h4 class="font-semibold text-gray-900 dark:text-white">
+                {{ operator.username || t('admin.unknown') }}
+              </h4>
+              <div class="flex gap-1">
+                <span *ngFor="let userBadge of operator.badges" 
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                  {{ userBadge.badge.name }}
+                </span>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-700 dark:text-gray-300">{{ t('admin.pick_accuracy') }}</span>
+                <span class="font-medium text-gray-900 dark:text-white">{{ getAccuracyDisplay(operator).display }}</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                <div class="bg-[#4465ec] h-2 rounded-full transition-all duration-300" 
+                     [style.width.%]="getAccuracyDisplay(operator).value"></div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-4 text-sm">
+              <div>
+                <div class="text-gray-700 dark:text-gray-300 text-center">{{ t('admin.receiving_tasks') }}</div>
+                <div class="font-medium text-center text-gray-900 dark:text-white">{{ operator.receiving_tasks_completed || 0 }}</div>
+              </div>
+              <div>
+                <div class="text-gray-700 dark:text-gray-300 text-center">{{ t('admin.picking_tasks') }}</div>
+                <div class="font-medium text-center text-gray-900 dark:text-white">{{ operator.picking_tasks_completed || 0 }}</div>
+              </div>
+              <div>
+                <div class="text-gray-700 dark:text-gray-300 text-center">{{ t('admin.total_pick_time') }}</div>
+                <div class="font-medium text-center text-gray-900 dark:text-white">{{ ((operator.total_picking_time || 0) / 60).toFixed(1) }} {{ t('admin.min') }}</div>
+              </div>
+              <div>
+                <div class="text-gray-700 dark:text-gray-300 text-center">{{ t('admin.avg_pick_time') }}</div>
+                <div class="font-medium text-center text-gray-900 dark:text-white">{{ ((operator.avg_pick_time || 0) / 60).toFixed(1) }} {{ t('admin.min') }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Dialog -->
+  <app-data-export *ngIf="isExportDialogOpen()" [config]="exportConfig" [isOpen]="isExportDialogOpen()"
+    (closed)="closeExportDialog()"></app-data-export>
+</div>
+</app-main-layout>
+
