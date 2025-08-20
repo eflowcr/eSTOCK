@@ -7,11 +7,12 @@ import { StockAlert } from '@app/models/stock-alert.model';
 import { AlertLevel } from '@app/models';
 import { LanguageService } from '@app/services/extras/language.service';
 import { LoadingSpinnerComponent } from '@app/components/shared/extras/loading-spinner/loading-spinner.component';
+import { CardContainerComponent } from '../card-container/card-container.component';
 
 @Component({
   selector: 'app-dashboard-stock-alerts',
   standalone: true,
-	imports: [CommonModule, RouterModule, LoadingSpinnerComponent],
+	imports: [CommonModule, RouterModule, LoadingSpinnerComponent, CardContainerComponent],
 	templateUrl: './stock-alerts-widget.component.html',
 	styleUrl: './stock-alerts-widget.component.css'
 })

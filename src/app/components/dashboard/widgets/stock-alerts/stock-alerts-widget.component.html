@@ -1,80 +1,58 @@
-<div class="bg-white dark:bg-gray-800 shadow rounded-lg">
-	<!-- Widget Header -->
-	<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-		<div class="flex items-center justify-between">
-			<h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-				{{ t('STOCK_ALERTS.WIDGET_TITLE') }}
-			</h3>
-			<div class="flex items-center space-x-2">
-				<button 
-					(click)="refreshAlerts()"
-					[disabled]="isLoading()"
-					class="inline-flex items-center p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
-					<svg class="h-4 w-4" [class.animate-spin]="isLoading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-					</svg>
-				</button>
-				<a 
-					routerLink="/stock-alerts"
-					class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30">
-					{{ t('COMMON.VIEW_ALL') }}
-				</a>
-			</div>
-		</div>
-	</div>
+<app-dashboard-card [title]="'stock_alerts'">
+	<ng-container slot="actions">
+		<button 
+			(click)="refreshAlerts()"
+			[disabled]="isLoading()"
+			class="inline-flex items-center p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
+			<svg class="h-3 w-3" [class.animate-spin]="isLoading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+			</svg>
+		</button>
+		<a 
+			routerLink="/stock-alerts"
+			class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30">
+			{{ t('COMMON.VIEW_ALL') }}
+		</a>
+	</ng-container>
 
-	<div class="p-6">
+	<div class="h-full flex flex-col">
 		<!-- Loading State -->
-		<div *ngIf="isLoading()" class="flex justify-center py-4">
+		<div *ngIf="isLoading()" class="flex justify-center py-2">
 			<app-loading-spinner></app-loading-spinner>
 		</div>
 
-		<!-- Alert Summary - Siempre mostrar contenido -->
-		<div *ngIf="!isLoading()" class="space-y-4">
+		<!-- Alert Content -->
+		<div *ngIf="!isLoading()" class="flex-1 flex flex-col overflow-hidden">
 			<!-- Summary Grid -->
-			<div class="grid grid-cols-3 gap-4">
-				<!-- Critical Alerts -->
+			<div class="grid grid-cols-3 gap-2 mb-2">
 				<div class="text-center">
-					<div class="text-2xl font-bold" [class]="getAlertLevelClass('critical')">
+					<div class="text-lg font-bold" [class]="getAlertLevelClass('critical')">
 						{{ criticalAlerts().length }}
 					</div>
-					<div class="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center mt-1">
-						<svg class="h-3 w-3 text-red-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-						</svg>
-						<span>{{ t('STOCK_ALERTS.CRITICAL') }}</span>
+					<div class="text-xs text-gray-500 dark:text-gray-400">
+						{{ t('STOCK_ALERTS.CRITICAL') }}
 					</div>
 				</div>
-
-				<!-- High Priority Alerts -->
 				<div class="text-center">
-					<div class="text-2xl font-bold" [class]="getAlertLevelClass('high')">
+					<div class="text-lg font-bold" [class]="getAlertLevelClass('high')">
 						{{ highAlerts().length }}
 					</div>
-					<div class="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center mt-1">
-						<svg class="h-3 w-3 text-orange-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
-						</svg>
-						<span>{{ t('STOCK_ALERTS.HIGH') }}</span>
+					<div class="text-xs text-gray-500 dark:text-gray-400">
+						{{ t('STOCK_ALERTS.HIGH') }}
 					</div>
 				</div>
-
-				<!-- Medium Priority Alerts -->
 				<div class="text-center">
-					<div class="text-2xl font-bold" [class]="getAlertLevelClass('medium')">
+					<div class="text-lg font-bold" [class]="getAlertLevelClass('medium')">
 						{{ mediumAlerts().length }}
 					</div>
-					<div class="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center mt-1">
-						<svg class="h-3 w-3 text-yellow-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-						</svg>
-						<span>{{ t('STOCK_ALERTS.MEDIUM') }}</span>
+					<div class="text-xs text-gray-500 dark:text-gray-400">
+						{{ t('STOCK_ALERTS.MEDIUM') }}
 					</div>
 				</div>
 			</div>
 
 			<!-- Recent Alerts Section -->
-			<div class="mt-6">
+			<div class="mt-2">
 				<!-- No Active Alerts -->
 				<div *ngIf="totalActiveAlerts() === 0" class="text-center py-6">
 					<svg class="h-12 w-12 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,16 +72,16 @@
 							<svg class="h-4 w-4" [class]="getAlertLevelClass(alert.alert_level)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
 							</svg>
-							<div class="flex-1 min-w-0">
+						<div class="flex-1 min-w-0">
 								<div class="flex items-center space-x-2">
 									<span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-										{{ alert.sku }}
-									</span>
+									{{ alert.sku }}
+								</span>
 									<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border"
-										[class]="getAlertBadgeClass(alert.alert_level)">
+									[class]="getAlertBadgeClass(alert.alert_level)">
 										{{ t('STOCK_ALERTS.LEVEL.' + alert.alert_level.toUpperCase()) }}
-									</span>
-								</div>
+								</span>
+							</div>
 								<div class="flex items-center space-x-4 mt-1">
 									<span class="text-xs text-gray-500 dark:text-gray-400">
 										{{ alert.current_stock }} {{ t('COMMON.UNITS') }} {{ t('STOCK_ALERTS.REMAINING') }}
@@ -152,4 +130,4 @@
 			</div>
 		</div>
 	</div>
-</div>
+</app-dashboard-card>

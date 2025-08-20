@@ -40,13 +40,17 @@
               </label>
               <div class="mt-1">
                 <input type="text"
-                  (focus)="showSkuDropdown = true"
+                  [disabled]="isEditing"
+                  (focus)="!isEditing && (showSkuDropdown = true)"
                   (blur)="closeSkuDropdownLater()"
                   [(ngModel)]="skuSearchTerm"
                   (input)="filterArticles()"
                   (keydown.enter)="$event.preventDefault(); confirmFirstArticleIfAny()"
                   [ngModelOptions]="{standalone: true}"
                   placeholder="{{ t('select_sku') }}"
+                  [class.bg-gray-100]="isEditing"
+                  [class.cursor-not-allowed]="isEditing"
+                  [class.dark:bg-gray-600]="isEditing"
                   class="block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   [class.border-red-500]="isFieldInvalid('sku')"
                 />
@@ -73,13 +77,17 @@
               </label>
               <div class="mt-1">
                 <input type="text"
-                  (focus)="showLocationDropdown = true"
+                  [disabled]="isEditing"
+                  (focus)="!isEditing && (showLocationDropdown = true)"
                   (blur)="closeLocationDropdownLater()"
                   [(ngModel)]="locationSearchTerm"
                   (input)="filterLocations()"
                   (keydown.enter)="$event.preventDefault(); confirmFirstLocationIfAny()"
                   [ngModelOptions]="{standalone: true}"
                   placeholder="{{ t('select_location') }}"
+                  [class.bg-gray-100]="isEditing"
+                  [class.cursor-not-allowed]="isEditing"
+                  [class.dark:bg-gray-600]="isEditing"
                   class="block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   [class.border-red-500]="isFieldInvalid('location')"
                 />
@@ -105,7 +113,9 @@
             <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ t('name') }} *
             </label>
-            <input type="text" id="name" formControlName="name" readonly [class.border-red-500]="isFieldInvalid('name')"
+            <input type="text" id="name" formControlName="name" 
+              readonly
+              [class.border-red-500]="isFieldInvalid('name')"
               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed text-[#00113f] dark:bg-gray-600 dark:border-gray-600 dark:text-white" />
             <p *ngIf="isFieldInvalid('name')" class="mt-1 text-sm text-red-600">
               {{ getFieldError('name') }}
@@ -117,7 +127,8 @@
             <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ t('description') }}
             </label>
-            <textarea id="description" formControlName="description" rows="3" readonly
+            <textarea id="description" formControlName="description" rows="3" 
+              readonly
               [class.border-red-500]="isFieldInvalid('description')"
               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed text-[#00113f] dark:bg-gray-600 dark:border-gray-600 dark:text-white"></textarea>
             <p *ngIf="isFieldInvalid('description')" class="mt-1 text-sm text-red-600">
@@ -132,10 +143,15 @@
               <label for="quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('quantity') }} *
               </label>
-              <input type="number" id="quantity" formControlName="quantity" min="0" (input)="onQuantityInput()"
+              <input type="number" id="quantity" formControlName="quantity" min="0" 
+                [readonly]="isEditing"
+                (input)="onQuantityInput()"
                 [class.border-red-500]="isFieldInvalid('quantity')"
                 [class.focus:ring-red-500]="isFieldInvalid('quantity')"
                 [class.focus:border-red-500]="isFieldInvalid('quantity')"
+                [class.bg-gray-100]="isEditing"
+                [class.cursor-not-allowed]="isEditing"
+                [class.dark:bg-gray-600]="isEditing"
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                 [placeholder]="t('enter_quantity')" />
               <p *ngIf="isFieldInvalid('quantity')" class="mt-1 text-sm text-red-600">
@@ -148,7 +164,8 @@
               <label for="presentation" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('presentation') }} *
               </label>
-              <input type="text" id="presentation" formControlName="presentation" readonly
+              <input type="text" id="presentation" formControlName="presentation" 
+                readonly
                 [class.border-red-500]="isFieldInvalid('presentation')"
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed text-[#00113f] dark:bg-gray-600 dark:border-gray-600 dark:text-white" />
               <p *ngIf="isFieldInvalid('presentation')" class="mt-1 text-sm text-red-600">
@@ -161,7 +178,8 @@
               <label for="unitPrice" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('unit_price') }} *
               </label>
-              <input type="text" id="unitPrice" formControlName="unitPrice" readonly
+              <input type="text" id="unitPrice" formControlName="unitPrice" 
+                readonly
                 [class.border-red-500]="isFieldInvalid('unitPrice')"
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed text-[#00113f] dark:bg-gray-600 dark:border-gray-600 dark:text-white" />
               <p *ngIf="isFieldInvalid('unitPrice')" class="mt-1 text-sm text-red-600">
