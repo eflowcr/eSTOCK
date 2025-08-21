@@ -3,7 +3,7 @@ export interface PickingTask {
 	task_id: string;
 	outbound_number: string;
 	created_by: string;
-	assigned_to?: string | null;
+	assigned_to: string;
 	status: string;
 	priority: string;
 	notes?: string | null;
@@ -24,7 +24,7 @@ export interface PickingTaskItem {
 
 export interface CreatePickingTaskRequest {
 	outbound_number: string;
-	assigned_to?: string;
+	assigned_to: string;
 	priority: string;
 	status: string;
 	notes?: string;

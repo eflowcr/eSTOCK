@@ -1,25 +1,58 @@
-/* Barcode Display Component Styles */
+/* Estilos para el componente de visualización de códigos de barras */
 
-/* Container styling */
-.barcode-container {
-  transition: all 0.2s ease-in-out;
+.border {
+  border-width: 1px;
 }
 
-.barcode-container:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.rounded-lg {
+  border-radius: 0.5rem;
 }
 
-/* Canvas styling */
+.p-3 {
+  padding: 0.75rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Estilos para el canvas del código de barras */
 canvas {
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-crisp-edges;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
 }
 
-/* Loading animation */
-.loading-spinner {
+/* Estilos para las imágenes de fallback */
+img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
+}
+
+/* Estilos para el estado de error */
+.text-red-600 {
+  color: #dc2626;
+}
+
+.dark .text-red-600 {
+  color: #f87171;
+}
+
+/* Estilos para el estado de carga */
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af;
+}
+
+/* Estilos para el spinner de carga */
+.animate-spin {
   animation: spin 1s linear infinite;
 }
 
@@ -32,62 +65,338 @@ canvas {
   }
 }
 
-/* Error state styling */
-.error-state {
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-  border: 1px solid #fecaca;
+/* Estilos para el texto del código */
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
-.dark .error-state {
-  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+/* Estilos para el nombre del artículo */
+.font-medium {
+  font-weight: 500;
+}
+
+/* Estilos para el texto del tipo de código */
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+/* Espaciado entre elementos */
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+
+.space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+/* Estilos para el fallback de códigos lineales */
+.bg-gray-100 {
+  background-color: #f3f4f6;
+}
+
+.dark .bg-gray-100 {
+  background-color: #374151;
+}
+
+/* Estilos para el texto del código en fallback */
+.text-gray-900 {
+  color: #111827;
+}
+
+.dark .text-gray-900 {
+  color: #f9fafb;
+}
+
+.text-gray-600 {
+  color: #4b5563;
+}
+
+.dark .text-gray-600 {
+  color: #d1d5db;
+}
+
+.text-gray-400 {
+  color: #9ca3af;
+}
+
+.dark .text-gray-400 {
+  color: #9ca3af;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af;
+}
+
+/* Estilos para el nombre del artículo */
+.text-gray-900 {
+  color: #111827;
+}
+
+.dark .text-gray-900 {
+  color: #f9fafb;
+}
+
+/* Estilos para el código del artículo */
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af;
+}
+
+/* Estilos para el texto del tipo de código */
+.text-gray-400 {
+  color: #9ca3af;
+}
+
+.dark .text-gray-400 {
+  color: #9ca3af;
+}
+
+/* Estilos para el borde */
+.border-gray-200 {
+  border-color: #e5e7eb;
+}
+
+.dark .border-gray-200 {
+  border-color: #374151;
+}
+
+.border-gray-600 {
+  border-color: #4b5563;
+}
+
+.dark .border-gray-600 {
+  border-color: #4b5563;
+}
+
+/* Estilos para el fondo */
+.bg-white {
+  background-color: #ffffff;
+}
+
+.dark .bg-white {
+  background-color: #1f2937;
+}
+
+.bg-gray-800 {
+  background-color: #1f2937;
+}
+
+.dark .bg-gray-800 {
+  background-color: #111827;
+}
+
+/* Estilos para el estado de hover */
+.hover\:bg-gray-50:hover {
+  background-color: #f9fafb;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: #374151;
+}
+
+/* Estilos para el estado de focus */
+.focus\:outline-none:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus\:ring-2:focus {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+.focus\:ring-blue-500:focus {
+  --tw-ring-color: #3b82f6;
+}
+
+/* Estilos para el estado de disabled */
+.disabled\:opacity-50:disabled {
+  opacity: 0.5;
+}
+
+.disabled\:cursor-not-allowed:disabled {
+  cursor: not-allowed;
+}
+
+/* Estilos para el estado de loading */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Estilos para el estado de error */
+.error {
   border-color: #dc2626;
+  background-color: #fef2f2;
 }
 
-/* Fallback barcode styling */
-.fallback-barcode {
-  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-  border: 2px dashed #d1d5db;
-  transition: all 0.2s ease-in-out;
+.dark .error {
+  border-color: #f87171;
+  background-color: #1f1f1f;
 }
 
-.fallback-barcode:hover {
-  border-color: #9ca3af;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+/* Estilos para el estado de éxito */
+.success {
+  border-color: #059669;
+  background-color: #f0fdf4;
 }
 
-.dark .fallback-barcode {
-  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+.dark .success {
+  border-color: #34d399;
+  background-color: #1f1f1f;
+}
+
+/* Estilos para el estado de warning */
+.warning {
+  border-color: #d97706;
+  background-color: #fffbeb;
+}
+
+.dark .warning {
+  border-color: #fbbf24;
+  background-color: #1f1f1f;
+}
+
+/* Estilos para el estado de info */
+.info {
+  border-color: #0891b2;
+  background-color: #f0f9ff;
+}
+
+.dark .info {
+  border-color: #22d3ee;
+  background-color: #1f1f1f;
+}
+
+/* Estilos para el estado de primary */
+.primary {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.dark .primary {
+  border-color: #60a5fa;
+  background-color: #1f1f1f;
+}
+
+/* Estilos para el estado de secondary */
+.secondary {
   border-color: #6b7280;
+  background-color: #f9fafb;
 }
 
-.dark .fallback-barcode:hover {
+.dark .secondary {
   border-color: #9ca3af;
-  background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+  background-color: #1f1f1f;
 }
 
-/* Image styling */
-img {
-  transition: opacity 0.2s ease-in-out;
+/* Estilos para el estado de success */
+.success {
+  border-color: #059669;
+  background-color: #f0fdf4;
 }
 
-img:hover {
-  opacity: 0.9;
+.dark .success {
+  border-color: #34d399;
+  background-color: #1f1f1f;
 }
 
-/* Text styling */
-.barcode-text {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  letter-spacing: 0.05em;
+/* Estilos para el estado de danger */
+.danger {
+  border-color: #dc2626;
+  background-color: #fef2f2;
 }
 
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  canvas {
-    max-width: 100%;
-    height: auto;
-  }
-  
-  .fallback-barcode {
-    padding: 0.75rem;
-  }
+.dark .danger {
+  border-color: #f87171;
+  background-color: #1f1f1f;
+}
+
+/* Estilos para el estado de warning */
+.warning {
+  border-color: #d97706;
+  background-color: #fffbeb;
+}
+
+.dark .warning {
+  border-color: #fbbf24;
+  background-color: #1f1f1f;
+}
+
+/* Estilos para el estado de info */
+.info {
+  border-color: #0891b2;
+  background-color: #f0f9ff;
+}
+
+.dark .info {
+  border-color: #22d3ee;
+  background-color: #1f1f1f;
+}
+
+/* Estilos para el estado de light */
+.light {
+  border-color: #f3f4f6;
+  background-color: #ffffff;
+}
+
+.dark .light {
+  border-color: #374151;
+  background-color: #1f1f1f;
+}
+
+/* Estilos para el estado de dark */
+.dark {
+  border-color: #1f2937;
+  background-color: #111827;
+}
+
+.dark .dark {
+  border-color: #374151;
+  background-color: #1f1f1f;
+}
+
+/* Estilos para el estado de transparent */
+.transparent {
+  border-color: transparent;
+  background-color: transparent;
+}
+
+/* Estilos para el estado de current */
+.current {
+  border-color: currentColor;
+  background-color: currentColor;
+}
+
+/* Estilos para el estado de inherit */
+.inherit {
+  border-color: inherit;
+  background-color: inherit;
+}
+
+/* Estilos para el estado de initial */
+.initial {
+  border-color: initial;
+  background-color: initial;
+}
+
+/* Estilos para el estado de revert */
+.revert {
+  border-color: revert;
+  background-color: revert;
+}
+
+/* Estilos para el estado de unset */
+.unset {
+  border-color: unset;
+  background-color: unset;
 }

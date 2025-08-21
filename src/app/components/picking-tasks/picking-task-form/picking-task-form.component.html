@@ -47,17 +47,31 @@
             </div>
 
             <!-- Assigned To -->
-            <div class="form-group">
+            <div class="form-group relative">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ t('assign_to_operator') }}
               </label>
-              <select formControlName="assigned_to"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                <option value="">{{ t('select_operator') }}</option>
-                <option *ngFor="let user of users" [value]="user.id">
+              <div>
+                <input type="text" (focus)="showOperatorDropdown = true" (blur)="closeOperatorDropdownLater()"
+                  [(ngModel)]="operatorSearchTerm" (input)="filterOperators()"
+                  (keydown.enter)="$event.preventDefault(); confirmFirstOperatorIfAny()" [ngModelOptions]="{standalone: true}"
+                  placeholder="{{ t('select_operator') }}"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  [class.border-red-500]="isFieldInvalid('assigned_to')" />
+                <input type="hidden" formControlName="assigned_to" />
+              </div>
+              <div *ngIf="showOperatorDropdown" class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md max-h-56 overflow-auto shadow-xl">
+                <button type="button" *ngFor="let user of filteredOperators" (mousedown)="$event.preventDefault()" (click)="onOperatorSelected(user)"
+                  class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
                   {{ getUserDisplayName(user.id) }}
-                </option>
-              </select>
+                </button>
+                <div *ngIf="filteredOperators.length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                  {{ t('no_results') }}
+                </div>
+              </div>
+              <div *ngIf="isFieldInvalid('assigned_to')" class="text-red-600 text-sm mt-1">
+                {{ getFieldError('assigned_to') }}
+              </div>
             </div>
 
             <!-- Priority -->

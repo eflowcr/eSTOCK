@@ -51,6 +51,11 @@ export class PickingTaskFormComponent implements OnInit {
 	showLotDropdown: boolean[] = [];
 	showSerialDropdown: boolean[] = [];
 	requiredQuantities: number[] = [];
+	
+	// Operator combobox properties
+	operatorSearchTerm: string = '';
+	showOperatorDropdown: boolean = false;
+	filteredOperators: User[] = [];
 
 	constructor(
 		private fb: FormBuilder,
@@ -67,7 +72,7 @@ export class PickingTaskFormComponent implements OnInit {
 	) {
 		this.form = this.fb.group({
 			outbound_number: ['', [Validators.required]],
-			assigned_to: [''],
+			assigned_to: ['', [Validators.required]],
 			priority: ['normal', [Validators.required]],
 			notes: [''],
 			items: this.fb.array([])
@@ -90,17 +95,55 @@ export class PickingTaskFormComponent implements OnInit {
 
 	// Modal helpers
 	close(): void {
+		this.resetForm();
 		this.cancel.emit();
 	}
 
 	onCancel(): void {
+		this.resetForm();
 		this.cancel.emit();
+	}
+
+	private resetForm(): void {
+		this.operatorSearchTerm = '';
+		this.showOperatorDropdown = false;
+		this.filteredOperators = [...this.users];
+		this.form.reset();
 	}
 
 	onBackdropClick(event: Event): void {
 		if (event.target === event.currentTarget) {
 			this.close();
 		}
+	}
+
+	// Operator combobox methods
+	filterOperators(): void {
+		const term = (this.operatorSearchTerm || '').toLowerCase();
+		if (!term) {
+			this.filteredOperators = [...this.users];
+			return;
+		}
+		this.filteredOperators = this.users.filter(user => 
+			(user.first_name || '').toLowerCase().includes(term) || 
+			(user.last_name || '').toLowerCase().includes(term) || 
+			(user.email || '').toLowerCase().includes(term)
+		);
+	}
+
+	onOperatorSelected(user: User): void {
+		this.form.patchValue({ assigned_to: user.id });
+		this.operatorSearchTerm = this.getUserDisplayName(user.id);
+		this.showOperatorDropdown = false;
+	}
+
+	closeOperatorDropdownLater(): void {
+		setTimeout(() => (this.showOperatorDropdown = false), 150);
+	}
+
+	confirmFirstOperatorIfAny(): void {
+		const list = this.filteredOperators || [];
+		if (list.length > 0) this.onOperatorSelected(list[0]);
 	}
 
 	async loadData(): Promise<void> {
@@ -121,6 +164,7 @@ export class PickingTaskFormComponent implements OnInit {
 			if (userResponse.result.success) {
 				// Only operators
 				this.users = (userResponse.data || []).filter((u: User) => u.role === 'operator');
+				this.filteredOperators = [...this.users];
 			}
 
 			if (articleResponse.result.success) {
@@ -140,12 +184,22 @@ export class PickingTaskFormComponent implements OnInit {
 	loadTaskForEdit(): void {
 		if (!this.task) return;
 
+		
+		// Inicializar el campo de operador
+		if (this.task.assigned_to) {
+			const user = this.users.find(u => u.id === this.task!.assigned_to);
+			if (user) {
+				this.operatorSearchTerm = this.getUserDisplayName(user.id);
+			}
+		}
+
 		this.form.patchValue({
 			outbound_number: this.task.outbound_number,
-			assigned_to: this.task.assigned_to || '',
+			assigned_to: this.task.assigned_to,
 			priority: this.task.priority,
 			notes: this.task.notes || ''
 		});
+
 
 		while (this.itemsArray.length !== 0) {
 			this.itemsArray.removeAt(0);
@@ -251,12 +305,11 @@ export class PickingTaskFormComponent implements OnInit {
 			this.loadingService.show();
 			
 			const formValue = this.form.value;
-			const taskData: CreatePickingTaskRequest = {
+			const taskData: any = {
 				outbound_number: formValue.outbound_number,
-				assigned_to: formValue.assigned_to || undefined,
+				assigned_to: formValue.assigned_to,
 				priority: formValue.priority,
 				status: this.task ? this.task.status : 'open',
-				notes: formValue.notes || undefined,
 				items: formValue.items.map((item: any, index: number) => ({
 					sku: item.sku,
 					required_qty: this.requiredQuantities[index] || 0,
@@ -265,6 +318,12 @@ export class PickingTaskFormComponent implements OnInit {
 					serial_numbers: item.serial_numbers ? item.serial_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s) : undefined
 				}))
 			};
+
+
+			if (formValue.notes && formValue.notes.trim() !== '') {
+				taskData.notes = formValue.notes;
+			}
+			
 
 			if (this.task) {
 				// Update existing task

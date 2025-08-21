@@ -3,7 +3,7 @@ export interface ReceivingTask {
 	task_id: string;
 	inbound_number: string;
 	created_by: string;
-	assigned_to?: string | null;
+	assigned_to: string;
 	status: string;
 	priority: string;
 	notes?: string | null;
@@ -24,9 +24,9 @@ export interface ReceivingTaskItem {
 
 export interface CreateReceivingTaskRequest {
 	inbound_number: string;
-	assigned_to?: string;
+	assigned_to: string;
 	priority: string;
-	status: string; // Agregar campo de estado
+	status: string; 
 	notes?: string;
 	items: CreateReceivingTaskItemRequest[];
 }
