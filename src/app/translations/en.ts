@@ -37,6 +37,7 @@ export const enTranslations = {
 
   'firstName_required': 'First name is required',
   'lastName_required': 'Last name is required',
+  'assigned_to_required': 'Assigned operator is required',
   'auth.registration_success': 'User created successfully. Please sign in.',
   'auth.registration_complete': 'Registration successful',
   'auth.registration_error': 'Error creating account',

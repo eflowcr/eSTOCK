@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, signal, computed } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, signal, computed, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BarcodeItem, BarcodeOptions, DEFAULT_BARCODE_OPTIONS, CodeType } from '@app/models/barcode.model';
@@ -33,7 +33,8 @@ export class BarcodeGeneratorDialogComponent implements OnInit {
   constructor(
     private barcodeService: BarcodeService,
     private languageService: LanguageService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -61,9 +62,11 @@ export class BarcodeGeneratorDialogComponent implements OnInit {
   onConfigurationChange() {
     // Trigger preview update
     this.previewUpdateTrigger.set(this.previewUpdateTrigger() + 1);
+    // Force change detection
+    this.cdr.detectChanges();
   }
 
-  trackByItemId(index: number, item: BarcodeItem): string {
+  trackByItemId = (index: number, item: BarcodeItem): string => {
     return item.id + '-' + (this.options?.codeType || 'qr') + '-' + this.previewUpdateTrigger();
   }
 

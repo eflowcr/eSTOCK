@@ -38,6 +38,7 @@ export const esTranslations = {
 
   'firstName_required': 'El nombre es requerido',
   'lastName_required': 'El apellido es requerido',
+  'assigned_to_required': 'El operador asignado es requerido',
   'auth.registration_success': 'Usuario creado exitosamente. Por favor inicia sesión.',
   'auth.registration_complete': 'Registro exitoso',
   'auth.registration_error': 'Error al crear la cuenta',
@@ -793,7 +794,7 @@ export const esTranslations = {
 
   // Barcode Generator
   'BARCODE.TITLE': 'Generador de Códigos de Barras y QR',
-  'BARCODE.DESCRIPTION': 'Genera etiquetas profesionales para SKUs, ubicaciones y tareas',
+  'BARCODE.DESCRIPTION': 'Descripción',
   'BARCODE.GENERATE_LABELS': 'Generar Etiquetas',
   'BARCODE.GENERATE_LABELS_COUNT': 'Generar Etiquetas',
   'BARCODE.SELECTED_ITEMS': '{{count}} seleccionados',

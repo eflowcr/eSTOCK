@@ -1,4 +1,4 @@
-<div class="border rounded p-3 bg-white dark:bg-gray-800 text-center">
+<div class="border border-gray-200 dark:border-gray-600 rounded-lg p-3 bg-white dark:bg-gray-800 text-center">
   <!-- Error State -->
   <div *ngIf="error()" class="text-red-600 dark:text-red-400">
     <div class="text-xs mb-2">{{ error() }}</div>
@@ -25,17 +25,17 @@
       [style.display]="showCanvas() ? 'block' : 'none'">
     </canvas>
     
-    <!-- Fallback QR image for external service -->
+    <!-- Generated barcode image -->
     <img 
-      *ngIf="!showCanvas() && type === 'qr' && fallbackQrUrl" 
-      [src]="fallbackQrUrl"
+      *ngIf="!showCanvas() && barcodeDataUrl()" 
+      [src]="barcodeDataUrl()"
       [alt]="t('BARCODE.ALT_TEXT')"
       class="mx-auto max-w-full h-auto rounded"
       (error)="onImageError()"
       (load)="onImageLoad()" />
     
-    <!-- Fallback linear barcode representation -->
-    <div *ngIf="!showCanvas() && type !== 'qr'" class="mx-auto">
+    <!-- Fallback representation when no barcode is available -->
+    <div *ngIf="!showCanvas() && !barcodeDataUrl()" class="mx-auto">
       <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
         <div class="text-sm font-mono font-bold text-gray-900 dark:text-white mb-2">
           {{ displayCode() }}
@@ -51,5 +51,8 @@
     
     <!-- Display code -->
     <div class="text-xs mt-1 font-mono text-gray-500 dark:text-gray-400">{{ displayCode() }}</div>
+    
+    <!-- Type display text (QR: ABC123, CODE128: ABC123, etc.) -->
+    <div class="text-xs mt-1 font-mono text-gray-400 dark:text-gray-500">{{ getTypeDisplayText() }}</div>
   </div>
 </div>

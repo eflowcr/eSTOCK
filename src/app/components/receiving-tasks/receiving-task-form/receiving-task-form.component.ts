@@ -51,6 +51,11 @@ export class ReceivingTaskFormComponent implements OnInit {
 	showLotDropdown: boolean[] = [];
 	showSerialDropdown: boolean[] = [];
 	expectedQuantities: number[] = [];
+	
+	// Operator combobox properties
+	operatorSearchTerm: string = '';
+	showOperatorDropdown: boolean = false;
+	filteredOperators: User[] = [];
 
 	constructor(
 		private fb: FormBuilder,
@@ -67,7 +72,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 	) {
 		this.form = this.fb.group({
 			inbound_number: ['', [Validators.required]],
-			assigned_to: [''],
+			assigned_to: ['', [Validators.required]],
 			priority: ['normal', [Validators.required]],
 			notes: [''],
 			items: this.fb.array([])
@@ -90,17 +95,56 @@ export class ReceivingTaskFormComponent implements OnInit {
 
 	// Modal helpers
 	close(): void {
+		this.resetForm();
 		this.cancel.emit();
 	}
 
 	onCancel(): void {
+		this.resetForm();
 		this.cancel.emit();
+	}
+
+	private resetForm(): void {
+		this.operatorSearchTerm = '';
+		this.showOperatorDropdown = false;
+		this.filteredOperators = [...this.users];
+		this.form.reset();
 	}
 
 	onBackdropClick(event: Event): void {
 		if (event.target === event.currentTarget) {
 			this.close();
 		}
+	}
+
+	// Operator combobox methods
+	filterOperators(): void {
+		const term = (this.operatorSearchTerm || '').toLowerCase();
+		if (!term) {
+			this.filteredOperators = [...this.users];
+			return;
+		}
+		this.filteredOperators = this.users.filter(user => 
+			(user.first_name || '').toLowerCase().includes(term) || 
+			(user.last_name || '').toLowerCase().includes(term) || 
+			(user.email || '').toLowerCase().includes(term)
+		);
+	}
+
+	onOperatorSelected(user: User): void {
+		this.form.patchValue({ assigned_to: user.id });
+		this.operatorSearchTerm = this.getUserDisplayName(user.id);
+		this.showOperatorDropdown = false;
+		// Operator selected
+	}
+
+	closeOperatorDropdownLater(): void {
+		setTimeout(() => (this.showOperatorDropdown = false), 150);
+	}
+
+	confirmFirstOperatorIfAny(): void {
+		const list = this.filteredOperators || [];
+		if (list.length > 0) this.onOperatorSelected(list[0]);
 	}
 
 	async loadData(): Promise<void> {
@@ -121,6 +165,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 			if (userResponse.result.success) {
 				// Only operators
 				this.users = (userResponse.data || []).filter((u: User) => u.role === 'operator');
+				this.filteredOperators = [...this.users];
 			}
 
 			if (articleResponse.result.success) {
@@ -140,12 +185,23 @@ export class ReceivingTaskFormComponent implements OnInit {
 	loadTaskForEdit(): void {
 		if (!this.task) return;
 
+		
+		// Inicializar el campo de operador
+		if (this.task.assigned_to) {
+			const user = this.users.find(u => u.id === this.task!.assigned_to);
+			if (user) {
+				this.operatorSearchTerm = this.getUserDisplayName(user.id);
+			}
+		}
+
 		this.form.patchValue({
 			inbound_number: this.task.inbound_number,
-			assigned_to: this.task.assigned_to || '',
+			assigned_to: this.task.assigned_to,
 			priority: this.task.priority,
 			notes: this.task.notes || ''
 		});
+
+		// Editing task - assigned_to values
 
 		while (this.itemsArray.length !== 0) {
 			this.itemsArray.removeAt(0);
@@ -251,12 +307,16 @@ export class ReceivingTaskFormComponent implements OnInit {
 			this.loadingService.show();
 			
 			const formValue = this.form.value;
-			const taskData: CreateReceivingTaskRequest = {
+			console.log('🔍 DEBUG - Form value completo:', formValue);
+			console.log('🔍 DEBUG - assigned_to del form:', formValue.assigned_to);
+			console.log('🔍 DEBUG - assigned_to tipo:', typeof formValue.assigned_to);
+			
+			// Construir el objeto de datos base
+			const taskData: any = {
 				inbound_number: formValue.inbound_number,
-				assigned_to: formValue.assigned_to || undefined,
+				assigned_to: formValue.assigned_to,
 				priority: formValue.priority,
 				status: this.task ? this.task.status : 'open',
-				notes: formValue.notes || undefined,
 				items: formValue.items.map((item: any, index: number) => ({
 					sku: item.sku,
 					expected_qty: this.expectedQuantities[index] || 0,
@@ -265,6 +325,19 @@ export class ReceivingTaskFormComponent implements OnInit {
 					serial_numbers: item.serial_numbers ? item.serial_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s) : undefined
 				}))
 			};
+
+			console.log('✅ Agregando assigned_to:', formValue.assigned_to);
+
+			// Agregar notes solo si tiene un valor
+			if (formValue.notes && formValue.notes.trim() !== '') {
+				taskData.notes = formValue.notes;
+			}
+
+			console.log('🔍 DEBUG - Task data final a enviar:', taskData);
+			console.log('🔍 DEBUG - ¿Tiene assigned_to?', 'assigned_to' in taskData);
+			console.log('🔍 DEBUG - Valor final de assigned_to:', taskData.assigned_to);
+			console.log('🔍 DEBUG - Tipo de assigned_to:', typeof taskData.assigned_to);
+			console.log('🔍 DEBUG - assigned_to en taskData:', taskData.assigned_to);
 
 			if (this.task) {
 				// Update existing task
@@ -838,3 +911,4 @@ export class ReceivingTaskFormComponent implements OnInit {
 		return '';
 	}
 }
+ 

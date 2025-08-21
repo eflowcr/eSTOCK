@@ -223,7 +223,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
   private populateLotsFromExistingData(): void {
     if (!this.existingLots || this.existingLots.length === 0) return;
 
-    console.log('Populating lots from existing data:', this.existingLots);
 
     // Clear existing lots first
     this.lotsArray.clear();
@@ -240,7 +239,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       }));
     });
 
-    console.log('Lots array after population:', this.lotsArray.length);
   }
 
   /**
@@ -249,7 +247,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
   private populateSerialsFromExistingData(): void {
     if (!this.existingSerials || this.existingSerials.length === 0) return;
 
-    console.log('Populating serials from existing data:', this.existingSerials);
 
     // Clear existing serials first
     this.serialNumbersArray.clear();
@@ -261,7 +258,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       );
     });
 
-    console.log('Serials array after population:', this.serialNumbersArray.length);
   }
 
   /**
