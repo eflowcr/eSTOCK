@@ -18,7 +18,7 @@ export type ExportFormat = 'csv' | 'xlsx';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './data-export.component.html',
-  styleUrls: ['./data-export.component.css']
+  styleUrl: './data-export.component.css'
 })
 export class DataExportComponent {
   @Input() config!: DataExportConfig;

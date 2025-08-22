@@ -6,8 +6,8 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { AlertService } from '../../services/extras/alert.service';
 import { LanguageService } from '../../services/extras/language.service';
-import { LanguageSwitcherComponent } from '../extras/language-switcher/language-switcher.component';
-import { AlertComponent } from '../extras/alert/alert.component';
+import { LanguageSwitcherComponent } from '../shared/extras/language-switcher/language-switcher.component';
+import { AlertComponent } from '../shared/extras/alert/alert.component';
 import { LoginRequest, RegisterRequest } from '../../models/auth.model';
 import { User } from '../../models/user.model';
 
@@ -93,13 +93,11 @@ export class LoginComponent implements OnInit {
       
       try {
         const formData: LoginRequest = this.loginForm.value;
-        console.log('Login attempt:', formData);
         
         // Use AuthService for login
         const response = await this.authService.login(formData);
         
         if (response.result.success) {
-          console.log('Login successful:', response.result.message);
           this.alertService.success(
             this.t('auth.login_success') || 'Inicio de sesión exitoso',
             this.t('auth.welcome_back') || 'Bienvenido'
@@ -143,13 +141,10 @@ export class LoginComponent implements OnInit {
           auth_provider: 'local'
         };
         
-        console.log('Register attempt:', userData);
-        
         // Use UserService for user creation
         const response = await this.userService.create(userData);
         
         if (response.result.success) {
-          console.log('User created successfully:', response.result.message);
           // Switch to login tab after successful registration
           this.setActiveTab('login');
           // Show success message

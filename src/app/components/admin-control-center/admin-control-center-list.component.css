@@ -1,0 +1,60 @@
+/* Admin Control Center List Styles */
+.container {
+  max-width: 1400px;
+}
+
+/* Card hover effects */
+.bg-white:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+/* Rank badge styles */
+.rank-badge {
+  border: 2px solid;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1;
+}
+
+/* Trophy animation */
+.trophy-icon {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .flex.items-center.gap-10 {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  .bg-gray-50 {
+    background-color: rgba(17, 24, 39, 0.5);
+  }
+  
+  .border-gray-200 {
+    border-color: rgba(75, 85, 99, 0.5);
+  }
+}

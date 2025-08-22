@@ -68,6 +68,14 @@ export interface AuthState {
 
 // Re-export auth models
 export * from './auth.model';
+export * from './inventory.model';
+export * from './article.model';
+export * from './dashboard.model';
+export * from './receiving-task.model';
+export * from './picking-task.model';
+export * from './user.model';
+export * from './barcode.model';
+export * from './gamification.model';
 
 // Import Observable for FetchResponseT
 import { Observable } from 'rxjs';

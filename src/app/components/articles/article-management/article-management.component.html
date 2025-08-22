@@ -1,0 +1,71 @@
+<app-main-layout>
+
+  <div class="space-y-6">
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
+          {{ t('article_management') }}
+        </h1>
+        <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+          {{ t('article_management.description') }}
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-2">
+        <!-- Export Button - Available for all users -->
+        <button type="button" (click)="openExportDialog()"
+          class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-[#4465ec] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-[#4465ec]">
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
+          </svg>
+          {{ t('export') }}
+        </button>
+
+        <!-- Import Button - Only for admin -->
+        <button *ngIf="isAdmin()" type="button" (click)="openImportDialog()"
+          class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-[#4465ec] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-[#4465ec]">
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+            </path>
+          </svg>
+          {{ t('import') }}
+        </button>
+
+        <!-- Create Button - Only for admin -->
+        <button *ngIf="isAdmin()" type="button" (click)="openCreateForm()"
+          class="flex items-center px-4 py-2 bg-[#00113f] text-white rounded-md shadow-sm text-sm font-medium hover:bg-[#4465ec] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-[#00113f] dark:hover:bg-[#4465ec]">
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          {{ t('create_article') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Article List Component -->
+    <app-article-list [articles]="articles" [isLoading]="isLoading" (articlesChanged)="loadArticles()"
+      (editArticle)="openEditForm($event)">
+    </app-article-list>
+
+    <!-- Create/Edit Article Dialog -->
+    <app-article-form *ngIf="isCreateDialogOpen" [initialData]="selectedArticle" [isOpen]="isCreateDialogOpen"
+      (success)="onArticleSaved()" (closed)="closeCreateDialog()"></app-article-form>
+
+    <!-- Import Dialog -->
+    <app-file-import *ngIf="isImportDialogOpen" [config]="importConfig" [isOpen]="isImportDialogOpen"
+      (success)="onImportSuccess($event)" (error)="onImportError($event)"
+      (closed)="closeImportDialog()">
+    </app-file-import>
+
+    <!-- Export Dialog -->
+    <app-data-export *ngIf="isExportDialogOpen" [config]="exportConfig" [isOpen]="isExportDialogOpen"
+      (success)="onExportSuccess()"
+      (closed)="closeExportDialog()">
+    </app-data-export>
+  </div>
+</app-main-layout>

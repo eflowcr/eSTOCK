@@ -1,16 +1,18 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { User } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
-import { AuthorizationService } from '../../../services/authorization.service';
+import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { UserFormComponent } from '../user-form/user-form.component';
+import { PasswordChangeComponent } from '../password-change/password-change.component';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, UserFormComponent],
+  imports: [CommonModule, FormsModule, UserFormComponent, PasswordChangeComponent],
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css']
 })
@@ -23,6 +25,15 @@ export class UserListComponent {
   viewingUser: User | null = null;
   deletingUserId: string | null = null;
   isDeleting = false;
+  changingPasswordUser: User | null = null;
+
+  // Search and filter properties
+  searchTerm = '';
+  roleFilter = '';
+  statusFilter = '';
+  sortBy = 'first_name';
+  sortOrder: 'asc' | 'desc' = 'asc';
+  filtersExpanded = false;
 
   constructor(
     private userService: UserService,
@@ -87,6 +98,10 @@ export class UserListComponent {
     this.deletingUserId = userId;
   }
 
+  onChangePassword(user: User): void {
+    this.changingPasswordUser = user;
+  }
+
   closeEditDialog(): void {
     this.editingUser = null;
   }
@@ -99,9 +114,17 @@ export class UserListComponent {
     this.deletingUserId = null;
   }
 
+  closePasswordDialog(): void {
+    this.changingPasswordUser = null;
+  }
+
   onEditSuccess(): void {
     this.closeEditDialog();
     this.refresh.emit();
+  }
+
+  onPasswordChangeSuccess(): void {
+    this.closePasswordDialog();
   }
 
   async confirmDelete(): Promise<void> {
@@ -138,6 +161,108 @@ export class UserListComponent {
       this.isDeleting = false;
       this.closeDeleteDialog();
     }
+  }
+
+  get filteredAndSortedUsers(): User[] {
+    let filtered = this.users.filter(user => {
+      // Search filter
+      if (this.searchTerm) {
+        const searchLower = this.searchTerm.toLowerCase();
+        const matchesSearch = (
+          (user.first_name && user.first_name.toLowerCase().includes(searchLower)) ||
+          (user.last_name && user.last_name.toLowerCase().includes(searchLower)) ||
+          (user.email && user.email.toLowerCase().includes(searchLower)) ||
+          (user.role && user.role.toLowerCase().includes(searchLower))
+        );
+        if (!matchesSearch) return false;
+      }
+
+      // Role filter
+      if (this.roleFilter && this.roleFilter !== '') {
+        if (user.role !== this.roleFilter) return false;
+      }
+
+      // Status filter
+      if (this.statusFilter && this.statusFilter !== '') {
+        const isActive = this.statusFilter === 'active';
+        if (user.is_active !== isActive) return false;
+      }
+
+      return true;
+    });
+
+    // Sort
+    return filtered.sort((a, b) => {
+      let aValue: string | number;
+      let bValue: string | number;
+
+      switch (this.sortBy) {
+        case 'first_name':
+          aValue = a.first_name || '';
+          bValue = b.first_name || '';
+          break;
+        case 'email':
+          aValue = a.email || '';
+          bValue = b.email || '';
+          break;
+        case 'role':
+          aValue = a.role || '';
+          bValue = b.role || '';
+          break;
+        case 'created_at':
+          aValue = new Date(a.created_at || '').getTime();
+          bValue = new Date(b.created_at || '').getTime();
+          break;
+        default:
+          aValue = a.first_name || '';
+          bValue = b.first_name || '';
+      }
+
+      let comparison = 0;
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        comparison = aValue.localeCompare(bValue);
+      } else {
+        comparison = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      }
+      
+      return this.sortOrder === 'asc' ? comparison : -comparison;
+    });
+  }
+
+  get uniqueRoles(): string[] {
+    const roles = [...new Set(this.users.map(u => u.role).filter(r => r))] as string[];
+    return roles.sort();
+  }
+
+  onSort(field: string): void {
+    if (this.sortBy === field) {
+      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortBy = field;
+      this.sortOrder = 'asc';
+    }
+  }
+
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
+  }
+
+  hasActiveFilters(): boolean {
+    return this.roleFilter !== '' || this.statusFilter !== '';
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.roleFilter = '';
+    this.statusFilter = '';
+  }
+
+  trackByUserId(index: number, user: User): string {
+    return user.id;
+  }
+
+  onSearch(term: string): void {
+    this.searchTerm = term;
   }
 
   // Authorization methods

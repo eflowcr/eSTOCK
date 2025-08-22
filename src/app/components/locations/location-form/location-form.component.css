@@ -1,0 +1,108 @@
+/* Location Form Styles */
+
+.space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+/* Form field focus styles */
+input:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(68, 101, 236, 0.1);
+}
+
+/* Error state styles */
+.border-red-300 {
+  border-color: #fca5a5;
+}
+
+.focus\:border-red-500:focus {
+  border-color: #ef4444;
+}
+
+.focus\:ring-red-500:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Loading animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Button transitions */
+button {
+  transition: all 0.15s ease-in-out;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:disabled {
+  transform: none;
+}
+
+/* Checkbox custom styling */
+input[type="checkbox"] {
+  transition: all 0.15s ease-in-out;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #4465ec;
+  border-color: #4465ec;
+}
+
+/* Form validation styling */
+.invalid-field {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Dark mode specific adjustments */
+.dark input:focus,
+.dark select:focus {
+  box-shadow: 0 0 0 3px rgba(68, 101, 236, 0.2);
+}
+
+.dark .border-red-300 {
+  border-color: #f87171;
+}
+
+.dark .focus\:border-red-500:focus {
+  border-color: #ef4444;
+}
+
+.dark .focus\:ring-red-500:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+  
+  .flex.justify-end.space-x-3 {
+    flex-direction: column;
+  }
+  
+  .flex.justify-end.space-x-3 > * + * {
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+}

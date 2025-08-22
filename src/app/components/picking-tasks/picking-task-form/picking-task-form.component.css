@@ -1,0 +1,300 @@
+/* Estilos específicos para el formulario de picking tasks */
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+/* Modal animations */
+.modal-enter {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Dropdown styles */
+.dropdown-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: white;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-item {
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.dropdown-item:hover {
+  background-color: #f3f4f6;
+}
+
+.dropdown-item.selected {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+/* Badge styles for selected items */
+.selected-item-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  margin: 0.125rem;
+  background-color: #dbeafe;
+  color: #1e40af;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.selected-item-badge button {
+  margin-left: 0.25rem;
+  color: #3b82f6;
+  cursor: pointer;
+}
+
+.selected-item-badge button:hover {
+  color: #1d4ed8;
+}
+
+/* Lot number badges */
+.lot-badge {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+/* Serial number badges */
+.serial-badge {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+/* Form validation styles */
+.form-control.invalid {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-control.invalid:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Loading states */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Progress indicators */
+.progress-indicator {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.progress-indicator.complete {
+  color: #16a34a;
+}
+
+.progress-indicator.partial {
+  color: #ea580c;
+}
+
+.progress-indicator.empty {
+  color: #6b7280;
+}
+
+/* Item container styles */
+.item-container {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.item-container:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.btn-primary:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-secondary:hover {
+  background-color: #f9fafb;
+}
+
+.btn-danger {
+  background-color: white;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-danger:hover {
+  background-color: #fef2f2;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .dropdown-list {
+    background: #374151;
+    border-color: #4b5563;
+  }
+
+  .dropdown-item {
+    color: #f3f4f6;
+  }
+
+  .dropdown-item:hover {
+    background-color: #4b5563;
+  }
+
+  .dropdown-item.selected {
+    background-color: #1e40af;
+    color: #dbeafe;
+  }
+
+  .selected-item-badge {
+    background-color: #1e40af;
+    color: #dbeafe;
+  }
+
+  .item-container {
+    background-color: #374151;
+    border-color: #4b5563;
+  }
+
+  .lot-badge {
+    background-color: #1e40af;
+    color: #dbeafe;
+  }
+
+  .serial-badge {
+    background-color: #166534;
+    color: #dcfce7;
+  }
+
+  .btn-secondary {
+    background-color: #374151;
+    color: #f3f4f6;
+    border-color: #4b5563;
+  }
+
+  .btn-secondary:hover {
+    background-color: #4b5563;
+  }
+
+  .btn-danger {
+    background-color: #374151;
+    border-color: #dc2626;
+  }
+
+  .btn-danger:hover {
+    background-color: #450a0a;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .item-container {
+    padding: 0.75rem;
+  }
+
+  .form-group {
+    margin-bottom: 0.75rem;
+  }
+
+  .selected-item-badge {
+    font-size: 0.6875rem;
+    padding: 0.1875rem 0.375rem;
+  }
+
+  .dropdown-list {
+    max-height: 150px;
+  }
+}
+
+/* Focus states for accessibility */
+.form-control:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
