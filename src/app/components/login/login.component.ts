@@ -136,13 +136,13 @@ export class LoginComponent implements OnInit {
           email: formData.email,
           first_name: formData.firstName,
           last_name: formData.lastName,
-          role: 'operator', // Default role
+          role: 'operator', 
           is_active: true,
           auth_provider: 'local'
         };
         
         // Use UserService for user creation
-        const response = await this.userService.create(userData);
+        const response = await this.userService.register(userData);
         
         if (response.result.success) {
           // Switch to login tab after successful registration

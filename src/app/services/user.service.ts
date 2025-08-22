@@ -15,7 +15,7 @@ export const USER_URL = returnCompleteURI({
 	providedIn: 'root',
 })
 export class UserService {
-	constructor(private fetchService: FetchService) {}
+	constructor(private fetchService: FetchService) { }
 
 	/**
 	 * @description Get all users
@@ -46,6 +46,18 @@ export class UserService {
 	async create(user: Partial<User>): Promise<ApiResponse<any>> {
 		return await this.fetchService.post<ApiResponse<any>>({
 			API_Gateway: `${USER_URL}/`,
+			values: user,
+		});
+	}
+
+	/**
+ * @description Create new user
+ * @param user User data
+ * @returns Promise<ApiResponse<any>>
+ */
+	async register(user: Partial<User>): Promise<ApiResponse<any>> {
+		return await this.fetchService.post<ApiResponse<any>>({
+			API_Gateway: `${USER_URL}/register`,
 			values: user,
 		});
 	}
@@ -101,7 +113,7 @@ export class UserService {
 			values: formData,
 		});
 	}
-    
+
 
 	/**
 	 * @description Export users to file
