@@ -36,13 +36,11 @@ export class LoadingInterceptor implements HttpInterceptor {
         next: (event: HttpEvent<any>) => {
           if (event instanceof HttpResponse && environment.TESTING) {
             const duration = Date.now() - startTime;
-            console.log(`✅ HTTP ${req.method} ${req.url} - Status: ${event.status} (${duration}ms)`);
           }
         },
         error: (error: HttpErrorResponse) => {
           if (environment.TESTING) {
             const duration = Date.now() - startTime;
-            console.error(`❌ HTTP ${req.method} ${req.url} - Error: ${error.status} ${error.statusText} (${duration}ms)`);
           }
         }
       }),

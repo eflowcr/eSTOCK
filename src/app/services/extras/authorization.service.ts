@@ -24,7 +24,6 @@ export class AuthorizationService {
       
       return JSON.parse(authData);
     } catch (error) {
-      console.error('Error parsing auth data:', error);
       return null;
     }
   }

@@ -156,7 +156,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         this.loadArticles()
       ]);
     } catch (error) {
-      console.error('Error loading initial data:', error);
     }
   }
 
@@ -171,7 +170,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         this.filteredLocations = [...this.locations];
       }
     } catch (error) {
-      console.error('Error loading locations:', error);
     }
   }
 
@@ -186,7 +184,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         this.filteredArticles = [...this.articles];
       }
     } catch (error) {
-      console.error('Error loading articles:', error);
     }
   }
 
@@ -213,7 +210,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         this.populateSerialsFromExistingData();
       }
     } catch (error) {
-      console.error('Error loading existing tracking data:', error);
     }
   }
 
@@ -610,7 +606,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         this.alertService.error(response.result.message || this.t('operation_failed'));
       }
     } catch (error) {
-      console.error('Error saving inventory:', error);
       this.alertService.error(this.t('operation_failed'));
     } finally {
       this.isSubmitting = false;

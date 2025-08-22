@@ -65,7 +65,6 @@ export class BarcodeDisplayComponent implements OnInit, OnChanges {
         await this.generateLinearBarcode();
       }
     } catch (err) {
-      console.error('Error generating barcode:', err);
       this.error.set(
         this.t('BARCODE.GENERATION_ERROR') + ': ' + 
         (err instanceof Error ? err.message : 'Error desconocido')
@@ -181,12 +180,10 @@ export class BarcodeDisplayComponent implements OnInit, OnChanges {
         this.displayCode.set(displayCode);
         this.isLoading.set(false);
       } catch (jsbarcodeError) {
-        console.warn('JsBarcode failed, using fallback:', jsbarcodeError);
         // Fallback to simple representation
         await this.generateFallbackBarcode(ctx, tempCanvas);
       }
     } catch (error) {
-      console.error('Error in generateLinearBarcode:', error);
       // Use external service as final fallback
       await this.useExternalBarcodeService();
     }
@@ -260,7 +257,6 @@ export class BarcodeDisplayComponent implements OnInit, OnChanges {
         throw new Error('No external service available');
       }
     } catch (error) {
-      console.error('External service failed:', error);
       // Final fallback - show text representation
       this.error.set('No se pudo generar el código de barras. Usando representación de texto.');
       this.displayCode.set(displayCode);
