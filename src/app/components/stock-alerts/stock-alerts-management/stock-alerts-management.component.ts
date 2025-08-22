@@ -108,7 +108,6 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 					}
 				},
 				error: (error) => {
-					console.error('Error refreshing alerts:', error);
 				}
 			});
 	}
@@ -131,7 +130,6 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 				this.languageService.translate('STOCK_ALERTS.LOAD_ERROR'),
 				this.languageService.translate('COMMON.ERROR')
 			);
-			console.error('Error loading alerts:', error);
 		}).finally(() => {
 			this.isLoading.set(false);
 		});
@@ -254,7 +252,6 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 		];
 
 		this.alerts.set(mockAlerts);
-		console.log('Mock alerts loaded for demo:', mockAlerts.length);
 	}
 
 	analyzeStock(): void {
@@ -279,7 +276,6 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 				}
 			})
 			.catch(error => {
-				console.error('Error analyzing stock:', error);
 			})
 			.finally(() => {
 				this.loadingService.hide();
@@ -317,7 +313,6 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 					this.languageService.translate('STOCK_ALERTS.RESOLVE_ERROR'),
 					this.languageService.translate('COMMON.ERROR')
 				);
-				console.error('Error resolving alert:', error);
 			})
 			.finally(() => {
 				this.loadingService.hide();
@@ -354,7 +349,6 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 					this.languageService.translate('STOCK_ALERTS.EXPORT_ERROR'),
 					this.languageService.translate('COMMON.ERROR')
 				);
-				console.error('Error exporting alerts:', error);
 			})
 			.finally(() => {
 				this.loadingService.hide();

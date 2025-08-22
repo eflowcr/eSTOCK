@@ -132,7 +132,6 @@ export class BarcodeService {
         ctx.fillText(displayCode, 10, startY + barHeight + 15);
       }
     } catch (error) {
-      console.error('Error generating barcode:', error);
       // Mostrar error en canvas
       canvas.width = 200;
       canvas.height = 100;
@@ -279,10 +278,6 @@ export class BarcodeService {
    */
   async generatePDF(request: BarcodeGenerationRequest): Promise<BarcodeGenerationResponse> {
     try {
-      console.log('Generating PDF with:', {
-        itemCount: request.items.length,
-        options: request.options
-      });
 
       // Importar jsPDF dinámicamente
       const { jsPDF } = await import('jspdf');
@@ -385,7 +380,6 @@ export class BarcodeService {
         pdfData: pdfBlob
       };
     } catch (error) {
-      console.error('Error generating PDF:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Error desconocido'

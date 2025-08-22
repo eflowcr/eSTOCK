@@ -84,7 +84,6 @@ export class AdjustmentFormComponent implements OnInit {
       this.filteredArticles = [...this.articles];
       this.filteredLocations = [...this.locations];
     } catch (error) {
-      console.error('Error loading data:', error);
       this.alertService.error(this.t('error_loading_data'));
     }
   }
@@ -228,7 +227,6 @@ export class AdjustmentFormComponent implements OnInit {
       await this.adjustmentService.create(adjustmentData);
       this.alertService.success(this.t('stock_adjustment_created_successfully'));
       
-      // Reset form
       this.resetForm();
       
       this.success.emit();

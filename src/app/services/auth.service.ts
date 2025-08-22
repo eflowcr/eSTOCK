@@ -144,7 +144,6 @@ export class AuthService {
 			}
 		} catch (error) {
 			// Continue with logout even if server call fails
-			console.warn('Logout server call failed:', error);
 		} finally {
 			this.handleLogout();
 		}
@@ -204,7 +203,6 @@ export class AuthService {
 			const stored = localStorage.getItem(this.AUTH_STORAGE_KEY);
 			return stored ? JSON.parse(stored) : null;
 		} catch (error) {
-			console.error('Error parsing stored auth data:', error);
 			return null;
 		}
 	}

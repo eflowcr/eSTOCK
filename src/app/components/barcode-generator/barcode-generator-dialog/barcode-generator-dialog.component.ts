@@ -121,7 +121,6 @@ export class BarcodeGeneratorDialogComponent implements OnInit {
       
       this.close.emit(true);
     } catch (error) {
-      console.error('Error generating PDF:', error);
       this.alertService.error(
         this.t('BARCODE.PDF_GENERATION_ERROR') + ': ' + (error instanceof Error ? error.message : 'Error desconocido'),
         this.t('COMMON.ERROR')
@@ -156,7 +155,6 @@ export class BarcodeGeneratorDialogComponent implements OnInit {
         this.t('COMMON.SUCCESS')
       );
     } catch (error) {
-      console.error('Error printing labels:', error);
       this.alertService.error(
         this.t('BARCODE.PRINT_ERROR') + ': ' + (error instanceof Error ? error.message : 'Error desconocido'),
         this.t('COMMON.ERROR')
@@ -244,7 +242,6 @@ export class BarcodeGeneratorDialogComponent implements OnInit {
       pdf.addImage(imgData, 'PNG', imgX, currentY, canvas.width, canvas.height);
       currentY += canvas.height + 5;
     } catch (error) {
-      console.error('Error generating barcode for PDF:', error);
       // Add error placeholder
       pdf.setFillColor(240, 240, 240);
       const errorHeight = 30;

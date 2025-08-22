@@ -135,7 +135,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 		this.form.patchValue({ assigned_to: user.id });
 		this.operatorSearchTerm = this.getUserDisplayName(user.id);
 		this.showOperatorDropdown = false;
-		// Operator selected
 	}
 
 	closeOperatorDropdownLater(): void {
@@ -151,7 +150,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 		try {
 			this.isLoading = true;
 			
-			// Load data in parallel (locations, users, articles)
 			const [locationResponse, userResponse, articleResponse] = await Promise.all([
 				this.locationService.getAll(),
 				this.userService.getAll(),
@@ -163,13 +161,11 @@ export class ReceivingTaskFormComponent implements OnInit {
 			}
 
 			if (userResponse.result.success) {
-				// Only operators
 				this.users = (userResponse.data || []).filter((u: User) => u.role === 'operator');
 				this.filteredOperators = [...this.users];
 			}
 
 			if (articleResponse.result.success) {
-				// Solo mostrar artículos activos
 				this.articles = (articleResponse.data || []).filter(article => article.is_active !== false);
 			}
 		} catch (error) {
@@ -186,7 +182,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 		if (!this.task) return;
 
 		
-		// Inicializar el campo de operador
 		if (this.task.assigned_to) {
 			const user = this.users.find(u => u.id === this.task!.assigned_to);
 			if (user) {
@@ -201,7 +196,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 			notes: this.task.notes || ''
 		});
 
-		// Editing task - assigned_to values
 
 		while (this.itemsArray.length !== 0) {
 			this.itemsArray.removeAt(0);
@@ -307,11 +301,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 			this.loadingService.show();
 			
 			const formValue = this.form.value;
-			console.log('🔍 DEBUG - Form value completo:', formValue);
-			console.log('🔍 DEBUG - assigned_to del form:', formValue.assigned_to);
-			console.log('🔍 DEBUG - assigned_to tipo:', typeof formValue.assigned_to);
-			
-			// Construir el objeto de datos base
 			const taskData: any = {
 				inbound_number: formValue.inbound_number,
 				assigned_to: formValue.assigned_to,
@@ -326,18 +315,9 @@ export class ReceivingTaskFormComponent implements OnInit {
 				}))
 			};
 
-			console.log('✅ Agregando assigned_to:', formValue.assigned_to);
-
-			// Agregar notes solo si tiene un valor
 			if (formValue.notes && formValue.notes.trim() !== '') {
 				taskData.notes = formValue.notes;
 			}
-
-			console.log('🔍 DEBUG - Task data final a enviar:', taskData);
-			console.log('🔍 DEBUG - ¿Tiene assigned_to?', 'assigned_to' in taskData);
-			console.log('🔍 DEBUG - Valor final de assigned_to:', taskData.assigned_to);
-			console.log('🔍 DEBUG - Tipo de assigned_to:', typeof taskData.assigned_to);
-			console.log('🔍 DEBUG - assigned_to en taskData:', taskData.assigned_to);
 
 			if (this.task) {
 				// Update existing task
@@ -661,7 +641,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 			return;
 		}
 
-		// Seleccionar lotes al azar
 		const shuffled = [...availableLots].sort(() => 0.5 - Math.random());
 		const selected = shuffled.slice(0, Math.min(expectedQty, availableLots.length));
 		
@@ -694,7 +673,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 			return;
 		}
 
-		// Seleccionar series al azar
 		const shuffled = [...availableSerials].sort(() => 0.5 - Math.random());
 		const selected = shuffled.slice(0, Math.min(expectedQty, availableSerials.length));
 		
@@ -722,30 +700,24 @@ export class ReceivingTaskFormComponent implements OnInit {
 
 	confirmFirstSerialIfAny(index: number): void {
 		const list = this.filteredSerialsPerItem[index] || [];
-		if (list.length > 0) this.onSerialSelected(index, list[0]);
+		if (list.length > 0 && !this.getSelectedSerials(index).includes(list[0])) this.onSerialSelected(index, list[0]);
 	}
 
-	// Manual input handlers - allow typing without immediate processing
 	onManualLotInput(index: number): void {
-		// Typing is allowed, processing happens on Enter
 	}
 
 	onManualSerialInput(index: number): void {
-		// Typing is allowed, processing happens on Enter
 	}
 
 	handleLotEnter(index: number): void {
 		const searchTerm = (this.lotSearchTerms[index] || '').trim();
 		if (searchTerm) {
-			// Check if it's from dropdown first
 			const filtered = this.filteredLotsPerItem[index] || [];
 			const exactMatch = filtered.find(lot => lot.toLowerCase() === searchTerm.toLowerCase());
 			
 			if (exactMatch) {
-				// Select from dropdown if exact match
 				this.onLotSelected(index, exactMatch);
 			} else {
-				// Add as manual entry
 				this.addManualLot(index, searchTerm);
 			}
 		}
@@ -754,15 +726,12 @@ export class ReceivingTaskFormComponent implements OnInit {
 	handleSerialEnter(index: number): void {
 		const searchTerm = (this.serialSearchTerms[index] || '').trim();
 		if (searchTerm) {
-			// Check if it's from dropdown first
 			const filtered = this.filteredSerialsPerItem[index] || [];
 			const exactMatch = filtered.find(serial => serial.toLowerCase() === searchTerm.toLowerCase());
 			
 			if (exactMatch) {
-				// Select from dropdown if exact match
 				this.onSerialSelected(index, exactMatch);
 			} else {
-				// Add as manual entry
 				this.addManualSerial(index, searchTerm);
 			}
 		}

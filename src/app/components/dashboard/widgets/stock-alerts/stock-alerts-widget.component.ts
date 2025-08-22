@@ -69,11 +69,9 @@ export class StockAlertsWidgetComponent implements OnInit, OnDestroy {
 	}
 
 	private setupAutoRefresh(): void {
-		// Load alerts immediately
 		this.loadAlerts();
 		
-		// Auto-refresh every 5 minutes (menos frecuente para evitar spam)
-		interval(300000) // 5 minutos
+		interval(300000)
 			.pipe(
 				switchMap(() => this.loadAlerts()),
 				takeUntil(this.destroy$)
@@ -88,24 +86,17 @@ export class StockAlertsWidgetComponent implements OnInit, OnDestroy {
 
 		return this.stockAlertService.getAll(false)
 			.then(response => {
-				console.log('Widget response:', response);
 				if (response.result.success && response.data) {
-					// Si hay datos reales del backend, usarlos
 					this.alerts.set(response.data as unknown as StockAlert[]);
 					this.hasError.set(false);
 					this.usingMockData.set(false);
-					console.log('Loaded real alerts:', response.data.length);
 				} else {
-					// Si no hay datos o falla, usar mock data para que siempre se vea algo
-					console.warn('No valid data in response, using mock data:', response);
 					this.alerts.set(this.getMockAlerts());
 					this.hasError.set(false);
 					this.usingMockData.set(true);
 				}
 			})
 			.catch(error => {
-				console.error('Error loading alerts in widget, using mock data:', error);
-				// En caso de error de red o endpoint, usar mock data
 				this.alerts.set(this.getMockAlerts());
 				this.hasError.set(false);
 				this.usingMockData.set(true);

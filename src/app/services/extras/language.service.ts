@@ -49,7 +49,6 @@ export class LanguageService {
       // Fallback to Spanish if translation not found
       const fallback = this.translations['es']?.[key];
       if (!fallback) {
-        console.warn(`Translation missing for key: ${key}`);
         return key;
       }
       return fallback;
