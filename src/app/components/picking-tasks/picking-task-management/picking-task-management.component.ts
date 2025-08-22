@@ -104,7 +104,8 @@ export class PickingTaskManagementComponent implements OnInit {
 		try {
 			const response = await this.pickingTaskService.getAll();
 			if (response.result.success) {
-				this.pickingTasks = response.data;
+				// Asegurar que siempre sea un array, incluso si data es null
+				this.pickingTasks = response.data || [];
 				// Update export config with current data
 				this.exportConfig.data = this.pickingTasks;
 			} else {

@@ -79,8 +79,8 @@ export class ReceivingTaskFormComponent implements OnInit {
 		});
 	}
 
-	ngOnInit(): void {
-		this.loadData();
+	async ngOnInit(): Promise<void> {
+		await this.loadData();
 		this.isEditing = !!this.task;
 		if (this.task) {
 			this.loadTaskForEdit();
@@ -181,7 +181,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 	loadTaskForEdit(): void {
 		if (!this.task) return;
 
-		
+		// Map operator display name
 		if (this.task.assigned_to) {
 			const user = this.users.find(u => u.id === this.task!.assigned_to);
 			if (user) {
@@ -189,28 +189,34 @@ export class ReceivingTaskFormComponent implements OnInit {
 			}
 		}
 
+		// Patch form with backend field mapping
 		this.form.patchValue({
-			inbound_number: this.task.inbound_number,
+			inbound_number: this.task.order_number || this.task.inbound_number,
 			assigned_to: this.task.assigned_to,
 			priority: this.task.priority,
 			notes: this.task.notes || ''
 		});
 
-
+		// Clear existing items
 		while (this.itemsArray.length !== 0) {
 			this.itemsArray.removeAt(0);
 		}
 
 		if (this.task.items && this.task.items.length > 0) {
 			this.task.items.forEach((item, i) => {
+				// Map backend field names to frontend
+				const lotNumbers = item.lotNumbers || item.lot_numbers || [];
+				const serialNumbers = item.serialNumbers || item.serial_numbers || [];
+				const expectedQty = item.expectedQty || item.expected_qty || 0;
+
 				this.itemsArray.push(this.fb.group({
 					sku: [item.sku, [Validators.required]],
 					location: [item.location, [Validators.required]],
-					lot_numbers: [item.lot_numbers?.join(', ') || ''],
-					serial_numbers: [item.serial_numbers?.join(', ') || '']
+					lot_numbers: [lotNumbers.join(', ') || ''],
+					serial_numbers: [serialNumbers.join(', ') || '']
 				}));
 				
-				this.expectedQuantities[i] = item.expected_qty;
+				this.expectedQuantities[i] = expectedQty;
 				this.ensureComboboxState(i);
 				const article = this.getArticleBySku(item.sku);
 				this.skuSearchTerms[i] = article ? `${article.sku} - ${article.name}` : item.sku;
@@ -262,8 +268,9 @@ export class ReceivingTaskFormComponent implements OnInit {
 		this.itemsArray.push(itemGroup);
 
 		const index = this.itemsArray.length - 1;
-		this.expectedQuantities[index] = 0;
+		this.expectedQuantities[index] = 1; // Initialize with 1 instead of 0
 		this.ensureComboboxState(index);
+		this.cdr.detectChanges(); // Force change detection
 	}
 
 	removeItem(index: number): void {

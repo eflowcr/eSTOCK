@@ -79,8 +79,8 @@ export class PickingTaskFormComponent implements OnInit {
 		});
 	}
 
-	ngOnInit(): void {
-		this.loadData();
+	async ngOnInit(): Promise<void> {
+		await this.loadData();
 		this.isEditing = !!this.task;
 		if (this.task) {
 			this.loadTaskForEdit();
@@ -183,48 +183,65 @@ export class PickingTaskFormComponent implements OnInit {
 
 	loadTaskForEdit(): void {
 		if (!this.task) return;
-
 		
 		// Inicializar el campo de operador
 		if (this.task.assigned_to) {
 			const user = this.users.find(u => u.id === this.task!.assigned_to);
 			if (user) {
 				this.operatorSearchTerm = this.getUserDisplayName(user.id);
+			} else {
+				// Si no encuentra el usuario, mostrar el ID
+				this.operatorSearchTerm = this.task.assigned_to;
 			}
 		}
 
 		this.form.patchValue({
-			outbound_number: this.task.outbound_number,
+			outbound_number: this.task.order_number || this.task.outbound_number,
 			assigned_to: this.task.assigned_to,
 			priority: this.task.priority,
 			notes: this.task.notes || ''
 		});
 
-
+		// Limpiar items existentes
 		while (this.itemsArray.length !== 0) {
 			this.itemsArray.removeAt(0);
 		}
 
 		if (this.task.items && this.task.items.length > 0) {
 			this.task.items.forEach((item, i) => {
+				// Mapear campos del backend a frontend
+				const lotNumbers = item.lotNumbers || item.lot_numbers || [];
+				const serialNumbers = item.serialNumbers || item.serial_numbers || [];
+				const requiredQty = item.expectedQty || item.required_qty || 0;
+				
 				this.itemsArray.push(this.fb.group({
 					sku: [item.sku, [Validators.required]],
 					location: [item.location, [Validators.required]],
-					lot_numbers: [item.lot_numbers?.join(', ') || ''],
-					serial_numbers: [item.serial_numbers?.join(', ') || '']
+					lot_numbers: [lotNumbers?.join(', ') || ''],
+					serial_numbers: [serialNumbers?.join(', ') || '']
 				}));
 				
-				this.requiredQuantities[i] = item.required_qty;
+				// Asegurar que la cantidad requerida se carga correctamente
+				this.requiredQuantities[i] = requiredQty;
+				
 				this.ensureComboboxState(i);
+				
+				// Cargar términos de búsqueda para mostrar nombres descriptivos
 				const article = this.getArticleBySku(item.sku);
 				this.skuSearchTerms[i] = article ? `${article.sku} - ${article.name}` : item.sku;
+				
 				const loc = this.locations.find(l => l.location_code === item.location);
 				this.locationSearchTerms[i] = loc ? `${loc.location_code} - ${loc.description}` : item.location;
+				
+				// Cargar opciones de tracking (lotes y series)
 				this.loadTrackingOptionsForItem(i, item.sku);
 			});
 		} else {
 			this.addItem();
 		}
+		
+		// Forzar detección de cambios
+		this.cdr.detectChanges();
 	}
 
 	get itemsArray(): FormArray {
@@ -266,8 +283,11 @@ export class PickingTaskFormComponent implements OnInit {
 		this.itemsArray.push(itemGroup);
 
 		const index = this.itemsArray.length - 1;
-		this.requiredQuantities[index] = 0;
+		this.requiredQuantities[index] = 1; // Inicializar con 1 en lugar de 0
 		this.ensureComboboxState(index);
+		
+		// Forzar detección de cambios para que se rendericen correctamente los campos
+		this.cdr.detectChanges();
 	}
 
 	removeItem(index: number): void {
