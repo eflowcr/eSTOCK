@@ -107,8 +107,7 @@ export class ReceivingTaskManagementComponent implements OnInit {
 		try {
 			const response = await this.receivingTaskService.getAll();
 			if (response.result.success) {
-				this.receivingTasks = response.data;
-				// Update export config with current data
+				this.receivingTasks = response.data || [];
 				this.exportConfig.data = this.receivingTasks;
 			} else {
 				this.alertService.error(

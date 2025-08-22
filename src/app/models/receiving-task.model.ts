@@ -2,6 +2,7 @@ export interface ReceivingTask {
 	id: number;
 	task_id: string;
 	inbound_number: string;
+	order_number?: string; 
 	created_by: string;
 	assigned_to: string;
 	status: string;
@@ -16,10 +17,13 @@ export interface ReceivingTask {
 export interface ReceivingTaskItem {
 	sku: string;
 	expected_qty: number;
+	expectedQty?: number; 
 	received_qty: number;
 	location: string;
 	lot_numbers?: string[];
 	serial_numbers?: string[];
+	lotNumbers?: string[]; 
+	serialNumbers?: string[]; 
 }
 
 export interface CreateReceivingTaskRequest {
