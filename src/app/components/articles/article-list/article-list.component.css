@@ -1,0 +1,173 @@
+/* Article List Component Styles */
+
+/* Search and filter styles */
+.search-container {
+  @apply relative;
+}
+
+.search-input {
+  @apply pl-9 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400;
+}
+
+.filter-button {
+  @apply flex items-center px-3 py-2 border rounded-md text-sm font-medium transition-colors duration-200;
+}
+
+.filter-button.active {
+  @apply bg-blue-50 text-blue-600 border-blue-200;
+}
+
+.filter-button.inactive {
+  @apply bg-gray-50 text-gray-600 border-gray-300 hover:bg-blue-50 hover:text-blue-600;
+}
+
+/* Table styles */
+.article-table {
+  @apply min-w-full divide-y divide-gray-200 dark:divide-gray-700;
+}
+
+.table-header {
+  @apply bg-gray-50 dark:bg-gray-700;
+}
+
+.table-header-cell {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider;
+}
+
+.table-header-cell.sortable {
+  @apply cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600;
+}
+
+.table-row {
+  @apply hover:bg-gray-50 dark:hover:bg-gray-700;
+}
+
+.table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white;
+}
+
+/* Badge styles */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-presentation-unit {
+  @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200;
+}
+
+.badge-presentation-box {
+  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+}
+
+.badge-presentation-pallet {
+  @apply bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200;
+}
+
+.badge-presentation-pack {
+  @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+}
+
+.badge-presentation-default {
+  @apply bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200;
+}
+
+.badge-status-active {
+  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+}
+
+.badge-status-inactive {
+  @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+}
+
+/* Tracking badges with colors */
+.badge-tracking-lot {
+  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+}
+
+.badge-tracking-serial {
+  @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200;
+}
+
+.badge-tracking-expiration {
+  @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+}
+
+/* Action buttons */
+.action-button {
+  @apply text-gray-400 hover:text-[#4465ec] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea];
+}
+
+.action-button.delete {
+  @apply hover:text-red-600 focus:ring-red-500;
+}
+
+/* Modal styles */
+.modal-overlay {
+  @apply fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50;
+}
+
+.modal-container {
+  @apply relative top-20 mx-auto p-5 border shadow-lg rounded-md bg-white dark:bg-gray-800;
+}
+
+.modal-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.modal-title {
+  @apply text-lg font-medium text-gray-900 dark:text-white;
+}
+
+.modal-close-button {
+  @apply text-gray-400 hover:text-gray-600 dark:hover:text-gray-300;
+}
+
+/* Pagination styles */
+.pagination-container {
+  @apply bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6;
+}
+
+.pagination-button {
+  @apply relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50;
+}
+
+.pagination-button.active {
+  @apply bg-[#3e66ea] border-[#3e66ea] text-white;
+}
+
+.pagination-button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .table-cell {
+    @apply px-3 py-2;
+  }
+  
+  .modal-container {
+    @apply w-11/12;
+  }
+}
+
+/* Loading states */
+.loading-spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-[#3e66ea];
+}
+
+/* Empty state */
+.empty-state {
+  @apply text-center py-12;
+}
+
+.empty-state-icon {
+  @apply h-12 w-12 text-gray-400 mx-auto mb-4;
+}
+
+.empty-state-title {
+  @apply text-lg font-semibold text-gray-900 dark:text-white mb-2;
+}
+
+.empty-state-description {
+  @apply text-gray-600 dark:text-gray-400 mb-4;
+}

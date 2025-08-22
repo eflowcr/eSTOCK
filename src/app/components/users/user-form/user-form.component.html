@@ -120,22 +120,19 @@
             </p>
           </div>
 
-          <!-- Password -->
-          <div>
+          <!-- Password - Only show for new users -->
+          <div *ngIf="!isEditing">
             <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {{ isEditing ? t('user_management.change_password_optional') : t('user_management.password') }}
+              {{ t('user_management.password') }}
             </label>
             <input type="password" 
                    id="password"
                    formControlName="password"
-                   [placeholder]="isEditing ? t('user_management.leave_blank_to_keep_current_password') : t('user_management.enter_password')"
+                   [placeholder]="t('user_management.enter_password')"
                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                    [class.border-red-500]="isFieldInvalid('password')"
                    [class.focus:ring-red-500]="isFieldInvalid('password')"
                    [class.focus:border-red-500]="isFieldInvalid('password')">
-            <p *ngIf="isEditing" class="text-xs text-gray-500 mt-1 dark:text-gray-400">
-              {{ t('user_management.only_enter_password_if_you_want_to_change_it') }}
-            </p>
             <p *ngIf="isFieldInvalid('password')" class="mt-1 text-sm text-red-600">
               {{ getFieldError('password') }}
             </p>

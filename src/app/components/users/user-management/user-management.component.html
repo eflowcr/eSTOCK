@@ -1,11 +1,10 @@
 <app-main-layout>
-
     <div class="space-y-6">
         <!-- Header Section -->
         <div class="flex justify-between items-center">
             <div>
                 <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
-                    {{ t('user_management') }}
+                    {{ t('user_management.title') }}
                 </h1>
       <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
           {{ t('user_management.description') }}
@@ -56,13 +55,11 @@
 
   <!-- Users Table Card -->
   <div class="bg-white shadow rounded-lg dark:bg-gray-800">
-    <div class="px-4 py-5 sm:p-6">
       <app-user-list 
         [users]="users" 
         [isLoading]="isLoading"
         (refresh)="onRefresh()">
       </app-user-list>
-    </div>
   </div>
 </div>
 

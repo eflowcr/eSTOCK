@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { TopbarComponent } from './topbar/topbar.component';
-import { AlertComponent } from '../extras/alert/alert.component';
+import { AlertComponent } from '../shared/extras/alert/alert.component';
 
 @Component({
   selector: 'app-main-layout',

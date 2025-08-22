@@ -1,0 +1,22 @@
+/* Gamification Panel Component Styles */
+
+.progress-bar {
+  transition: width 0.3s ease-in-out;
+}
+
+.badge-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.badge-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.stats-card:hover {
+  transform: translateY(-1px);
+}

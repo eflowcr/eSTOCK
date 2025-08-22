@@ -1,0 +1,268 @@
+/* Stock Alerts Widget Styles */
+
+.widget-container {
+  @apply bg-white dark:bg-gray-800 shadow rounded-lg;
+}
+
+.widget-header {
+  @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
+}
+
+.widget-title {
+  @apply text-lg font-medium text-gray-900 dark:text-gray-100;
+}
+
+.view-all-button {
+  @apply inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30 transition-colors duration-200;
+}
+
+.refresh-button {
+  @apply inline-flex items-center p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200;
+}
+
+.summary-grid {
+  @apply grid grid-cols-3 gap-4;
+}
+
+.summary-item {
+  @apply text-center;
+}
+
+.summary-value {
+  @apply text-2xl font-bold;
+}
+
+.summary-value.critical {
+  @apply text-red-600 dark:text-red-400;
+}
+
+.summary-value.high {
+  @apply text-orange-600 dark:text-orange-400;
+}
+
+.summary-value.medium {
+  @apply text-yellow-600 dark:text-yellow-400;
+}
+
+.summary-value.low {
+  @apply text-blue-600 dark:text-blue-400;
+}
+
+.summary-label {
+  @apply text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center mt-1;
+}
+
+.alert-item {
+  @apply flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200;
+}
+
+.alert-content {
+  @apply flex items-center space-x-3 flex-1 min-w-0;
+}
+
+.alert-details {
+  @apply flex-1 min-w-0;
+}
+
+.alert-header {
+  @apply flex items-center space-x-2;
+}
+
+.alert-sku {
+  @apply text-sm font-medium text-gray-900 dark:text-gray-100 truncate;
+}
+
+.alert-badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border;
+}
+
+.alert-badge.critical {
+  @apply bg-red-100 text-red-800 border-red-300 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700;
+}
+
+.alert-badge.high {
+  @apply bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-700;
+}
+
+.alert-badge.medium {
+  @apply bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700;
+}
+
+.alert-badge.low {
+  @apply bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700;
+}
+
+.alert-meta {
+  @apply flex items-center space-x-4 mt-1;
+}
+
+.alert-stock {
+  @apply text-xs text-gray-500 dark:text-gray-400;
+}
+
+.alert-time {
+  @apply text-xs text-gray-400 dark:text-gray-500;
+}
+
+.alert-indicator {
+  @apply flex-shrink-0;
+}
+
+.indicator-dot {
+  @apply w-2 h-2 rounded-full;
+}
+
+.indicator-dot.critical {
+  @apply bg-red-500 animate-pulse;
+}
+
+.indicator-dot.high {
+  @apply bg-orange-500;
+}
+
+.indicator-dot.medium {
+  @apply bg-yellow-500;
+}
+
+.indicator-dot.low {
+  @apply bg-blue-500;
+}
+
+.empty-state {
+  @apply text-center py-6;
+}
+
+.empty-state-text {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+.manage-button {
+  @apply w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200;
+}
+
+.widget-footer {
+  @apply mt-4 pt-4 border-t border-gray-200 dark:border-gray-700;
+}
+
+.footer-stats {
+  @apply flex items-center justify-between text-xs text-gray-500 dark:text-gray-400;
+}
+
+.recent-alerts-title {
+  @apply text-sm font-medium text-gray-700 dark:text-gray-300 mb-3;
+}
+
+/* Animation for critical alerts */
+@keyframes pulse-red {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-red {
+  animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .summary-grid {
+    @apply gap-2;
+  }
+  
+  .summary-value {
+    @apply text-xl;
+  }
+  
+  .summary-label {
+    @apply text-xs;
+  }
+  
+  .alert-content {
+    @apply space-x-2;
+  }
+  
+  .alert-meta {
+    @apply flex-col items-start space-x-0 space-y-1;
+  }
+}
+
+/* Loading state */
+.loading-container {
+  @apply flex justify-center py-4;
+}
+
+/* Hover effects */
+.alert-item:hover {
+  @apply transform scale-[1.02] shadow-sm;
+}
+
+.view-all-button:hover,
+.manage-button:hover,
+.refresh-button:hover {
+  @apply transform scale-105;
+}
+
+/* Focus states for accessibility */
+.view-all-button:focus,
+.manage-button:focus,
+.refresh-button:focus {
+  @apply ring-2 ring-offset-2 ring-blue-500;
+}
+
+/* Dark mode specific adjustments */
+.dark .widget-container {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark .alert-item {
+  @apply border-gray-700;
+}
+
+.dark .alert-item:hover {
+  @apply bg-gray-700;
+}
+
+/* Custom scrollbar styles for recent alerts */
+.recent-alerts-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #9ca3af #f3f4f6;
+}
+
+.recent-alerts-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.recent-alerts-scroll::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+.recent-alerts-scroll::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.recent-alerts-scroll::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Dark mode scrollbar */
+.dark .recent-alerts-scroll {
+  scrollbar-color: #6b7280 #374151;
+}
+
+.dark .recent-alerts-scroll::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.dark .recent-alerts-scroll::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+
+.dark .recent-alerts-scroll::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

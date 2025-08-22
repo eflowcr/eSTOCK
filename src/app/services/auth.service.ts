@@ -110,7 +110,7 @@ export class AuthService {
 			this.updateAuthState({ isLoading: true, error: null });
 
 			const response = await this.fetchService.post<ApiResponse<AuthData>>({
-				API_Gateway: `${AUTH_URL}/register`,
+				API_Gateway: `${AUTH_URL}/register/`,
 				values: userData,
 			});
 
@@ -138,13 +138,12 @@ export class AuthService {
 			if (authData?.token) {
 				// Call logout endpoint
 				await this.fetchService.post<ApiResponse<any>>({
-					API_Gateway: `${AUTH_URL}/logout`,
+					API_Gateway: `${AUTH_URL}/logout/`,
 					values: {},
 				});
 			}
 		} catch (error) {
 			// Continue with logout even if server call fails
-			console.warn('Logout server call failed:', error);
 		} finally {
 			this.handleLogout();
 		}
@@ -204,7 +203,6 @@ export class AuthService {
 			const stored = localStorage.getItem(this.AUTH_STORAGE_KEY);
 			return stored ? JSON.parse(stored) : null;
 		} catch (error) {
-			console.error('Error parsing stored auth data:', error);
 			return null;
 		}
 	}

@@ -1,0 +1,174 @@
+/* Estilos específicos para el componente de lista de tareas de picking */
+
+.task-item {
+  transition: all 0.2s ease-in-out;
+}
+
+.task-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* Status badges */
+.status-open {
+  background-color: rgb(219 234 254);
+  color: rgb(30 64 175);
+  border-color: rgb(147 197 253);
+}
+
+.status-in-progress {
+  background-color: rgb(254 249 195);
+  color: rgb(180 83 9);
+  border-color: rgb(252 211 77);
+}
+
+.status-completed {
+  background-color: rgb(220 252 231);
+  color: rgb(21 128 61);
+  border-color: rgb(134 239 172);
+}
+
+.status-cancelled {
+  background-color: rgb(254 226 226);
+  color: rgb(185 28 28);
+  border-color: rgb(252 165 165);
+}
+
+/* Priority badges */
+.priority-normal {
+  background-color: rgb(243 244 246);
+  color: rgb(55 65 81);
+  border-color: rgb(209 213 219);
+}
+
+.priority-high {
+  background-color: rgb(254 235 200);
+  color: rgb(194 65 12);
+  border-color: rgb(253 186 116);
+}
+
+.priority-urgent {
+  background-color: rgb(254 226 226);
+  color: rgb(185 28 28);
+  border-color: rgb(252 165 165);
+  font-weight: 600;
+}
+
+/* Modal styles */
+.modal-overlay {
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Loading animation */
+.loading-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .status-open {
+    background-color: rgb(30 58 138);
+    color: rgb(191 219 254);
+    border-color: rgb(59 130 246);
+  }
+
+  .status-in-progress {
+    background-color: rgb(146 64 14);
+    color: rgb(254 240 138);
+    border-color: rgb(245 158 11);
+  }
+
+  .status-completed {
+    background-color: rgb(20 83 45);
+    color: rgb(187 247 208);
+    border-color: rgb(34 197 94);
+  }
+
+  .status-cancelled {
+    background-color: rgb(153 27 27);
+    color: rgb(254 202 202);
+    border-color: rgb(239 68 68);
+  }
+
+  .priority-normal {
+    background-color: rgb(55 65 81);
+    color: rgb(209 213 219);
+    border-color: rgb(107 114 128);
+  }
+
+  .priority-high {
+    background-color: rgb(154 52 18);
+    color: rgb(254 215 170);
+    border-color: rgb(251 146 60);
+  }
+
+  .priority-urgent {
+    background-color: rgb(153 27 27);
+    color: rgb(254 202 202);
+    border-color: rgb(239 68 68);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .task-item {
+    padding: 0.75rem;
+  }
+
+  .badge {
+    font-size: 0.6875rem;
+    padding: 0.1875rem 0.5rem;
+  }
+
+  .modal-content {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+}
+
+/* Focus states for accessibility */
+button:focus-visible {
+  outline: 2px solid rgb(59 130 246);
+  outline-offset: 2px;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}

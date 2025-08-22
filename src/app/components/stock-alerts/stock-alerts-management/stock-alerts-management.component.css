@@ -1,0 +1,155 @@
+/* Stock Alerts Management Styles */
+
+.alert-card {
+  @apply bg-white dark:bg-gray-800 shadow rounded-lg border-l-4 transition-all duration-200 hover:shadow-md;
+}
+
+.alert-card.critical {
+  @apply border-red-500;
+}
+
+.alert-card.high {
+  @apply border-orange-500;
+}
+
+.alert-card.medium {
+  @apply border-yellow-500;
+}
+
+.alert-card.low {
+  @apply border-blue-500;
+}
+
+.alert-card.resolved {
+  @apply border-green-500 opacity-75;
+}
+
+.alert-level-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border;
+}
+
+.alert-level-critical {
+  @apply bg-red-100 text-red-800 border-red-300 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700;
+}
+
+.alert-level-high {
+  @apply bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-700;
+}
+
+.alert-level-medium {
+  @apply bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700;
+}
+
+.alert-level-low {
+  @apply bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700;
+}
+
+.summary-card {
+  @apply bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg transition-all duration-200 hover:shadow-md;
+}
+
+.summary-card.critical {
+  @apply bg-red-50 dark:bg-red-900/20;
+}
+
+.summary-card.high {
+  @apply bg-orange-50 dark:bg-orange-900/20;
+}
+
+.tab-button {
+  @apply whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200;
+}
+
+.tab-button.active {
+  @apply border-blue-500 text-blue-600;
+}
+
+.tab-button.inactive {
+  @apply border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300;
+}
+
+.tab-button.critical.active {
+  @apply border-red-500 text-red-600;
+}
+
+.tab-button.high.active {
+  @apply border-orange-500 text-orange-600;
+}
+
+.tab-button.resolved.active {
+  @apply border-green-500 text-green-600;
+}
+
+.action-button {
+  @apply inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.action-button.primary {
+  @apply text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500;
+}
+
+.action-button.secondary {
+  @apply text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-blue-500;
+}
+
+.action-button.resolve {
+  @apply text-blue-600 bg-blue-100 hover:bg-blue-200 focus:ring-blue-500;
+}
+
+.recommendation-card {
+  @apply flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700;
+}
+
+.expiration-warning {
+  @apply text-red-600 dark:text-red-400;
+}
+
+.expiration-caution {
+  @apply text-orange-600 dark:text-orange-400;
+}
+
+.expiration-normal {
+  @apply text-gray-900 dark:text-gray-100;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .alert-card {
+    @apply mx-2;
+  }
+  
+  .summary-card {
+    @apply mx-2;
+  }
+  
+  .tab-button {
+    @apply text-xs px-2;
+  }
+}
+
+/* Animation for resolved alerts */
+.alert-resolved {
+  @apply opacity-75 transition-opacity duration-300;
+}
+
+/* Loading states */
+.loading-overlay {
+  @apply absolute inset-0 bg-white dark:bg-gray-800 bg-opacity-75 flex items-center justify-center z-10;
+}
+
+/* Custom scrollbar for alerts container */
+.alerts-container {
+  @apply max-h-96 overflow-y-auto;
+}
+
+.alerts-container::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.alerts-container::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-700 rounded;
+}
+
+.alerts-container::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 dark:bg-gray-500 rounded hover:bg-gray-500 dark:hover:bg-gray-400;
+}

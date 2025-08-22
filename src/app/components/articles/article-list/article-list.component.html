@@ -1,0 +1,335 @@
+<div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+  <!-- Search and Controls -->
+  <div class="p-4 sm:p-6">
+    <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+      <!-- Search -->
+      <div class="flex-1">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearch()"
+            [placeholder]="t('search_articles')"
+            class="pl-9 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+          />
+        </div>
+      </div>
+
+      <!-- Sort and Filters -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-gray-600 dark:text-gray-400">{{ t('sort_by') }}:</label>
+          <select [(ngModel)]="sortBy" (ngModelChange)="sort(sortBy)" class="block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+            <option value="sku">{{ t('sku') }}</option>
+            <option value="name">{{ t('name') }}</option>
+            <option value="unit_price">{{ t('price') }}</option>
+            <option value="presentation">{{ t('presentation') }}</option>
+          </select>
+        </div>
+        
+        <button type="button" (click)="toggleFilters()" 
+          [class]="filtersExpanded ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-gray-50 text-gray-600 border-gray-300'"
+          class="flex items-center px-3 py-2 border rounded-md text-sm font-medium hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200">
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+          </svg>
+          {{ t('filters') }}
+        </button>
+
+        <button *ngIf="hasActiveFilters()" type="button" (click)="clearFilters()" 
+          class="flex items-center px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded-md text-sm font-medium hover:bg-red-100">
+          <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          {{ t('clear_filters') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Expandable Filters -->
+    <div *ngIf="filtersExpanded" class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div>
+          <select [(ngModel)]="presentationFilter" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <option value="">{{ t('all_presentations') }}</option>
+            <option value="unit">{{ t('unit') }}</option>
+            <option value="box">{{ t('box') }}</option>
+            <option value="pallet">{{ t('pallet') }}</option>
+            <option value="pack">{{ t('pack') }}</option>
+          </select>
+        </div>
+        
+        <div>
+          <select [(ngModel)]="trackingFilter" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <option value="">{{ t('all_tracking') }}</option>
+            <option value="lot">{{ t('lot_only') }}</option>
+            <option value="serial">{{ t('serial_only') }}</option>
+            <option value="both">{{ t('lot_and_serial') }}</option>
+            <option value="none">{{ t('no_tracking') }}</option>
+          </select>
+        </div>
+        
+        <div>
+          <select [(ngModel)]="statusFilter" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <option value="">{{ t('all_status') }}</option>
+            <option value="active">{{ t('active') }}</option>
+            <option value="inactive">{{ t('inactive') }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Articles Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+      <thead class="bg-gray-50 dark:bg-gray-700">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer" (click)="sort('sku')">
+            {{ t('sku') }}
+          </th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer" (click)="sort('name')">
+            {{ t('product_name') }}
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            {{ t('description') }}
+          </th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer" (click)="sort('unit_price')">
+            {{ t('unit_price') }}
+          </th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            {{ t('presentation') }}
+          </th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            {{ t('stock_range') }}
+          </th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            {{ t('tracking') }}
+          </th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            {{ t('status') }}
+          </th>
+          <th *ngIf="isAdmin()" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            {{ t('actions') }}
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+        <tr *ngFor="let article of paginatedArticles" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-medium text-gray-900 dark:text-white">
+            {{ article.sku }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white text-center">
+            {{ article.name }}
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-300 max-w-xs truncate">
+            {{ article.description || '-' }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-center">
+            {{ formatPrice(article.unit_price || 0) }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            <span [class]="getPresentationBadgeClass(article.presentation)">
+              {{ t(article.presentation) }}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-center">
+            {{ (article.min_quantity || 0) }} - {{ (article.max_quantity || 0) }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            <div class="flex flex-col gap-1">
+              <span *ngIf="article.track_by_lot" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                {{ t('lot') }}
+              </span>
+              <span *ngIf="article.track_by_serial" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                {{ t('serial') }}
+              </span>
+              <span *ngIf="article.track_expiration" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                {{ t('expiration') }}
+              </span>
+              <span *ngIf="!article.track_by_lot && !article.track_by_serial && !article.track_expiration" class="text-xs text-gray-400">
+                {{ t('no_tracking') }}
+              </span>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            <span [class]="getStatusBadgeClass(article.is_active || false)">
+              {{ article.is_active ? t('active') : t('inactive') }}
+            </span>
+          </td>
+          <td *ngIf="isAdmin()" class="px-6 py-4 whitespace-nowrap text-center">
+            <div class="flex items-center justify-center space-x-2">
+              <button (click)="viewArticle(article)" class="text-gray-400 hover:text-[#4465ec] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+              </button>
+              <button (click)="openEditForm(article)" class="text-gray-400 hover:text-[#4465ec] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+              <button (click)="openDeleteDialog(article.id)" class="text-gray-400 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="totalPages > 1" class="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6">
+    <div class="flex items-center justify-between">
+      <div class="flex-1 flex justify-between sm:hidden">
+        <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+          {{ t('previous') }}
+        </button>
+        <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+          {{ t('next') }}
+        </button>
+      </div>
+      <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm text-gray-700 dark:text-gray-300">
+            {{ t('showing') }} {{ (currentPage - 1) * itemsPerPage + 1 }} {{ t('to') }} {{ Math.min(currentPage * itemsPerPage, filteredArticles.length) }} {{ t('of') }} {{ filteredArticles.length }} {{ t('results') }}
+          </p>
+        </div>
+        <div>
+          <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+            <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="changePage(i + 1)" 
+              [class]="currentPage === i + 1 ? 'bg-[#3e66ea] border-[#3e66ea] text-white' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+              class="relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+              {{ i + 1 }}
+            </button>
+            <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- View Modal -->
+<div *ngIf="viewingArticle" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white dark:bg-gray-800">
+    <div class="mt-3">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ t('article_details') }}</h3>
+        <button (click)="closeViewModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('sku') }}</label>
+          <p class="mt-1 text-sm text-gray-900 dark:text-white font-mono">{{ viewingArticle.sku }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('name') }}</label>
+          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingArticle.name }}</p>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('description') }}</label>
+          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingArticle.description || '-' }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('price') }}</label>
+          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ formatPrice(viewingArticle.unit_price || 0) }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('presentation') }}</label>
+          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ t(viewingArticle.presentation) }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('min_quantity') }}</label>
+          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingArticle.min_quantity || 0 }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('max_quantity') }}</label>
+          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingArticle.max_quantity || 0 }}</p>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('tracking_options') }}</label>
+          <div class="mt-1 flex gap-2">
+            <span *ngIf="viewingArticle.track_by_lot" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              {{ t('lot_tracking') }}
+            </span>
+            <span *ngIf="viewingArticle.track_by_serial" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {{ t('serial_tracking') }}
+            </span>
+            <span *ngIf="viewingArticle.track_expiration" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+              {{ t('expiration_tracking') }}
+            </span>
+            <span *ngIf="!viewingArticle.track_by_lot && !viewingArticle.track_by_serial && !viewingArticle.track_expiration" class="text-xs text-gray-400">
+              {{ t('no_tracking') }}
+            </span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('status') }}</label>
+          <span [class]="getStatusBadgeClass(viewingArticle.is_active || false)">
+            {{ viewingArticle.is_active ? t('active') : t('inactive') }}
+          </span>
+        </div>
+      </div>
+      
+      <div class="mt-6 flex justify-center">
+        <button (click)="closeViewModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
+          {{ t('close') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="deletingArticleId" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+    <div class="mt-3 text-center">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900">
+        <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+        </svg>
+      </div>
+      <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mt-2">{{ t('delete_article') }}</h3>
+      <div class="mt-2 px-7 py-3">
+        <p class="text-sm text-gray-500 dark:text-gray-300">
+          {{ t('delete_article_confirmation') }}
+        </p>
+      </div>
+      <div class="flex gap-4 justify-center mt-4">
+        <button (click)="closeDeleteDialog()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
+          {{ t('cancel') }}
+        </button>
+        <button (click)="deleteArticle()" [disabled]="isDeleting" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50">
+          <span *ngIf="isDeleting">{{ t('deleting') }}...</span>
+          <span *ngIf="!isDeleting">{{ t('delete') }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

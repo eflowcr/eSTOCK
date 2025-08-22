@@ -1,168 +1,151 @@
-/* User List Component Styles */
-.loading-skeleton {
-  @apply animate-pulse space-y-4;
+/* User List Styles - Matching Locations */
+
+/* Custom scrollbar for table */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
 }
 
-.skeleton-item {
-  @apply h-12 bg-gray-200 rounded;
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
 }
 
-.empty-state {
-  @apply text-center py-8;
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
 }
 
-.empty-icon {
-  @apply mx-auto h-12 w-12 text-gray-400;
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
-.empty-title {
-  @apply mt-2 text-sm font-medium text-gray-900;
+/* Dark mode scrollbar */
+.dark .overflow-x-auto::-webkit-scrollbar-track {
+  background: #374151;
 }
 
-.empty-description {
-  @apply mt-1 text-sm text-gray-500;
+.dark .overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #6b7280;
 }
 
-.table-container {
-  @apply rounded-md border border-gray-200 overflow-x-auto;
+.dark .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
-.table {
-  @apply min-w-full divide-y divide-gray-200;
+/* Smooth transitions */
+.hover\:bg-gray-50:hover {
+  transition: background-color 0.15s ease-in-out;
 }
 
-.table-header {
-  @apply bg-gray-50;
+.hover\:bg-gray-700:hover {
+  transition: background-color 0.15s ease-in-out;
 }
 
-.table-header-cell {
-  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+/* Badge animations */
+.inline-flex {
+  transition: all 0.15s ease-in-out;
 }
 
-.table-body {
-  @apply bg-white divide-y divide-gray-200;
+/* Button hover effects */
+button:hover svg {
+  transform: scale(1.1);
+  transition: transform 0.15s ease-in-out;
 }
 
-.table-row {
-  @apply hover:bg-gray-50;
+/* Loading animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.table-cell {
-  @apply px-6 py-4 whitespace-nowrap;
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
-.user-avatar {
-  @apply h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0;
+/* Focus styles */
+input:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(68, 101, 236, 0.1);
 }
 
-.user-avatar img {
-  @apply h-10 w-10 rounded-full object-cover;
+/* Filters expansion animation */
+.filters-card {
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
 }
 
-.user-initials {
-  @apply text-white text-sm font-medium;
+.filters-expanded {
+  max-height: 500px;
+  opacity: 1;
 }
 
-.user-info {
-  @apply ml-4;
+.filters-collapsed {
+  max-height: 0;
+  opacity: 0;
 }
 
-.user-name {
-  @apply text-sm font-medium text-gray-900;
+/* Filter toggle button */
+.filter-toggle {
+  transition: all 0.2s ease-in-out;
 }
 
-.user-id {
-  @apply text-sm text-gray-500;
+.filter-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.role-badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+/* Clear filters button styling */
+.clear-filters-btn {
+  animation: pulse 2s infinite;
 }
 
-.role-badge.admin {
-  @apply bg-blue-100 text-blue-800;
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
-.role-badge.operator {
-  @apply bg-gray-100 text-gray-800;
+/* Responsive table */
+@media (max-width: 640px) {
+  .min-w-full {
+    min-width: 600px;
+  }
 }
 
-.status-badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .table-container {
+    font-size: 0.875rem;
+  }
+  
+  .table-container th,
+  .table-container td {
+    padding: 0.5rem 0.25rem;
+  }
 }
 
-.status-badge.active {
-  @apply bg-green-100 text-green-800;
+/* Modal backdrop */
+.fixed.inset-0 {
+  backdrop-filter: blur(4px);
 }
 
-.status-badge.inactive {
-  @apply bg-red-100 text-red-800;
+/* Modal animation */
+.relative.top-20 {
+  animation: modalSlideIn 0.3s ease-out;
 }
 
-.actions-container {
-  @apply flex justify-center space-x-2;
-}
-
-.action-button {
-  @apply text-gray-400 hover:text-blue-600 p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
-}
-
-.action-button.delete {
-  @apply hover:text-red-600 focus:ring-red-500;
-}
-
-.dialog-overlay {
-  @apply fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity;
-}
-
-.dialog-container {
-  @apply inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle;
-}
-
-.dialog-header {
-  @apply bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4;
-}
-
-.dialog-title {
-  @apply text-lg leading-6 font-medium text-gray-900;
-}
-
-.dialog-content {
-  @apply bg-white px-4 pb-4 sm:p-6 space-y-4;
-}
-
-.dialog-footer {
-  @apply bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse;
-}
-
-.dialog-button {
-  @apply w-full inline-flex justify-center rounded-md border shadow-sm px-4 py-2 text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 sm:w-auto sm:text-sm;
-}
-
-.dialog-button.primary {
-  @apply border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 sm:ml-3;
-}
-
-.dialog-button.danger {
-  @apply border-transparent bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 sm:ml-3;
-}
-
-.dialog-button.secondary {
-  @apply border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-blue-500 sm:mt-0 sm:mr-3;
-}
-
-.user-details-grid {
-  @apply grid grid-cols-2 gap-4;
-}
-
-.detail-item {
-  @apply space-y-1;
-}
-
-.detail-label {
-  @apply text-sm font-medium text-gray-500;
-}
-
-.detail-value {
-  @apply text-sm text-gray-900;
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

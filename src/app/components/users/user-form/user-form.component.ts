@@ -14,7 +14,7 @@ import { AlertService } from '../../../services/extras/alert.service';
   styleUrls: ['./user-form.component.css']
 })
 export class UserFormComponent implements OnInit, OnChanges {
-  @Input() initialData?: User;
+  @Input() initialData?: User | null;
   @Input() isOpen = false;
   @Output() success = new EventEmitter<void>();
   @Output() closed = new EventEmitter<void>();
@@ -86,16 +86,6 @@ export class UserFormComponent implements OnInit, OnChanges {
     // Remove password validation for editing
     this.userForm.get('password')?.clearValidators();
     this.userForm.get('password')?.updateValueAndValidity();
-  }
-
-  close(): void {
-    this.closed.emit();
-  }
-
-  onBackdropClick(event: Event): void {
-    if (event.target === event.currentTarget) {
-      this.close();
-    }
   }
 
   // Field validation helpers
@@ -171,10 +161,8 @@ export class UserFormComponent implements OnInit, OnChanges {
           this.isEditing ? this.t('user_management.user_updated') : this.t('user_management.user_created')
         );
         
-        this.userForm.reset();
-        this.imagePreview = null;
-        this.success.emit();
         this.close();
+        this.success.emit();
       } else {
         throw new Error(response.result.message || this.t('operation_failed'));
       }
@@ -196,6 +184,18 @@ export class UserFormComponent implements OnInit, OnChanges {
       );
     } finally {
       this.isSubmitting = false;
+    }
+  }
+
+  close(): void {
+    this.userForm.reset();
+    this.imagePreview = null;
+    this.closed.emit();
+  }
+
+  onBackdropClick(event: Event): void {
+    if (event.target === event.currentTarget) {
+      this.close();
     }
   }
 }

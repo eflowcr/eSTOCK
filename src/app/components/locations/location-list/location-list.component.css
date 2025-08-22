@@ -1,0 +1,151 @@
+/* Location List Styles */
+
+/* Custom scrollbar for table */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Dark mode scrollbar */
+.dark .overflow-x-auto::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.dark .overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+
+.dark .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Smooth transitions */
+.hover\:bg-gray-50:hover {
+  transition: background-color 0.15s ease-in-out;
+}
+
+.hover\:bg-gray-700:hover {
+  transition: background-color 0.15s ease-in-out;
+}
+
+/* Badge animations */
+.inline-flex {
+  transition: all 0.15s ease-in-out;
+}
+
+/* Button hover effects */
+button:hover svg {
+  transform: scale(1.1);
+  transition: transform 0.15s ease-in-out;
+}
+
+/* Loading animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Focus styles */
+input:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(68, 101, 236, 0.1);
+}
+
+/* Filters expansion animation */
+.filters-card {
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+.filters-expanded {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.filters-collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* Filter toggle button */
+.filter-toggle {
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Clear filters button styling */
+.clear-filters-btn {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Responsive table */
+@media (max-width: 640px) {
+  .min-w-full {
+    min-width: 600px;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .table-container {
+    font-size: 0.875rem;
+  }
+  
+  .table-container th,
+  .table-container td {
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+/* Modal backdrop */
+.fixed.inset-0 {
+  backdrop-filter: blur(4px);
+}
+
+/* Modal animation */
+.relative.top-20 {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

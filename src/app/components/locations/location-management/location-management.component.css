@@ -1,0 +1,23 @@
+/* Location Management Styles */
+.space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.gap-2 > * + * {
+  margin-left: 0.5rem;
+}
+
+/* Button styles are inherited from global styles */
+/* Dark mode styles are handled by Tailwind classes */

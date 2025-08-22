@@ -5,18 +5,35 @@
  */
 export function returnCompleteURI(config: { URI?: string; API_Gateway: string }): string {
   const { URI, API_Gateway } = config;
-  
+
   if (!URI) {
     return API_Gateway;
   }
-  
+
   // Remove trailing slash from URI if exists
   const baseURI = URI.endsWith('/') ? URI.slice(0, -1) : URI;
-  
+
   // Ensure API_Gateway starts with slash if URI is provided
   const gateway = API_Gateway.startsWith('/') ? API_Gateway : `/${API_Gateway}`;
-  
+
   return `${baseURI}${gateway}`;
+}
+
+export function returnCustomURI(config: { URI?: string; API_Gateway: string }):
+  string {
+  const { URI, API_Gateway } = config;
+
+  if (!URI) {
+    return API_Gateway;
+  }
+
+  // Remove trailing slash from URI if exists
+  const baseURI = URI.endsWith('/') ? URI.slice(0, -1) : URI;
+
+  // Remove /api from baseURI
+  const customBaseURI = baseURI.replace('/api', '');
+
+  return `${customBaseURI}${API_Gateway}`;
 }
 
 /**
@@ -28,11 +45,11 @@ export function handleApiError(error: any): string {
   if (error?.result?.message) {
     return error.result.message;
   }
-  
+
   if (error?.message) {
     return error.message;
   }
-  
+
   return 'An unexpected error occurred';
 }
 

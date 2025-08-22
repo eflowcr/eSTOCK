@@ -1,0 +1,207 @@
+<div class="space-y-4">
+  <!-- Search and Filters -->
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Search -->
+      <div>
+        <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {{ t('STOCK_ALERTS.SEARCH') }}
+        </label>
+        <input
+          id="search"
+          type="text"
+          [(ngModel)]="searchParams.search"
+          (input)="onSearchChange()"
+          [placeholder]="t('STOCK_ALERTS.SEARCH_PLACEHOLDER')"
+          class="search-input">
+      </div>
+
+      <!-- Alert Level Filter -->
+      <div>
+        <label for="alertLevel" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {{ t('STOCK_ALERTS.ALERT_LEVEL') }}
+        </label>
+        <select
+          id="alertLevel"
+          [(ngModel)]="searchParams.alert_level"
+          (change)="onFilterChange()"
+          class="filter-select">
+          <option value="">{{ t('STOCK_ALERTS.ALL_LEVELS') }}</option>
+          <option value="critical">{{ t('STOCK_ALERTS.CRITICAL') }}</option>
+          <option value="high">{{ t('STOCK_ALERTS.HIGH') }}</option>
+          <option value="medium">{{ t('STOCK_ALERTS.MEDIUM') }}</option>
+          <option value="low">{{ t('STOCK_ALERTS.LOW') }}</option>
+        </select>
+      </div>
+
+      <!-- Alert Type Filter -->
+      <div>
+        <label for="alertType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {{ t('STOCK_ALERTS.ALERT_TYPE') }}
+        </label>
+        <select
+          id="alertType"
+          [(ngModel)]="searchParams.alert_type"
+          (change)="onFilterChange()"
+          class="filter-select">
+          <option value="">{{ t('STOCK_ALERTS.ALL_TYPES') }}</option>
+          <option value="low_stock">{{ t('STOCK_ALERTS.LOW_STOCK') }}</option>
+          <option value="trend_based">{{ t('STOCK_ALERTS.TREND_BASED') }}</option>
+          <option value="seasonal">{{ t('STOCK_ALERTS.SEASONAL') }}</option>
+          <option value="expiration">{{ t('STOCK_ALERTS.EXPIRATION') }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <!-- Alerts List -->
+  <div *ngIf="!isLoading()" class="space-y-3 list-container">
+    <!-- No Results -->
+    <div *ngIf="alerts().length === 0" class="text-center py-12">
+      <svg class="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+        {{ t('STOCK_ALERTS.NO_ALERTS_FOUND') }}
+      </h3>
+      <p class="text-gray-500 dark:text-gray-400">
+        {{ t('STOCK_ALERTS.TRY_DIFFERENT_FILTERS') }}
+      </p>
+    </div>
+
+    <!-- Alert Cards -->
+    <div *ngFor="let alert of alerts()" class="alert-card" [class]="'alert-card ' + alert.alert_level">
+      <div class="p-6">
+        <div class="flex items-center justify-between">
+          <!-- Alert Info -->
+          <div class="flex-1">
+            <div class="flex items-center space-x-3 mb-2">
+              <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                {{ alert.sku }}
+              </h3>
+              <span class="alert-level-badge" [class]="'alert-level-' + alert.alert_level">
+                {{ t('STOCK_ALERTS.LEVEL.' + alert.alert_level.toUpperCase()) }}
+              </span>
+              <span *ngIf="alert.is_resolved" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border-green-300 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700">
+                <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {{ t('STOCK_ALERTS.RESOLVED') }}
+              </span>
+            </div>
+
+            <p class="text-gray-600 dark:text-gray-300 mb-4">
+              {{ alert.message }}
+            </p>
+
+            <!-- Alert Details Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div>
+                <span class="font-medium text-gray-500 dark:text-gray-400">{{ t('STOCK_ALERTS.CURRENT_STOCK') }}:</span>
+                <span class="ml-1 text-gray-900 dark:text-gray-100">{{ alert.current_stock }}</span>
+              </div>
+              <div>
+                <span class="font-medium text-gray-500 dark:text-gray-400">{{ t('STOCK_ALERTS.RECOMMENDED_STOCK') }}:</span>
+                <span class="ml-1 text-gray-900 dark:text-gray-100">{{ alert.recommended_stock }}</span>
+              </div>
+              <div *ngIf="alert.lot_number">
+                <span class="font-medium text-gray-500 dark:text-gray-400">{{ t('STOCK_ALERTS.LOT_NUMBER') }}:</span>
+                <span class="ml-1 text-gray-900 dark:text-gray-100">{{ alert.lot_number }}</span>
+              </div>
+              <div *ngIf="alert.days_to_expiration !== null">
+                <span class="font-medium text-gray-500 dark:text-gray-400">{{ t('STOCK_ALERTS.EXPIRATION') }}:</span>
+                <span class="ml-1" [class]="getDaysToExpirationClass(alert.days_to_expiration || null)">
+                  {{ getDaysToExpirationText(alert.days_to_expiration || null) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Timestamps -->
+            <div class="mt-4 flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+              <span>
+                {{ t('STOCK_ALERTS.CREATED_AT') }}: {{ formatDate(alert.created_at) }}
+              </span>
+              <span *ngIf="alert.resolved_at">
+                {{ t('STOCK_ALERTS.RESOLVED_AT') }}: {{ formatDate(alert.resolved_at) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col space-y-2 ml-6">
+            <button
+              *ngIf="!alert.is_resolved"
+              (click)="resolveAlert(alert.id)"
+              [disabled]="resolvingAlerts.has(alert.id)"
+              class="action-button resolve">
+              <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              {{ t('STOCK_ALERTS.MARK_RESOLVED') }}
+            </button>
+
+            <!-- Recommended Action -->
+            <div class="text-xs text-gray-500 dark:text-gray-400">
+              <span class="font-medium">{{ t('STOCK_ALERTS.RECOMMENDED_ACTION') }}:</span>
+              <br>
+              {{ getRecommendedAction(alert) }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading() && alerts().length > 0" class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6">
+    <div class="flex-1 flex justify-between sm:hidden">
+      <button
+        (click)="previousPage()"
+        [disabled]="searchParams.page === 1"
+        class="pagination-button">
+        {{ t('COMMON.PREVIOUS') }}
+      </button>
+      <button
+        (click)="nextPage()"
+        [disabled]="alerts().length < (searchParams.limit || 10)"
+        class="pagination-button">
+        {{ t('COMMON.NEXT') }}
+      </button>
+    </div>
+    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+      <div>
+        <p class="text-sm text-gray-700 dark:text-gray-300">
+          {{ t('COMMON.SHOWING') }} {{ alerts().length }} {{ t('COMMON.RESULTS') }}
+        </p>
+      </div>
+      <div>
+        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+          <button
+            (click)="previousPage()"
+            [disabled]="searchParams.page === 1"
+            class="pagination-button rounded-l-md">
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+          <span class="pagination-button">
+            {{ t('COMMON.PAGE') }} {{ searchParams.page }}
+          </span>
+          <button
+            (click)="nextPage()"
+            [disabled]="alerts().length < (searchParams.limit || 10)"
+            class="pagination-button rounded-r-md">
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,15 +1,12 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule, NavigationEnd } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { NavigationItems } from '../../../models/navigation.model';
 import { LanguageService } from '../../../services/extras/language.service';
-import { environment } from '@environment';
+import { NavigationService } from '../../../services/extras/navigation.service';
 
-interface NavigationItem {
-  name: string;
-  href: string;
-  icon: string;
-}
+// moved to shared model
 
 @Component({
   selector: 'app-sidebar',
@@ -104,9 +101,12 @@ interface NavigationItem {
           </div>
         </div>
       </nav>
+          
+      <!-- Divider line -->
+      <div class="w-full h-px bg-gradient-to-r from-transparent via-[#3e66ea]/30 to-transparent mt-3"></div>
 
       <!-- Footer with Logo and Version -->
-      <div class="absolute bottom-0 left-0 right-0 p-4">
+      <div class="absolute bottom-0 left-0 right-0 pb-4 mb-4">
         <div class="flex flex-col items-center">
           <!-- Logo ePRAC -->
           <div class="flex items-center justify-center">
@@ -122,9 +122,7 @@ interface NavigationItem {
           <span class="text-white text-xs font-medium tracking-wide">
             {{ appVersion }}
           </span>
-          
-          <!-- Divider line -->
-          <div class="w-full h-px bg-gradient-to-r from-transparent via-[#3e66ea]/30 to-transparent"></div>
+
         </div>
       </div>
     </div>
@@ -132,27 +130,15 @@ interface NavigationItem {
   styles: []
 })
 export class SidebarComponent implements OnInit {
-  navigation: NavigationItem[] = [
-    { name: 'dashboard', href: '/', icon: 'LayoutDashboard' },
-    { name: 'articles', href: '/articles', icon: 'PackageOpen' },
-    { name: 'inventory', href: '/inventory', icon: 'Package' },
-    { name: 'receiving_tasks', href: '/receiving-tasks', icon: 'Download' },
-    { name: 'picking_tasks', href: '/picking-tasks', icon: 'Upload' },
-    { name: 'stock_adjustments', href: '/stock-adjustments', icon: 'Edit' },
-    { name: 'stock_alerts', href: '/stock-alerts', icon: 'AlertTriangle' },
-    { name: 'barcode_generator', href: '/barcode-generator', icon: 'QrCode' },
-    { name: 'performance', href: '/gamification', icon: 'Trophy' },
-    { name: 'control_center', href: '/admin-control-center', icon: 'Monitor' },
-    { name: 'locations', href: '/locations', icon: 'MapPin' },
-    { name: 'user_management', href: '/users', icon: 'Users' },
-  ];
+  navigation: NavigationItems = [];
 
   appVersion = 'v1.0.0';
   currentLocation: string = '/';
 
   constructor(
     private languageService: LanguageService,
-    private router: Router
+    private router: Router,
+    private navigationService: NavigationService,
   ) {
     // Subscribe to router events to track current location
     this.router.events
@@ -164,6 +150,7 @@ export class SidebarComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentLocation = this.router.url;
+    this.navigation = this.navigationService.getItems();
   }
 
   t(key: string): string {
