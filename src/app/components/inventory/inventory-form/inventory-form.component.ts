@@ -1,14 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Inventory } from '../../../models/inventory.model';
 import { ArticleService } from '../../../services/article.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { LocationService } from '../../../services/location.service';
-import { LotService } from '../../../services/lot.service';
-import { SerialService } from '../../../services/serial.service';
 
 @Component({
   selector: 'app-inventory-form',
@@ -41,9 +39,9 @@ export class InventoryFormComponent implements OnInit, OnChanges {
   // Selected article data
   selectedArticle: any = null;
   
-  // Existing lots and serials for editing
-  existingLots: any[] = [];
-  existingSerials: any[] = [];
+  // Tracking data for lots and serials input
+  lotSearchTerm = '';
+  serialSearchTerm = '';
 
   statusOptions = [
     { value: 'available', label: 'available' },
@@ -56,8 +54,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     private inventoryService: InventoryService,
     private locationService: LocationService,
     private articleService: ArticleService,
-    private lotService: LotService,
-    private serialService: SerialService,
     private languageService: LanguageService,
     private alertService: AlertService
   ) {}
@@ -89,13 +85,10 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     return this.inventoryForm.get('lots') as FormArray;
   }
 
-  get serialNumbersArray() {
-    return this.inventoryForm.get('serialNumbers') as FormArray;
+  get serialsArray() {
+    return this.inventoryForm.get('serials') as FormArray;
   }
 
-  /**
-   * @description Calculate total quantity summed from lots
-   */
   private calculateTotalLotQuantity(): number {
     return this.lotsArray.controls.reduce((sum, control) => {
       return sum + (control.get('quantity')?.value || 0);
@@ -106,9 +99,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     return this.calculateTotalLotQuantity();
   }
 
-  /**
-   * @description Remaining quantity that can still be assigned to lots
-   */
   private getRemainingLotQuantity(excludeIndex: number | null = null): number {
     const totalQuantity = this.inventoryForm.get('quantity')?.value || 0;
     const assignedQuantity = this.lotsArray.controls.reduce((sum, control, idx) => {
@@ -120,9 +110,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     return Math.max(0, totalQuantity - assignedQuantity);
   }
 
-  /**
-   * @description Initialize form
-   */
   private initializeForm(): void {
     this.inventoryForm = this.fb.group({
       sku: ['', [Validators.required]],
@@ -137,18 +124,16 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       trackBySerial: [false],
       trackExpiration: [false],
       lots: this.fb.array([]),
-      serialNumbers: this.fb.array([])
+      serials: this.fb.array([]),
+      lot_numbers: [''],
+      serial_numbers: ['']
     });
 
-    // Load inventory data asynchronously
     if (this.inventory) {
       this.loadInventoryData();
     }
   }
 
-  /**
-   * @description Load initial data for dropdowns
-   */
   private async loadInitialData(): Promise<void> {
     try {
       await Promise.all([
@@ -159,9 +144,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * @description Load locations for dropdown
-   */
   private async loadLocations(): Promise<void> {
     try {
       const response = await this.locationService.getAll();
@@ -173,9 +155,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * @description Load articles for SKU dropdown
-   */
   private async loadArticles(): Promise<void> {
     try {
       const response = await this.articleService.getAll();
@@ -187,82 +166,10 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * @description Load existing lots and serials for editing
-   */
-  private async loadExistingTrackingData(sku: string): Promise<void> {
-    if (!this.isEditing) return;
-    
-    try {
-      const [lotsResponse, serialsResponse] = await Promise.all([
-        this.lotService.getBySku(sku),
-        this.serialService.getBySku(sku)
-      ]);
 
-      // Store the existing data
-      if (lotsResponse.result.success && lotsResponse.data) {
-        this.existingLots = lotsResponse.data;
-        this.populateLotsFromExistingData();
-      }
-
-      if (serialsResponse.result.success && serialsResponse.data) {
-        this.existingSerials = serialsResponse.data;
-        this.populateSerialsFromExistingData();
-      }
-    } catch (error) {
-    }
-  }
-
-  /**
-   * @description Populate lots form array from existing data
-   */
-  private populateLotsFromExistingData(): void {
-    if (!this.existingLots || this.existingLots.length === 0) return;
-
-
-    // Clear existing lots first
-    this.lotsArray.clear();
-
-    // Add each existing lot to the form
-    this.existingLots.forEach(lot => {
-      const expirationDate = lot.expiration_date ? 
-        new Date(lot.expiration_date).toISOString().split('T')[0] : '';
-      
-      this.lotsArray.push(this.fb.group({
-        lotNumber: [lot.lot_number || '', Validators.required],
-        quantity: [lot.quantity || 0, [Validators.required, Validators.min(0)]],
-        expirationDate: [expirationDate]
-      }));
-    });
-
-  }
-
-  /**
-   * @description Populate serials form array from existing data
-   */
-  private populateSerialsFromExistingData(): void {
-    if (!this.existingSerials || this.existingSerials.length === 0) return;
-
-
-    // Clear existing serials first
-    this.serialNumbersArray.clear();
-
-    // Add each existing serial to the form
-    this.existingSerials.forEach(serial => {
-      this.serialNumbersArray.push(
-        this.fb.control(serial.serial_number || '', Validators.required)
-      );
-    });
-
-  }
-
-  /**
-   * @description Handle SKU selection and auto-fill fields
-   */
   async onSkuSelected(article: any): Promise<void> {
     this.selectedArticle = article;
     
-    // Auto-fill form fields
     this.inventoryForm.patchValue({
       sku: article.sku,
       name: article.name,
@@ -274,23 +181,15 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       trackExpiration: article.track_expiration || false
     });
 
-    // Update combobox display and close dropdown
     this.skuSearchTerm = `${article.sku} - ${article.name}`;
     this.showSkuDropdown = false;
 
-    // Clear existing lots and serials first
     this.lotsArray.clear();
-    this.serialNumbersArray.clear();
+    this.serialsArray.clear();
 
-    // Load existing tracking data if editing
-    if (this.isEditing) {
-      await this.loadExistingTrackingData(article.sku);
-    }
+    await this.loadTrackingOptionsForInventory(article.sku);
   }
 
-  /**
-   * @description Handle SKU dropdown change
-   */
   onSkuChange(): void {
     const selectedSku = this.inventoryForm.get('sku')?.value;
     if (selectedSku) {
@@ -301,9 +200,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * @description Filtrar artículos por término de búsqueda
-   */
   filterArticles(): void {
     const term = (this.skuSearchTerm || '').toLowerCase();
     if (!term) {
@@ -313,11 +209,10 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     this.filteredArticles = this.articles.filter(a =>
       (a.sku || '').toLowerCase().includes(term) || (a.name || '').toLowerCase().includes(term)
     );
+    
+    this.validateSkuSelection();
   }
 
-  /**
-   * @description Filtrar ubicaciones por término de búsqueda
-   */
   filterLocations(): void {
     const term = (this.locationSearchTerm || '').toLowerCase();
     if (!term) {
@@ -327,20 +222,16 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     this.filteredLocations = this.locations.filter(l =>
       (l.location_code || '').toLowerCase().includes(term) || (l.description || '').toLowerCase().includes(term)
     );
+    
+    this.validateLocationSelection();
   }
 
-  /**
-   * @description Seleccionar ubicación desde el buscador
-   */
   onLocationSelected(location: any): void {
     this.inventoryForm.patchValue({ location: location.location_code });
     this.locationSearchTerm = `${location.location_code} - ${location.description}`;
     this.showLocationDropdown = false;
   }
 
-  /**
-   * @description Confirmar selección con Enter: toma la primera opción filtrada
-   */
   confirmFirstArticleIfAny(): void {
     if (this.filteredArticles.length > 0) {
       this.onSkuSelected(this.filteredArticles[0]);
@@ -353,9 +244,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * @description Cerrar dropdowns con pequeño retardo para permitir clic en opción
-   */
   closeSkuDropdownLater(): void {
     setTimeout(() => (this.showSkuDropdown = false), 150);
   }
@@ -364,9 +252,133 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     setTimeout(() => (this.showLocationDropdown = false), 150);
   }
 
-  /**
-   * @description Validate quantity vs tracking items
-   */
+  private validateSkuSelection(): void {
+    if (!this.skuSearchTerm) {
+      if (!this.selectedArticle) {
+        this.clearSkuSelection();
+      }
+      return;
+    }
+
+    const exactMatch = this.articles.find(a => 
+      `${a.sku} - ${a.name}`.toLowerCase() === this.skuSearchTerm.toLowerCase() ||
+      a.sku.toLowerCase() === this.skuSearchTerm.toLowerCase()
+    );
+
+    if (exactMatch) {
+      if (this.selectedArticle?.sku !== exactMatch.sku) {
+        this.onSkuSelected(exactMatch);
+      }
+    }
+  }
+
+  private validateLocationSelection(): void {
+    if (!this.locationSearchTerm) {
+      const currentLocation = this.inventoryForm.get('location')?.value;
+      if (!currentLocation) {
+        this.clearLocationSelection();
+      }
+      return;
+    }
+
+    const exactMatch = this.locations.find(l => 
+      `${l.location_code} - ${l.description}`.toLowerCase() === this.locationSearchTerm.toLowerCase() ||
+      l.location_code.toLowerCase() === this.locationSearchTerm.toLowerCase()
+    );
+
+    if (exactMatch) {
+      const currentLocation = this.inventoryForm.get('location')?.value;
+      if (currentLocation !== exactMatch.location_code) {
+        this.onLocationSelected(exactMatch);
+      }
+    }
+  }
+
+  private clearSkuSelection(): void {
+    this.selectedArticle = null;
+    this.inventoryForm.patchValue({
+      sku: '',
+      name: '',
+      description: '',
+      presentation: 'unit',
+      unitPrice: '0',
+      trackByLot: false,
+      trackBySerial: false,
+      trackExpiration: false,
+      lot_numbers: '',
+      serial_numbers: ''
+    });
+    
+    this.lotSearchTerm = '';
+    this.serialSearchTerm = '';
+  }
+
+  clearSkuManually(): void {
+    this.skuSearchTerm = '';
+    this.clearSkuSelection();
+    this.showSkuDropdown = false;
+    this.filteredArticles = [...this.articles];
+  }
+
+  clearLocationManually(): void {
+    this.locationSearchTerm = '';
+    this.clearLocationSelection();
+    this.showLocationDropdown = false;
+    this.filteredLocations = [...this.locations];
+  }
+
+  private clearLocationSelection(): void {
+    this.inventoryForm.patchValue({
+      location: ''
+    });
+  }
+
+  onSkuBlur(): void {
+    setTimeout(() => {
+      this.validateSkuSelection();
+      this.showSkuDropdown = false;
+    }, 150);
+  }
+
+  onLocationBlur(): void {
+    setTimeout(() => {
+      this.validateLocationSelection();
+      this.showLocationDropdown = false;
+    }, 150);
+  }
+
+  isSkuValid(): boolean {
+    const skuValue = this.inventoryForm.get('sku')?.value;
+    return !!(skuValue && this.selectedArticle && this.selectedArticle.sku === skuValue);
+  }
+
+  isLocationValid(): boolean {
+    const locationValue = this.inventoryForm.get('location')?.value;
+    if (!locationValue) return false;
+    
+    return this.locations.some(l => l.location_code === locationValue);
+  }
+
+  hasValidSkuSelection(): boolean {
+    return this.isSkuValid();
+  }
+
+  hasValidLocationSelection(): boolean {
+    return this.isLocationValid();
+  }
+
+  enableSkuEdit(): void {
+    this.skuSearchTerm = '';
+    this.showSkuDropdown = true;
+    this.filteredArticles = [...this.articles];
+  }
+
+  enableLocationEdit(): void {
+    this.locationSearchTerm = '';
+    this.showLocationDropdown = true;
+    this.filteredLocations = [...this.locations];
+  }
+
   validateTrackingQuantity(): boolean {
     const quantity = this.inventoryForm.get('quantity')?.value || 0;
     const trackByLot = this.inventoryForm.get('trackByLot')?.value;
@@ -383,8 +395,8 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       }
     }
 
-    if (trackBySerial && this.serialNumbersArray.length > 0) {
-      if (this.serialNumbersArray.length !== quantity) {
+    if (trackBySerial && this.serialsArray.length > 0) {
+      if (this.serialsArray.length !== quantity) {
         this.alertService.error(this.t('serial_quantity_mismatch'));
         return false;
       }
@@ -393,9 +405,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     return true;
   }
 
-  /**
-   * @description Load inventory data into form
-   */
   private async loadInventoryData(): Promise<void> {
     if (this.inventory && this.inventoryForm) {
       this.inventoryForm.patchValue({
@@ -412,12 +421,36 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         trackExpiration: this.inventory.track_expiration || false
       });
 
-      // Prellenar términos visibles del combobox si ya viene inventario
-      if (this.inventory.sku) {
+      if (this.inventory.sku && this.articles.length > 0) {
         const article = this.articles.find(a => a.sku === this.inventory!.sku);
-        this.skuSearchTerm = article ? `${article.sku} - ${article.name}` : this.inventory.sku;
-      } else {
-        this.skuSearchTerm = '';
+        if (article) {
+          this.selectedArticle = article;
+          this.skuSearchTerm = `${article.sku} - ${article.name}`;
+        } else {
+          this.selectedArticle = {
+            sku: this.inventory.sku,
+            name: this.inventory.name || this.inventory.sku,
+            description: this.inventory.description || '',
+            presentation: this.inventory.presentation || 'unit',
+            unit_price: this.inventory.unit_price || 0,
+            track_by_lot: this.inventory.track_by_lot || false,
+            track_by_serial: this.inventory.track_by_serial || false,
+            track_expiration: this.inventory.track_expiration || false
+          };
+          this.skuSearchTerm = `${this.inventory.sku} - ${this.inventory.name || this.inventory.sku}`;
+        }
+      } else if (this.inventory.sku) {
+        this.selectedArticle = {
+          sku: this.inventory.sku,
+          name: this.inventory.name || this.inventory.sku,
+          description: this.inventory.description || '',
+          presentation: this.inventory.presentation || 'unit',
+          unit_price: this.inventory.unit_price || 0,
+          track_by_lot: this.inventory.track_by_lot || false,
+          track_by_serial: this.inventory.track_by_serial || false,
+          track_expiration: this.inventory.track_expiration || false
+        };
+        this.skuSearchTerm = `${this.inventory.sku} - ${this.inventory.name || this.inventory.sku}`;
       }
 
       if (this.inventory.location) {
@@ -427,40 +460,26 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         this.locationSearchTerm = '';
       }
 
-      // Clear arrays first
-      this.lotsArray.clear();
-      this.serialNumbersArray.clear();
-
-      // Load existing tracking data from API if editing
-      if (this.isEditing && this.inventory.sku) {
-        await this.loadExistingTrackingData(this.inventory.sku);
-      }
-      // Otherwise, load from inventory object (for new items with pre-filled data)
-      else {
-        // Load lots from inventory object
-        if (this.inventory.lots && this.inventory.lots.length > 0) {
-          this.inventory.lots.forEach(lot => {
-            this.lotsArray.push(this.fb.group({
-              lotNumber: [lot.lotNumber, Validators.required],
-              quantity: [lot.quantity, [Validators.required, Validators.min(0)]],
-              expirationDate: [lot.expirationDate || '']
-            }));
-          });
-        }
-
-        // Load serials from inventory object
-        if (this.inventory.serials && this.inventory.serials.length > 0) {
-          this.inventory.serials.forEach(serial => {
-            this.serialNumbersArray.push(this.fb.control(serial.serialNumber, Validators.required));
-          });
-        }
+      if (this.isEditing) {
+        await this.loadExistingInventoryTracking();
       }
     }
   }
 
-  /**
-   * @description Add lot to form
-   */
+  private async loadExistingInventoryTracking(): Promise<void> {
+    if (!this.inventory?.sku) return;
+
+    if (this.inventory.lots && this.inventory.lots.length > 0) {
+      const lotNumbers = this.inventory.lots.map((lot: any) => lot.lot_number || lot.lotNumber).filter(Boolean);
+      this.inventoryForm.get('lot_numbers')?.setValue(lotNumbers.join(', '));
+    }
+
+    if (this.inventory.serials && this.inventory.serials.length > 0) {
+      const serialNumbers = this.inventory.serials.map((serial: any) => serial.serial_number || serial.serialNumber).filter(Boolean);
+      this.inventoryForm.get('serial_numbers')?.setValue(serialNumbers.join(', '));
+    }
+  }
+
   addLot(): void {
     const trackByLot = this.inventoryForm.get('trackByLot')?.value;
     if (!trackByLot) {
@@ -480,16 +499,16 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     }));
   }
 
-  /**
-   * @description Remove lot from form
-   */
-  removeLot(index: number): void {
+  removeLotFromArray(index: number): void {
     this.lotsArray.removeAt(index);
   }
+  
+  removeLot(lotNumber: string): void {
+    const current = this.getSelectedLots();
+    const updated = current.filter((lot: string) => lot !== lotNumber);
+    this.inventoryForm.get('lot_numbers')?.setValue(updated.join(', '));
+  }
 
-  /**
-   * @description When user types a lot quantity, clamp to remaining available to not exceed total
-   */
   onLotQuantityInput(index: number): void {
     const lotGroup = this.lotsArray.at(index) as FormGroup;
     if (!lotGroup) return;
@@ -502,15 +521,11 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * @description When total quantity changes, ensure lots total does not exceed it
-   */
   onQuantityInput(): void {
     const total = this.inventoryForm.get('quantity')?.value || 0;
     let sum = this.calculateTotalLotQuantity();
     if (sum <= total) return;
 
-    // Reduce the last lot to fit the new total
     const lastIndex = this.lotsArray.length - 1;
     if (lastIndex < 0) return;
     const lastGroup = this.lotsArray.at(lastIndex) as FormGroup;
@@ -520,41 +535,155 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     lastGroup.get('quantity')?.setValue(newQty);
   }
 
-  /**
-   * @description Add serial number to form
-   */
   addSerialNumber(): void {
     const quantity = this.inventoryForm.get('quantity')?.value || 0;
     const trackBySerial = this.inventoryForm.get('trackBySerial')?.value;
     
-    if (trackBySerial && this.serialNumbersArray.length >= quantity) {
+    if (trackBySerial && this.serialsArray.length >= quantity) {
       this.alertService.warning(this.t('max_serials_reached'));
       return;
     }
 
-    this.serialNumbersArray.push(this.fb.control('', Validators.required));
+    this.serialsArray.push(this.fb.control('', Validators.required));
   }
 
-  // (revertido) Métodos de completar faltantes eliminados a solicitud
 
-  /**
-   * @description Remove serial number from form
-   */
-  removeSerialNumber(index: number): void {
-    this.serialNumbersArray.removeAt(index);
+  removeSerialNumberFromArray(index: number): void {
+    this.serialsArray.removeAt(index);
+  }
+  
+  removeSerial(serialNumber: string): void {
+    const current = this.getSelectedSerials();
+    const updated = current.filter((serial: string) => serial !== serialNumber);
+    this.inventoryForm.get('serial_numbers')?.setValue(updated.join(', '));
   }
 
-  /**
-   * @description Check if field is invalid
-   */
+
+  private async loadTrackingOptionsForInventory(sku: string): Promise<void> {
+  }
+
+  getExpectedQuantity(): number {
+    const qty = this.inventoryForm.get('quantity')?.value || 0;
+    return Number(qty) || 0;
+  }
+
+  getSelectedLots(): string[] {
+    const current = (this.inventoryForm.get('lot_numbers')?.value as string) || '';
+    return current ? current.split(',').map(s => s.trim()).filter(Boolean) : [];
+  }
+
+  getSelectedLotCount(): number {
+    return this.getSelectedLots().length;
+  }
+
+  getSelectedSerials(): string[] {
+    const current = (this.inventoryForm.get('serial_numbers')?.value as string) || '';
+    return current ? current.split(',').map(s => s.trim()).filter(Boolean) : [];
+  }
+
+  getSelectedSerialCount(): number {
+    return this.getSelectedSerials().length;
+  }
+
+  isLotSelectionComplete(): boolean {
+    const expectedQty = this.getExpectedQuantity();
+    const selectedCount = this.getSelectedLotCount();
+    return expectedQty > 0 && selectedCount === expectedQty;
+  }
+
+  isSerialSelectionComplete(): boolean {
+    const expectedQty = this.getExpectedQuantity();
+    const selectedCount = this.getSelectedSerialCount();
+    return expectedQty > 0 && selectedCount === expectedQty;
+  }
+
+  isLotSelected(lotNumber: string): boolean {
+    return this.getSelectedLots().includes(lotNumber);
+  }
+
+  isSerialSelected(serialNumber: string): boolean {
+    return this.getSelectedSerials().includes(serialNumber);
+  }
+
+  filterLotsForInventory(): void {
+  }
+
+  filterSerialsForInventory(): void {
+  }
+
+  onLotSelected(lotNumber: string): void {
+  }
+
+  onSerialSelected(serialNumber: string): void {
+  }
+
+  closeLotDropdownLater(): void {
+  }
+
+  closeSerialDropdownLater(): void {
+  }
+
+  onManualLotInput(): void {
+  }
+
+  onManualSerialInput(): void {
+  }
+
+  handleLotEnter(): void {
+    const searchTerm = (this.lotSearchTerm || '').trim();
+    if (searchTerm) {
+      this.addManualLot(searchTerm);
+    }
+  }
+
+  handleSerialEnter(): void {
+    const searchTerm = (this.serialSearchTerm || '').trim();
+    if (searchTerm) {
+      this.addManualSerial(searchTerm);
+    }
+  }
+
+  addManualLot(lotNumber: string): void {
+    if (!lotNumber.trim()) return;
+    
+    const current = this.getSelectedLots();
+    const expectedQty = this.getExpectedQuantity();
+
+    if (!current.includes(lotNumber.trim()) && current.length < expectedQty) {
+      current.push(lotNumber.trim());
+      this.inventoryForm.get('lot_numbers')?.setValue(current.join(', '));
+      this.lotSearchTerm = '';
+    } else if (current.length >= expectedQty) {
+      this.alertService.warning(
+        this.t('lot_selection_limit_reached'),
+        this.t('warning')
+      );
+    }
+  }
+
+  addManualSerial(serialNumber: string): void {
+    if (!serialNumber.trim()) return;
+    
+    const current = this.getSelectedSerials();
+    const expectedQty = this.getExpectedQuantity();
+
+    if (!current.includes(serialNumber.trim()) && current.length < expectedQty) {
+      current.push(serialNumber.trim());
+      this.inventoryForm.get('serial_numbers')?.setValue(current.join(', '));
+      this.serialSearchTerm = '';
+    } else if (current.length >= expectedQty) {
+      this.alertService.warning(
+        this.t('serial_selection_limit_reached'),
+        this.t('warning')
+      );
+    }
+  }
+
   isFieldInvalid(fieldName: string): boolean {
     const field = this.inventoryForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
   }
 
-  /**
-   * @description Get field error message
-   */
   getFieldError(fieldName: string): string {
     const field = this.inventoryForm.get(fieldName);
     if (field && field.errors) {
@@ -571,9 +700,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     return '';
   }
 
-  /**
-   * @description Handle form submission
-   */
   async onSubmit(): Promise<void> {
     if (this.inventoryForm.invalid) {
       this.markFormGroupTouched();
@@ -591,6 +717,30 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       if (formData.unitPrice) {
         formData.unitPrice = parseFloat(formData.unitPrice);
       }
+
+      formData.lots = [];
+      formData.serials = [];
+
+      if (formData.lot_numbers && typeof formData.lot_numbers === 'string') {
+        const lotNumbers = formData.lot_numbers.split(',').map((s: string) => s.trim()).filter(Boolean);
+        formData.lots = lotNumbers.map((lotNumber: string) => ({
+          lot_number: lotNumber,
+          sku: formData.sku,
+          expiration_date: null
+        }));
+      }
+
+      if (formData.serial_numbers && typeof formData.serial_numbers === 'string') {
+        const serialNumbers = formData.serial_numbers.split(',').map((s: string) => s.trim()).filter(Boolean);
+        formData.serials = serialNumbers.map((serialNumber: string) => ({
+          serial_number: serialNumber,
+          sku: formData.sku,
+          status: 'available'
+        }));
+      }
+
+      delete formData.lot_numbers;
+      delete formData.serial_numbers;
 
       let response;
       if (this.isEditing && this.inventory) {
@@ -612,9 +762,6 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * @description Mark all form fields as touched
-   */
   private markFormGroupTouched(): void {
     Object.keys(this.inventoryForm.controls).forEach(key => {
       const control = this.inventoryForm.get(key);
@@ -622,38 +769,24 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     });
   }
 
-  /**
-   * @description Reset form
-   */
   private resetForm(): void {
     this.inventoryForm.reset();
     this.lotsArray.clear();
-    this.serialNumbersArray.clear();
+    this.serialsArray.clear();
     this.isEditing = false;
     this.inventory = null;
     this.selectedArticle = null;
-    this.existingLots = [];
-    this.existingSerials = [];
   }
 
-  /**
-   * @description Handle cancel
-   */
   onCancel(): void {
     this.cancel.emit();
     this.resetForm();
   }
 
-  /**
-   * @description Close modal
-   */
   close(): void {
     this.cancel.emit();
   }
 
-  /**
-   * @description Handle backdrop click
-   */
   onBackdropClick(event: Event): void {
     if (event.target === event.currentTarget) {
       this.close();

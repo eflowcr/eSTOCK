@@ -109,46 +109,27 @@
   </div>
 
   <!-- Table -->
-  <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+  <div class="table-scroll-container overflow-x-auto" (scroll)="onTableScroll($event)">
+    <ng-container *ngIf="filteredAndSortedUsers.length > 0; else noDataTemplate">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 users-table-fixed">
       <thead class="bg-gray-50 dark:bg-gray-700">
         <tr>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" (click)="onSort('first_name')">
-            <div class="flex items-center space-x-1">
-              <span>{{ t('user_management.name') }}</span>
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-              </svg>
-            </div>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer" (click)="onSort('first_name')">
+            {{ t('user_management.name') }}
           </th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" (click)="onSort('email')">
-            <div class="flex items-center space-x-1">
-              <span>{{ t('user_management.email') }}</span>
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-              </svg>
-            </div>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer" (click)="onSort('email')">
+            {{ t('user_management.email') }}
           </th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" (click)="onSort('role')">
-            <div class="flex items-center space-x-1">
-              <span>{{ t('user_management.role') }}</span>
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-              </svg>
-            </div>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer" (click)="onSort('role')">
+            {{ t('user_management.role') }}
           </th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
             {{ t('user_management.status') }}
           </th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" (click)="onSort('created_at')">
-            <div class="flex items-center space-x-1">
-              <span>{{ t('user_management.created') }}</span>
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-              </svg>
-            </div>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer" (click)="onSort('created_at')">
+            {{ t('user_management.created') }}
           </th>
-          <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+          <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
             {{ t('user_management.actions') }}
           </th>
         </tr>
@@ -180,7 +161,7 @@
         <!-- User Rows -->
         <tr *ngFor="let user of filteredAndSortedUsers; trackBy: trackByUserId" class="hover:bg-gray-50 dark:hover:bg-gray-700">
           <!-- Name with Avatar -->
-          <td class="px-6 py-4 whitespace-nowrap">
+          <td class="px-3 py-3 whitespace-nowrap">
             <div class="flex items-center">
               <div class="h-10 w-10 rounded-full bg-[#00113f] flex items-center justify-center flex-shrink-0">
                 <img *ngIf="user.profile_image_url" 
@@ -203,12 +184,12 @@
           </td>
           
           <!-- Email -->
-          <td class="px-6 py-4 whitespace-nowrap">
+          <td class="px-3 py-3 whitespace-nowrap">
             <div class="text-sm text-gray-900 dark:text-white">{{ user.email }}</div>
           </td>
           
           <!-- Role -->
-          <td class="px-6 py-4 whitespace-nowrap">
+          <td class="px-3 py-3 whitespace-nowrap">
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                   [class]="getRoleBadgeClass(user.role)">
               {{ user.role }}
@@ -216,7 +197,7 @@
           </td>
           
           <!-- Status -->
-          <td class="px-6 py-4 whitespace-nowrap">
+          <td class="px-3 py-3 whitespace-nowrap">
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                   [class]="getStatusBadgeClass(user.is_active)">
               {{ user.is_active ? t('user_management.active') : t('user_management.inactive') }}
@@ -224,12 +205,12 @@
           </td>
           
           <!-- Created Date -->
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+          <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
             {{ formatDate(user.created_at) }}
           </td>
           
           <!-- Actions -->
-          <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+          <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium">
             <div class="flex justify-center space-x-2">
               <!-- Edit Button - Only for admin -->
               <button *ngIf="isAdmin()"
@@ -275,6 +256,18 @@
         </tr>
       </tbody>
     </table>
+    </ng-container>
+
+    <!-- No Data Template -->
+    <ng-template #noDataTemplate>
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ t('user_management.no_users_found') }}</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('user_management.no_users_description') }}</p>
+      </div>
+    </ng-template>
   </div>
 </div>
 

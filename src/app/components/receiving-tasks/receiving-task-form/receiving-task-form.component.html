@@ -49,18 +49,57 @@
             <!-- Assigned To -->
             <div class="form-group relative">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {{ t('assign_to_operator') }}
+                {{ t('assign_to_operator') }} *
               </label>
-              <div>
-                <input type="text" (focus)="showOperatorDropdown = true" (blur)="closeOperatorDropdownLater()"
-                  [(ngModel)]="operatorSearchTerm" (input)="filterOperators()"
-                  (keydown.enter)="$event.preventDefault(); confirmFirstOperatorIfAny()" [ngModelOptions]="{standalone: true}"
+              <div class="mt-1 relative">
+                <input type="text" 
+                  (focus)="showOperatorDropdown = true" 
+                  (blur)="onOperatorBlur()"
+                  [(ngModel)]="operatorSearchTerm" 
+                  (input)="filterOperators()"
+                  (keydown.enter)="$event.preventDefault(); confirmFirstOperatorIfAny()" 
+                  [ngModelOptions]="{standalone: true}"
                   placeholder="{{ t('select_operator') }}"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  [class.border-red-500]="isFieldInvalid('assigned_to')" />
+                  class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-[#00113f] dark:bg-gray-700 dark:text-white"
+                  [class.border-red-500]="isFieldInvalid('assigned_to') || (operatorSearchTerm && !isOperatorValid())"
+                  [class.border-green-500]="operatorSearchTerm && isOperatorValid() && !isFieldInvalid('assigned_to')"
+                  [class.focus:ring-red-500]="isFieldInvalid('assigned_to') || (operatorSearchTerm && !isOperatorValid())"
+                  [class.focus:border-red-500]="isFieldInvalid('assigned_to') || (operatorSearchTerm && !isOperatorValid())"
+                  [class.focus:ring-green-500]="operatorSearchTerm && isOperatorValid() && !isFieldInvalid('assigned_to')"
+                  [class.focus:border-green-500]="operatorSearchTerm && isOperatorValid() && !isFieldInvalid('assigned_to')"
+                  [class.focus:ring-[#3e66ea]]="!isFieldInvalid('assigned_to') && (!operatorSearchTerm || isOperatorValid())"
+                  [class.focus:border-[#3e66ea]]="!isFieldInvalid('assigned_to') && (!operatorSearchTerm || isOperatorValid())"
+                  [class.border-gray-300]="!isFieldInvalid('assigned_to') && (!operatorSearchTerm || isOperatorValid())"
+                  [class.dark:border-gray-600]="!isFieldInvalid('assigned_to') && (!operatorSearchTerm || isOperatorValid())"
+                />
                 <input type="hidden" formControlName="assigned_to" />
+                
+                <!-- Botones de acción -->
+                <div class="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
+                  <!-- Botón de editar (cuando hay selección válida) -->
+                  <button type="button" 
+                    *ngIf="hasValidOperatorSelection()"
+                    (click)="enableOperatorEdit()"
+                    class="p-1 text-gray-400 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+                    [title]="t('edit_selection')">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                  </button>
+                  
+                  <!-- Botón de limpiar -->
+                  <button type="button" 
+                    *ngIf="operatorSearchTerm || hasValidOperatorSelection()"
+                    (click)="clearOperatorManually()"
+                    class="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600"
+                    [title]="t('clear_selection')">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
               </div>
-              <div *ngIf="showOperatorDropdown" class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md max-h-56 overflow-auto shadow-xl">
+              <div *ngIf="showOperatorDropdown" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-56 overflow-auto shadow-lg">
                 <button type="button" *ngFor="let user of filteredOperators" (mousedown)="$event.preventDefault()" (click)="onOperatorSelected(user)"
                   class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
                   {{ getUserDisplayName(user.id) }}
@@ -69,9 +108,15 @@
                   {{ t('no_results') }}
                 </div>
               </div>
-              <div *ngIf="isFieldInvalid('assigned_to')" class="text-red-600 text-sm mt-1">
+              <p *ngIf="isFieldInvalid('assigned_to')" class="mt-1 text-sm text-red-600">
                 {{ getFieldError('assigned_to') }}
-              </div>
+              </p>
+              <p *ngIf="!isFieldInvalid('assigned_to') && operatorSearchTerm && !isOperatorValid()" class="mt-1 text-sm text-amber-600">
+                ⚠ {{ t('type_to_search_or_select') }}
+              </p>
+              <p *ngIf="hasValidOperatorSelection()" class="mt-1 text-sm text-green-600">
+                ✓ {{ getSelectedOperatorName() }} - {{ t('selected') }}
+              </p>
             </div>
 
             <!-- Priority -->
@@ -119,17 +164,56 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <!-- SKU Combobox -->
                   <div class="form-group relative">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('sku') }}</label>
-                    <div>
-                      <input type="text" (focus)="showSkuDropdown[i] = true; ensureComboboxState(i)" (blur)="closeSkuDropdownLater(i)"
-                        [(ngModel)]="skuSearchTerms[i]" (input)="filterArticlesForItem(i)"
-                        (keydown.enter)="$event.preventDefault(); confirmFirstArticleIfAny(i)" [ngModelOptions]="{standalone: true}"
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('sku') }} *</label>
+                    <div class="mt-1 relative">
+                      <input type="text" 
+                        (focus)="showSkuDropdown[i] = true; ensureComboboxState(i)" 
+                        (blur)="onSkuBlur(i)"
+                        [(ngModel)]="skuSearchTerms[i]" 
+                        (input)="filterArticlesForItem(i)"
+                        (keydown.enter)="$event.preventDefault(); confirmFirstArticleIfAny(i)" 
+                        [ngModelOptions]="{standalone: true}"
                         placeholder="{{ t('select_sku') }}"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        [class.border-red-500]="isItemFieldInvalid(i, 'sku')" />
+                        class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-[#00113f] dark:bg-gray-700 dark:text-white"
+                        [class.border-red-500]="isItemFieldInvalid(i, 'sku') || (skuSearchTerms[i] && !isSkuValid(i))"
+                        [class.border-green-500]="skuSearchTerms[i] && isSkuValid(i) && !isItemFieldInvalid(i, 'sku')"
+                        [class.focus:ring-red-500]="isItemFieldInvalid(i, 'sku') || (skuSearchTerms[i] && !isSkuValid(i))"
+                        [class.focus:border-red-500]="isItemFieldInvalid(i, 'sku') || (skuSearchTerms[i] && !isSkuValid(i))"
+                        [class.focus:ring-green-500]="skuSearchTerms[i] && isSkuValid(i) && !isItemFieldInvalid(i, 'sku')"
+                        [class.focus:border-green-500]="skuSearchTerms[i] && isSkuValid(i) && !isItemFieldInvalid(i, 'sku')"
+                        [class.focus:ring-[#3e66ea]]="!isItemFieldInvalid(i, 'sku') && (!skuSearchTerms[i] || isSkuValid(i))"
+                        [class.focus:border-[#3e66ea]]="!isItemFieldInvalid(i, 'sku') && (!skuSearchTerms[i] || isSkuValid(i))"
+                        [class.border-gray-300]="!isItemFieldInvalid(i, 'sku') && (!skuSearchTerms[i] || isSkuValid(i))"
+                        [class.dark:border-gray-600]="!isItemFieldInvalid(i, 'sku') && (!skuSearchTerms[i] || isSkuValid(i))"
+                      />
                       <input type="hidden" formControlName="sku" />
+                      
+                      <!-- Botones de acción -->
+                      <div class="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
+                        <!-- Botón de editar (cuando hay selección válida) -->
+                        <button type="button" 
+                          *ngIf="hasValidSkuSelection(i)"
+                          (click)="enableSkuEdit(i)"
+                          class="p-1 text-gray-400 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+                          [title]="t('edit_selection')">
+                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                        </button>
+                        
+                        <!-- Botón de limpiar -->
+                        <button type="button" 
+                          *ngIf="skuSearchTerms[i] || hasValidSkuSelection(i)"
+                          (click)="clearSkuManually(i)"
+                          class="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600"
+                          [title]="t('clear_selection')">
+                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                          </svg>
+                        </button>
+                      </div>
                     </div>
-                    <div *ngIf="showSkuDropdown[i]" class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md max-h-56 overflow-auto shadow-xl">
+                    <div *ngIf="showSkuDropdown[i]" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-56 overflow-auto shadow-lg">
                       <button type="button" *ngFor="let article of filteredArticlesPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onSkuSelected(i, article)"
                         class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
                         {{ article.sku }} - {{ article.name }}
@@ -138,9 +222,15 @@
                         {{ t('no_results') }}
                       </div>
                     </div>
-                    <div *ngIf="isItemFieldInvalid(i, 'sku')" class="text-red-600 text-sm mt-1">
+                    <p *ngIf="isItemFieldInvalid(i, 'sku')" class="mt-1 text-sm text-red-600">
                       {{ getItemFieldError(i, 'sku') }}
-                    </div>
+                    </p>
+                    <p *ngIf="!isItemFieldInvalid(i, 'sku') && skuSearchTerms[i] && !isSkuValid(i)" class="mt-1 text-sm text-amber-600">
+                      ⚠ {{ t('type_to_search_or_select') }}
+                    </p>
+                    <p *ngIf="hasValidSkuSelection(i)" class="mt-1 text-sm text-green-600">
+                      ✓ {{ getSelectedSkuName(i) }} - {{ t('selected') }}
+                    </p>
                   </div>
 
                   <!-- Expected Quantity -->
@@ -158,17 +248,56 @@
 
                   <!-- Location Combobox -->
                   <div class="form-group relative">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('location') }}</label>
-                    <div>
-                      <input type="text" (focus)="showLocationDropdown[i] = true; ensureComboboxState(i)" (blur)="closeLocationDropdownLater(i)"
-                        [(ngModel)]="locationSearchTerms[i]" (input)="filterLocationsForItem(i)"
-                        (keydown.enter)="$event.preventDefault(); confirmFirstLocationIfAny(i)" [ngModelOptions]="{standalone: true}"
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('location') }} *</label>
+                    <div class="mt-1 relative">
+                      <input type="text" 
+                        (focus)="showLocationDropdown[i] = true; ensureComboboxState(i)" 
+                        (blur)="onLocationBlur(i)"
+                        [(ngModel)]="locationSearchTerms[i]" 
+                        (input)="filterLocationsForItem(i)"
+                        (keydown.enter)="$event.preventDefault(); confirmFirstLocationIfAny(i)" 
+                        [ngModelOptions]="{standalone: true}"
                         placeholder="{{ t('select_location') }}"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        [class.border-red-500]="isItemFieldInvalid(i, 'location')" />
+                        class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-[#00113f] dark:bg-gray-700 dark:text-white"
+                        [class.border-red-500]="isItemFieldInvalid(i, 'location') || (locationSearchTerms[i] && !isLocationValid(i))"
+                        [class.border-green-500]="locationSearchTerms[i] && isLocationValid(i) && !isItemFieldInvalid(i, 'location')"
+                        [class.focus:ring-red-500]="isItemFieldInvalid(i, 'location') || (locationSearchTerms[i] && !isLocationValid(i))"
+                        [class.focus:border-red-500]="isItemFieldInvalid(i, 'location') || (locationSearchTerms[i] && !isLocationValid(i))"
+                        [class.focus:ring-green-500]="locationSearchTerms[i] && isLocationValid(i) && !isItemFieldInvalid(i, 'location')"
+                        [class.focus:border-green-500]="locationSearchTerms[i] && isLocationValid(i) && !isItemFieldInvalid(i, 'location')"
+                        [class.focus:ring-[#3e66ea]]="!isItemFieldInvalid(i, 'location') && (!locationSearchTerms[i] || isLocationValid(i))"
+                        [class.focus:border-[#3e66ea]]="!isItemFieldInvalid(i, 'location') && (!locationSearchTerms[i] || isLocationValid(i))"
+                        [class.border-gray-300]="!isItemFieldInvalid(i, 'location') && (!locationSearchTerms[i] || isLocationValid(i))"
+                        [class.dark:border-gray-600]="!isItemFieldInvalid(i, 'location') && (!locationSearchTerms[i] || isLocationValid(i))"
+                      />
                       <input type="hidden" formControlName="location" />
+                      
+                      <!-- Botones de acción -->
+                      <div class="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
+                        <!-- Botón de editar (cuando hay selección válida) -->
+                        <button type="button" 
+                          *ngIf="hasValidLocationSelection(i)"
+                          (click)="enableLocationEdit(i)"
+                          class="p-1 text-gray-400 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+                          [title]="t('edit_selection')">
+                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                        </button>
+                        
+                        <!-- Botón de limpiar -->
+                        <button type="button" 
+                          *ngIf="locationSearchTerms[i] || hasValidLocationSelection(i)"
+                          (click)="clearLocationManually(i)"
+                          class="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600"
+                          [title]="t('clear_selection')">
+                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                          </svg>
+                        </button>
+                      </div>
                     </div>
-                    <div *ngIf="showLocationDropdown[i]" class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md max-h-56 overflow-auto shadow-xl">
+                    <div *ngIf="showLocationDropdown[i]" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-56 overflow-auto shadow-lg">
                       <button type="button" *ngFor="let loc of filteredLocationsPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onLocationSelected(i, loc)"
                         class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
                         {{ loc.location_code }} - {{ loc.description }}
@@ -177,9 +306,15 @@
                         {{ t('no_results') }}
                       </div>
                     </div>
-                    <div *ngIf="isItemFieldInvalid(i, 'location')" class="text-red-600 text-sm mt-1">
+                    <p *ngIf="isItemFieldInvalid(i, 'location')" class="mt-1 text-sm text-red-600">
                       {{ getItemFieldError(i, 'location') }}
-                    </div>
+                    </p>
+                    <p *ngIf="!isItemFieldInvalid(i, 'location') && locationSearchTerms[i] && !isLocationValid(i)" class="mt-1 text-sm text-amber-600">
+                      ⚠ {{ t('type_to_search_or_select') }}
+                    </p>
+                    <p *ngIf="hasValidLocationSelection(i)" class="mt-1 text-sm text-green-600">
+                      ✓ {{ getSelectedLocationName(i) }} - {{ t('selected') }}
+                    </p>
                   </div>
                 </div>
 

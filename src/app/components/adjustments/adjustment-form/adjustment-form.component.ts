@@ -42,6 +42,13 @@ export class AdjustmentFormComponent implements OnInit {
   
   // Selected data
   selectedArticle: Article | null = null;
+  selectedLocation: Location | null = null;
+
+  // Tracking controls
+  lotSearchTerm = '';
+  serialSearchTerm = '';
+  selectedLots: string[] = [];
+  selectedSerials: string[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -135,6 +142,12 @@ export class AdjustmentFormComponent implements OnInit {
     // Update search term
     this.skuSearchTerm = `${article.sku} - ${article.name}`;
     
+    // Reset tracking data when article changes
+    this.selectedLots = [];
+    this.selectedSerials = [];
+    this.lotSearchTerm = '';
+    this.serialSearchTerm = '';
+    
     // Close dropdown
     this.showSkuDropdown = false;
   }
@@ -143,6 +156,7 @@ export class AdjustmentFormComponent implements OnInit {
    * Handle location selection
    */
   onLocationSelected(location: Location): void {
+    this.selectedLocation = location;
     this.adjustmentForm.patchValue({ location: location.location_code });
     this.locationSearchTerm = `${location.location_code} - ${location.description}`;
     this.showLocationDropdown = false;
@@ -172,6 +186,181 @@ export class AdjustmentFormComponent implements OnInit {
 
   closeLocationDropdownLater(): void {
     setTimeout(() => (this.showLocationDropdown = false), 150);
+  }
+
+  // Advanced dropdown pattern methods for SKU
+  isSkuValid(): boolean {
+    const formValue = this.adjustmentForm.get('sku')?.value;
+    return !!formValue && this.articles.some(a => a.sku === formValue);
+  }
+
+  enableSkuEdit(): void {
+    this.skuSearchTerm = '';
+    this.showSkuDropdown = true;
+    this.adjustmentForm.patchValue({ sku: '' });
+    this.selectedArticle = null;
+  }
+
+  clearSkuManually(): void {
+    this.skuSearchTerm = '';
+    this.adjustmentForm.patchValue({ sku: '' });
+    this.showSkuDropdown = false;
+    this.selectedArticle = null;
+  }
+
+  hasValidSkuSelection(): boolean {
+    return this.isSkuValid();
+  }
+
+  getSelectedSkuName(): string {
+    const skuValue = this.adjustmentForm.get('sku')?.value;
+    const article = this.articles.find(a => a.sku === skuValue);
+    return article ? `${article.sku} - ${article.name}` : '';
+  }
+
+  onSkuBlur(): void {
+    setTimeout(() => {
+      this.showSkuDropdown = false;
+    }, 150);
+  }
+
+  // Advanced dropdown pattern methods for Location
+  isLocationValid(): boolean {
+    const formValue = this.adjustmentForm.get('location')?.value;
+    return !!formValue && this.locations.some(l => l.location_code === formValue);
+  }
+
+  enableLocationEdit(): void {
+    this.locationSearchTerm = '';
+    this.showLocationDropdown = true;
+    this.adjustmentForm.patchValue({ location: '' });
+    this.selectedLocation = null;
+  }
+
+  clearLocationManually(): void {
+    this.locationSearchTerm = '';
+    this.adjustmentForm.patchValue({ location: '' });
+    this.showLocationDropdown = false;
+    this.selectedLocation = null;
+  }
+
+  hasValidLocationSelection(): boolean {
+    return this.isLocationValid();
+  }
+
+  getSelectedLocationName(): string {
+    const locationValue = this.adjustmentForm.get('location')?.value;
+    const location = this.locations.find(l => l.location_code === locationValue);
+    return location ? `${location.location_code} - ${location.description}` : '';
+  }
+
+  onLocationBlur(): void {
+    setTimeout(() => {
+      this.showLocationDropdown = false;
+    }, 150);
+  }
+
+  // Lot and Serial tracking methods
+  getExpectedQuantity(): number {
+    const adjustmentQty = Number(this.adjustmentForm.get('adjustmentQuantity')?.value) || 0;
+    return adjustmentQty > 0 ? adjustmentQty : 0;
+  }
+
+  getSelectedLots(): string[] {
+    return this.selectedLots;
+  }
+
+  getSelectedSerials(): string[] {
+    return this.selectedSerials;
+  }
+
+  getSelectedLotCount(): number {
+    return this.selectedLots.length;
+  }
+
+  getSelectedSerialCount(): number {
+    return this.selectedSerials.length;
+  }
+
+  isLotSelectionComplete(): boolean {
+    const expectedQty = this.getExpectedQuantity();
+    return expectedQty > 0 && this.selectedLots.length === expectedQty;
+  }
+
+  isSerialSelectionComplete(): boolean {
+    const expectedQty = this.getExpectedQuantity();
+    return expectedQty > 0 && this.selectedSerials.length === expectedQty;
+  }
+
+  handleLotEnter(): void {
+    const searchTerm = (this.lotSearchTerm || '').trim();
+    if (searchTerm) {
+      this.addManualLot(searchTerm);
+    }
+  }
+
+  handleSerialEnter(): void {
+    const searchTerm = (this.serialSearchTerm || '').trim();
+    if (searchTerm) {
+      this.addManualSerial(searchTerm);
+    }
+  }
+
+  addManualLot(lotNumber: string): void {
+    if (!lotNumber.trim()) return;
+    
+    const expectedQty = this.getExpectedQuantity();
+    if (!this.selectedLots.includes(lotNumber.trim()) && this.selectedLots.length < expectedQty) {
+      this.selectedLots.push(lotNumber.trim());
+      this.lotSearchTerm = '';
+    } else if (this.selectedLots.length >= expectedQty) {
+      this.alertService.warning(
+        this.t('lot_selection_limit_reached') || 'Límite de lotes alcanzado',
+        this.t('warning') || 'Advertencia'
+      );
+    }
+  }
+
+  addManualSerial(serialNumber: string): void {
+    if (!serialNumber.trim()) return;
+    
+    const expectedQty = this.getExpectedQuantity();
+    if (!this.selectedSerials.includes(serialNumber.trim()) && this.selectedSerials.length < expectedQty) {
+      this.selectedSerials.push(serialNumber.trim());
+      this.serialSearchTerm = '';
+    } else if (this.selectedSerials.length >= expectedQty) {
+      this.alertService.warning(
+        this.t('serial_selection_limit_reached') || 'Límite de series alcanzado',
+        this.t('warning') || 'Advertencia'
+      );
+    }
+  }
+
+  removeLot(lotNumber: string): void {
+    const index = this.selectedLots.indexOf(lotNumber);
+    if (index > -1) {
+      this.selectedLots.splice(index, 1);
+    }
+  }
+
+  removeSerial(serialNumber: string): void {
+    const index = this.selectedSerials.indexOf(serialNumber);
+    if (index > -1) {
+      this.selectedSerials.splice(index, 1);
+    }
+  }
+
+  shouldShowTrackingSection(): boolean {
+    const adjustmentQty = Number(this.adjustmentForm.get('adjustmentQuantity')?.value) || 0;
+    return !!(this.selectedArticle && 
+           (this.selectedArticle.track_by_lot || this.selectedArticle.track_by_serial) &&
+           adjustmentQty > 0);
+  }
+
+  isTrackingValid(): boolean {
+    // Tracking is always optional for adjustments
+    // Users can choose to adjust inventory without specifying lots/serials
+    return true;
   }
 
 
@@ -218,11 +407,15 @@ export class AdjustmentFormComponent implements OnInit {
         location: formData.location,
         adjustment_quantity: Number(formData.adjustmentQuantity), // Map to snake_case
         reason: formData.reason,
-        notes: formData.notes || ""  // Send empty string instead of undefined
+        notes: formData.notes || "",  // Send empty string instead of undefined
+        lots: this.selectedLots.length > 0 ? this.selectedLots.map(lot => ({
+          lotNumber: lot,
+          quantity: 1, // For adjustments, each lot gets quantity 1
+          expirationDate: null
+        })) : undefined,
+        serials: this.selectedSerials.length > 0 ? this.selectedSerials : undefined
       };
 
-      // Debug log to see what we're sending
-      console.log('Sending adjustment data:', JSON.stringify(adjustmentData, null, 2));
 
       await this.adjustmentService.create(adjustmentData);
       this.alertService.success(this.t('stock_adjustment_created_successfully'));
@@ -246,6 +439,13 @@ export class AdjustmentFormComponent implements OnInit {
     this.skuSearchTerm = '';
     this.locationSearchTerm = '';
     this.selectedArticle = null;
+    this.selectedLocation = null;
+    this.showSkuDropdown = false;
+    this.showLocationDropdown = false;
+    this.lotSearchTerm = '';
+    this.serialSearchTerm = '';
+    this.selectedLots = [];
+    this.selectedSerials = [];
   }
 
   /**

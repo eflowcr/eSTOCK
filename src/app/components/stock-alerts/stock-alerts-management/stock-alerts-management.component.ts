@@ -94,20 +94,21 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 	}
 
 	private setupAutoRefresh(): void {
-		// Refresh alerts every 30 seconds
+		// Refresh alerts every 30 seconds using analyze endpoint
 		interval(30000)
 			.pipe(
 				startWith(0),
-				switchMap(() => this.stockAlertService.getAll(false)),
+				switchMap(() => this.stockAlertService.analyze()),
 				takeUntil(this.destroy$)
 			)
 			.subscribe({
 				next: (response) => {
 					if (response.result.success && response.data) {
-						this.alerts.set(response.data as unknown as StockAlert[]);
+						this.alerts.set(response.data.alerts);
 					}
 				},
 				error: (error) => {
+					// Silently handle errors for auto-refresh
 				}
 			});
 	}
@@ -115,24 +116,27 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 	private loadAlerts(): void {
 		this.isLoading.set(true);
 		
-		// Load both resolved and unresolved alerts
-		Promise.all([
-			this.stockAlertService.getAll(false),
-			this.stockAlertService.getAll(true)
-		]).then(([unresolvedResponse, resolvedResponse]) => {
-			const allAlerts = [
-				...(unresolvedResponse.result.success ? unresolvedResponse.data || [] : []),
-				...(resolvedResponse.result.success ? resolvedResponse.data || [] : [])
-			];
-			this.alerts.set(allAlerts as unknown as StockAlert[]);
-		}).catch(error => {
-			this.alertService.error(
-				this.languageService.translate('STOCK_ALERTS.LOAD_ERROR'),
-				this.languageService.translate('COMMON.ERROR')
-			);
-		}).finally(() => {
-			this.isLoading.set(false);
-		});
+		// Use analyze endpoint to get all alerts
+		this.stockAlertService.analyze()
+			.then(response => {
+				if (response.result.success && response.data) {
+					this.alerts.set(response.data.alerts);
+				} else {
+					this.alertService.error(
+						this.languageService.translate('STOCK_ALERTS.LOAD_ERROR'),
+						this.languageService.translate('COMMON.ERROR')
+					);
+				}
+			})
+			.catch(error => {
+				this.alertService.error(
+					this.languageService.translate('STOCK_ALERTS.LOAD_ERROR'),
+					this.languageService.translate('COMMON.ERROR')
+				);
+			})
+			.finally(() => {
+				this.isLoading.set(false);
+			});
 	}
 
 	private loadMockAlerts(): void {
@@ -265,10 +269,17 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 					
 					// Show success message with summary
 					const summary = response.data.summary;
-					const message = response.data.message || this.languageService.translate('STOCK_ALERTS.ANALYZE_SUCCESS');
+					const totalAlerts = summary.total;
+					
+					let successMessage = this.languageService.translate('STOCK_ALERTS.ANALYZE_SUCCESS');
+					if (totalAlerts > 0) {
+						successMessage += ` - ${this.languageService.translate('STOCK_ALERTS.FOUND_ALERTS')}: ${totalAlerts}`;
+					} else {
+						successMessage += ` - ${this.languageService.translate('STOCK_ALERTS.NO_ALERTS_FOUND')}`;
+					}
 					
 					this.alertService.success(
-						`${message} - ${this.languageService.translate('STOCK_ALERTS.FOUND_ALERTS')}: ${summary.total}`,
+						successMessage,
 						this.languageService.translate('COMMON.SUCCESS')
 					);
 				} else {

@@ -24,5 +24,5 @@ export interface AdjustmentFormData {
 export interface AdjustmentLot {
   lotNumber: string;           
   quantity: number;
-  expirationDate?: string;  
+  expirationDate?: string | null;  
 }
