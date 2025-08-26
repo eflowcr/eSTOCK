@@ -265,6 +265,11 @@ export class UserListComponent {
     this.searchTerm = term;
   }
 
+  onTableScroll(event: Event): void {
+    // Handle table scroll events if needed
+    // This method is required for the table scroll container
+  }
+
   // Authorization methods
   isAdmin(): boolean {
     return this.authService.isAdmin();

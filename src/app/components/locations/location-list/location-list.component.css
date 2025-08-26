@@ -149,3 +149,19 @@ select:focus {
     transform: translateY(0);
   }
 }
+
+/* Sticky table headers */
+.inventory-table-fixed thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.table-header {
+  @apply bg-gray-50 dark:bg-gray-700;
+}
+
+.table-scroll-container {
+  @apply overflow-x-auto;
+  max-height: 70vh;
+}
