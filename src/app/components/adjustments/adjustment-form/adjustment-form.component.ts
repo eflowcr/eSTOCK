@@ -3,10 +3,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { AdjustmentFormData } from '../../../models/adjustment.model';
-import { Article } from '../../../models/article.model';
+import { Inventory } from '../../../models/inventory.model';
 import { Location } from '../../../models/location.model';
 import { AdjustmentService } from '../../../services/adjustment.service';
-import { ArticleService } from '../../../services/article.service';
+import { InventoryService } from '../../../services/inventory.service';
 import { LocationService } from '../../../services/location.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
@@ -29,11 +29,11 @@ export class AdjustmentFormComponent implements OnInit {
   isLoading = false;
 
   // Data for dropdowns
-  articles: Article[] = [];
+  inventoryItems: Inventory[] = [];
   locations: Location[] = [];
   
   // Filtered lists and search state for comboboxes
-  filteredArticles: Article[] = [];
+  filteredInventoryItems: Inventory[] = [];
   filteredLocations: Location[] = [];
   skuSearchTerm = '';
   locationSearchTerm = '';
@@ -41,7 +41,7 @@ export class AdjustmentFormComponent implements OnInit {
   showLocationDropdown = false;
   
   // Selected data
-  selectedArticle: Article | null = null;
+  selectedInventoryItem: Inventory | null = null;
   selectedLocation: Location | null = null;
 
   // Tracking controls
@@ -53,7 +53,7 @@ export class AdjustmentFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private adjustmentService: AdjustmentService,
-    private articleService: ArticleService,
+    private inventoryService: InventoryService,
     private locationService: LocationService,
     private alertService: AlertService,
     private languageService: LanguageService
@@ -80,15 +80,15 @@ export class AdjustmentFormComponent implements OnInit {
 
   private async loadData(): Promise<void> {
     try {
-      const [articlesResponse, locationsResponse] = await Promise.all([
-        this.articleService.getAll(),
+      const [inventoryResponse, locationsResponse] = await Promise.all([
+        this.inventoryService.getAll(),
         this.locationService.getAll()
       ]);
       
-      this.articles = articlesResponse.data || [];
+      this.inventoryItems = inventoryResponse.data || [];
       this.locations = locationsResponse.data || [];
       
-      this.filteredArticles = [...this.articles];
+      this.filteredInventoryItems = [...this.inventoryItems];
       this.filteredLocations = [...this.locations];
     } catch (error) {
       this.alertService.error(this.t('error_loading_data'));
@@ -100,17 +100,18 @@ export class AdjustmentFormComponent implements OnInit {
   }
 
   /**
-   * Filter articles by search term
+   * Filter inventory items by search term
    */
-  filterArticles(): void {
+  filterInventoryItems(): void {
     const term = (this.skuSearchTerm || '').toLowerCase();
     if (!term) {
-      this.filteredArticles = [...this.articles];
+      this.filteredInventoryItems = [...this.inventoryItems];
       return;
     }
-    this.filteredArticles = this.articles.filter(article =>
-      (article.sku || '').toLowerCase().includes(term) || 
-      (article.name || '').toLowerCase().includes(term)
+    this.filteredInventoryItems = this.inventoryItems.filter(item =>
+      (item.sku || '').toLowerCase().includes(term) || 
+      (item.name || '').toLowerCase().includes(term) ||
+      (item.location || '').toLowerCase().includes(term)
     );
   }
 
@@ -130,19 +131,28 @@ export class AdjustmentFormComponent implements OnInit {
   }
 
   /**
-   * Handle article selection
+   * Handle inventory item selection
    */
-  onArticleSelected(article: Article): void {
-    this.selectedArticle = article;
+  onInventoryItemSelected(inventoryItem: Inventory): void {
+    this.selectedInventoryItem = inventoryItem;
     
     this.adjustmentForm.patchValue({
-      sku: article.sku
+      sku: inventoryItem.sku,
+      location: inventoryItem.location
     });
 
-    // Update search term
-    this.skuSearchTerm = `${article.sku} - ${article.name}`;
+    // Update search terms
+    this.skuSearchTerm = `${inventoryItem.sku} - ${inventoryItem.name} (${inventoryItem.location})`;
+    this.locationSearchTerm = `${inventoryItem.location}`;
     
-    // Reset tracking data when article changes
+    // Update selected location
+    const location = this.locations.find(l => l.location_code === inventoryItem.location);
+    if (location) {
+      this.selectedLocation = location;
+      this.locationSearchTerm = `${location.location_code} - ${location.description}`;
+    }
+    
+    // Reset tracking data when item changes
     this.selectedLots = [];
     this.selectedSerials = [];
     this.lotSearchTerm = '';
@@ -165,9 +175,9 @@ export class AdjustmentFormComponent implements OnInit {
   /**
    * Confirm first filtered option with Enter key
    */
-  confirmFirstArticleIfAny(): void {
-    if (this.filteredArticles.length > 0) {
-      this.onArticleSelected(this.filteredArticles[0]);
+  confirmFirstInventoryItemIfAny(): void {
+    if (this.filteredInventoryItems.length > 0) {
+      this.onInventoryItemSelected(this.filteredInventoryItems[0]);
     }
   }
 
@@ -191,21 +201,28 @@ export class AdjustmentFormComponent implements OnInit {
   // Advanced dropdown pattern methods for SKU
   isSkuValid(): boolean {
     const formValue = this.adjustmentForm.get('sku')?.value;
-    return !!formValue && this.articles.some(a => a.sku === formValue);
+    const locationValue = this.adjustmentForm.get('location')?.value;
+    return !!formValue && !!locationValue && this.inventoryItems.some(item => 
+      item.sku === formValue && item.location === locationValue
+    );
   }
 
   enableSkuEdit(): void {
     this.skuSearchTerm = '';
     this.showSkuDropdown = true;
-    this.adjustmentForm.patchValue({ sku: '' });
-    this.selectedArticle = null;
+    this.adjustmentForm.patchValue({ sku: '', location: '' });
+    this.selectedInventoryItem = null;
+    this.selectedLocation = null;
+    this.locationSearchTerm = '';
   }
 
   clearSkuManually(): void {
     this.skuSearchTerm = '';
-    this.adjustmentForm.patchValue({ sku: '' });
+    this.locationSearchTerm = '';
+    this.adjustmentForm.patchValue({ sku: '', location: '' });
     this.showSkuDropdown = false;
-    this.selectedArticle = null;
+    this.selectedInventoryItem = null;
+    this.selectedLocation = null;
   }
 
   hasValidSkuSelection(): boolean {
@@ -214,8 +231,11 @@ export class AdjustmentFormComponent implements OnInit {
 
   getSelectedSkuName(): string {
     const skuValue = this.adjustmentForm.get('sku')?.value;
-    const article = this.articles.find(a => a.sku === skuValue);
-    return article ? `${article.sku} - ${article.name}` : '';
+    const locationValue = this.adjustmentForm.get('location')?.value;
+    const inventoryItem = this.inventoryItems.find(item => 
+      item.sku === skuValue && item.location === locationValue
+    );
+    return inventoryItem ? `${inventoryItem.sku} - ${inventoryItem.name} (${inventoryItem.location})` : '';
   }
 
   onSkuBlur(): void {
@@ -352,8 +372,8 @@ export class AdjustmentFormComponent implements OnInit {
 
   shouldShowTrackingSection(): boolean {
     const adjustmentQty = Number(this.adjustmentForm.get('adjustmentQuantity')?.value) || 0;
-    return !!(this.selectedArticle && 
-           (this.selectedArticle.track_by_lot || this.selectedArticle.track_by_serial) &&
+    return !!(this.selectedInventoryItem && 
+           (this.selectedInventoryItem.track_by_lot || this.selectedInventoryItem.track_by_serial) &&
            adjustmentQty > 0);
   }
 
@@ -362,9 +382,6 @@ export class AdjustmentFormComponent implements OnInit {
     // Users can choose to adjust inventory without specifying lots/serials
     return true;
   }
-
-
-
 
 
   /**
@@ -438,7 +455,7 @@ export class AdjustmentFormComponent implements OnInit {
     this.adjustmentForm.reset();
     this.skuSearchTerm = '';
     this.locationSearchTerm = '';
-    this.selectedArticle = null;
+    this.selectedInventoryItem = null;
     this.selectedLocation = null;
     this.showSkuDropdown = false;
     this.showLocationDropdown = false;
