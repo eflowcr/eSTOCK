@@ -26,6 +26,24 @@
   @apply min-w-full divide-y divide-gray-200 dark:divide-gray-700;
 }
 
+/* Infinite scroll styles */
+.table-scroll-container {
+  @apply overflow-auto;
+  max-height: 60vh; /* internal scroll height */
+}
+
+.articles-table-fixed thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: rgb(249 250 251);
+  backdrop-filter: blur(8px);
+}
+
+.dark .articles-table-fixed thead th {
+  background-color: rgb(55 65 81);
+}
+
 .table-header {
   @apply bg-gray-50 dark:bg-gray-700;
 }

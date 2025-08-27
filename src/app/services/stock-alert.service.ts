@@ -30,7 +30,7 @@ export class StockAlertService {
 
 	/**
 	 * @description Trigger stock analysis
-	 * @returns Promise<ApiResponse<any>>
+	 * @returns Promise<ApiResponse<StockAlertResponse>>
 	 */
 	async analyze(): Promise<ApiResponse<StockAlertResponse>> {
 		return await this.fetchService.get<ApiResponse<StockAlertResponse>>({

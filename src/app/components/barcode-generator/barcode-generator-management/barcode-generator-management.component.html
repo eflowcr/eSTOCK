@@ -160,16 +160,17 @@
 				</div>
 
 				<!-- SKUs List -->
-				<div class="space-y-4 max-h-96 overflow-y-auto">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
 					<div *ngFor="let item of skuBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg overflow-hidden">
 						<!-- Main SKU item -->
-						<div class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+						<div class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" (click)="toggleItemSelection(item, $event)">
 							<div class="flex items-start gap-3">
 								<input
 									type="checkbox"
 									[checked]="isItemSelected(item)"
 									(change)="handleItemSelect(item, $any($event.target).checked)"
-									class="mt-1 rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
+									(click)="$event.stopPropagation()"
+									class="mt-1 w-5 h-5 rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
 								<div class="flex-1 min-w-0">
 									<div class="flex items-center gap-2">
 										<svg class="h-4 w-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,7 +256,7 @@
 											type="checkbox"
 											[checked]="isLotSelected(lot, item.code)"
 											(change)="handleLotSelect(lot, item.code, $any($event.target).checked)"
-											class="rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
+											class="w-4 h-4 rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
 										<div class="flex-1 min-w-0">
 											<div class="flex items-center gap-2">
 												<span class="font-mono text-xs font-medium">{{ lot.lotNumber }}</span>
@@ -287,7 +288,7 @@
 											type="checkbox"
 											[checked]="isSerialSelected(serial, item.code)"
 											(change)="handleSerialSelect(serial, item.code, $any($event.target).checked)"
-											class="rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
+											class="w-4 h-4 rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
 										<span class="font-mono text-xs font-medium truncate">{{ serial.serialNumber }}</span>
 									</div>
 								</div>
@@ -326,13 +327,14 @@
 
 				<!-- Locations Grid -->
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-					<div *ngFor="let item of locationBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+					<div *ngFor="let item of locationBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" (click)="toggleItemSelection(item, $event)">
 						<div class="flex items-start gap-3">
 							<input
 								type="checkbox"
 								[checked]="isItemSelected(item)"
 								(change)="handleItemSelect(item, $any($event.target).checked)"
-								class="mt-1 rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
+								(click)="$event.stopPropagation()"
+								class="mt-1 w-5 h-5 rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
 							<div class="flex-1 min-w-0">
 								<div class="flex items-center gap-2">
 									<svg class="h-4 w-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -395,13 +397,14 @@
 
 				<!-- Tasks Grid -->
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-					<div *ngFor="let item of taskBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+					<div *ngFor="let item of taskBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" (click)="toggleItemSelection(item, $event)">
 						<div class="flex items-start gap-3">
 							<input
 								type="checkbox"
 								[checked]="isItemSelected(item)"
 								(change)="handleItemSelect(item, $any($event.target).checked)"
-								class="mt-1 rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
+								(click)="$event.stopPropagation()"
+								class="mt-1 w-5 h-5 rounded border-gray-300 text-[#3e66ea] focus:ring-[#3e66ea]" />
 							<div class="flex-1 min-w-0">
 								<div class="flex items-center gap-2">
 									<svg class="h-4 w-4 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

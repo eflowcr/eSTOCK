@@ -21,7 +21,7 @@ export class InventoryListComponent {
   @Output() deleteInventory = new EventEmitter<void>();
 
   viewingInventory: Inventory | null = null;
-  deletingInventoryId: number | null = null;
+  deletingInventorySku: string | null = null;
   deletingLocation: string | null = null;
   isDeleting = false;
 
@@ -247,7 +247,7 @@ export class InventoryListComponent {
    * @description Confirm delete inventory
    */
   confirmDelete(inventory: Inventory): void {
-    this.deletingInventoryId = inventory.id;
+    this.deletingInventorySku = inventory.sku;
     this.deletingLocation = inventory.location;
   }
 
@@ -255,7 +255,7 @@ export class InventoryListComponent {
    * @description Close delete dialog
    */
   closeDeleteDialog(): void {
-    this.deletingInventoryId = null;
+    this.deletingInventorySku = null;
     this.deletingLocation = null;
   }
 
@@ -263,21 +263,21 @@ export class InventoryListComponent {
    * @description Delete inventory
    */
   async deleteInventoryItem(): Promise<void> {
-    if (!this.deletingInventoryId || !this.deletingLocation) return;
+    if (!this.deletingInventorySku || !this.deletingLocation) {
+      return;
+    }
 
     try {
       this.isDeleting = true;
-      const response = await this.inventoryService.delete(this.deletingInventoryId, this.deletingLocation);
+      const response = await this.inventoryService.delete(this.deletingInventorySku, this.deletingLocation);
       
       if (response.result.success) {
-        this.alertService.success(this.t('inventory_deleted_successfully'));
         this.deleteInventory.emit();
         this.closeDeleteDialog();
       } else {
-        this.alertService.error(this.t('failed_to_delete_inventory'));
+        this.alertService.error(response.result.message || this.t('failed_to_delete_inventory'));
       }
     } catch (error) {
-      console.error('Error deleting inventory:', error);
       this.alertService.error(this.t('failed_to_delete_inventory'));
     } finally {
       this.isDeleting = false;

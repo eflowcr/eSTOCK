@@ -149,3 +149,22 @@ select:focus {
     transform: translateY(0);
   }
 }
+
+/* Table scroll container */
+.table-scroll-container {
+  @apply overflow-auto;
+  max-height: 60vh; /* internal scroll height */
+}
+
+/* Sticky table headers */
+.users-table-fixed thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: rgb(249 250 251);
+  backdrop-filter: blur(8px);
+}
+
+.dark .users-table-fixed thead th {
+  background-color: rgb(55 65 81);
+}

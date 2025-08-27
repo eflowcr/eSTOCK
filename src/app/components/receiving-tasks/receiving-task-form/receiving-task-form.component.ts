@@ -137,8 +137,39 @@ export class ReceivingTaskFormComponent implements OnInit {
 		this.showOperatorDropdown = false;
 	}
 
+	onOperatorBlur(): void {
+		setTimeout(() => (this.showOperatorDropdown = false), 150);
+	}
+
 	closeOperatorDropdownLater(): void {
 		setTimeout(() => (this.showOperatorDropdown = false), 150);
+	}
+
+	isOperatorValid(): boolean {
+		const formValue = this.form.get('assigned_to')?.value;
+		return !!formValue && this.users.some(u => u.id === formValue);
+	}
+
+	hasValidOperatorSelection(): boolean {
+		return this.isOperatorValid();
+	}
+
+	enableOperatorEdit(): void {
+		this.operatorSearchTerm = '';
+		this.showOperatorDropdown = true;
+		this.form.patchValue({ assigned_to: '' });
+	}
+
+	clearOperatorManually(): void {
+		this.operatorSearchTerm = '';
+		this.form.patchValue({ assigned_to: '' });
+		this.showOperatorDropdown = false;
+	}
+
+	getSelectedOperatorName(): string {
+		const userId = this.form.get('assigned_to')?.value;
+		const user = this.users.find(u => u.id === userId);
+		return user ? `${user.first_name} ${user.last_name}` : '';
 	}
 
 	confirmFirstOperatorIfAny(): void {
@@ -440,12 +471,76 @@ export class ReceivingTaskFormComponent implements OnInit {
 		this.showLocationDropdown[index] = false;
 	}
 
+	onSkuBlur(index: number): void {
+		setTimeout(() => (this.showSkuDropdown[index] = false), 150);
+	}
+
 	closeSkuDropdownLater(index: number): void {
 		setTimeout(() => (this.showSkuDropdown[index] = false), 150);
 	}
 
+	isSkuValid(index: number): boolean {
+		const formValue = this.itemsArray.at(index).get('sku')?.value;
+		return !!formValue && this.articles.some(a => a.sku === formValue);
+	}
+
+	hasValidSkuSelection(index: number): boolean {
+		return this.isSkuValid(index);
+	}
+
+	enableSkuEdit(index: number): void {
+		this.skuSearchTerms[index] = '';
+		this.showSkuDropdown[index] = true;
+		this.itemsArray.at(index).get('sku')?.setValue('');
+		this.clearItemTrackingData(index);
+	}
+
+	clearSkuManually(index: number): void {
+		this.skuSearchTerms[index] = '';
+		this.itemsArray.at(index).get('sku')?.setValue('');
+		this.showSkuDropdown[index] = false;
+		this.clearItemTrackingData(index);
+	}
+
+	getSelectedSkuName(index: number): string {
+		const sku = this.itemsArray.at(index).get('sku')?.value;
+		const article = this.articles.find(a => a.sku === sku);
+		return article ? article.name : '';
+	}
+
+	onLocationBlur(index: number): void {
+		setTimeout(() => (this.showLocationDropdown[index] = false), 150);
+	}
+
 	closeLocationDropdownLater(index: number): void {
 		setTimeout(() => (this.showLocationDropdown[index] = false), 150);
+	}
+
+	isLocationValid(index: number): boolean {
+		const formValue = this.itemsArray.at(index).get('location')?.value;
+		return !!formValue && this.locations.some(l => l.location_code === formValue);
+	}
+
+	hasValidLocationSelection(index: number): boolean {
+		return this.isLocationValid(index);
+	}
+
+	enableLocationEdit(index: number): void {
+		this.locationSearchTerms[index] = '';
+		this.showLocationDropdown[index] = true;
+		this.itemsArray.at(index).get('location')?.setValue('');
+	}
+
+	clearLocationManually(index: number): void {
+		this.locationSearchTerms[index] = '';
+		this.itemsArray.at(index).get('location')?.setValue('');
+		this.showLocationDropdown[index] = false;
+	}
+
+	getSelectedLocationName(index: number): string {
+		const locationCode = this.itemsArray.at(index).get('location')?.value;
+		const location = this.locations.find(l => l.location_code === locationCode);
+		return location ? `${location.location_code} - ${location.description}` : '';
 	}
 
 	confirmFirstArticleIfAny(index: number): void {
