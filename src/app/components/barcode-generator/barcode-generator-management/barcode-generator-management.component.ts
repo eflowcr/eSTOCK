@@ -195,10 +195,19 @@ export class BarcodeGeneratorManagementComponent implements OnInit, OnDestroy {
     if (checked) {
       this.selectedItems.update(current => [...current, item]);
     } else {
-      this.selectedItems.update(current => 
-        current.filter(selected => selected.id !== item.id)
-      );
+      this.selectedItems.update(current => current.filter(selected => selected.id !== item.id));
     }
+  }
+
+  toggleItemSelection(item: BarcodeItem, event: Event): void {
+    // Prevent toggle if clicking on buttons or other interactive elements
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'BUTTON' || target.closest('button')) {
+      return;
+    }
+    
+    const isCurrentlySelected = this.isItemSelected(item);
+    this.handleItemSelect(item, !isCurrentlySelected);
   }
 
   isAllSelected(items: BarcodeItem[]): boolean {

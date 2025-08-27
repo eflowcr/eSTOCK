@@ -3,10 +3,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { AdjustmentFormData } from '../../../models/adjustment.model';
-import { Article } from '../../../models/article.model';
+import { Inventory } from '../../../models/inventory.model';
 import { Location } from '../../../models/location.model';
 import { AdjustmentService } from '../../../services/adjustment.service';
-import { ArticleService } from '../../../services/article.service';
+import { InventoryService } from '../../../services/inventory.service';
 import { LocationService } from '../../../services/location.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
@@ -29,11 +29,11 @@ export class AdjustmentFormComponent implements OnInit {
   isLoading = false;
 
   // Data for dropdowns
-  articles: Article[] = [];
+  inventoryItems: Inventory[] = [];
   locations: Location[] = [];
   
   // Filtered lists and search state for comboboxes
-  filteredArticles: Article[] = [];
+  filteredInventoryItems: Inventory[] = [];
   filteredLocations: Location[] = [];
   skuSearchTerm = '';
   locationSearchTerm = '';
@@ -41,12 +41,19 @@ export class AdjustmentFormComponent implements OnInit {
   showLocationDropdown = false;
   
   // Selected data
-  selectedArticle: Article | null = null;
+  selectedInventoryItem: Inventory | null = null;
+  selectedLocation: Location | null = null;
+
+  // Tracking controls
+  lotSearchTerm = '';
+  serialSearchTerm = '';
+  selectedLots: string[] = [];
+  selectedSerials: string[] = [];
 
   constructor(
     private fb: FormBuilder,
     private adjustmentService: AdjustmentService,
-    private articleService: ArticleService,
+    private inventoryService: InventoryService,
     private locationService: LocationService,
     private alertService: AlertService,
     private languageService: LanguageService
@@ -73,15 +80,15 @@ export class AdjustmentFormComponent implements OnInit {
 
   private async loadData(): Promise<void> {
     try {
-      const [articlesResponse, locationsResponse] = await Promise.all([
-        this.articleService.getAll(),
+      const [inventoryResponse, locationsResponse] = await Promise.all([
+        this.inventoryService.getAll(),
         this.locationService.getAll()
       ]);
       
-      this.articles = articlesResponse.data || [];
+      this.inventoryItems = inventoryResponse.data || [];
       this.locations = locationsResponse.data || [];
       
-      this.filteredArticles = [...this.articles];
+      this.filteredInventoryItems = [...this.inventoryItems];
       this.filteredLocations = [...this.locations];
     } catch (error) {
       this.alertService.error(this.t('error_loading_data'));
@@ -93,17 +100,18 @@ export class AdjustmentFormComponent implements OnInit {
   }
 
   /**
-   * Filter articles by search term
+   * Filter inventory items by search term
    */
-  filterArticles(): void {
+  filterInventoryItems(): void {
     const term = (this.skuSearchTerm || '').toLowerCase();
     if (!term) {
-      this.filteredArticles = [...this.articles];
+      this.filteredInventoryItems = [...this.inventoryItems];
       return;
     }
-    this.filteredArticles = this.articles.filter(article =>
-      (article.sku || '').toLowerCase().includes(term) || 
-      (article.name || '').toLowerCase().includes(term)
+    this.filteredInventoryItems = this.inventoryItems.filter(item =>
+      (item.sku || '').toLowerCase().includes(term) || 
+      (item.name || '').toLowerCase().includes(term) ||
+      (item.location || '').toLowerCase().includes(term)
     );
   }
 
@@ -123,17 +131,32 @@ export class AdjustmentFormComponent implements OnInit {
   }
 
   /**
-   * Handle article selection
+   * Handle inventory item selection
    */
-  onArticleSelected(article: Article): void {
-    this.selectedArticle = article;
+  onInventoryItemSelected(inventoryItem: Inventory): void {
+    this.selectedInventoryItem = inventoryItem;
     
     this.adjustmentForm.patchValue({
-      sku: article.sku
+      sku: inventoryItem.sku,
+      location: inventoryItem.location
     });
 
-    // Update search term
-    this.skuSearchTerm = `${article.sku} - ${article.name}`;
+    // Update search terms
+    this.skuSearchTerm = `${inventoryItem.sku} - ${inventoryItem.name} (${inventoryItem.location})`;
+    this.locationSearchTerm = `${inventoryItem.location}`;
+    
+    // Update selected location
+    const location = this.locations.find(l => l.location_code === inventoryItem.location);
+    if (location) {
+      this.selectedLocation = location;
+      this.locationSearchTerm = `${location.location_code} - ${location.description}`;
+    }
+    
+    // Reset tracking data when item changes
+    this.selectedLots = [];
+    this.selectedSerials = [];
+    this.lotSearchTerm = '';
+    this.serialSearchTerm = '';
     
     // Close dropdown
     this.showSkuDropdown = false;
@@ -143,6 +166,7 @@ export class AdjustmentFormComponent implements OnInit {
    * Handle location selection
    */
   onLocationSelected(location: Location): void {
+    this.selectedLocation = location;
     this.adjustmentForm.patchValue({ location: location.location_code });
     this.locationSearchTerm = `${location.location_code} - ${location.description}`;
     this.showLocationDropdown = false;
@@ -151,9 +175,9 @@ export class AdjustmentFormComponent implements OnInit {
   /**
    * Confirm first filtered option with Enter key
    */
-  confirmFirstArticleIfAny(): void {
-    if (this.filteredArticles.length > 0) {
-      this.onArticleSelected(this.filteredArticles[0]);
+  confirmFirstInventoryItemIfAny(): void {
+    if (this.filteredInventoryItems.length > 0) {
+      this.onInventoryItemSelected(this.filteredInventoryItems[0]);
     }
   }
 
@@ -174,8 +198,190 @@ export class AdjustmentFormComponent implements OnInit {
     setTimeout(() => (this.showLocationDropdown = false), 150);
   }
 
+  // Advanced dropdown pattern methods for SKU
+  isSkuValid(): boolean {
+    const formValue = this.adjustmentForm.get('sku')?.value;
+    const locationValue = this.adjustmentForm.get('location')?.value;
+    return !!formValue && !!locationValue && this.inventoryItems.some(item => 
+      item.sku === formValue && item.location === locationValue
+    );
+  }
 
+  enableSkuEdit(): void {
+    this.skuSearchTerm = '';
+    this.showSkuDropdown = true;
+    this.adjustmentForm.patchValue({ sku: '', location: '' });
+    this.selectedInventoryItem = null;
+    this.selectedLocation = null;
+    this.locationSearchTerm = '';
+  }
 
+  clearSkuManually(): void {
+    this.skuSearchTerm = '';
+    this.locationSearchTerm = '';
+    this.adjustmentForm.patchValue({ sku: '', location: '' });
+    this.showSkuDropdown = false;
+    this.selectedInventoryItem = null;
+    this.selectedLocation = null;
+  }
+
+  hasValidSkuSelection(): boolean {
+    return this.isSkuValid();
+  }
+
+  getSelectedSkuName(): string {
+    const skuValue = this.adjustmentForm.get('sku')?.value;
+    const locationValue = this.adjustmentForm.get('location')?.value;
+    const inventoryItem = this.inventoryItems.find(item => 
+      item.sku === skuValue && item.location === locationValue
+    );
+    return inventoryItem ? `${inventoryItem.sku} - ${inventoryItem.name} (${inventoryItem.location})` : '';
+  }
+
+  onSkuBlur(): void {
+    setTimeout(() => {
+      this.showSkuDropdown = false;
+    }, 150);
+  }
+
+  // Advanced dropdown pattern methods for Location
+  isLocationValid(): boolean {
+    const formValue = this.adjustmentForm.get('location')?.value;
+    return !!formValue && this.locations.some(l => l.location_code === formValue);
+  }
+
+  enableLocationEdit(): void {
+    this.locationSearchTerm = '';
+    this.showLocationDropdown = true;
+    this.adjustmentForm.patchValue({ location: '' });
+    this.selectedLocation = null;
+  }
+
+  clearLocationManually(): void {
+    this.locationSearchTerm = '';
+    this.adjustmentForm.patchValue({ location: '' });
+    this.showLocationDropdown = false;
+    this.selectedLocation = null;
+  }
+
+  hasValidLocationSelection(): boolean {
+    return this.isLocationValid();
+  }
+
+  getSelectedLocationName(): string {
+    const locationValue = this.adjustmentForm.get('location')?.value;
+    const location = this.locations.find(l => l.location_code === locationValue);
+    return location ? `${location.location_code} - ${location.description}` : '';
+  }
+
+  onLocationBlur(): void {
+    setTimeout(() => {
+      this.showLocationDropdown = false;
+    }, 150);
+  }
+
+  // Lot and Serial tracking methods
+  getExpectedQuantity(): number {
+    const adjustmentQty = Number(this.adjustmentForm.get('adjustmentQuantity')?.value) || 0;
+    return adjustmentQty > 0 ? adjustmentQty : 0;
+  }
+
+  getSelectedLots(): string[] {
+    return this.selectedLots;
+  }
+
+  getSelectedSerials(): string[] {
+    return this.selectedSerials;
+  }
+
+  getSelectedLotCount(): number {
+    return this.selectedLots.length;
+  }
+
+  getSelectedSerialCount(): number {
+    return this.selectedSerials.length;
+  }
+
+  isLotSelectionComplete(): boolean {
+    const expectedQty = this.getExpectedQuantity();
+    return expectedQty > 0 && this.selectedLots.length === expectedQty;
+  }
+
+  isSerialSelectionComplete(): boolean {
+    const expectedQty = this.getExpectedQuantity();
+    return expectedQty > 0 && this.selectedSerials.length === expectedQty;
+  }
+
+  handleLotEnter(): void {
+    const searchTerm = (this.lotSearchTerm || '').trim();
+    if (searchTerm) {
+      this.addManualLot(searchTerm);
+    }
+  }
+
+  handleSerialEnter(): void {
+    const searchTerm = (this.serialSearchTerm || '').trim();
+    if (searchTerm) {
+      this.addManualSerial(searchTerm);
+    }
+  }
+
+  addManualLot(lotNumber: string): void {
+    if (!lotNumber.trim()) return;
+    
+    const expectedQty = this.getExpectedQuantity();
+    if (!this.selectedLots.includes(lotNumber.trim()) && this.selectedLots.length < expectedQty) {
+      this.selectedLots.push(lotNumber.trim());
+      this.lotSearchTerm = '';
+    } else if (this.selectedLots.length >= expectedQty) {
+      this.alertService.warning(
+        this.t('lot_selection_limit_reached') || 'Límite de lotes alcanzado',
+        this.t('warning') || 'Advertencia'
+      );
+    }
+  }
+
+  addManualSerial(serialNumber: string): void {
+    if (!serialNumber.trim()) return;
+    
+    const expectedQty = this.getExpectedQuantity();
+    if (!this.selectedSerials.includes(serialNumber.trim()) && this.selectedSerials.length < expectedQty) {
+      this.selectedSerials.push(serialNumber.trim());
+      this.serialSearchTerm = '';
+    } else if (this.selectedSerials.length >= expectedQty) {
+      this.alertService.warning(
+        this.t('serial_selection_limit_reached') || 'Límite de series alcanzado',
+        this.t('warning') || 'Advertencia'
+      );
+    }
+  }
+
+  removeLot(lotNumber: string): void {
+    const index = this.selectedLots.indexOf(lotNumber);
+    if (index > -1) {
+      this.selectedLots.splice(index, 1);
+    }
+  }
+
+  removeSerial(serialNumber: string): void {
+    const index = this.selectedSerials.indexOf(serialNumber);
+    if (index > -1) {
+      this.selectedSerials.splice(index, 1);
+    }
+  }
+
+  shouldShowTrackingSection(): boolean {
+    const adjustmentQty = Number(this.adjustmentForm.get('adjustmentQuantity')?.value) || 0;
+    return !!(this.selectedInventoryItem && 
+           (this.selectedInventoryItem.track_by_lot || this.selectedInventoryItem.track_by_serial) &&
+           adjustmentQty > 0);
+  }
+
+  isTrackingValid(): boolean {
+    // Tracking is always optional for adjustments
+    // Users can choose to adjust inventory without specifying lots/serials
+    return true;
+  }
 
 
   /**
@@ -218,11 +424,15 @@ export class AdjustmentFormComponent implements OnInit {
         location: formData.location,
         adjustment_quantity: Number(formData.adjustmentQuantity), // Map to snake_case
         reason: formData.reason,
-        notes: formData.notes || ""  // Send empty string instead of undefined
+        notes: formData.notes || "",  // Send empty string instead of undefined
+        lots: this.selectedLots.length > 0 ? this.selectedLots.map(lot => ({
+          lotNumber: lot,
+          quantity: 1, // For adjustments, each lot gets quantity 1
+          expirationDate: null
+        })) : undefined,
+        serials: this.selectedSerials.length > 0 ? this.selectedSerials : undefined
       };
 
-      // Debug log to see what we're sending
-      console.log('Sending adjustment data:', JSON.stringify(adjustmentData, null, 2));
 
       await this.adjustmentService.create(adjustmentData);
       this.alertService.success(this.t('stock_adjustment_created_successfully'));
@@ -245,7 +455,14 @@ export class AdjustmentFormComponent implements OnInit {
     this.adjustmentForm.reset();
     this.skuSearchTerm = '';
     this.locationSearchTerm = '';
-    this.selectedArticle = null;
+    this.selectedInventoryItem = null;
+    this.selectedLocation = null;
+    this.showSkuDropdown = false;
+    this.showLocationDropdown = false;
+    this.lotSearchTerm = '';
+    this.serialSearchTerm = '';
+    this.selectedLots = [];
+    this.selectedSerials = [];
   }
 
   /**

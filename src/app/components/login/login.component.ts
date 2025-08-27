@@ -131,23 +131,20 @@ export class LoginComponent implements OnInit {
       try {
         const formData = this.registerForm.value;
         
-        // Map form data to User format for UserService
-        const userData: Partial<User> = {
+        const userData: any = {
           email: formData.email,
           first_name: formData.firstName,
           last_name: formData.lastName,
-          role: 'operator', // Default role
+          role: 'operator', 
           is_active: true,
-          auth_provider: 'local'
+          auth_provider: 'local',
+          password: formData.password,
         };
         
-        // Use UserService for user creation
-        const response = await this.userService.create(userData);
+        const response = await this.userService.register(userData);
         
         if (response.result.success) {
-          // Switch to login tab after successful registration
           this.setActiveTab('login');
-          // Show success message
           this.alertService.success(
             this.t('auth.registration_success') || 'Usuario creado exitosamente. Por favor inicia sesión.',
             this.t('auth.registration_complete') || 'Registro exitoso'

@@ -53,14 +53,14 @@ export class InventoryService {
 	}
 
 	/**
-	 * @description Delete inventory item by ID and location
-	 * @param id Inventory ID
+	 * @description Delete inventory item by SKU and location
+	 * @param sku Inventory SKU
 	 * @param location Location
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	async delete(id: number, location: string): Promise<ApiResponse<any>> {
+	async delete(sku: string, location: string): Promise<ApiResponse<any>> {
 		return await this.fetchService.delete<ApiResponse<any>>({
-			API_Gateway: `${INVENTORY_URL}/${id}/${location}`,
+			API_Gateway: `${INVENTORY_URL}/id/${sku}/${location}`,
 		});
 	}
 }

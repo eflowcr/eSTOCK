@@ -33,9 +33,10 @@ export class ArticleListComponent {
   sortOrder: 'asc' | 'desc' = 'asc';
   filtersExpanded = false;
 
-  // Pagination
-  currentPage = 1;
-  itemsPerPage = 25;
+  // Infinite scroll properties
+  itemsPerPage = 25; // batch size for infinite scroll
+  visibleCount = this.itemsPerPage;
+  isLoadingMore = false;
 
   constructor(
     private articleService: ArticleService,
@@ -127,19 +128,17 @@ export class ArticleListComponent {
   }
 
   /**
-   * Get paginated articles
+   * Get visible articles for infinite scroll
    */
-  get paginatedArticles(): Article[] {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.filteredArticles.slice(startIndex, endIndex);
+  get visibleArticles(): Article[] {
+    return this.filteredArticles.slice(0, this.visibleCount);
   }
 
   /**
-   * Get total pages
+   * Check if all articles are loaded
    */
-  get totalPages(): number {
-    return Math.ceil(this.filteredArticles.length / this.itemsPerPage);
+  get allLoaded(): boolean {
+    return this.visibleCount >= this.filteredArticles.length;
   }
 
   /**
@@ -171,14 +170,14 @@ export class ArticleListComponent {
     this.presentationFilter = '';
     this.trackingFilter = '';
     this.statusFilter = '';
-    this.currentPage = 1;
+    this.resetVisible();
   }
 
   /**
    * Handle search
    */
   onSearch(): void {
-    this.currentPage = 1;
+    this.resetVisible();
   }
 
   /**
@@ -191,16 +190,36 @@ export class ArticleListComponent {
       this.sortBy = field;
       this.sortOrder = 'asc';
     }
-    this.currentPage = 1;
+    this.resetVisible();
   }
 
   /**
-   * Change page
+   * Handle internal table scroll to implement infinite loading
    */
-  changePage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
+  onTableScroll(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target) return;
+    const thresholdPx = 200;
+    const reachedBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - thresholdPx;
+    if (reachedBottom) {
+      this.loadMore();
     }
+  }
+
+  private loadMore(): void {
+    if (this.isLoadingMore || this.allLoaded) return;
+    this.isLoadingMore = true;
+    // Simulate async to avoid blocking UI; adjust count in next macrotask
+    setTimeout(() => {
+      const remaining = this.filteredArticles.length - this.visibleCount;
+      const toAdd = Math.min(this.itemsPerPage, remaining);
+      this.visibleCount += toAdd;
+      this.isLoadingMore = false;
+    }, 0);
+  }
+
+  private resetVisible(): void {
+    this.visibleCount = this.itemsPerPage;
   }
 
   /**

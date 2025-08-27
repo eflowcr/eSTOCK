@@ -798,4 +798,8 @@ export const enTranslations = {
   'admin.total_pick_time': 'Total Pick Time',
   'admin.avg_pick_time': 'Avg Pick Time',
   'admin.failed_to_load_operator_stats': 'Failed to load operator stats',
+
+  'lots_readonly_edit_mode':'Batches loaded (read-only)',
+  'tracking_optional_notice':'Tracking of batches and serials is optional for inventory adjustments.',
+  'serials_readonly_edit_mode': 'Series loaded (read-only)'
 };

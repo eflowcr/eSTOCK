@@ -57,10 +57,33 @@ export class StockAlertsListComponent implements OnInit {
   private performSearch(): void {
     this.isLoading.set(true);
     
-    this.stockAlertService.search(this.searchParams)
+    // Use analyze endpoint instead of search
+    this.stockAlertService.analyze()
       .then(response => {
         if (response.result.success && response.data) {
-          this.alerts.set(response.data as unknown as StockAlert[]);
+          // Filter alerts based on search params locally
+          let filteredAlerts = response.data.alerts;
+          
+          if (this.searchParams.search) {
+            filteredAlerts = filteredAlerts.filter(alert => 
+              alert.sku.toLowerCase().includes(this.searchParams.search!.toLowerCase()) ||
+              alert.message.toLowerCase().includes(this.searchParams.search!.toLowerCase())
+            );
+          }
+          
+          if (this.searchParams.alert_level) {
+            filteredAlerts = filteredAlerts.filter(alert => 
+              alert.alert_level === this.searchParams.alert_level
+            );
+          }
+          
+          if (this.searchParams.alert_type) {
+            filteredAlerts = filteredAlerts.filter(alert => 
+              alert.alert_type === this.searchParams.alert_type
+            );
+          }
+          
+          this.alerts.set(filteredAlerts);
         } else {
           this.alertService.error(
             this.t('STOCK_ALERTS.SEARCH_ERROR'),
@@ -69,7 +92,6 @@ export class StockAlertsListComponent implements OnInit {
         }
       })
       .catch(error => {
-        console.error('Error searching alerts:', error);
         this.alertService.error(
           this.t('STOCK_ALERTS.SEARCH_ERROR'),
           this.t('COMMON.ERROR')

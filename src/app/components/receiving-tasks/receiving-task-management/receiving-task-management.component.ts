@@ -1,17 +1,16 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { ReceivingTask } from '@app/models/receiving-task.model';
-import { ReceivingTaskService } from '@app/services/receiving-task.service';
-import { LoadingService } from '@app/services/extras/loading.service';
-import { AlertService } from '@app/services/extras/alert.service';
-import { LanguageService } from '@app/services/extras/language.service';
+import { MainLayoutComponent } from '@app/components/layout/main-layout.component';
 import { DataExportComponent, DataExportConfig } from '@app/components/shared/data-export/data-export.component';
 import { FileImportComponent, FileImportConfig } from '@app/components/shared/file-import/file-import.component';
+import { ReceivingTask } from '@app/models/receiving-task.model';
+import { AlertService } from '@app/services/extras/alert.service';
+import { LanguageService } from '@app/services/extras/language.service';
+import { ReceivingTaskService } from '@app/services/receiving-task.service';
 import { ReceivingTaskFormComponent } from '../receiving-task-form/receiving-task-form.component';
 import { ReceivingTaskListComponent } from '../receiving-task-list/receiving-task-list.component';
-import { MainLayoutComponent } from '@app/components/layout/main-layout.component';
 
 @Component({
 	selector: 'app-receiving-task-management',
@@ -38,7 +37,7 @@ export class ReceivingTaskManagementComponent implements OnInit {
 	isExportDialogOpen = false;
 	isEditDialogOpen = false;
 	editingTask: ReceivingTask | null = null;
-	activeTab: 'active' | 'processed' = 'active'; // Nuevo: control de tab activo
+	activeTab: 'active' | 'processed' = 'active';
 
 	// Export configuration
 	exportConfig: DataExportConfig = {
@@ -60,7 +59,6 @@ export class ReceivingTaskManagementComponent implements OnInit {
 
 	constructor(
 		private receivingTaskService: ReceivingTaskService,
-		private loadingService: LoadingService,
 		private alertService: AlertService,
 		private languageService: LanguageService
 	) {}
@@ -73,12 +71,10 @@ export class ReceivingTaskManagementComponent implements OnInit {
 		return this.languageService.t.bind(this.languageService);
 	}
 
-	// Nuevo: método para cambiar de tab
 	setActiveTab(tab: 'active' | 'processed'): void {
 		this.activeTab = tab;
 	}
 
-	// Nuevo: método para obtener la clase del tab
 	getTabClass(tab: 'active' | 'processed'): string {
 		const isActive = this.activeTab === tab;
 		const baseClasses = 'py-3 px-4 border-b-2 font-medium text-sm transition-all duration-200 cursor-pointer';
@@ -90,7 +86,6 @@ export class ReceivingTaskManagementComponent implements OnInit {
 		}
 	}
 
-	// Nuevo: método para obtener la clase del badge del tab
 	getTabBadgeClass(tab: 'active' | 'processed'): string {
 		const isActive = this.activeTab === tab;
 		const baseClasses = 'ml-2 text-xs px-2.5 py-1 rounded-full font-medium';

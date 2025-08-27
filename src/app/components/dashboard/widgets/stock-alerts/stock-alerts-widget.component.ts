@@ -84,10 +84,10 @@ export class StockAlertsWidgetComponent implements OnInit, OnDestroy {
 		this.hasError.set(false);
 		this.errorMessage.set('');
 
-		return this.stockAlertService.getAll(false)
+		return this.stockAlertService.analyze()
 			.then(response => {
 				if (response.result.success && response.data) {
-					this.alerts.set(response.data as unknown as StockAlert[]);
+					this.alerts.set(response.data.alerts);
 					this.hasError.set(false);
 					this.usingMockData.set(false);
 				} else {
