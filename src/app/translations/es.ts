@@ -459,7 +459,10 @@ export const esTranslations = {
   'confirm_delete_inventory': '¿Estás seguro de que deseas eliminar este producto?',
   'delete_inventory_warning': 'Esta acción no se puede deshacer. Se eliminará permanentemente el producto del inventario.',
   'sku_required': 'El código SKU es requerido',
-  'location_required': 'La ubicación es requerida',
+  'location_required': 'la ubicación es requerida',
+  'location_auto_filled': 'La ubicación se completa automáticamente',
+  'location_filled_automatically': 'La ubicación se completará automáticamente al seleccionar un SKU',
+  'location_auto_selected': 'Ubicación seleccionada automáticamente',
   'quantity_required': 'La cantidad es requerida',
   'status_required': 'El estado es requerido',
   'presentation_required': 'La presentación es requerida',
@@ -1007,5 +1010,6 @@ export const esTranslations = {
   'admin.operator_performance_leaderboard': 'Tabla de Rendimiento de Operadores',
 
   'lots_readonly_edit_mode': 'Lotes cargados (solo lectura)',
-  'tracking_optional_notice':'El seguimiento de lotes y series es opcional para ajustes de inventario.'
+  'tracking_optional_notice':'El seguimiento de lotes y series es opcional para ajustes de inventario.',
+  'serials_readonly_edit_mode': 'Series cargadas (solo lectura)'
 };
