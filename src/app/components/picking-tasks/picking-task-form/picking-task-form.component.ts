@@ -58,6 +58,7 @@ export class PickingTaskFormComponent implements OnInit {
 	
 	lotsWithQuantityPerItem: Array<{lot_number: string, quantity: number, expiration_date: string | null}[]> = [];
 	lotQuantityPerItem: number[] = [];
+	lotExpirationDatePerItem: string[] = [];
 	availableLotObjectsPerItem: any[][] = [];
 	filteredLotObjectsPerItem: any[][] = [];
 	
@@ -1120,7 +1121,7 @@ export class PickingTaskFormComponent implements OnInit {
 		this.lotsWithQuantityPerItem[index].push({
 			lot_number: lotNumber,
 			quantity: quantity,
-			expiration_date: null
+			expiration_date: this.lotExpirationDatePerItem[index] || null
 		});
 
 		// Update form control for backend compatibility
@@ -1130,6 +1131,7 @@ export class PickingTaskFormComponent implements OnInit {
 		// Clear inputs
 		this.lotSearchTerms[index] = '';
 		this.lotQuantityPerItem[index] = 1;
+		this.lotExpirationDatePerItem[index] = '';
 	}
 
 	removeLotWithQuantity(index: number, lotIndex: number): void {
@@ -1151,6 +1153,8 @@ export class PickingTaskFormComponent implements OnInit {
 		if (selectedLot) {
 			// Use the quantity from the lot object automatically
 			this.lotQuantityPerItem[index] = selectedLot.quantity;
+			// Set expiration date if available
+			this.lotExpirationDatePerItem[index] = selectedLot.expiration_date || '';
 		} else {
 			// Fallback: auto-complete remaining quantity if lot not found in objects
 			const currentTotal = this.getTotalLotQuantityForItem(index);
@@ -1177,6 +1181,28 @@ export class PickingTaskFormComponent implements OnInit {
 		const requiredQty = this.getRequiredQuantity(index);
 		const currentTotal = this.getTotalLotQuantityForItem(index);
 		return requiredQty > 0 && currentTotal === requiredQty;
+	}
+
+	shouldShowExpirationDate(index: number): boolean {
+		const sku = this.itemsArray.at(index).get('sku')?.value;
+		const article = this.getArticleBySku(sku);
+		return !!article?.track_expiration;
+	}
+
+	// Expiration date validation methods
+	isLotExpired(expirationDate: string | null): boolean {
+		if (!expirationDate) return false;
+		const today = new Date();
+		const expDate = new Date(expirationDate);
+		return expDate < today;
+	}
+
+	isLotExpiringSoon(expirationDate: string | null): boolean {
+		if (!expirationDate) return false;
+		const today = new Date();
+		const expDate = new Date(expirationDate);
+		const daysUntilExpiry = Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+		return daysUntilExpiry <= 30 && daysUntilExpiry > 0; // Expires within 30 days
 	}
 
 	// Auto-complete when selecting existing lot

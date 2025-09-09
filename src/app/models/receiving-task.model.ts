@@ -23,7 +23,21 @@ export interface ReceivingTaskItem {
 	lot_numbers?: string[];
 	serial_numbers?: string[];
 	lotNumbers?: string[]; 
-	serialNumbers?: string[]; 
+	serialNumbers?: string[];
+	lots?: Array<{
+		lot_number: string;
+		sku: string;
+		quantity: number;
+		expiration_date?: string | null;
+	}>;
+	serials?: Array<{
+		id?: number;
+		serial_number: string;
+		sku: string;
+		status: string;
+		created_at?: string;
+		updated_at?: string;
+	}>;
 }
 
 export interface CreateReceivingTaskRequest {

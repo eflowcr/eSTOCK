@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } fro
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { ReceivingTask, CreateReceivingTaskRequest } from '@app/models/receiving-task.model';
+import { ReceivingTask } from '@app/models/receiving-task.model';
 import { Location } from '@app/models/location.model';
 import { User } from '@app/models/user.model';
 import { Article } from '@app/models/article.model';
@@ -58,6 +58,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 	// Lots with quantities per item
 	lotsWithQuantityPerItem: Array<{lot_number: string, quantity: number, expiration_date: string | null}[]> = [];
 	lotQuantityPerItem: number[] = [];
+	lotExpirationDatePerItem: string[] = [];
 	
 	// Operator combobox properties
 	operatorSearchTerm: string = '';
@@ -96,52 +97,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 		}
 	}
 
-	async loadExistingLotData(itemIndex: number, sku: string, lotNumbers: string[]): Promise<void> {
-		try {
-			// Initialize the array
-			this.lotsWithQuantityPerItem[itemIndex] = [];
-			
-			// Get all lots for this SKU from the service
-			const response = await this.lotService.getBySku(sku);
-			
-			if (response.result && response.data) {
-				// Match existing lot numbers with the data from backend
-				for (const lotNumber of lotNumbers) {
-					const lotData = response.data.find(lot => lot.lot_number === lotNumber);
-					
-					if (lotData) {
-						this.lotsWithQuantityPerItem[itemIndex].push({
-							lot_number: lotNumber,
-							quantity: lotData.quantity || 1,
-							expiration_date: lotData.expiration_date || null
-						});
-					} else {
-						// Fallback if specific lot not found in response
-						this.lotsWithQuantityPerItem[itemIndex].push({
-							lot_number: lotNumber,
-							quantity: 1,
-							expiration_date: null
-						});
-					}
-				}
-			} else {
-				// Fallback if service call failed
-				this.lotsWithQuantityPerItem[itemIndex] = lotNumbers.map(lotNumber => ({
-					lot_number: lotNumber,
-					quantity: 1,
-					expiration_date: null
-				}));
-			}
-		} catch (error) {
-			console.error('Error loading existing lot data:', error);
-			// Fallback: create basic lot objects
-			this.lotsWithQuantityPerItem[itemIndex] = lotNumbers.map(lotNumber => ({
-				lot_number: lotNumber,
-				quantity: 1,
-				expiration_date: null
-			}));
-		}
-	}
 
 	get t() {
 		return this.languageService.t.bind(this.languageService);
@@ -195,9 +150,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 		setTimeout(() => (this.showOperatorDropdown = false), 150);
 	}
 
-	closeOperatorDropdownLater(): void {
-		setTimeout(() => (this.showOperatorDropdown = false), 150);
-	}
 
 	isOperatorValid(): boolean {
 		const formValue = this.form.get('assigned_to')?.value;
@@ -289,9 +241,34 @@ export class ReceivingTaskFormComponent implements OnInit {
 
 		if (this.task.items && this.task.items.length > 0) {
 			this.task.items.forEach((item, i) => {
-				// Map backend field names to frontend
-				const lotNumbers = item.lotNumbers || item.lot_numbers || [];
-				const serialNumbers = item.serialNumbers || item.serial_numbers || [];
+				// Extract lots and serials from the new embedded structure
+				const lotNumbers: string[] = [];
+				const serialNumbers: string[] = [];
+				
+				// Process lots from embedded structure
+				if (item.lots && Array.isArray(item.lots)) {
+					// Initialize lots with quantity array for this item
+					this.lotsWithQuantityPerItem[i] = [];
+					
+					item.lots.forEach((lot: any) => {
+						lotNumbers.push(lot.lot_number);
+						this.lotsWithQuantityPerItem[i].push({
+							lot_number: lot.lot_number,
+							quantity: lot.quantity || 1,
+							expiration_date: lot.expiration_date || null
+						});
+					});
+				} else {
+					this.lotsWithQuantityPerItem[i] = [];
+				}
+				
+				// Process serials from embedded structure
+				if (item.serials && Array.isArray(item.serials)) {
+					item.serials.forEach((serial: any) => {
+						serialNumbers.push(serial.serial_number);
+					});
+				}
+				
 				const expectedQty = item.expectedQty || item.expected_qty || 0;
 
 				this.itemsArray.push(this.fb.group({
@@ -303,17 +280,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 				
 				this.expectedQuantities[i] = expectedQty;
 				this.ensureComboboxState(i);
-				
-				// Load existing lots with quantities for display
-				if (lotNumbers && lotNumbers.length > 0) {
-					// Load real lot data from backend
-					this.loadExistingLotData(i, item.sku, lotNumbers);
-				} else {
-					this.lotsWithQuantityPerItem[i] = [];
-				}
-				
-				// Load existing serials into the form control
-				// The serials are managed through the form control, not a separate array
 				
 				const article = this.getArticleBySku(item.sku);
 				this.skuSearchTerms[i] = article ? `${article.sku} - ${article.name}` : item.sku;
@@ -365,7 +331,9 @@ export class ReceivingTaskFormComponent implements OnInit {
 		this.itemsArray.push(itemGroup);
 
 		const index = this.itemsArray.length - 1;
-		this.expectedQuantities[index] = 1; // Initialize with 1 instead of 0
+		this.lotQuantityPerItem = new Array(this.itemsArray.length).fill(1);
+		this.lotExpirationDatePerItem = new Array(this.itemsArray.length).fill('');
+		this.expectedQuantities = new Array(this.itemsArray.length).fill(1);
 		this.ensureComboboxState(index);
 		this.cdr.detectChanges(); // Force change detection
 	}
@@ -704,10 +672,12 @@ export class ReceivingTaskFormComponent implements OnInit {
 		return !!article?.track_by_serial;
 	}
 
-	isLotSelectionComplete(index: number): boolean {
-		// Use the new quantity-based validation
-		return this.isLotQuantityCompleteForItem(index);
+	shouldShowExpirationDate(index: number): boolean {
+		const sku = this.itemsArray.at(index).get('sku')?.value;
+		const article = this.getArticleBySku(sku);
+		return !!article?.track_expiration;
 	}
+
 
 	isSerialSelectionComplete(index: number): boolean {
 		const expectedQty = this.getExpectedQuantity(index);
@@ -787,9 +757,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 		return current ? current.split(',').map(s => s.trim()).filter(Boolean) : [];
 	}
 
-	getSelectedLotCount(index: number): number {
-		return this.getSelectedLots(index).length;
-	}
 
 	getSelectedSerials(index: number): string[] {
 		const ctrl = this.itemsArray.at(index).get('serial_numbers');
@@ -834,12 +801,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 		this.showSerialDropdown[index] = false;
 	}
 
-	removeLot(index: number, lotNumber: string): void {
-		const ctrl = this.itemsArray.at(index).get('lot_numbers');
-		const current = this.getSelectedLots(index);
-		const updated = current.filter(lot => lot !== lotNumber);
-		ctrl?.setValue(updated.join(', '));
-	}
 
 	removeSerial(index: number, serialNumber: string): void {
 		const ctrl = this.itemsArray.at(index).get('serial_numbers');
@@ -847,8 +808,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 		const updated = current.filter(serial => serial !== serialNumber);
 		ctrl?.setValue(updated.join(', '));
 	}
-
-
 
 	closeLotDropdownLater(index: number): void {
 		setTimeout(() => (this.showLotDropdown[index] = false), 150);
@@ -858,32 +817,18 @@ export class ReceivingTaskFormComponent implements OnInit {
 		setTimeout(() => (this.showSerialDropdown[index] = false), 150);
 	}
 
-	confirmFirstLotIfAny(index: number): void {
-		const list = this.filteredLotsPerItem[index] || [];
-		if (list.length > 0) this.onLotSelected(index, list[0]);
-	}
-
-	confirmFirstSerialIfAny(index: number): void {
-		const list = this.filteredSerialsPerItem[index] || [];
-		if (list.length > 0 && !this.getSelectedSerials(index).includes(list[0])) this.onSerialSelected(index, list[0]);
-	}
-
-	onManualLotInput(index: number): void {
-	}
-
-	onManualSerialInput(index: number): void {
-	}
-
+	// Keyboard handlers for better UX
 	handleLotEnter(index: number): void {
 		const searchTerm = (this.lotSearchTerms[index] || '').trim();
 		if (searchTerm) {
-			const filtered = this.filteredLotsPerItem[index] || [];
-			const exactMatch = filtered.find(lot => lot.toLowerCase() === searchTerm.toLowerCase());
+			const filtered = this.filteredLotObjectsPerItem[index] || [];
+			const exactMatch = filtered.find(lot => lot.lot_number.toLowerCase() === searchTerm.toLowerCase());
 			
 			if (exactMatch) {
-				this.onLotSelected(index, exactMatch);
+				this.selectLotFromDropdown(index, exactMatch.lot_number);
 			} else {
-				this.addManualLot(index, searchTerm);
+				// Add as new lot with current quantity
+				this.addLotWithQuantity(index);
 			}
 		}
 	}
@@ -897,28 +842,9 @@ export class ReceivingTaskFormComponent implements OnInit {
 			if (exactMatch) {
 				this.onSerialSelected(index, exactMatch);
 			} else {
+				// Add as new serial
 				this.addManualSerial(index, searchTerm);
 			}
-		}
-	}
-
-	addManualLot(index: number, lotNumber: string): void {
-		if (!lotNumber.trim()) return;
-		
-		const ctrl = this.itemsArray.at(index).get('lot_numbers');
-		const current = this.getSelectedLots(index);
-		const expectedQty = this.getExpectedQuantity(index);
-
-		if (!current.includes(lotNumber.trim()) && current.length < expectedQty) {
-			current.push(lotNumber.trim());
-			ctrl?.setValue(current.join(', '));
-			this.lotSearchTerms[index] = '';
-			this.showLotDropdown[index] = false;
-		} else if (current.length >= expectedQty) {
-			this.alertService.warning(
-				this.t('lot_selection_limit_reached'),
-				this.t('warning')
-			);
 		}
 	}
 
@@ -985,11 +911,12 @@ export class ReceivingTaskFormComponent implements OnInit {
 			return;
 		}
 
-		// Add lot with quantity
+		// Add lot with quantity and expiration date
+		const expirationDate = this.lotExpirationDatePerItem[index] || null;
 		this.lotsWithQuantityPerItem[index].push({
 			lot_number: lotNumber,
 			quantity: quantity,
-			expiration_date: null // Can be extended later if needed
+			expiration_date: expirationDate
 		});
 
 		// Update form control for backend compatibility
@@ -999,6 +926,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 		// Clear inputs
 		this.lotSearchTerms[index] = '';
 		this.lotQuantityPerItem[index] = 1;
+		this.lotExpirationDatePerItem[index] = '';
 	}
 
 	removeLotWithQuantity(index: number, lotIndex: number): void {
@@ -1020,6 +948,10 @@ export class ReceivingTaskFormComponent implements OnInit {
 		if (selectedLot) {
 			// Use the quantity from the lot object automatically
 			this.lotQuantityPerItem[index] = selectedLot.quantity;
+			// Auto-fill expiration date if available
+			if (selectedLot.expiration_date) {
+				this.lotExpirationDatePerItem[index] = selectedLot.expiration_date;
+			}
 		} else {
 			// Fallback: auto-complete remaining quantity if lot not found in objects
 			const currentTotal = this.getTotalLotQuantityForItem(index);
@@ -1045,7 +977,23 @@ export class ReceivingTaskFormComponent implements OnInit {
 	isLotQuantityCompleteForItem(index: number): boolean {
 		const expectedQty = this.getExpectedQuantity(index);
 		const currentTotal = this.getTotalLotQuantityForItem(index);
-		return expectedQty > 0 && currentTotal === expectedQty;
+		return expectedQty === currentTotal;
+	}
+
+	// Expiration date validation methods
+	isLotExpired(expirationDate: string | null): boolean {
+		if (!expirationDate) return false;
+		const today = new Date();
+		const expDate = new Date(expirationDate);
+		return expDate < today;
+	}
+
+	isLotExpiringSoon(expirationDate: string | null): boolean {
+		if (!expirationDate) return false;
+		const today = new Date();
+		const expDate = new Date(expirationDate);
+		const daysUntilExpiry = Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+		return daysUntilExpiry <= 30 && daysUntilExpiry > 0; // Expires within 30 days
 	}
 
 	// Auto-complete when selecting existing lot
@@ -1072,10 +1020,11 @@ export class ReceivingTaskFormComponent implements OnInit {
 		// Auto-assign remaining quantity or full quantity if it covers all
 		const quantityToAssign = remainingQty;
 		
+		const expirationDate = this.lotExpirationDatePerItem[index] || null;
 		this.lotsWithQuantityPerItem[index].push({
 			lot_number: lotNumber,
 			quantity: quantityToAssign,
-			expiration_date: null
+			expiration_date: expirationDate
 		});
 
 		// Update form control
