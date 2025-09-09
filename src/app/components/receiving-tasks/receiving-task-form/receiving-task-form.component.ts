@@ -45,12 +45,19 @@ export class ReceivingTaskFormComponent implements OnInit {
 	availableLotsPerItem: string[][] = [];
 	availableSerialsPerItem: string[][] = [];
 	filteredLotsPerItem: string[][] = [];
+	// Store complete lot objects with quantities
+	availableLotObjectsPerItem: any[][] = [];
+	filteredLotObjectsPerItem: any[][] = [];
 	filteredSerialsPerItem: string[][] = [];
 	lotSearchTerms: string[] = [];
 	serialSearchTerms: string[] = [];
 	showLotDropdown: boolean[] = [];
 	showSerialDropdown: boolean[] = [];
 	expectedQuantities: number[] = [];
+	
+	// Lots with quantities per item
+	lotsWithQuantityPerItem: Array<{lot_number: string, quantity: number, expiration_date: string | null}[]> = [];
+	lotQuantityPerItem: number[] = [];
 	
 	// Operator combobox properties
 	operatorSearchTerm: string = '';
@@ -86,6 +93,53 @@ export class ReceivingTaskFormComponent implements OnInit {
 			this.loadTaskForEdit();
 		} else {
 			this.addItem();
+		}
+	}
+
+	async loadExistingLotData(itemIndex: number, sku: string, lotNumbers: string[]): Promise<void> {
+		try {
+			// Initialize the array
+			this.lotsWithQuantityPerItem[itemIndex] = [];
+			
+			// Get all lots for this SKU from the service
+			const response = await this.lotService.getBySku(sku);
+			
+			if (response.result && response.data) {
+				// Match existing lot numbers with the data from backend
+				for (const lotNumber of lotNumbers) {
+					const lotData = response.data.find(lot => lot.lot_number === lotNumber);
+					
+					if (lotData) {
+						this.lotsWithQuantityPerItem[itemIndex].push({
+							lot_number: lotNumber,
+							quantity: lotData.quantity || 1,
+							expiration_date: lotData.expiration_date || null
+						});
+					} else {
+						// Fallback if specific lot not found in response
+						this.lotsWithQuantityPerItem[itemIndex].push({
+							lot_number: lotNumber,
+							quantity: 1,
+							expiration_date: null
+						});
+					}
+				}
+			} else {
+				// Fallback if service call failed
+				this.lotsWithQuantityPerItem[itemIndex] = lotNumbers.map(lotNumber => ({
+					lot_number: lotNumber,
+					quantity: 1,
+					expiration_date: null
+				}));
+			}
+		} catch (error) {
+			console.error('Error loading existing lot data:', error);
+			// Fallback: create basic lot objects
+			this.lotsWithQuantityPerItem[itemIndex] = lotNumbers.map(lotNumber => ({
+				lot_number: lotNumber,
+				quantity: 1,
+				expiration_date: null
+			}));
 		}
 	}
 
@@ -249,6 +303,18 @@ export class ReceivingTaskFormComponent implements OnInit {
 				
 				this.expectedQuantities[i] = expectedQty;
 				this.ensureComboboxState(i);
+				
+				// Load existing lots with quantities for display
+				if (lotNumbers && lotNumbers.length > 0) {
+					// Load real lot data from backend
+					this.loadExistingLotData(i, item.sku, lotNumbers);
+				} else {
+					this.lotsWithQuantityPerItem[i] = [];
+				}
+				
+				// Load existing serials into the form control
+				// The serials are managed through the form control, not a separate array
+				
 				const article = this.getArticleBySku(item.sku);
 				this.skuSearchTerms[i] = article ? `${article.sku} - ${article.name}` : item.sku;
 				const loc = this.locations.find(l => l.location_code === item.location);
@@ -322,6 +388,9 @@ export class ReceivingTaskFormComponent implements OnInit {
 			this.serialSearchTerms.splice(index, 1);
 			this.showLotDropdown.splice(index, 1);
 			this.showSerialDropdown.splice(index, 1);
+			// Remove lots with quantities
+			this.lotsWithQuantityPerItem.splice(index, 1);
+			this.lotQuantityPerItem.splice(index, 1);
 		}
 	}
 
@@ -339,18 +408,72 @@ export class ReceivingTaskFormComponent implements OnInit {
 			this.loadingService.show();
 			
 			const formValue = this.form.value;
+			
 			const taskData: any = {
 				inbound_number: formValue.inbound_number,
 				assigned_to: formValue.assigned_to,
 				priority: formValue.priority,
 				status: this.task ? this.task.status : 'open',
-				items: formValue.items.map((item: any, index: number) => ({
-					sku: item.sku,
-					expected_qty: this.expectedQuantities[index] || 0,
-					location: item.location,
-					lot_numbers: item.lot_numbers ? item.lot_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s) : undefined,
-					serial_numbers: item.serial_numbers ? item.serial_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s) : undefined
-				}))
+				items: formValue.items.map((item: any, index: number) => {
+					const itemData: any = {
+						sku: item.sku,
+						expected_qty: this.expectedQuantities[index] || 0,
+						location: item.location
+					};
+					
+					// Build lots array with detailed structure for this item
+					if (item.lot_numbers) {
+						const lotNumbers = item.lot_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+						const lots: any[] = [];
+						
+						// Check if we have quantity-based lots
+						if (this.lotsWithQuantityPerItem[index] && this.lotsWithQuantityPerItem[index].length > 0) {
+							// Use quantity-based lots structure
+							this.lotsWithQuantityPerItem[index].forEach(lot => {
+								lots.push({
+									lot_number: lot.lot_number,
+									sku: item.sku,
+									quantity: lot.quantity,
+									expiration_date: lot.expiration_date || null
+								});
+							});
+						} else {
+							// Use simple lots structure (1 quantity each)
+							lotNumbers.forEach((lotNumber: string) => {
+								lots.push({
+									lot_number: lotNumber,
+									sku: item.sku,
+									quantity: 1,
+									expiration_date: null
+								});
+							});
+						}
+						
+						if (lots.length > 0) {
+							itemData.lots = lots;
+						}
+					}
+					
+					// Build serials array with detailed structure for this item
+					if (item.serial_numbers) {
+						const serialNumbers = item.serial_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+						const serials: any[] = [];
+						
+						serialNumbers.forEach((serialNumber: string) => {
+							serials.push({
+								serial_number: serialNumber,
+								sku: item.sku,
+								status: 'available'
+							});
+						});
+						
+						if (serials.length > 0) {
+							itemData.serials = serials;
+						}
+					}
+					
+					return itemData;
+				})
 			};
 
 			if (formValue.notes && formValue.notes.trim() !== '') {
@@ -414,6 +537,10 @@ export class ReceivingTaskFormComponent implements OnInit {
 		if (this.serialSearchTerms[index] === undefined) this.serialSearchTerms[index] = '';
 		if (this.showLotDropdown[index] === undefined) this.showLotDropdown[index] = false;
 		if (this.showSerialDropdown[index] === undefined) this.showSerialDropdown[index] = false;
+		
+		// Initialize lots with quantity arrays
+		if (!this.lotsWithQuantityPerItem[index]) this.lotsWithQuantityPerItem[index] = [];
+		if (this.lotQuantityPerItem[index] === undefined) this.lotQuantityPerItem[index] = 1;
 	}
 
 	filterArticlesForItem(index: number): void {
@@ -463,6 +590,10 @@ export class ReceivingTaskFormComponent implements OnInit {
 		this.serialSearchTerms[index] = '';
 		this.showLotDropdown[index] = false;
 		this.showSerialDropdown[index] = false;
+		
+		// Clear lots with quantities
+		this.lotsWithQuantityPerItem[index] = [];
+		this.lotQuantityPerItem[index] = 1;
 	}
 
 	onLocationSelected(index: number, location: Location): void {
@@ -574,9 +705,8 @@ export class ReceivingTaskFormComponent implements OnInit {
 	}
 
 	isLotSelectionComplete(index: number): boolean {
-		const expectedQty = this.getExpectedQuantity(index);
-		const selectedCount = this.getSelectedLotCount(index);
-		return expectedQty > 0 && selectedCount === expectedQty;
+		// Use the new quantity-based validation
+		return this.isLotQuantityCompleteForItem(index);
 	}
 
 	isSerialSelectionComplete(index: number): boolean {
@@ -592,6 +722,10 @@ export class ReceivingTaskFormComponent implements OnInit {
 			try {
 				const lotsResp = await this.lotService.getBySku(sku);
 				if (lotsResp.result.success) {
+					// Store complete lot objects
+					this.availableLotObjectsPerItem[index] = lotsResp.data || [];
+					this.filteredLotObjectsPerItem[index] = [...this.availableLotObjectsPerItem[index]];
+					// Keep backward compatibility for lot_number arrays
 					this.availableLotsPerItem[index] = (lotsResp.data || []).map(l => l.lot_number);
 					this.filteredLotsPerItem[index] = [...this.availableLotsPerItem[index]];
 				}
@@ -610,6 +744,12 @@ export class ReceivingTaskFormComponent implements OnInit {
 
 	filterLotsForItem(index: number): void {
 		const term = (this.lotSearchTerms[index] || '').toLowerCase();
+		// Filter lot objects
+		const lotObjects = this.availableLotObjectsPerItem[index] || [];
+		this.filteredLotObjectsPerItem[index] = term ? 
+			lotObjects.filter(lot => (lot.lot_number || '').toLowerCase().includes(term)) : 
+			[...lotObjects];
+		// Keep backward compatibility
 		const options = this.availableLotsPerItem[index] || [];
 		this.filteredLotsPerItem[index] = term ? options.filter(v => (v || '').toLowerCase().includes(term)) : [...options];
 	}
@@ -670,23 +810,8 @@ export class ReceivingTaskFormComponent implements OnInit {
 	}
 
 	onLotSelected(index: number, lotNumber: string): void {
-		const ctrl = this.itemsArray.at(index).get('lot_numbers');
-		const current = this.getSelectedLots(index);
-		const expectedQty = this.getExpectedQuantity(index);
-
-		if (current.includes(lotNumber)) {
-			const updated = current.filter(lot => lot !== lotNumber);
-			ctrl?.setValue(updated.join(', '));
-		} else if (current.length < expectedQty) {
-			current.push(lotNumber);
-			ctrl?.setValue(current.join(', '));
-		} else {
-			this.alertService.warning(
-				this.t('lot_selection_limit_reached'),
-				this.t('warning')
-			);
-		}
-		this.showLotDropdown[index] = false;
+		// Use the new quantity-based method
+		this.onLotSelectedWithQuantity(index, lotNumber);
 	}
 
 	onSerialSelected(index: number, serialNumber: string): void {
@@ -723,69 +848,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 		ctrl?.setValue(updated.join(', '));
 	}
 
-	selectRandomLots(index: number): void {
-		const expectedQty = this.getExpectedQuantity(index);
-		const availableLots = this.availableLotsPerItem[index] || [];
-		
-		if (availableLots.length === 0) {
-			this.alertService.warning(
-				this.t('no_lots_available'),
-				this.t('warning')
-			);
-			return;
-		}
 
-		if (expectedQty <= 0) {
-			this.alertService.warning(
-				this.t('set_expected_quantity_first'),
-				this.t('warning')
-			);
-			return;
-		}
-
-		const shuffled = [...availableLots].sort(() => 0.5 - Math.random());
-		const selected = shuffled.slice(0, Math.min(expectedQty, availableLots.length));
-		
-		const ctrl = this.itemsArray.at(index).get('lot_numbers');
-		ctrl?.setValue(selected.join(', '));
-
-		this.alertService.success(
-			this.t('random_lots_selected') + ` (${selected.length})`,
-			this.t('success')
-		);
-	}
-
-	selectRandomSerials(index: number): void {
-		const expectedQty = this.getExpectedQuantity(index);
-		const availableSerials = this.availableSerialsPerItem[index] || [];
-		
-		if (availableSerials.length === 0) {
-			this.alertService.warning(
-				this.t('no_serials_available'),
-				this.t('warning')
-			);
-			return;
-		}
-
-		if (expectedQty <= 0) {
-			this.alertService.warning(
-				this.t('set_expected_quantity_first'),
-				this.t('warning')
-			);
-			return;
-		}
-
-		const shuffled = [...availableSerials].sort(() => 0.5 - Math.random());
-		const selected = shuffled.slice(0, Math.min(expectedQty, availableSerials.length));
-		
-		const ctrl = this.itemsArray.at(index).get('serial_numbers');
-		ctrl?.setValue(selected.join(', '));
-
-		this.alertService.success(
-			this.t('random_serials_selected') + ` (${selected.length})`,
-			this.t('success')
-		);
-	}
 
 	closeLotDropdownLater(index: number): void {
 		setTimeout(() => (this.showLotDropdown[index] = false), 150);
@@ -879,6 +942,162 @@ export class ReceivingTaskFormComponent implements OnInit {
 		}
 	}
 
+	// New methods for lots with quantities
+	addLotWithQuantity(index: number): void {
+		const lotNumber = this.lotSearchTerms[index]?.trim();
+		const quantity = this.lotQuantityPerItem[index] || 1;
+		
+		if (!lotNumber) {
+			this.alertService.warning(
+				this.t('lot_number_required') || 'Número de lote requerido',
+				this.t('warning')
+			);
+			return;
+		}
+		
+		if (quantity <= 0) {
+			this.alertService.warning(
+				this.t('quantity_must_be_positive') || 'La cantidad debe ser mayor a 0',
+				this.t('warning')
+			);
+			return;
+		}
+
+		// Check if lot already exists
+		if (this.lotsWithQuantityPerItem[index].some(lot => lot.lot_number === lotNumber)) {
+			this.alertService.warning(
+				this.t('lot_already_exists'),
+				this.t('warning')
+			);
+			return;
+		}
+
+		// Check if adding this quantity would exceed total
+		const currentTotal = this.getTotalLotQuantityForItem(index);
+		const expectedQty = this.getExpectedQuantity(index);
+		
+		if (currentTotal + quantity > expectedQty) {
+			const remaining = expectedQty - currentTotal;
+			this.alertService.warning(
+				this.t('lot_quantity_exceeds_total') || `Solo quedan ${remaining} unidades disponibles`,
+				this.t('warning')
+			);
+			return;
+		}
+
+		// Add lot with quantity
+		this.lotsWithQuantityPerItem[index].push({
+			lot_number: lotNumber,
+			quantity: quantity,
+			expiration_date: null // Can be extended later if needed
+		});
+
+		// Update form control for backend compatibility
+		const lotNumbers = this.lotsWithQuantityPerItem[index].map(lot => lot.lot_number);
+		this.itemsArray.at(index).get('lot_numbers')?.setValue(lotNumbers.join(', '));
+
+		// Clear inputs
+		this.lotSearchTerms[index] = '';
+		this.lotQuantityPerItem[index] = 1;
+	}
+
+	removeLotWithQuantity(index: number, lotIndex: number): void {
+		this.lotsWithQuantityPerItem[index].splice(lotIndex, 1);
+		
+		// Update form control for backend compatibility
+		const lotNumbers = this.lotsWithQuantityPerItem[index].map(lot => lot.lot_number);
+		this.itemsArray.at(index).get('lot_numbers')?.setValue(lotNumbers.join(', '));
+	}
+
+	selectLotFromDropdown(index: number, lotNumber: string): void {
+		this.lotSearchTerms[index] = lotNumber;
+		this.showLotDropdown[index] = false;
+		
+		// Find the lot object to get its quantity
+		const lotObjects = this.availableLotObjectsPerItem[index] || [];
+		const selectedLot = lotObjects.find(lot => lot.lot_number === lotNumber);
+		
+		if (selectedLot) {
+			// Use the quantity from the lot object automatically
+			this.lotQuantityPerItem[index] = selectedLot.quantity;
+		} else {
+			// Fallback: auto-complete remaining quantity if lot not found in objects
+			const currentTotal = this.getTotalLotQuantityForItem(index);
+			const expectedQty = this.getExpectedQuantity(index);
+			const remaining = expectedQty - currentTotal;
+			
+			if (remaining > 0) {
+				this.lotQuantityPerItem[index] = remaining;
+			}
+		}
+	}
+
+	getTotalLotQuantityForItem(index: number): number {
+		return this.lotsWithQuantityPerItem[index]?.reduce((sum, lot) => sum + lot.quantity, 0) || 0;
+	}
+
+	getRemainingQuantityForItem(index: number): number {
+		const expectedQty = this.getExpectedQuantity(index);
+		const currentTotal = this.getTotalLotQuantityForItem(index);
+		return Math.max(0, expectedQty - currentTotal);
+	}
+
+	isLotQuantityCompleteForItem(index: number): boolean {
+		const expectedQty = this.getExpectedQuantity(index);
+		const currentTotal = this.getTotalLotQuantityForItem(index);
+		return expectedQty > 0 && currentTotal === expectedQty;
+	}
+
+	// Auto-complete when selecting existing lot
+	onLotSelectedWithQuantity(index: number, lotNumber: string): void {
+		const remainingQty = this.getRemainingQuantityForItem(index);
+		
+		if (remainingQty <= 0) {
+			this.alertService.warning(
+				this.t('lot_selection_limit_reached'),
+				this.t('warning')
+			);
+			return;
+		}
+
+		// Check if lot already exists
+		if (this.lotsWithQuantityPerItem[index].some(lot => lot.lot_number === lotNumber)) {
+			this.alertService.warning(
+				this.t('lot_already_exists'),
+				this.t('warning')
+			);
+			return;
+		}
+
+		// Auto-assign remaining quantity or full quantity if it covers all
+		const quantityToAssign = remainingQty;
+		
+		this.lotsWithQuantityPerItem[index].push({
+			lot_number: lotNumber,
+			quantity: quantityToAssign,
+			expiration_date: null
+		});
+
+		// Update form control
+		const lotNumbers = this.lotsWithQuantityPerItem[index].map(lot => lot.lot_number);
+		this.itemsArray.at(index).get('lot_numbers')?.setValue(lotNumbers.join(', '));
+
+		this.showLotDropdown[index] = false;
+		
+		// Show success message
+		if (quantityToAssign === this.getExpectedQuantity(index)) {
+			this.alertService.success(
+				this.t('lot_covers_full_quantity') || `Lote ${lotNumber} cubre toda la cantidad (${quantityToAssign})`,
+				this.t('success')
+			);
+		} else {
+			this.alertService.success(
+				this.t('lot_added_with_quantity') || `Lote ${lotNumber} agregado con ${quantityToAssign} unidades`,
+				this.t('success')
+			);
+		}
+	}
+
 	getUserDisplayName(userId: string): string {
 		const user = this.users.find(u => u.id === userId);
 		return user ? user.first_name + ' ' + user.last_name || user.email : userId;
@@ -901,30 +1120,35 @@ export class ReceivingTaskFormComponent implements OnInit {
 	}
 
 	isFormComplete(): boolean {
-				for (let i = 0; i < this.itemsArray.length; i++) {
+		for (let i = 0; i < this.itemsArray.length; i++) {
 			const item = this.itemsArray.at(i);
 			const sku = item.get('sku')?.value;
 			const expectedQty = this.expectedQuantities[i] || 0;
 			const location = item.get('location')?.value;
 
+			// Basic required fields validation
 			if (!sku || !expectedQty || expectedQty <= 0 || !location) {
 				return false;
 			}
 
 			const article = this.getArticleBySku(sku);
 			
+			// For lot tracking: allow partial completion (at least some lots but not exceeding expected quantity)
 			if (article?.track_by_lot) {
-				const selectedLots = this.getSelectedLots(i);
-				if (selectedLots.length !== expectedQty) {
-					return false;
+				const totalLotQuantity = this.getTotalLotQuantityForItem(i);
+				if (totalLotQuantity > expectedQty) {
+					return false; // Cannot exceed expected quantity
 				}
+				// Allow partial: totalLotQuantity can be less than expectedQty
 			}
 			
+			// For serial tracking: allow partial completion (at least some serials but not exceeding expected quantity)
 			if (article?.track_by_serial) {
 				const selectedSerials = this.getSelectedSerials(i);
-				if (selectedSerials.length !== expectedQty) {
-					return false;
+				if (selectedSerials.length > expectedQty) {
+					return false; // Cannot exceed expected quantity
 				}
+				// Allow partial: selectedSerials.length can be less than expectedQty
 			}
 		}
 

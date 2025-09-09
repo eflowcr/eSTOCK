@@ -152,20 +152,12 @@ export class ReceivingTaskManagementComponent implements OnInit {
 	onTaskCreated(): void {
 		this.isCreateDialogOpen = false;
 		this.loadReceivingTasks();
-		this.alertService.success(
-			this.t('receiving_task_created_successfully'),
-			this.t('success')
-		);
 	}
 
 	onTaskUpdated(): void {
 		this.isEditDialogOpen = false;
 		this.editingTask = null;
 		this.loadReceivingTasks();
-		this.alertService.success(
-			this.t('receiving_task_updated_successfully'),
-			this.t('success')
-		);
 	}
 
 	openImportDialog(): void {

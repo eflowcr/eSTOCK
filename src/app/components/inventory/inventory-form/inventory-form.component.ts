@@ -42,6 +42,9 @@ export class InventoryFormComponent implements OnInit, OnChanges {
   // Tracking data for lots and serials input
   lotSearchTerm = '';
   serialSearchTerm = '';
+  lotExpirationDate = '';
+  lotQuantity = 1;
+  lotsWithExpiration: Array<{lot_number: string, quantity: number, expiration_date: string | null}> = [];
 
   statusOptions = [
     { value: 'available', label: 'available' },
@@ -123,6 +126,7 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       trackByLot: [false],
       trackBySerial: [false],
       trackExpiration: [false],
+      expiration_date: [''],
       lots: this.fb.array([]),
       serials: this.fb.array([]),
       lot_numbers: [''],
@@ -309,8 +313,16 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       serial_numbers: ''
     });
     
+    // Clear expiration date validation
+    const expirationControl = this.inventoryForm.get('expiration_date');
+    expirationControl?.clearValidators();
+    expirationControl?.updateValueAndValidity();
+    
     this.lotSearchTerm = '';
     this.serialSearchTerm = '';
+    this.lotExpirationDate = '';
+    this.lotQuantity = 1;
+    this.lotsWithExpiration = [];
   }
 
   clearSkuManually(): void {
@@ -318,6 +330,94 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     this.clearSkuSelection();
     this.showSkuDropdown = false;
     this.filteredArticles = [...this.articles];
+  }
+
+  // New methods for lot with expiration functionality
+  addLotWithExpiration(): void {
+    const lotNumber = this.lotSearchTerm?.trim();
+    const quantity = this.lotQuantity || 1;
+    
+    if (!lotNumber) {
+      this.alertService.warning(
+        this.t('lot_number_required') || 'Número de lote requerido',
+        this.t('warning')
+      );
+      return;
+    }
+    
+    if (quantity <= 0) {
+      this.alertService.warning(
+        this.t('quantity_must_be_positive') || 'La cantidad debe ser mayor a 0',
+        this.t('warning')
+      );
+      return;
+    }
+
+    // Check if lot already exists
+    if (this.lotsWithExpiration.some(lot => lot.lot_number === lotNumber)) {
+      this.alertService.warning(
+        this.t('lot_already_exists'),
+        this.t('warning')
+      );
+      return;
+    }
+
+    // Check if adding this quantity would exceed total
+    const currentTotal = this.getTotalLotQuantity();
+    const expectedQty = this.getExpectedQuantity();
+    
+    if (currentTotal + quantity > expectedQty) {
+      const remaining = expectedQty - currentTotal;
+      this.alertService.warning(
+        this.t('lot_quantity_exceeds_total') || `Solo quedan ${remaining} unidades disponibles`,
+        this.t('warning')
+      );
+      return;
+    }
+
+    // Add lot with quantity and expiration date
+    this.lotsWithExpiration.push({
+      lot_number: lotNumber,
+      quantity: quantity,
+      expiration_date: this.lotExpirationDate || null
+    });
+
+    // Update form control for backend compatibility
+    const lotNumbers = this.lotsWithExpiration.map(lot => lot.lot_number);
+    this.inventoryForm.get('lot_numbers')?.setValue(lotNumbers.join(', '));
+
+    // Clear inputs
+    this.lotSearchTerm = '';
+    this.lotQuantity = 1;
+    this.lotExpirationDate = '';
+  }
+
+  removeLotWithExpiration(index: number): void {
+    this.lotsWithExpiration.splice(index, 1);
+    
+    // Update form control
+    const lotNumbers = this.lotsWithExpiration.map(lot => lot.lot_number);
+    this.inventoryForm.get('lot_numbers')?.setValue(lotNumbers.join(', '));
+  }
+
+  getSelectedLotsWithExpiration(): Array<{lot_number: string, quantity: number, expiration_date: string | null}> {
+    return this.lotsWithExpiration;
+  }
+
+  getTotalLotQuantity(): number {
+    return this.lotsWithExpiration.reduce((sum, lot) => sum + lot.quantity, 0);
+  }
+
+  getRemainingQuantity(): number {
+    const expectedQty = this.getExpectedQuantity();
+    const currentTotal = this.getTotalLotQuantity();
+    return Math.max(0, expectedQty - currentTotal);
+  }
+
+  isLotQuantityComplete(): boolean {
+    const expectedQty = this.getExpectedQuantity();
+    const currentTotal = this.getTotalLotQuantity();
+    return expectedQty > 0 && currentTotal === expectedQty;
   }
 
   clearLocationManually(): void {
@@ -418,7 +518,7 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         unitPrice: this.inventory.unit_price?.toString() || '0',
         trackByLot: this.inventory.track_by_lot || false,
         trackBySerial: this.inventory.track_by_serial || false,
-        trackExpiration: this.inventory.track_expiration || false
+        trackExpiration: this.inventory.track_expiration || false,
       });
 
       if (this.inventory.sku && this.articles.length > 0) {
@@ -469,8 +569,15 @@ export class InventoryFormComponent implements OnInit, OnChanges {
   private async loadExistingInventoryTracking(): Promise<void> {
     if (!this.inventory?.sku) return;
 
+    // Load lots with expiration dates and quantities
     if (this.inventory.lots && this.inventory.lots.length > 0) {
-      const lotNumbers = this.inventory.lots.map((lot: any) => lot.lot_number || lot.lotNumber).filter(Boolean);
+      this.lotsWithExpiration = this.inventory.lots.map((lot: any) => ({
+        lot_number: lot.lot_number || lot.lotNumber,
+        quantity: lot.quantity || 1,
+        expiration_date: lot.expiration_date || null
+      })).filter(lot => lot.lot_number);
+      
+      const lotNumbers = this.lotsWithExpiration.map(lot => lot.lot_number);
       this.inventoryForm.get('lot_numbers')?.setValue(lotNumbers.join(', '));
     }
 
@@ -504,9 +611,10 @@ export class InventoryFormComponent implements OnInit, OnChanges {
   }
   
   removeLot(lotNumber: string): void {
-    const current = this.getSelectedLots();
-    const updated = current.filter((lot: string) => lot !== lotNumber);
-    this.inventoryForm.get('lot_numbers')?.setValue(updated.join(', '));
+    const index = this.lotsWithExpiration.findIndex(lot => lot.lot_number === lotNumber);
+    if (index !== -1) {
+      this.removeLotWithExpiration(index);
+    }
   }
 
   onLotQuantityInput(index: number): void {
@@ -568,12 +676,12 @@ export class InventoryFormComponent implements OnInit, OnChanges {
   }
 
   getSelectedLots(): string[] {
-    const current = (this.inventoryForm.get('lot_numbers')?.value as string) || '';
-    return current ? current.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+    return this.lotsWithExpiration.map(lot => lot.lot_number);
   }
 
   getSelectedLotCount(): number {
-    return this.getSelectedLots().length;
+    return this.lotsWithExpiration.length;
   }
 
   getSelectedSerials(): string[] {
@@ -644,21 +752,9 @@ export class InventoryFormComponent implements OnInit, OnChanges {
   }
 
   addManualLot(lotNumber: string): void {
-    if (!lotNumber.trim()) return;
-    
-    const current = this.getSelectedLots();
-    const expectedQty = this.getExpectedQuantity();
-
-    if (!current.includes(lotNumber.trim()) && current.length < expectedQty) {
-      current.push(lotNumber.trim());
-      this.inventoryForm.get('lot_numbers')?.setValue(current.join(', '));
-      this.lotSearchTerm = '';
-    } else if (current.length >= expectedQty) {
-      this.alertService.warning(
-        this.t('lot_selection_limit_reached'),
-        this.t('warning')
-      );
-    }
+    // Use the new addLotWithExpiration method
+    this.lotSearchTerm = lotNumber;
+    this.addLotWithExpiration();
   }
 
   addManualSerial(serialNumber: string): void {
@@ -676,6 +772,56 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         this.t('serial_selection_limit_reached'),
         this.t('warning')
       );
+    }
+  }
+
+  addSerialWithValidation(): void {
+    const serialNumber = (this.serialSearchTerm || '').trim();
+    if (!serialNumber) {
+      this.alertService.warning(
+        this.t('serial_number_required') || 'Número de serie requerido',
+        this.t('warning')
+      );
+      return;
+    }
+
+    const current = this.getSelectedSerials();
+    const expectedQty = this.getExpectedQuantity();
+
+    // Check if serial already exists
+    if (current.includes(serialNumber)) {
+      this.alertService.warning(
+        this.t('serial_already_exists') || 'Este número de serie ya existe',
+        this.t('warning')
+      );
+      return;
+    }
+
+    // Check if we've reached the limit
+    if (current.length >= expectedQty) {
+      this.alertService.warning(
+        this.t('serial_selection_limit_reached'),
+        this.t('warning')
+      );
+      return;
+    }
+
+    // Add the serial
+    current.push(serialNumber);
+    this.inventoryForm.get('serial_numbers')?.setValue(current.join(', '));
+    this.serialSearchTerm = '';
+
+    this.alertService.success(
+      this.t('serial_added_successfully') || 'Número de serie agregado correctamente',
+      this.t('success')
+    );
+  }
+
+  removeSerialByIndex(index: number): void {
+    const current = this.getSelectedSerials();
+    if (index >= 0 && index < current.length) {
+      current.splice(index, 1);
+      this.inventoryForm.get('serial_numbers')?.setValue(current.join(', '));
     }
   }
 
@@ -721,11 +867,21 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       formData.lots = [];
       formData.serials = [];
 
-      if (formData.lot_numbers && typeof formData.lot_numbers === 'string') {
+      // Handle lots with expiration dates and individual quantities
+      if (this.lotsWithExpiration.length > 0) {
+        formData.lots = this.lotsWithExpiration.map(lotData => ({
+          lot_number: lotData.lot_number,
+          sku: formData.sku,
+          quantity: lotData.quantity,
+          expiration_date: lotData.expiration_date
+        }));
+      } else if (formData.lot_numbers && typeof formData.lot_numbers === 'string') {
         const lotNumbers = formData.lot_numbers.split(',').map((s: string) => s.trim()).filter(Boolean);
+        const quantityPerLot = formData.quantity / lotNumbers.length;
         formData.lots = lotNumbers.map((lotNumber: string) => ({
           lot_number: lotNumber,
           sku: formData.sku,
+          quantity: quantityPerLot,
           expiration_date: null
         }));
       }
@@ -739,9 +895,20 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         }));
       }
 
+      // Remove fields that don't exist in backend model
       delete formData.lot_numbers;
       delete formData.serial_numbers;
-
+      delete formData.expiration_date;
+      delete formData.trackByLot;
+      delete formData.trackBySerial;
+      delete formData.trackExpiration;
+      
+      // Rename unitPrice to match backend expectation
+      if (formData.unitPrice !== undefined) {
+        formData.UnitPrice = formData.unitPrice;
+        delete formData.unitPrice;
+      }
+      
       let response;
       if (this.isEditing && this.inventory) {
         response = await this.inventoryService.update(this.inventory.id, formData);

@@ -41,10 +41,12 @@ export interface UpdateInventoryRequest extends Partial<CreateInventoryRequest> 
 
 export interface Lot {
 	id: number;
-	lotNumber: string;
+	lot_number: string;
+	lotNumber?: string; // For backward compatibility
 	sku: string;
 	quantity: number;
-	expirationDate?: string | null;
+	expiration_date?: string | null;
+	expirationDate?: string | null; // For backward compatibility
 	created_at: string;
 	updated_at: string;
 }
@@ -57,7 +59,8 @@ export interface CreateLotRequest {
 
 export interface Serial {
 	id: number;
-	serialNumber: string;
+	serial_number: string;
+	serialNumber?: string; // For backward compatibility
 	sku: string;
 	status: string;
 	created_at: string;

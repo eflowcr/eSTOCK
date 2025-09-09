@@ -154,20 +154,12 @@ export class PickingTaskManagementComponent implements OnInit {
 	onTaskCreated(): void {
 		this.isCreateDialogOpen = false;
 		this.loadPickingTasks();
-		this.alertService.success(
-			this.t('picking_task_created_successfully'),
-			this.t('success')
-		);
 	}
 
 	onTaskUpdated(): void {
 		this.isEditDialogOpen = false;
 		this.editingTask = null;
 		this.loadPickingTasks();
-		this.alertService.success(
-			this.t('picking_task_updated_successfully'),
-			this.t('success')
-		);
 	}
 
 	openImportDialog(): void {

@@ -258,17 +258,22 @@
           <div *ngIf="viewingInventory.lots && viewingInventory.lots.length > 0">
             <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{{ t('lots') }}</h4>
             <div class="space-y-2">
-              <div *ngFor="let lot of viewingInventory.lots" class="p-3 bg-gray-50 dark:bg-gray-600 rounded border">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-                  <div>
-                    <span class="font-medium">{{ t('lot_number') }}:</span> {{ lot.lotNumber }}
+              <div *ngFor="let lot of viewingInventory.lots" class="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div class="flex items-center space-x-3">
+                  <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      {{ t('lot') }}: {{ lot.lot_number }}
+                    </span>
+                    <span *ngIf="lot.expiration_date" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                      {{ t('expires') }}: {{ lot.expiration_date | date:'shortDate' }}
+                    </span>
+                    <span *ngIf="!lot.expiration_date" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                      {{ t('no_expiration') }}
+                    </span>
                   </div>
-                  <div>
-                    <span class="font-medium">{{ t('quantity') }}:</span> {{ lot.quantity }}
-                  </div>
-                  <div *ngIf="lot.expirationDate">
-                    <span class="font-medium">{{ t('expiration_date') }}:</span> {{ lot.expirationDate | date:'shortDate' }}
-                  </div>
+                </div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                  {{ t('quantity') }}: {{ lot.quantity }}
                 </div>
               </div>
             </div>
@@ -276,16 +281,18 @@
 
           <!-- Serials -->
           <div *ngIf="viewingInventory.serials && viewingInventory.serials.length > 0">
-            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{{ t('serials') }}</h4>
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{{ t('serial_numbers') }}</h4>
             <div class="space-y-2">
-              <div *ngFor="let serial of viewingInventory.serials" class="p-3 bg-gray-50 dark:bg-gray-600 rounded border">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span class="font-medium">{{ t('serial_number') }}:</span> {{ serial.serialNumber }}
+              <div *ngFor="let serial of viewingInventory.serials" class="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <div class="flex items-center space-x-3">
+                  <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      {{ t('serial') }}: {{ serial.serial_number }}
+                    </span>
                   </div>
-                  <div>
-                    <span class="font-medium">{{ t('status') }}:</span> {{ t(serial.status) }}
-                  </div>
+                </div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                  {{ t('status') }}: {{ t(serial.status) }}
                 </div>
               </div>
             </div>

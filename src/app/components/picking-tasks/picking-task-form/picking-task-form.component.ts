@@ -12,6 +12,8 @@ import { SerialService } from '@app/services/serial.service';
 import { LocationService } from '@app/services/location.service';
 import { UserService } from '@app/services/user.service';
 import { ArticleService } from '@app/services/article.service';
+import { InventoryService } from '@app/services/inventory.service';
+import { Inventory } from '@app/models/inventory.model';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { LanguageService } from '@app/services/extras/language.service';
@@ -32,6 +34,8 @@ export class PickingTaskFormComponent implements OnInit {
 	locations: Location[] = [];
 	users: User[] = [];
 	articles: Article[] = [];
+	inventoryData: Inventory[] = []; 
+	articleLocationMap: Map<string, Location[]> = new Map(); 
 	isLoading = false;
 	isEditing = false;
 
@@ -52,7 +56,11 @@ export class PickingTaskFormComponent implements OnInit {
 	showSerialDropdown: boolean[] = [];
 	requiredQuantities: number[] = [];
 	
-	// Operator combobox properties
+	lotsWithQuantityPerItem: Array<{lot_number: string, quantity: number, expiration_date: string | null}[]> = [];
+	lotQuantityPerItem: number[] = [];
+	availableLotObjectsPerItem: any[][] = [];
+	filteredLotObjectsPerItem: any[][] = [];
+	
 	operatorSearchTerm: string = '';
 	showOperatorDropdown: boolean = false;
 	filteredOperators: User[] = [];
@@ -63,6 +71,7 @@ export class PickingTaskFormComponent implements OnInit {
 		private locationService: LocationService,
 		private userService: UserService,
 		private articleService: ArticleService,
+		private inventoryService: InventoryService,
 		private lotService: LotService,
 		private serialService: SerialService,
 		private alertService: AlertService,
@@ -182,11 +191,11 @@ export class PickingTaskFormComponent implements OnInit {
 		try {
 			this.isLoading = true;
 			
-			// Load data in parallel (locations, users, articles)
-			const [locationResponse, userResponse, articleResponse] = await Promise.all([
+			// Load data in parallel (locations, users, inventory)
+			const [locationResponse, userResponse, inventoryResponse] = await Promise.all([
 				this.locationService.getAll(),
 				this.userService.getAll(),
-				this.articleService.getAll()
+				this.inventoryService.getAll()
 			]);
 
 			if (locationResponse.result.success) {
@@ -199,9 +208,42 @@ export class PickingTaskFormComponent implements OnInit {
 				this.filteredOperators = [...this.users];
 			}
 
-			if (articleResponse.result.success) {
-				// Solo mostrar artículos activos
-				this.articles = (articleResponse.data || []).filter(article => article.is_active !== false);
+			if (inventoryResponse.result.success) {
+				// Store full inventory data
+				this.inventoryData = inventoryResponse.data || [];
+				
+				// Extract unique articles and build location mapping
+				const uniqueArticles = new Map<string, Article>();
+				const locationMap = new Map<string, Location[]>();
+				
+				// Process inventory items
+				this.inventoryData.forEach(item => {
+					if (item.quantity > 0) {
+						// Create unique article entry
+						if (!uniqueArticles.has(item.sku)) {
+							uniqueArticles.set(item.sku, {
+								sku: item.sku,
+								name: item.name || item.sku,
+								description: item.description || '',
+								track_by_lot: item.track_by_lot || false,
+								track_by_serial: item.track_by_serial || false,
+								track_expiration: item.track_expiration || false,
+								is_active: true
+							} as Article);
+						}
+						
+						// Build location mapping for each SKU
+						const currentLocations = locationMap.get(item.sku) || [];
+						const location = this.locations.find(loc => loc.location_code === item.location);
+						if (location && !currentLocations.find(loc => loc.location_code === item.location)) {
+							currentLocations.push(location);
+							locationMap.set(item.sku, currentLocations);
+						}
+					}
+				});
+				
+				this.articles = Array.from(uniqueArticles.values());
+				this.articleLocationMap = locationMap;
 			}
 		} catch (error) {
 			this.alertService.error(
@@ -267,6 +309,11 @@ export class PickingTaskFormComponent implements OnInit {
 				
 				// Cargar opciones de tracking (lotes y series)
 				this.loadTrackingOptionsForItem(i, item.sku);
+				
+				// Load existing lot data with quantities if lots exist
+				if (lotNumbers && lotNumbers.length > 0) {
+					this.loadExistingLotData(i, item.sku, lotNumbers);
+				}
 			});
 		} else {
 			this.addItem();
@@ -357,18 +404,72 @@ export class PickingTaskFormComponent implements OnInit {
 			this.loadingService.show();
 			
 			const formValue = this.form.value;
+			
 			const taskData: any = {
 				outbound_number: formValue.outbound_number,
 				assigned_to: formValue.assigned_to,
 				priority: formValue.priority,
 				status: this.task ? this.task.status : 'open',
-				items: formValue.items.map((item: any, index: number) => ({
-					sku: item.sku,
-					required_qty: this.requiredQuantities[index] || 0,
-					location: item.location,
-					lot_numbers: item.lot_numbers ? item.lot_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s) : undefined,
-					serial_numbers: item.serial_numbers ? item.serial_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s) : undefined
-				}))
+				items: formValue.items.map((item: any, index: number) => {
+					const itemData: any = {
+						sku: item.sku,
+						required_qty: this.requiredQuantities[index] || 0,
+						location: item.location
+					};
+					
+					// Build lots array with detailed structure for this item
+					if (item.lot_numbers) {
+						const lotNumbers = item.lot_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+						const lots: any[] = [];
+						
+						// Check if we have quantity-based lots
+						if (this.lotsWithQuantityPerItem[index] && this.lotsWithQuantityPerItem[index].length > 0) {
+							// Use quantity-based lots structure
+							this.lotsWithQuantityPerItem[index].forEach(lot => {
+								lots.push({
+									lot_number: lot.lot_number,
+									sku: item.sku,
+									quantity: lot.quantity,
+									expiration_date: lot.expiration_date || null
+								});
+							});
+						} else {
+							// Use simple lots structure (1 quantity each)
+							lotNumbers.forEach((lotNumber: string) => {
+								lots.push({
+									lot_number: lotNumber,
+									sku: item.sku,
+									quantity: 1,
+									expiration_date: null
+								});
+							});
+						}
+						
+						if (lots.length > 0) {
+							itemData.lots = lots;
+						}
+					}
+					
+					// Build serials array with detailed structure for this item
+					if (item.serial_numbers) {
+						const serialNumbers = item.serial_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+						const serials: any[] = [];
+						
+						serialNumbers.forEach((serialNumber: string) => {
+							serials.push({
+								serial_number: serialNumber,
+								sku: item.sku,
+								status: 'available'
+							});
+						});
+						
+						if (serials.length > 0) {
+							itemData.serials = serials;
+						}
+					}
+					
+					return itemData;
+				})
 			};
 
 
@@ -430,6 +531,8 @@ export class PickingTaskFormComponent implements OnInit {
 		if (!this.availableSerialsPerItem[index]) this.availableSerialsPerItem[index] = [];
 		if (!this.filteredLotsPerItem[index]) this.filteredLotsPerItem[index] = [];
 		if (!this.filteredSerialsPerItem[index]) this.filteredSerialsPerItem[index] = [];
+		if (!this.lotsWithQuantityPerItem[index]) this.lotsWithQuantityPerItem[index] = [];
+		if (this.lotQuantityPerItem[index] === undefined) this.lotQuantityPerItem[index] = 1;
 		if (this.lotSearchTerms[index] === undefined) this.lotSearchTerms[index] = '';
 		if (this.serialSearchTerms[index] === undefined) this.serialSearchTerms[index] = '';
 		if (this.showLotDropdown[index] === undefined) this.showLotDropdown[index] = false;
@@ -499,8 +602,22 @@ export class PickingTaskFormComponent implements OnInit {
 		this.skuSearchTerms[index] = `${article.sku} - ${article.name}`;
 		this.showSkuDropdown[index] = false;
 		
-		this.itemsArray.at(index).get('location')?.setValue('');
-		this.locationSearchTerms[index] = '';
+		// Get available locations for this article
+		const availableLocations = this.articleLocationMap.get(article.sku) || [];
+		
+		// Filter locations dropdown to show only available locations for this article
+		this.filteredLocationsPerItem[index] = availableLocations;
+		
+		// Auto-select location if article only has inventory in one location
+		if (availableLocations.length === 1) {
+			const autoLocation = availableLocations[0];
+			this.itemsArray.at(index).get('location')?.setValue(autoLocation.location_code);
+			this.locationSearchTerms[index] = `${autoLocation.location_code} - ${autoLocation.description || ''}`;
+		} else {
+			// Clear location if multiple options available
+			this.itemsArray.at(index).get('location')?.setValue('');
+			this.locationSearchTerms[index] = '';
+		}
 		
 		this.loadTrackingOptionsForItem(index, article.sku);
 	}
@@ -555,6 +672,12 @@ export class PickingTaskFormComponent implements OnInit {
 		this.itemsArray.at(index).get('location')?.setValue(location.location_code);
 		this.locationSearchTerms[index] = `${location.location_code} - ${location.description}`;
 		this.showLocationDropdown[index] = false;
+		
+		// Reload tracking options for the selected location
+		const sku = this.itemsArray.at(index).get('sku')?.value;
+		if (sku) {
+			this.loadTrackingOptionsForItem(index, sku);
+		}
 	}
 
 	closeSkuDropdownLater(index: number): void {
@@ -580,7 +703,26 @@ export class PickingTaskFormComponent implements OnInit {
 	}
 
 	private getArticleBySku(sku: string): Article | undefined {
-		return this.articles.find(a => a.sku === sku);
+		// First try to get article from articles array
+		let article = this.articles.find(a => a.sku === sku);
+		
+		// If not found in articles array, try to get from inventory data
+		if (!article) {
+			const inventoryItem = this.inventoryData.find(item => item.sku === sku);
+			if (inventoryItem) {
+				article = {
+					sku: inventoryItem.sku,
+					name: inventoryItem.name || inventoryItem.sku,
+					description: inventoryItem.description || '',
+					track_by_lot: inventoryItem.track_by_lot || false,
+					track_by_serial: inventoryItem.track_by_serial || false,
+					track_expiration: inventoryItem.track_expiration || false,
+					is_active: true
+				} as Article;
+			}
+		}
+		
+		return article;
 	}
 
 	shouldShowLotNumbers(index: number): boolean {
@@ -608,17 +750,45 @@ export class PickingTaskFormComponent implements OnInit {
 	}
 
 	private async loadTrackingOptionsForItem(index: number, sku: string): Promise<void> {
-		const article = this.getArticleBySku(sku);
+		// First try to get article from articles array
+		let article = this.getArticleBySku(sku);
+		
+		// If not found in articles array, try to get from inventory data
+		if (!article) {
+			const inventoryItem = this.inventoryData.find(item => item.sku === sku);
+			if (inventoryItem) {
+				article = {
+					sku: inventoryItem.sku,
+					name: inventoryItem.name || inventoryItem.sku,
+					description: inventoryItem.description || '',
+					track_by_lot: inventoryItem.track_by_lot || false,
+					track_by_serial: inventoryItem.track_by_serial || false,
+					track_expiration: inventoryItem.track_expiration || false,
+					is_active: true
+				} as Article;
+			}
+		}
+		
 		if (!article) return;
+		
 		if (article.track_by_lot) {
 			try {
 				const lotsResp = await this.lotService.getBySku(sku);
 				if (lotsResp.result.success) {
-					this.availableLotsPerItem[index] = (lotsResp.data || []).map(l => l.lot_number);
+					// Filter out lots with quantity 0
+					const availableLots = (lotsResp.data || []).filter(lot => lot.quantity > 0);
+					// Store complete lot objects
+					this.availableLotObjectsPerItem[index] = availableLots;
+					this.filteredLotObjectsPerItem[index] = [...this.availableLotObjectsPerItem[index]];
+					// Keep backward compatibility for lot_number arrays
+					this.availableLotsPerItem[index] = availableLots.map(l => l.lot_number);
 					this.filteredLotsPerItem[index] = [...this.availableLotsPerItem[index]];
 				}
-			} catch {}
+			} catch (error) {
+				console.error('Error loading lots for SKU:', sku, error);
+			}
 		}
+		
 		if (article.track_by_serial) {
 			try {
 				const serialsResp = await this.serialService.getBySku(sku);
@@ -626,12 +796,20 @@ export class PickingTaskFormComponent implements OnInit {
 					this.availableSerialsPerItem[index] = (serialsResp.data || []).map(s => s.serial_number);
 					this.filteredSerialsPerItem[index] = [...this.availableSerialsPerItem[index]];
 				}
-			} catch {}
+			} catch (error) {
+				console.error('Error loading serials for SKU:', sku, error);
+			}
 		}
 	}
 
 	filterLotsForItem(index: number): void {
 		const term = (this.lotSearchTerms[index] || '').toLowerCase();
+		// Filter lot objects
+		const lotObjects = this.availableLotObjectsPerItem[index] || [];
+		this.filteredLotObjectsPerItem[index] = term ? 
+			lotObjects.filter(lot => (lot.lot_number || '').toLowerCase().includes(term)) : 
+			[...lotObjects];
+		// Keep backward compatibility
 		const options = this.availableLotsPerItem[index] || [];
 		this.filteredLotsPerItem[index] = term ? options.filter(v => (v || '').toLowerCase().includes(term)) : [...options];
 	}
@@ -641,6 +819,53 @@ export class PickingTaskFormComponent implements OnInit {
 		const options = this.availableSerialsPerItem[index] || [];
 		this.filteredSerialsPerItem[index] = term ? options.filter(v => (v || '').toLowerCase().includes(term)) : [...options];
 	}
+
+	async loadExistingLotData(itemIndex: number, sku: string, lotNumbers: string[]): Promise<void> {
+		try {
+			// Initialize the array
+			this.lotsWithQuantityPerItem[itemIndex] = [];
+			
+			// Get all lots for this SKU from the service
+			const response = await this.lotService.getBySku(sku);
+			if (response.result.success && response.data) {
+				// Map existing lot numbers to lot objects with quantities
+				for (const lotNumber of lotNumbers) {
+					const lotData = response.data.find(lot => lot.lot_number === lotNumber);
+					
+					if (lotData) {
+						this.lotsWithQuantityPerItem[itemIndex].push({
+							lot_number: lotNumber,
+							quantity: lotData.quantity || 1,
+							expiration_date: lotData.expiration_date || null
+						});
+					} else {
+						// Fallback if specific lot not found in response
+						this.lotsWithQuantityPerItem[itemIndex].push({
+							lot_number: lotNumber,
+							quantity: 1,
+							expiration_date: null
+						});
+					}
+				}
+			} else {
+				// Fallback if service call failed
+				this.lotsWithQuantityPerItem[itemIndex] = lotNumbers.map(lotNumber => ({
+					lot_number: lotNumber,
+					quantity: 1,
+					expiration_date: null
+				}));
+			}
+		} catch (error) {
+			console.error('Error loading existing lot data:', error);
+			// Fallback: create basic lot objects
+			this.lotsWithQuantityPerItem[itemIndex] = lotNumbers.map(lotNumber => ({
+				lot_number: lotNumber,
+				quantity: 1,
+				expiration_date: null
+			}));
+		}
+	}
+
 
 	onRequiredQuantityChange(index: number): void {
 		const ctrl = this.itemsArray.at(index);
@@ -745,71 +970,7 @@ export class PickingTaskFormComponent implements OnInit {
 		ctrl?.setValue(updated.join(', '));
 	}
 
-	selectRandomLots(index: number): void {
-		const requiredQty = this.getRequiredQuantity(index);
-		const availableLots = this.availableLotsPerItem[index] || [];
-		
-		if (availableLots.length === 0) {
-			this.alertService.warning(
-				this.t('no_lots_available'),
-				this.t('warning')
-			);
-			return;
-		}
 
-		if (requiredQty <= 0) {
-			this.alertService.warning(
-				this.t('set_required_quantity_first'),
-				this.t('warning')
-			);
-			return;
-		}
-
-		// Seleccionar lotes al azar
-		const shuffled = [...availableLots].sort(() => 0.5 - Math.random());
-		const selected = shuffled.slice(0, Math.min(requiredQty, availableLots.length));
-		
-		const ctrl = this.itemsArray.at(index).get('lot_numbers');
-		ctrl?.setValue(selected.join(', '));
-
-		this.alertService.success(
-			this.t('random_lots_selected') + ` (${selected.length})`,
-			this.t('success')
-		);
-	}
-
-	selectRandomSerials(index: number): void {
-		const requiredQty = this.getRequiredQuantity(index);
-		const availableSerials = this.availableSerialsPerItem[index] || [];
-		
-		if (availableSerials.length === 0) {
-			this.alertService.warning(
-				this.t('no_serials_available'),
-				this.t('warning')
-			);
-			return;
-		}
-
-		if (requiredQty <= 0) {
-			this.alertService.warning(
-				this.t('set_required_quantity_first'),
-				this.t('warning')
-			);
-			return;
-		}
-
-		// Seleccionar series al azar
-		const shuffled = [...availableSerials].sort(() => 0.5 - Math.random());
-		const selected = shuffled.slice(0, Math.min(requiredQty, availableSerials.length));
-		
-		const ctrl = this.itemsArray.at(index).get('serial_numbers');
-		ctrl?.setValue(selected.join(', '));
-
-		this.alertService.success(
-			this.t('random_serials_selected') + ` (${selected.length})`,
-			this.t('success')
-		);
-	}
 
 	closeLotDropdownLater(index: number): void {
 		setTimeout(() => (this.showLotDropdown[index] = false), 150);
@@ -912,6 +1073,149 @@ export class PickingTaskFormComponent implements OnInit {
 		}
 	}
 
+	// Lot quantity management methods
+	addLotWithQuantity(index: number): void {
+		const lotNumber = this.lotSearchTerms[index]?.trim();
+		const quantity = this.lotQuantityPerItem[index] || 1;
+		
+		if (!lotNumber) {
+			this.alertService.warning(
+				this.t('lot_number_required') || 'Número de lote requerido',
+				this.t('warning')
+			);
+			return;
+		}
+		
+		if (quantity <= 0) {
+			this.alertService.warning(
+				this.t('quantity_must_be_positive') || 'La cantidad debe ser mayor a 0',
+				this.t('warning')
+			);
+			return;
+		}
+
+		// Check if lot already exists
+		if (this.lotsWithQuantityPerItem[index].some(lot => lot.lot_number === lotNumber)) {
+			this.alertService.warning(
+				this.t('lot_already_exists'),
+				this.t('warning')
+			);
+			return;
+		}
+
+		// Check if adding this quantity would exceed total
+		const currentTotal = this.getTotalLotQuantityForItem(index);
+		const requiredQty = this.getRequiredQuantity(index);
+		
+		if (currentTotal + quantity > requiredQty) {
+			const remaining = requiredQty - currentTotal;
+			this.alertService.warning(
+				this.t('lot_quantity_exceeds_total') || `Solo quedan ${remaining} unidades disponibles`,
+				this.t('warning')
+			);
+			return;
+		}
+
+		// Add lot with quantity
+		this.lotsWithQuantityPerItem[index].push({
+			lot_number: lotNumber,
+			quantity: quantity,
+			expiration_date: null
+		});
+
+		// Update form control for backend compatibility
+		const lotNumbers = this.lotsWithQuantityPerItem[index].map(lot => lot.lot_number);
+		this.itemsArray.at(index).get('lot_numbers')?.setValue(lotNumbers.join(', '));
+
+		// Clear inputs
+		this.lotSearchTerms[index] = '';
+		this.lotQuantityPerItem[index] = 1;
+	}
+
+	removeLotWithQuantity(index: number, lotIndex: number): void {
+		this.lotsWithQuantityPerItem[index].splice(lotIndex, 1);
+		
+		// Update form control for backend compatibility
+		const lotNumbers = this.lotsWithQuantityPerItem[index].map(lot => lot.lot_number);
+		this.itemsArray.at(index).get('lot_numbers')?.setValue(lotNumbers.join(', '));
+	}
+
+	selectLotFromDropdown(index: number, lotNumber: string): void {
+		this.lotSearchTerms[index] = lotNumber;
+		this.showLotDropdown[index] = false;
+		
+		// Find the lot object to get its quantity
+		const lotObjects = this.availableLotObjectsPerItem[index] || [];
+		const selectedLot = lotObjects.find(lot => lot.lot_number === lotNumber);
+		
+		if (selectedLot) {
+			// Use the quantity from the lot object automatically
+			this.lotQuantityPerItem[index] = selectedLot.quantity;
+		} else {
+			// Fallback: auto-complete remaining quantity if lot not found in objects
+			const currentTotal = this.getTotalLotQuantityForItem(index);
+			const requiredQty = this.getRequiredQuantity(index);
+			const remaining = requiredQty - currentTotal;
+			
+			if (remaining > 0) {
+				this.lotQuantityPerItem[index] = remaining;
+			}
+		}
+	}
+
+	getTotalLotQuantityForItem(index: number): number {
+		return this.lotsWithQuantityPerItem[index]?.reduce((sum, lot) => sum + lot.quantity, 0) || 0;
+	}
+
+	getRemainingQuantityForItem(index: number): number {
+		const requiredQty = this.getRequiredQuantity(index);
+		const currentTotal = this.getTotalLotQuantityForItem(index);
+		return Math.max(0, requiredQty - currentTotal);
+	}
+
+	isLotQuantityCompleteForItem(index: number): boolean {
+		const requiredQty = this.getRequiredQuantity(index);
+		const currentTotal = this.getTotalLotQuantityForItem(index);
+		return requiredQty > 0 && currentTotal === requiredQty;
+	}
+
+	// Auto-complete when selecting existing lot
+	onLotSelectedWithQuantity(index: number, lotNumber: string): void {
+		const remainingQty = this.getRemainingQuantityForItem(index);
+		
+		if (remainingQty <= 0) {
+			this.alertService.warning(
+				this.t('lot_selection_limit_reached'),
+				this.t('warning')
+			);
+			return;
+		}
+
+		// Check if lot already exists
+		if (this.lotsWithQuantityPerItem[index].some(lot => lot.lot_number === lotNumber)) {
+			this.alertService.warning(
+				this.t('lot_already_exists'),
+				this.t('warning')
+			);
+			return;
+		}
+
+		// Auto-assign remaining quantity or full quantity if it covers all
+		const quantityToAssign = remainingQty;
+		
+		this.lotsWithQuantityPerItem[index].push({
+			lot_number: lotNumber,
+			quantity: quantityToAssign,
+			expiration_date: null
+		});
+
+		// Update form control
+		const lotNumbers = this.lotsWithQuantityPerItem[index].map(lot => lot.lot_number);
+		this.itemsArray.at(index).get('lot_numbers')?.setValue(lotNumbers.join(', '));
+
+		this.showLotDropdown[index] = false;
+	}
+
 	getUserDisplayName(userId: string): string {
 		const user = this.users.find(u => u.id === userId);
 		return user ? user.first_name + ' ' + user.last_name || user.email : userId;
@@ -946,16 +1250,28 @@ export class PickingTaskFormComponent implements OnInit {
 
 			const article = this.getArticleBySku(sku);
 			
+			// Allow partial selection for lots and serials
 			if (article?.track_by_lot) {
-				const selectedLots = this.getSelectedLots(i);
-				if (selectedLots.length !== requiredQty) {
-					return false;
+				// For lot tracking, check if using quantity-based lots or simple lots
+				if (this.lotsWithQuantityPerItem[i] && this.lotsWithQuantityPerItem[i].length > 0) {
+					// Quantity-based lots: allow partial quantities (not exceeding required)
+					const totalLotQuantity = this.getTotalLotQuantityForItem(i);
+					if (totalLotQuantity > requiredQty) {
+						return false;
+					}
+				} else {
+					// Simple lots: allow partial selection (not exceeding required)
+					const selectedLots = this.getSelectedLots(i);
+					if (selectedLots.length > requiredQty) {
+						return false;
+					}
 				}
 			}
 			
 			if (article?.track_by_serial) {
 				const selectedSerials = this.getSelectedSerials(i);
-				if (selectedSerials.length !== requiredQty) {
+				// Allow partial selection (not exceeding required)
+				if (selectedSerials.length > requiredQty) {
 					return false;
 				}
 			}
