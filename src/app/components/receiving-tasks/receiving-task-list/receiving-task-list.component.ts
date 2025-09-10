@@ -23,6 +23,7 @@ export class ReceivingTaskListComponent {
 
 	users: User[] = [];
 	selectedTask: ReceivingTask | null = null;
+	expandedItems: Set<number> = new Set(); // Track which items are expanded
 
 	constructor(
 		private userService: UserService,
@@ -115,6 +116,58 @@ export class ReceivingTaskListComponent {
 
 	closeDetails(): void {
 		this.selectedTask = null;
+		this.expandedItems.clear(); // Clear expanded items when closing modal
+	}
+
+	toggleItemExpansion(itemIndex: number): void {
+		if (this.expandedItems.has(itemIndex)) {
+			this.expandedItems.delete(itemIndex);
+		} else {
+			this.expandedItems.add(itemIndex);
+		}
+	}
+
+	isItemExpanded(itemIndex: number): boolean {
+		return this.expandedItems.has(itemIndex);
+	}
+
+	hasLotsOrSerials(item: any): boolean {
+		return (
+			(item.lotNumbers && item.lotNumbers.length > 0) ||
+			(item.serialNumbers && item.serialNumbers.length > 0) ||
+			(item.lot_numbers && item.lot_numbers.length > 0) ||
+			(item.serial_numbers && item.serial_numbers.length > 0) ||
+			(item.lots && item.lots.length > 0) ||
+			(item.serials && item.serials.length > 0)
+		);
+	}
+
+	getLotsForItem(item: any): any[] {
+		// Support multiple data formats for lots
+		if (item.lots && item.lots.length > 0) {
+			return item.lots;
+		}
+		if (item.lotNumbers && item.lotNumbers.length > 0) {
+			return item.lotNumbers.map((lot: string) => ({ lot_number: lot }));
+		}
+		if (item.lot_numbers && item.lot_numbers.length > 0) {
+			return item.lot_numbers.map((lot: string) => ({ lot_number: lot }));
+		}
+		return [];
+	}
+
+	getSerialsForItem(item: any): any[] {
+		// Support multiple data formats for serials
+		if (item.serials && item.serials.length > 0) {
+			return item.serials;
+		}
+		if (item.serialNumbers && item.serialNumbers.length > 0) {
+			return item.serialNumbers.map((serial: string) => ({ serial_number: serial }));
+		}
+		if (item.serial_numbers && item.serial_numbers.length > 0) {
+			return item.serial_numbers.map((serial: string) => ({ serial_number: serial }));
+		}
+		return [];
 	}
 
 	async updateTaskStatus(taskId: number, status: string): Promise<void> {

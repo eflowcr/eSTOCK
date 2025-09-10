@@ -553,3 +553,86 @@
 	--tw-ring-opacity: 1;
 	--tw-ring-color: rgb(239 68 68 / var(--tw-ring-opacity));
 }
+
+/* Expandable Item Animations */
+.item-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.item-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.expand-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.expand-button:hover {
+  transform: scale(1.05);
+}
+
+.expand-icon {
+  transition: transform 0.2s ease-in-out;
+}
+
+.expand-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* Tracking Indicators */
+.tracking-indicator {
+  transition: all 0.2s ease-in-out;
+}
+
+.tracking-indicator:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Expandable Content */
+.expandable-content {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+    transform: translateY(0);
+  }
+}
+
+/* Lot and Serial Cards */
+.lot-card, .serial-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.lot-card:hover, .serial-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Badge Animations */
+.status-badge {
+  transition: all 0.2s ease-in-out;
+}
+
+.status-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Dark mode specific styles */
+@media (prefers-color-scheme: dark) {
+  .item-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+  
+  .lot-card:hover, .serial-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+}
