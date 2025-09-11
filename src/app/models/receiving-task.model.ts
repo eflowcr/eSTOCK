@@ -75,3 +75,31 @@ export interface ReceivingTaskSearchParams {
 	sort_by?: string;
 	sort_order?: 'asc' | 'desc';
 }
+
+export interface CreateLotRequest {
+	lot_number: string;
+	sku: string;
+	quantity: number;
+	received_quantity: number;
+	expiration_date?: string | null;
+	status?: string | null;
+}
+
+export interface Serial {
+	id?: number;
+	serial_number: string;
+	sku: string;
+	status: string;
+	created_at?: string;
+	updated_at?: string;
+}
+
+export interface ReceivingTaskItemRequest {
+	sku: string;
+	expected_qty: number;
+	location: string;
+	lots?: CreateLotRequest[];
+	serials?: Serial[];
+	status?: string | null;
+	received_qty?: number | null;
+}

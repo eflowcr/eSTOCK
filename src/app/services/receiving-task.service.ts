@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiResponse } from '@app/models';
-import { ReceivingTask, CreateReceivingTaskRequest, UpdateReceivingTaskRequest, ReceivingTaskSearchParams } from '@app/models/receiving-task.model';
+import { ReceivingTask, CreateReceivingTaskRequest, UpdateReceivingTaskRequest, ReceivingTaskSearchParams, ReceivingTaskItemRequest } from '@app/models/receiving-task.model';
 import { returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { FetchService } from './extras/fetch.service';
@@ -97,6 +97,32 @@ export class ReceivingTaskService {
 		return await this.fetchService.post<ApiResponse<any>>({
 			API_Gateway: `${RECEIVING_TASK_URL}/import`,
 			values: formData,
+		});
+	}
+
+	/**
+	 * @description Complete full receiving task for a specific location
+	 * @param id Receiving task ID
+	 * @param location Location identifier
+	 * @returns Promise<ApiResponse<any>>
+	 */
+	async completeFullTask(id: number, location: string): Promise<ApiResponse<any>> {
+		return await this.fetchService.patch<ApiResponse<any>>({
+			API_Gateway: `${RECEIVING_TASK_URL}/complete-full-task/${id}/${location}`,
+		});
+	}
+
+	/**
+	 * @description Complete a specific receiving line item within a task
+	 * @param id Receiving task ID
+	 * @param location Location identifier
+	 * @param item Receiving task item data
+	 * @returns Promise<ApiResponse<any>>
+	 */
+	async completeReceivingLine(id: number, location: string, item: ReceivingTaskItemRequest): Promise<ApiResponse<any>> {
+		return await this.fetchService.patch<ApiResponse<any>>({
+			API_Gateway: `${RECEIVING_TASK_URL}/complete-receiving-line/${id}/${location}`,
+			values: item,
 		});
 	}
 }

@@ -71,7 +71,6 @@ export * from './auth.model';
 export * from './inventory.model';
 export * from './article.model';
 export * from './dashboard.model';
-export * from './receiving-task.model';
 export * from './picking-task.model';
 export * from './user.model';
 export * from './barcode.model';

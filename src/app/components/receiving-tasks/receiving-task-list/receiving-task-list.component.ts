@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReceivingTask } from '@app/models/receiving-task.model';
+import { FormsModule } from '@angular/forms';
+import { ReceivingTask, ReceivingTaskItemRequest } from '@app/models/receiving-task.model';
 import { User } from '@app/models/user.model';
 import { UserService } from '@app/services/user.service';
 import { ReceivingTaskService } from '@app/services/receiving-task.service';
@@ -11,7 +12,7 @@ import { LanguageService } from '@app/services/extras/language.service';
 @Component({
 	selector: 'app-receiving-task-list',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, FormsModule],
 	templateUrl: './receiving-task-list.component.html',
 	styleUrls: ['./receiving-task-list.component.css']
 })
@@ -23,7 +24,13 @@ export class ReceivingTaskListComponent {
 
 	users: User[] = [];
 	selectedTask: ReceivingTask | null = null;
-	expandedItems: Set<number> = new Set(); // Track which items are expanded
+	expandedItems: Set<number> = new Set(); 
+	
+	// Completion modal properties
+	showCompletionModal = false;
+	completionType: 'complete' | 'partial' | null = null;
+	showAdjustmentDialog = false;
+	editingQuantities: { [key: number]: any } = {};
 
 	constructor(
 		private userService: UserService,
@@ -116,7 +123,8 @@ export class ReceivingTaskListComponent {
 
 	closeDetails(): void {
 		this.selectedTask = null;
-		this.expandedItems.clear(); // Clear expanded items when closing modal
+		this.expandedItems.clear(); 
+		this.closeCompletionModal();
 	}
 
 	toggleItemExpansion(itemIndex: number): void {
@@ -139,6 +147,14 @@ export class ReceivingTaskListComponent {
 			(item.serial_numbers && item.serial_numbers.length > 0) ||
 			(item.lots && item.lots.length > 0) ||
 			(item.serials && item.serials.length > 0)
+		);
+	}
+
+	hasLots(item: any): boolean {
+		return (
+			(item.lotNumbers && item.lotNumbers.length > 0) ||
+			(item.lot_numbers && item.lot_numbers.length > 0) ||
+			(item.lots && item.lots.length > 0)
 		);
 	}
 
@@ -168,6 +184,247 @@ export class ReceivingTaskListComponent {
 			return item.serial_numbers.map((serial: string) => ({ serial_number: serial }));
 		}
 		return [];
+	}
+
+	// Completion modal methods
+	openCompletionModal(): void {
+		this.showCompletionModal = true;
+		this.completionType = null;
+	}
+
+	closeCompletionModal(): void {
+		this.showCompletionModal = false;
+		this.completionType = null;
+	}
+
+	selectCompletionType(type: 'complete' | 'partial'): void {
+		this.completionType = type;
+		if (type === 'complete') {
+			this.executeCompleteTask();
+		} else {
+			this.openAdjustmentDialog();
+		}
+	}
+
+
+	openAdjustmentDialog(): void {
+		this.showAdjustmentDialog = true;
+		this.showCompletionModal = false;
+		this.initializeEditingQuantities();
+	}
+
+	closeAdjustmentDialog(): void {
+		this.showAdjustmentDialog = false;
+		this.editingQuantities = {};
+	}
+
+	initializeEditingQuantities(): void {
+		if (!this.selectedTask) return;
+		
+		this.selectedTask.items.forEach((item, index) => {
+			// For items WITHOUT lots: we adjust the expected_qty directly
+			// For items WITH lots: we adjust individual lot quantities
+			this.editingQuantities[index] = {
+				sku: item.sku,
+				expected_qty: item.expected_qty,
+				received_qty: this.hasLots(item) ? item.expected_qty : (item.received_qty || item.expected_qty),
+				location: item.location,
+				lots: item.lots ? [...item.lots.map(lot => ({
+					...lot,
+					received_quantity: (lot as any).received_quantity || lot.quantity
+				}))] : [],
+				serials: item.serials ? [...item.serials] : []
+			};
+		});
+	}
+
+	hasSerials(item: any): boolean {
+		return item.serials && item.serials.length > 0;
+	}
+
+	updateQuantity(itemIndex: number, newQuantity: any): void {
+		if (this.editingQuantities[itemIndex]) {
+			// Allow any value including null/empty, but ensure it's within valid range
+			if (newQuantity === null || newQuantity === undefined || newQuantity === '') {
+				this.editingQuantities[itemIndex].received_qty = null;
+			} else {
+				const numValue = Number(newQuantity);
+				this.editingQuantities[itemIndex].received_qty = isNaN(numValue) ? null : Math.max(0, numValue);
+			}
+		}
+	}
+
+	updateLotQuantity(itemIndex: number, lotIndex: number, newQuantity: any): void {
+		if (this.editingQuantities[itemIndex] && this.editingQuantities[itemIndex].lots[lotIndex]) {
+			// Allow any value including null/empty, but ensure it's within valid range
+			if (newQuantity === null || newQuantity === undefined || newQuantity === '') {
+				this.editingQuantities[itemIndex].lots[lotIndex].received_quantity = null;
+			} else {
+				const numValue = Number(newQuantity);
+				this.editingQuantities[itemIndex].lots[lotIndex].received_quantity = isNaN(numValue) ? null : Math.max(0, numValue);
+			}
+		}
+	}
+
+	isValidAdjustment(): boolean {
+		for (const itemIndex in this.editingQuantities) {
+			const item = this.editingQuantities[itemIndex];
+			const originalItem = this.selectedTask?.items[parseInt(itemIndex)];
+			
+			if (!originalItem) continue;
+			
+			// For items WITHOUT lots: validate received_qty doesn't exceed expected
+			if (!this.hasLots(originalItem)) {
+				if (item.received_qty < 0 || item.received_qty > originalItem.expected_qty) {
+					return false;
+				}
+			} else {
+				// For items WITH lots: validate individual lot quantities don't exceed expected
+				if (item.lots && item.lots.length > 0) {
+					for (const lot of item.lots) {
+						if (lot.received_quantity < 0 || lot.received_quantity > lot.quantity) {
+							return false;
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	async saveAdjustments(): Promise<void> {
+		if (!this.selectedTask) return;
+
+		// Validate adjustments before saving
+		if (!this.isValidAdjustment()) {
+			this.alertService.error(
+				this.t('invalid_adjustments_cannot_save'),
+				this.t('error')
+			);
+			return;
+		}
+
+		try {
+			this.loadingService.show();
+			const location = this.getTaskLocation();
+			
+			// Process each item with adjustments
+			for (const [indexStr, editedItem] of Object.entries(this.editingQuantities)) {
+				const index = parseInt(indexStr);
+				const originalItem = this.selectedTask.items[index];
+				const typedEditedItem = editedItem as any;
+				
+				let itemRequest: ReceivingTaskItemRequest;
+				
+				// Different logic based on whether item has lots or not
+				if (this.hasLots(originalItem)) {
+					// For items WITH lots: use lot quantities, calculate total received_qty from lots
+					const totalReceivedFromLots = typedEditedItem.lots.reduce((sum: number, lot: any) => 
+						sum + (lot.received_quantity || 0), 0);
+					
+					itemRequest = {
+						sku: originalItem.sku,
+						expected_qty: originalItem.expected_qty, 
+						location: typedEditedItem.location,
+						received_qty: totalReceivedFromLots, 
+						status: 'completed',
+						lots: typedEditedItem.lots.map((lot: any) => ({
+							lot_number: lot.lot_number,
+							sku: originalItem.sku,
+							quantity: lot.received_quantity, 
+							received_quantity: lot.received_quantity,
+							expiration_date: lot.expiration_date,
+							status: 'received'
+						})),
+						serials: typedEditedItem.serials.map((serial: any) => ({
+							serial_number: serial.serial_number,
+							sku: originalItem.sku,
+							status: 'received'
+						}))
+					};
+				} else {
+					itemRequest = {
+						sku: originalItem.sku,
+						expected_qty: typedEditedItem.received_qty, 
+						location: typedEditedItem.location,
+						received_qty: typedEditedItem.received_qty,
+						status: 'completed',
+						lots: [],
+						serials: typedEditedItem.serials.map((serial: any) => ({
+							serial_number: serial.serial_number,
+							sku: originalItem.sku,
+							status: 'received'
+						}))
+					};
+				}
+
+				const response = await this.receivingTaskService.completeReceivingLine(
+					this.selectedTask.id, 
+					location, 
+					itemRequest
+				);
+
+				if (!response.result.success) {
+					this.alertService.error(
+						response.result.message || this.t('failed_to_save_adjustments'),
+						this.t('error')
+					);
+					return;
+				}
+			}
+
+			this.alertService.success(
+				this.t('adjustments_saved_successfully'),
+				this.t('success')
+			);
+			this.closeAdjustmentDialog();
+			this.closeDetails();
+			this.refresh.emit();
+
+		} catch (error) {
+			this.alertService.error(
+				this.t('failed_to_save_adjustments'),
+				this.t('error')
+			);
+		} finally {
+			this.loadingService.hide();
+		}
+	}
+
+	async executeCompleteTask(): Promise<void> {
+		if (!this.selectedTask) return;
+
+		try {
+			this.loadingService.show();
+			const location = this.getTaskLocation();
+			const response = await this.receivingTaskService.completeFullTask(this.selectedTask.id, location);
+			
+			if (response.result.success) {
+				this.alertService.success(
+					this.t('task_completed_successfully'),
+					this.t('success')
+				);
+				this.closeDetails();
+				this.refresh.emit();
+			} else {
+				this.alertService.error(
+					response.result.message || this.t('failed_to_complete_task'),
+					this.t('error')
+				);
+			}
+		} catch (error) {
+			this.alertService.error(
+				this.t('failed_to_complete_task'),
+				this.t('error')
+			);
+		} finally {
+			this.loadingService.hide();
+		}
+	}
+
+	getTaskLocation(): string {
+		// Get the first item's location or a default location
+		return this.selectedTask?.items[0]?.location || 'DEFAULT';
 	}
 
 	async updateTaskStatus(taskId: number, status: string): Promise<void> {
@@ -226,5 +483,59 @@ export class ReceivingTaskListComponent {
 			hour: '2-digit',
 			minute: '2-digit'
 		});
+	}
+
+	async completeFullTask(taskId: number, location: string): Promise<void> {
+		try {
+			this.loadingService.show();
+			const response = await this.receivingTaskService.completeFullTask(taskId, location);
+			if (response.result.success) {
+				this.alertService.success(
+					this.t('full_task_completed_successfully'),
+					this.t('success')
+				);
+				this.closeDetails();
+				this.refresh.emit();
+			} else {
+				this.alertService.error(
+					response.result.message || this.t('failed_to_complete_full_task'),
+					this.t('error')
+				);
+			}
+		} catch (error) {
+			this.alertService.error(
+				this.t('failed_to_complete_full_task'),
+				this.t('error')
+			);
+		} finally {
+			this.loadingService.hide();
+		}
+	}
+
+	async completeReceivingLine(taskId: number, location: string, item: ReceivingTaskItemRequest): Promise<void> {
+		try {
+			this.loadingService.show();
+			const response = await this.receivingTaskService.completeReceivingLine(taskId, location, item);
+			if (response.result.success) {
+				this.alertService.success(
+					this.t('receiving_line_completed_successfully'),
+					this.t('success')
+				);
+				this.closeDetails();
+				this.refresh.emit();
+			} else {
+				this.alertService.error(
+					response.result.message || this.t('failed_to_complete_receiving_line'),
+					this.t('error')
+				);
+			}
+		} catch (error) {
+			this.alertService.error(
+				this.t('failed_to_complete_receiving_line'),
+				this.t('error')
+			);
+		} finally {
+			this.loadingService.hide();
+		}
 	}
 }

@@ -801,5 +801,8 @@ export const enTranslations = {
 
   'lots_readonly_edit_mode':'Batches loaded (read-only)',
   'tracking_optional_notice':'Tracking of batches and serials is optional for inventory adjustments.',
-  'serials_readonly_edit_mode': 'Series loaded (read-only)'
+  'serials_readonly_edit_mode': 'Series loaded (read-only)',
+  'partial':'Partial',
+  'adjust_quantities_received': 'Adjust Received',
+  'modify_received_quantities': 'Modify Received Quantities',
 };
