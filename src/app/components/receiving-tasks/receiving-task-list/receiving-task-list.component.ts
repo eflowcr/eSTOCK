@@ -26,11 +26,14 @@ export class ReceivingTaskListComponent {
 	selectedTask: ReceivingTask | null = null;
 	expandedItems: Set<number> = new Set(); 
 	
-	// Completion modal properties
-	showCompletionModal = false;
-	completionType: 'complete' | 'partial' | null = null;
+	// Propiedades del modal de ajuste
 	showAdjustmentDialog = false;
+	showCloseConfirmation = false;
 	editingQuantities: { [key: number]: any } = {};
+	newLotData: { [key: number]: { lot_number: string; quantity: number; expiration_date?: string } } = {};
+	newSerialData: { [key: number]: { serial_number: string } } = {};
+	showAddLotForm: { [key: number]: boolean } = {};
+	showAddSerialForm: { [key: number]: boolean } = {};
 
 	constructor(
 		private userService: UserService,
@@ -86,6 +89,11 @@ export class ReceivingTaskListComponent {
 				className: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-200 dark:border-red-700',
 				text: this.t('cancelled')
 			},
+			closed: { 
+				variant: 'outline', 
+				className: 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700',
+				text: this.t('closed')
+			},
 		};
 
 		return statusConfig[status] || statusConfig['open'];
@@ -124,7 +132,8 @@ export class ReceivingTaskListComponent {
 	closeDetails(): void {
 		this.selectedTask = null;
 		this.expandedItems.clear(); 
-		this.closeCompletionModal();
+		this.closeAdjustmentDialog();
+		this.closeConfirmationModal();
 	}
 
 	toggleItemExpansion(itemIndex: number): void {
@@ -186,44 +195,181 @@ export class ReceivingTaskListComponent {
 		return [];
 	}
 
-	// Completion modal methods
-	openCompletionModal(): void {
-		this.showCompletionModal = true;
-		this.completionType = null;
+	// Validation method to check if task is ready for completion
+	isTaskCompletelyReceived(): boolean {
+		if (!this.selectedTask?.items) return false;
+		
+		// All items must have received quantities equal to expected quantities
+		for (const item of this.selectedTask.items) {
+			// Check if item has lots
+			if (this.hasLots(item)) {
+				const lots = this.getLotsForItem(item);
+				let totalReceivedFromLots = 0;
+				
+				for (const lot of lots) {
+					const receivedQty = (lot as any).received_quantity || lot.quantity || 0;
+					totalReceivedFromLots += receivedQty;
+				}
+				
+				// Total received from lots must equal expected quantity
+				if (totalReceivedFromLots !== item.expected_qty) {
+					return false;
+				}
+			} else {
+				// For items without lots, received_qty must equal expected_qty
+				if ((item.received_qty || 0) !== item.expected_qty) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 
-	closeCompletionModal(): void {
-		this.showCompletionModal = false;
-		this.completionType = null;
-	}
-
-	selectCompletionType(type: 'complete' | 'partial'): void {
-		this.completionType = type;
-		if (type === 'complete') {
-			this.executeCompleteTask();
-		} else {
-			this.openAdjustmentDialog();
+	// New methods for three-button system
+	async completeTask(): Promise<void> {
+		if (!this.selectedTask) return;
+		
+		try {
+			this.loadingService.show();
+			// Use first item's location as fallback since ReceivingTask doesn't have direct location property
+			const location = this.selectedTask.items?.[0]?.location || '';
+			const response = await this.receivingTaskService.completeFullTask(this.selectedTask.id, location);
+			if (response.result.success) {
+				this.alertService.success(
+					this.t('task_completed_successfully'),
+					this.t('success')
+				);
+				this.closeDetails();
+				this.refresh.emit();
+			} else {
+				this.alertService.error(
+					response.result.message || this.t('failed_to_complete_task'),
+					this.t('error')
+				);
+			}
+		} catch (error) {
+			this.alertService.error(
+				this.t('failed_to_complete_task'),
+				this.t('error')
+			);
+		} finally {
+			this.loadingService.hide();
 		}
 	}
 
-
 	openAdjustmentDialog(): void {
+		if (!this.selectedTask) return;
+		
+		// Initialize editing quantities for all items
+		this.editingQuantities = {};
+		this.selectedTask.items?.forEach((item, index) => {
+			this.editingQuantities[index] = {
+				received_qty: item.received_qty || item.expected_qty,
+				lots: this.getLotsForItem(item).map(lot => ({
+					...lot,
+					received_quantity: (lot as any).received_quantity || lot.quantity || 0
+				})),
+				serials: this.getSerialsForItem(item)
+			};
+		});
+		
 		this.showAdjustmentDialog = true;
-		this.showCompletionModal = false;
-		this.initializeEditingQuantities();
+	}
+
+	closeDocument(): void {
+		if (!this.selectedTask) return;
+		
+		// Check if there are any items with 'open' status in lots
+		const hasOpenItems = this.hasIncompleteItems();
+		
+		if (hasOpenItems) {
+			// Show confirmation dialog
+			this.showCloseConfirmation = true;
+		} else {
+			// Close directly
+			this.confirmCloseDocument();
+		}
+	}
+
+	hasIncompleteItems(): boolean {
+		if (!this.selectedTask?.items) return false;
+		
+		// Check if any items have incomplete quantities or 'open' status
+		for (const item of this.selectedTask.items) {
+			// Check if item status is 'open'
+			if (item.status === 'open') {
+				return true;
+			}
+			
+			// Check if received quantity is less than expected quantity
+			if (item.received_qty < item.expected_qty) {
+				return true;
+			}
+			
+			// Check if item has lots and any lot has incomplete quantities
+			if (this.hasLots(item)) {
+				const lots = this.getLotsForItem(item);
+				for (const lot of lots) {
+					const receivedQty = (lot as any).received_quantity || lot.quantity || 0;
+					const expectedQty = lot.quantity || 0;
+					if (receivedQty < expectedQty) {
+						return true;
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+
+	closeConfirmationModal(): void {
+		this.showCloseConfirmation = false;
+	}
+
+	async confirmCloseDocument(): Promise<void> {
+		if (!this.selectedTask) return;
+		
+		try {
+			this.loadingService.show();
+			const response = await this.receivingTaskService.update(this.selectedTask.id, { status: 'closed' });
+			if (response.result.success) {
+				this.alertService.success(
+					this.t('document_closed_successfully'),
+					this.t('success')
+				);
+				this.closeDetails();
+				this.showCloseConfirmation = false;
+				this.refresh.emit();
+			} else {
+				this.alertService.error(
+					response.result.message || this.t('failed_to_close_document'),
+					this.t('error')
+				);
+			}
+		} catch (error) {
+			this.alertService.error(
+				this.t('failed_to_close_document'),
+				this.t('error')
+			);
+		} finally {
+			this.loadingService.hide();
+		}
 	}
 
 	closeAdjustmentDialog(): void {
 		this.showAdjustmentDialog = false;
 		this.editingQuantities = {};
+		this.newLotData = {};
+		this.newSerialData = {};
+		this.showAddLotForm = {};
+		this.showAddSerialForm = {};
 	}
 
 	initializeEditingQuantities(): void {
 		if (!this.selectedTask) return;
 		
 		this.selectedTask.items.forEach((item, index) => {
-			// For items WITHOUT lots: we adjust the expected_qty directly
-			// For items WITH lots: we adjust individual lot quantities
 			this.editingQuantities[index] = {
 				sku: item.sku,
 				expected_qty: item.expected_qty,
@@ -266,6 +412,190 @@ export class ReceivingTaskListComponent {
 		}
 	}
 
+	// Gestión de lotes y series
+	showAddLotFormForItem(itemIndex: number): void {
+		this.showAddLotForm[itemIndex] = true;
+		this.newLotData[itemIndex] = {
+			lot_number: '',
+			quantity: 1,
+			expiration_date: undefined
+		};
+	}
+
+	hideAddLotFormForItem(itemIndex: number): void {
+		this.showAddLotForm[itemIndex] = false;
+		delete this.newLotData[itemIndex];
+	}
+
+	removeLot(itemIndex: number, lotIndex: number): void {
+		if (this.editingQuantities[itemIndex] && this.editingQuantities[itemIndex].lots) {
+			this.editingQuantities[itemIndex].lots.splice(lotIndex, 1);
+		}
+	}
+
+	showAddSerialFormForItem(itemIndex: number): void {
+		this.showAddSerialForm[itemIndex] = true;
+		this.newSerialData[itemIndex] = {
+			serial_number: ''
+		};
+	}
+
+	hideAddSerialFormForItem(itemIndex: number): void {
+		this.showAddSerialForm[itemIndex] = false;
+		delete this.newSerialData[itemIndex];
+	}
+
+	addNewLot(itemIndex: number): void {
+		if (!this.newLotData[itemIndex] || !this.newLotData[itemIndex].lot_number.trim()) {
+			this.alertService.error(
+				this.t('lot_number_required'),
+				this.t('error')
+			);
+			return;
+		}
+
+		if (this.newLotData[itemIndex].quantity <= 0) {
+			this.alertService.error(
+				this.t('quantity_must_be_positive'),
+				this.t('error')
+			);
+			return;
+		}
+
+		const originalItem = this.selectedTask?.items[itemIndex];
+		if (!originalItem) return;
+
+		// Check if adding this quantity would exceed the expected quantity
+		const currentTotalReceived = this.editingQuantities[itemIndex]?.lots?.reduce(
+			(sum: number, lot: any) => sum + (lot.received_quantity || 0), 0
+		) || 0;
+		
+		if (currentTotalReceived + this.newLotData[itemIndex].quantity > originalItem.expected_qty) {
+			const remaining = originalItem.expected_qty - currentTotalReceived;
+			this.alertService.error(
+				`${this.t('lot_quantity_exceeds_total')}. ${this.t('remaining_quantity')}: ${remaining}`,
+				this.t('error')
+			);
+			return;
+		}
+
+		// Check if lot already exists
+		const existingLot = this.editingQuantities[itemIndex]?.lots?.find(
+			(lot: any) => lot.lot_number === this.newLotData[itemIndex].lot_number.trim()
+		);
+
+		if (existingLot) {
+			this.alertService.error(
+				this.t('lot_already_exists'),
+				this.t('error')
+			);
+			return;
+		}
+
+		// Create new lot
+		const newLot = {
+			lot_number: this.newLotData[itemIndex].lot_number.trim(),
+			sku: originalItem.sku,
+			quantity: this.newLotData[itemIndex].quantity,
+			received_quantity: this.newLotData[itemIndex].quantity,
+			expiration_date: this.newLotData[itemIndex].expiration_date,
+			status: 'received'
+		};
+
+		// Add to editing quantities
+		if (!this.editingQuantities[itemIndex].lots) {
+			this.editingQuantities[itemIndex].lots = [];
+		}
+		this.editingQuantities[itemIndex].lots.push(newLot);
+
+		this.alertService.success(
+			this.t('lot_added_successfully'),
+			this.t('success')
+		);
+
+		this.hideAddLotFormForItem(itemIndex);
+	}
+
+	addNewSerial(itemIndex: number): void {
+		if (!this.newSerialData[itemIndex] || !this.newSerialData[itemIndex].serial_number.trim()) {
+			this.alertService.error(
+				this.t('serial_number_required'),
+				this.t('error')
+			);
+			return;
+		}
+
+		const originalItem = this.selectedTask?.items[itemIndex];
+		if (!originalItem) return;
+
+		// Check if adding this serial would exceed the expected quantity
+		const currentSerialCount = this.editingQuantities[itemIndex]?.serials?.length || 0;
+		
+		if (currentSerialCount >= originalItem.expected_qty) {
+			this.alertService.error(
+				`${this.t('serial_quantity_exceeds_total')}. ${this.t('remaining_serials_needed')}: 0`,
+				this.t('error')
+			);
+			return;
+		}
+
+		// Check if serial already exists
+		const existingSerial = this.editingQuantities[itemIndex]?.serials?.find(
+			(serial: any) => serial.serial_number === this.newSerialData[itemIndex].serial_number.trim()
+		);
+
+		if (existingSerial) {
+			this.alertService.error(
+				this.t('serial_already_exists'),
+				this.t('error')
+			);
+			return;
+		}
+
+		// Create new serial
+		const newSerial = {
+			serial_number: this.newSerialData[itemIndex].serial_number.trim(),
+			sku: originalItem.sku,
+			status: 'received'
+		};
+
+		// Add to editing quantities
+		if (!this.editingQuantities[itemIndex].serials) {
+			this.editingQuantities[itemIndex].serials = [];
+		}
+		this.editingQuantities[itemIndex].serials.push(newSerial);
+
+		this.alertService.success(this.t('serial_added_successfully'), this.t('success'));
+		this.hideAddSerialFormForItem(itemIndex);
+	}
+
+	removeSerial(itemIndex: number, serialIndex: number): void {
+		if (this.editingQuantities[itemIndex]?.serials) {
+			this.editingQuantities[itemIndex].serials.splice(serialIndex, 1);
+		}
+	}
+
+
+	// Métodos auxiliares
+	getRemainingQuantityForItem(itemIndex: number): number {
+		const originalItem = this.selectedTask?.items[itemIndex];
+		if (!originalItem) return 0;
+
+		if (this.hasLots(originalItem)) {
+			const totalReceived = this.editingQuantities[itemIndex]?.lots?.reduce(
+				(sum: number, lot: any) => sum + (lot.received_quantity || 0), 0
+			) || 0;
+			return Math.max(0, originalItem.expected_qty - totalReceived);
+		} else {
+			const received = this.editingQuantities[itemIndex]?.received_qty || 0;
+			return Math.max(0, originalItem.expected_qty - received);
+		}
+	}
+
+	needsMoreQuantity(itemIndex: number): boolean {
+		return this.getRemainingQuantityForItem(itemIndex) > 0;
+	}
+
 	isValidAdjustment(): boolean {
 		for (const itemIndex in this.editingQuantities) {
 			const item = this.editingQuantities[itemIndex];
@@ -273,13 +603,11 @@ export class ReceivingTaskListComponent {
 			
 			if (!originalItem) continue;
 			
-			// For items WITHOUT lots: validate received_qty doesn't exceed expected
 			if (!this.hasLots(originalItem)) {
 				if (item.received_qty < 0 || item.received_qty > originalItem.expected_qty) {
 					return false;
 				}
 			} else {
-				// For items WITH lots: validate individual lot quantities don't exceed expected
 				if (item.lots && item.lots.length > 0) {
 					for (const lot of item.lots) {
 						if (lot.received_quantity < 0 || lot.received_quantity > lot.quantity) {
@@ -295,7 +623,6 @@ export class ReceivingTaskListComponent {
 	async saveAdjustments(): Promise<void> {
 		if (!this.selectedTask) return;
 
-		// Validate adjustments before saving
 		if (!this.isValidAdjustment()) {
 			this.alertService.error(
 				this.t('invalid_adjustments_cannot_save'),
@@ -308,7 +635,6 @@ export class ReceivingTaskListComponent {
 			this.loadingService.show();
 			const location = this.getTaskLocation();
 			
-			// Process each item with adjustments
 			for (const [indexStr, editedItem] of Object.entries(this.editingQuantities)) {
 				const index = parseInt(indexStr);
 				const originalItem = this.selectedTask.items[index];
@@ -320,7 +646,7 @@ export class ReceivingTaskListComponent {
 				if (this.hasLots(originalItem)) {
 					// For items WITH lots: use lot quantities, calculate total received_qty from lots
 					const totalReceivedFromLots = typedEditedItem.lots.reduce((sum: number, lot: any) => 
-						sum + (lot.received_quantity || 0), 0);
+						sum + (lot.received_quantity || lot.quantity || 0), 0);
 					
 					itemRequest = {
 						sku: originalItem.sku,
@@ -423,12 +749,10 @@ export class ReceivingTaskListComponent {
 	}
 
 	getTaskLocation(): string {
-		// Get the first item's location or a default location
 		return this.selectedTask?.items[0]?.location || 'DEFAULT';
 	}
 
 	async updateTaskStatus(taskId: number, status: string): Promise<void> {
-		// Validar que el estado sea uno de los permitidos
 		const allowedStatuses = ['in_progress', 'completed', 'cancelled'];
 		if (!allowedStatuses.includes(status)) {
 			this.alertService.error(
@@ -447,7 +771,6 @@ export class ReceivingTaskListComponent {
 					this.t('success')
 				);
 				this.closeDetails();
-				// Emit event to refresh parent
 				this.refresh.emit();
 			} else {
 				this.alertService.error(

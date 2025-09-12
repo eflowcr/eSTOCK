@@ -1,17 +1,13 @@
-<!-- Modal Overlay -->
+<!-- Modal de formulario de tarea de recepción -->
 <div class="fixed inset-0 z-50 overflow-y-auto" (click)="onBackdropClick($event)">
   <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <!-- Background overlay -->
     <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 
-    <!-- Center modal -->
     <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
 
-    <!-- Modal content -->
     <div
       class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
       (click)="$event.stopPropagation()">
-      <!-- Header -->
       <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
@@ -26,12 +22,10 @@
         </div>
       </div>
 
-      <!-- Form Content -->
       <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 max-h-[80vh] overflow-y-auto">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
-          <!-- Task Header Information -->
+          <!-- Información de cabecera -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Inbound Number -->
             <div class="form-group">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ t('inbound_number') }}
@@ -46,7 +40,6 @@
               </div>
             </div>
 
-            <!-- Assigned To -->
             <div class="form-group relative">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ t('assign_to_operator') }} *
@@ -119,7 +112,6 @@
               </p>
             </div>
 
-            <!-- Priority -->
             <div class="form-group">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ t('priority') }}
@@ -132,10 +124,9 @@
               </select>
             </div>
 
-            <!-- Espacio eliminado: status se maneja internamente -->
           </div>
 
-          <!-- Items Section -->
+          <!-- Sección de artículos -->
           <div class="bg-white rounded-lg">
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ t('items_to_receive') }}</h3>
@@ -160,9 +151,7 @@
                   </button>
                 </div>
 
-                <!-- Campos principales en una fila -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <!-- SKU Combobox -->
                   <div class="form-group relative">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('sku') }} *</label>
                     <div class="mt-1 relative">
@@ -233,7 +222,6 @@
                     </p>
                   </div>
 
-                  <!-- Expected Quantity -->
                   <div class="form-group">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('expected_quantity') }}</label>
                     <input type="number" [(ngModel)]="expectedQuantities[i]" [ngModelOptions]="{standalone: true}" min="1" (input)="onExpectedQuantityChange(i)"
@@ -246,7 +234,6 @@
                     </div>
                   </div>
 
-                  <!-- Location Combobox -->
                   <div class="form-group relative">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('location') }} *</label>
                     <div class="mt-1 relative">

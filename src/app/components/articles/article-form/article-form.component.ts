@@ -78,6 +78,21 @@ export class ArticleFormComponent implements OnInit, OnChanges {
       if (!enabled) {
         this.articleForm.patchValue({ track_expiration: false });
       }
+      // Mutual exclusion: if lot tracking is enabled, disable serial tracking
+      if (enabled && this.articleForm.get('track_by_serial')?.value) {
+        this.articleForm.patchValue({ track_by_serial: false });
+      }
+    });
+
+    // Enforce mutual exclusion: serial and lot tracking cannot be both enabled
+    this.articleForm.get('track_by_serial')?.valueChanges.subscribe((enabled: boolean) => {
+      // If serial tracking is enabled, disable lot tracking and expiration tracking
+      if (enabled && this.articleForm.get('track_by_lot')?.value) {
+        this.articleForm.patchValue({ 
+          track_by_lot: false,
+          track_expiration: false 
+        });
+      }
     });
   }
 
@@ -100,6 +115,12 @@ export class ArticleFormComponent implements OnInit, OnChanges {
       // Coerce invalid combination: expiration without lot
       if (!this.articleForm.get('track_by_lot')?.value && this.articleForm.get('track_expiration')?.value) {
         this.articleForm.patchValue({ track_expiration: false });
+      }
+
+      // Coerce invalid combination: both lot and serial tracking enabled
+      if (this.articleForm.get('track_by_lot')?.value && this.articleForm.get('track_by_serial')?.value) {
+        // Priority to lot tracking, disable serial
+        this.articleForm.patchValue({ track_by_serial: false });
       }
 
       // Disable SKU field in edit mode
@@ -169,6 +190,12 @@ export class ArticleFormComponent implements OnInit, OnChanges {
         formData['track_expiration'] = false;
       }
 
+      // Enforce mutual exclusion at submit time
+      if (formData['track_by_lot'] && formData['track_by_serial']) {
+        // Priority to lot tracking, disable serial
+        formData['track_by_serial'] = false;
+      }
+
       if (this.isEditMode && this.initialData) {
         // Update existing article
         const updateData: UpdateArticleRequest = {
@@ -234,12 +261,33 @@ export class ArticleFormComponent implements OnInit, OnChanges {
 
 
   /**
-   * Handle track expiration dependency
+   * Handle track by lot change and mutual exclusion
    */
   onTrackByLotChange(event: Event): void {
     const checked = (event.target as HTMLInputElement | null)?.checked ?? false;
     if (!checked) {
       this.articleForm.patchValue({ track_expiration: false });
+    } else {
+      // If lot tracking is enabled, disable serial tracking
+      if (this.articleForm.get('track_by_serial')?.value) {
+        this.articleForm.patchValue({ track_by_serial: false });
+      }
+    }
+  }
+
+  /**
+   * Handle track by serial change and mutual exclusion
+   */
+  onTrackBySerialChange(event: Event): void {
+    const checked = (event.target as HTMLInputElement | null)?.checked ?? false;
+    if (checked) {
+      // If serial tracking is enabled, disable lot tracking and expiration
+      if (this.articleForm.get('track_by_lot')?.value) {
+        this.articleForm.patchValue({ 
+          track_by_lot: false,
+          track_expiration: false 
+        });
+      }
     }
   }
 }

@@ -137,7 +137,9 @@
 
       <!-- Lot Tracking -->
       <div
-        class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700">
+        class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700"
+        [class.opacity-50]="articleForm.get('track_by_serial')?.value"
+        [class.cursor-not-allowed]="articleForm.get('track_by_serial')?.value">
         <div class="space-y-1">
           <label for="track_by_lot" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {{ t('enable_lot_tracking') }}
@@ -145,13 +147,19 @@
           <p class="text-sm text-gray-600 dark:text-gray-400">
             {{ t('lot_tracking_description') }}
           </p>
+          <p *ngIf="articleForm.get('track_by_serial')?.value" class="text-xs text-amber-600 dark:text-amber-400">
+            {{ t('cannot_use_both_lot_and_serial') }}
+          </p>
         </div>
         <div class="flex items-center">
-          <label class="relative inline-flex items-center cursor-pointer select-none">
+          <label class="relative inline-flex items-center select-none" 
+                 [class.cursor-not-allowed]="articleForm.get('track_by_serial')?.value" 
+                 [class.cursor-pointer]="!articleForm.get('track_by_serial')?.value">
             <input
               type="checkbox"
               id="track_by_lot"
               formControlName="track_by_lot"
+              [disabled]="articleForm.get('track_by_serial')?.value"
               (change)="onTrackByLotChange($event)"
               class="sr-only peer"
             />
@@ -167,7 +175,9 @@
 
       <!-- Serial Tracking -->
       <div
-        class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700">
+        class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700"
+        [class.opacity-50]="articleForm.get('track_by_lot')?.value"
+        [class.cursor-not-allowed]="articleForm.get('track_by_lot')?.value">
         <div class="space-y-1">
           <label for="track_by_serial" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {{ t('enable_serial_tracking') }}
@@ -175,13 +185,20 @@
           <p class="text-sm text-gray-600 dark:text-gray-400">
             {{ t('serial_tracking_description') }}
           </p>
+          <p *ngIf="articleForm.get('track_by_lot')?.value" class="text-xs text-amber-600 dark:text-amber-400">
+            {{ t('cannot_use_both_lot_and_serial') }}
+          </p>
         </div>
         <div class="flex items-center">
-          <label class="relative inline-flex items-center cursor-pointer select-none">
+          <label class="relative inline-flex items-center select-none" 
+                 [class.cursor-not-allowed]="articleForm.get('track_by_lot')?.value" 
+                 [class.cursor-pointer]="!articleForm.get('track_by_lot')?.value">
             <input
               type="checkbox"
               id="track_by_serial"
               formControlName="track_by_serial"
+              [disabled]="articleForm.get('track_by_lot')?.value"
+              (change)="onTrackBySerialChange($event)"
               class="sr-only peer"
             />
             <div class="relative w-11 h-6 bg-gray-300 rounded-full transition-colors duration-200 peer-checked:bg-green-600">

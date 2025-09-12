@@ -20,6 +20,7 @@ export interface ReceivingTaskItem {
 	expectedQty?: number; 
 	received_qty: number;
 	location: string;
+	status?: string;
 	lot_numbers?: string[];
 	serial_numbers?: string[];
 	lotNumbers?: string[]; 

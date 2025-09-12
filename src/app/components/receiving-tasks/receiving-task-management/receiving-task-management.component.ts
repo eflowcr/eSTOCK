@@ -128,7 +128,7 @@ export class ReceivingTaskManagementComponent implements OnInit {
 
 	get processedTasks(): ReceivingTask[] {
 		return this.receivingTasks.filter(task => 
-			task.status === 'completed' || task.status === 'cancelled'
+			task.status !== 'open'
 		);
 	}
 

@@ -1,4 +1,4 @@
-// Authentication related models and interfaces
+// Modelos e interfaces de autenticación
 
 export interface User {
   user_id: string;
@@ -31,7 +31,7 @@ export interface AuthState {
   error: string | null;
 }
 
-// Form validation interfaces
+// Interfaces de validación de formularios
 export interface LoginFormData {
   email: string;
   password: string;
@@ -44,7 +44,7 @@ export interface RegisterFormData {
   lastName: string;
 }
 
-// API Error interface
+// Interface de errores de API
 export interface ApiError {
   message: string;
   code?: string;
@@ -52,7 +52,7 @@ export interface ApiError {
   details?: any;
 }
 
-// JWT Token payload interface
+// Interface de payload de token JWT
 export interface JwtPayload {
   sub: string; // user id
   email: string;

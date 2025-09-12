@@ -103,7 +103,6 @@ export class PickingTaskFormComponent implements OnInit {
 		return this.languageService.t.bind(this.languageService);
 	}
 
-	// Modal helpers
 	close(): void {
 		this.resetForm();
 		this.cancel.emit();
@@ -127,7 +126,7 @@ export class PickingTaskFormComponent implements OnInit {
 		}
 	}
 
-	// Operator dropdown validation and advanced methods
+	// Gestión de operadores
 	isOperatorValid(): boolean {
 		const formValue = this.form.get('assigned_to')?.value;
 		return !!formValue && this.users.some(u => u.id === formValue);
@@ -159,7 +158,6 @@ export class PickingTaskFormComponent implements OnInit {
 		setTimeout(() => (this.showOperatorDropdown = false), 150);
 	}
 
-	// Operator combobox methods
 	filterOperators(): void {
 		const term = (this.operatorSearchTerm || '').toLowerCase();
 		if (!term) {
@@ -192,7 +190,6 @@ export class PickingTaskFormComponent implements OnInit {
 		try {
 			this.isLoading = true;
 			
-			// Load data in parallel (locations, users, inventory)
 			const [locationResponse, userResponse, inventoryResponse] = await Promise.all([
 				this.locationService.getAll(),
 				this.userService.getAll(),
@@ -204,23 +201,18 @@ export class PickingTaskFormComponent implements OnInit {
 			}
 
 			if (userResponse.result.success) {
-				// Only operators
 				this.users = (userResponse.data || []).filter((u: User) => u.role === 'operator');
 				this.filteredOperators = [...this.users];
 			}
 
 			if (inventoryResponse.result.success) {
-				// Store full inventory data
 				this.inventoryData = inventoryResponse.data || [];
 				
-				// Extract unique articles and build location mapping
 				const uniqueArticles = new Map<string, Article>();
 				const locationMap = new Map<string, Location[]>();
 				
-				// Process inventory items
 				this.inventoryData.forEach(item => {
 					if (item.quantity > 0) {
-						// Create unique article entry
 						if (!uniqueArticles.has(item.sku)) {
 							uniqueArticles.set(item.sku, {
 								sku: item.sku,
@@ -233,7 +225,6 @@ export class PickingTaskFormComponent implements OnInit {
 							} as Article);
 						}
 						
-						// Build location mapping for each SKU
 						const currentLocations = locationMap.get(item.sku) || [];
 						const location = this.locations.find(loc => loc.location_code === item.location);
 						if (location && !currentLocations.find(loc => loc.location_code === item.location)) {
@@ -259,13 +250,11 @@ export class PickingTaskFormComponent implements OnInit {
 	loadTaskForEdit(): void {
 		if (!this.task) return;
 		
-		// Inicializar el campo de operador
 		if (this.task.assigned_to) {
 			const user = this.users.find(u => u.id === this.task!.assigned_to);
 			if (user) {
 				this.operatorSearchTerm = this.getUserDisplayName(user.id);
 			} else {
-				// Si no encuentra el usuario, mostrar el ID
 				this.operatorSearchTerm = this.task.assigned_to;
 			}
 		}
@@ -277,14 +266,12 @@ export class PickingTaskFormComponent implements OnInit {
 			notes: this.task.notes || ''
 		});
 
-		// Limpiar items existentes
 		while (this.itemsArray.length !== 0) {
 			this.itemsArray.removeAt(0);
 		}
 
 		if (this.task.items && this.task.items.length > 0) {
 			this.task.items.forEach((item, i) => {
-				// Mapear campos del backend a frontend
 				const lotNumbers = item.lotNumbers || item.lot_numbers || [];
 				const serialNumbers = item.serialNumbers || item.serial_numbers || [];
 				const requiredQty = item.expectedQty || item.required_qty || 0;
@@ -296,22 +283,18 @@ export class PickingTaskFormComponent implements OnInit {
 					serial_numbers: [serialNumbers?.join(', ') || '']
 				}));
 				
-				// Asegurar que la cantidad requerida se carga correctamente
 				this.requiredQuantities[i] = requiredQty;
 				
 				this.ensureComboboxState(i);
 				
-				// Cargar términos de búsqueda para mostrar nombres descriptivos
 				const article = this.getArticleBySku(item.sku);
 				this.skuSearchTerms[i] = article ? `${article.sku} - ${article.name}` : item.sku;
 				
 				const loc = this.locations.find(l => l.location_code === item.location);
 				this.locationSearchTerms[i] = loc ? `${loc.location_code} - ${loc.description}` : item.location;
 				
-				// Cargar opciones de tracking (lotes y series)
 				this.loadTrackingOptionsForItem(i, item.sku);
 				
-				// Load existing lot data with quantities if lots exist
 				if (lotNumbers && lotNumbers.length > 0) {
 					this.loadExistingLotData(i, item.sku, lotNumbers);
 				}
@@ -366,7 +349,6 @@ export class PickingTaskFormComponent implements OnInit {
 		this.requiredQuantities[index] = 1; // Inicializar con 1 en lugar de 0
 		this.ensureComboboxState(index);
 		
-		// Forzar detección de cambios para que se rendericen correctamente los campos
 		this.cdr.detectChanges();
 	}
 
@@ -418,14 +400,11 @@ export class PickingTaskFormComponent implements OnInit {
 						location: item.location
 					};
 					
-					// Build lots array with detailed structure for this item
 					if (item.lot_numbers) {
 						const lotNumbers = item.lot_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s);
 						const lots: any[] = [];
 						
-						// Check if we have quantity-based lots
 						if (this.lotsWithQuantityPerItem[index] && this.lotsWithQuantityPerItem[index].length > 0) {
-							// Use quantity-based lots structure
 							this.lotsWithQuantityPerItem[index].forEach(lot => {
 								lots.push({
 									lot_number: lot.lot_number,
@@ -435,7 +414,6 @@ export class PickingTaskFormComponent implements OnInit {
 								});
 							});
 						} else {
-							// Use simple lots structure (1 quantity each)
 							lotNumbers.forEach((lotNumber: string) => {
 								lots.push({
 									lot_number: lotNumber,
@@ -451,7 +429,6 @@ export class PickingTaskFormComponent implements OnInit {
 						}
 					}
 					
-					// Build serials array with detailed structure for this item
 					if (item.serial_numbers) {
 						const serialNumbers = item.serial_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s);
 						const serials: any[] = [];
@@ -480,7 +457,6 @@ export class PickingTaskFormComponent implements OnInit {
 			
 
 			if (this.task) {
-				// Update existing task
 				const response = await this.pickingTaskService.update(this.task.id, taskData);
 				if (response.result.success) {
 					this.alertService.success(
@@ -562,7 +538,7 @@ export class PickingTaskFormComponent implements OnInit {
 		);
 	}
 
-	// SKU dropdown validation and advanced methods
+	// Gestión de SKUs
 	isSkuValid(index: number): boolean {
 		const formValue = this.itemsArray.at(index).get('sku')?.value;
 		return !!formValue && this.articles.some(a => a.sku === formValue);
@@ -603,19 +579,15 @@ export class PickingTaskFormComponent implements OnInit {
 		this.skuSearchTerms[index] = `${article.sku} - ${article.name}`;
 		this.showSkuDropdown[index] = false;
 		
-		// Get available locations for this article
 		const availableLocations = this.articleLocationMap.get(article.sku) || [];
 		
-		// Filter locations dropdown to show only available locations for this article
 		this.filteredLocationsPerItem[index] = availableLocations;
 		
-		// Auto-select location if article only has inventory in one location
 		if (availableLocations.length === 1) {
 			const autoLocation = availableLocations[0];
 			this.itemsArray.at(index).get('location')?.setValue(autoLocation.location_code);
 			this.locationSearchTerms[index] = `${autoLocation.location_code} - ${autoLocation.description || ''}`;
 		} else {
-			// Clear location if multiple options available
 			this.itemsArray.at(index).get('location')?.setValue('');
 			this.locationSearchTerms[index] = '';
 		}
@@ -637,7 +609,7 @@ export class PickingTaskFormComponent implements OnInit {
 		this.showSerialDropdown[index] = false;
 	}
 
-	// Location dropdown validation and advanced methods
+	// Gestión de ubicaciones
 	isLocationValid(index: number): boolean {
 		const formValue = this.itemsArray.at(index).get('location')?.value;
 		return !!formValue && this.locations.some(l => l.location_code === formValue);
@@ -674,7 +646,6 @@ export class PickingTaskFormComponent implements OnInit {
 		this.locationSearchTerms[index] = `${location.location_code} - ${location.description}`;
 		this.showLocationDropdown[index] = false;
 		
-		// Reload tracking options for the selected location
 		const sku = this.itemsArray.at(index).get('sku')?.value;
 		if (sku) {
 			this.loadTrackingOptionsForItem(index, sku);

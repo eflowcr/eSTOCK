@@ -1,13 +1,10 @@
-<!-- Modal Overlay -->
+<!-- Modal de inventario -->
 <div class="fixed inset-0 z-50 overflow-y-auto" (click)="onBackdropClick($event)">
   <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <!-- Background overlay -->
     <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 
-    <!-- Center modal -->
     <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
 
-    <!-- Modal content -->
     <div
       class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
       (click)="$event.stopPropagation()">
@@ -27,13 +24,11 @@
         </div>
       </div>
 
-      <!-- Form Content -->
       <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 max-h-[80vh] overflow-y-auto">
         <form [formGroup]="inventoryForm" (ngSubmit)="onSubmit()" class="space-y-6">
 
-          <!-- Row 1: CODIGO SKU - UBICACION -->
+          <!-- Información principal -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- SKU Combobox -->
             <div class="relative">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('sku_code') }} *
@@ -499,52 +494,6 @@
 
             </div>
           </div>
-
-          <!-- Comentado temporalmente: URL de imagen y cantidades max/min -->
-          <!--
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label for="image_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {{ t('image_url') }}
-              </label>
-              <input
-                type="url"
-                id="image_url"
-                formControlName="image_url"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                [placeholder]="t('enter_image_url')"
-              />
-            </div>
-
-            <div>
-              <label for="min_quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {{ t('min_quantity') }}
-              </label>
-              <input
-                type="number"
-                id="min_quantity"
-                formControlName="min_quantity"
-                min="0"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                [placeholder]="t('enter_min_quantity')"
-              />
-            </div>
-
-            <div>
-              <label for="max_quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {{ t('max_quantity') }}
-              </label>
-              <input
-                type="number"
-                id="max_quantity"
-                formControlName="max_quantity"
-                min="0"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                [placeholder]="t('enter_max_quantity')"
-              />
-            </div>
-          </div>
-          -->
         </form>
       </div>
 
