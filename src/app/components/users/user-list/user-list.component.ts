@@ -137,8 +137,8 @@ export class UserListComponent {
       
       if (response.result.success) {
         this.alertService.success(
-          this.t('user_management.success'),
-          this.t('user_management.user_deleted')
+          response.result.message || this.t('user_management.user_deleted'),
+          this.t('user_management.success')
         );
         this.refresh.emit();
       } else {

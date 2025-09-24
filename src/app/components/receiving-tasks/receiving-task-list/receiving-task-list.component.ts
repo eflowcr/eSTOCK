@@ -195,49 +195,48 @@ export class ReceivingTaskListComponent {
 		return [];
 	}
 
-	// Validation method to check if task is ready for completion
 	isTaskCompletelyReceived(): boolean {
 		if (!this.selectedTask?.items) return false;
 		
-		// All items must have received quantities equal to expected quantities
 		for (const item of this.selectedTask.items) {
-			// Check if item has lots
-			if (this.hasLots(item)) {
-				const lots = this.getLotsForItem(item);
-				let totalReceivedFromLots = 0;
-				
-				for (const lot of lots) {
-					const receivedQty = (lot as any).received_quantity || lot.quantity || 0;
-					totalReceivedFromLots += receivedQty;
+			const hasTrackingData = this.hasLots(item) || this.hasSerials(item);
+			
+			if (hasTrackingData) {
+				if (this.hasLots(item)) {
+					const lots = this.getLotsForItem(item);
+					const totalReceivedFromLots = lots.reduce((sum, lot) => {
+						return sum + ((lot as any).received_quantity || lot.quantity || 0);
+					}, 0);
+					
+					if (totalReceivedFromLots < item.expected_qty) {
+						return false;
+					}
 				}
 				
-				// Total received from lots must equal expected quantity
-				if (totalReceivedFromLots !== item.expected_qty) {
-					return false;
+				if (this.hasSerials(item)) {
+					const serials = this.getSerialsForItem(item);
+					if (serials.length < item.expected_qty) {
+						return false;
+					}
 				}
 			} else {
-				// For items without lots, received_qty must equal expected_qty
-				if ((item.received_qty || 0) !== item.expected_qty) {
-					return false;
-				}
+				continue;
 			}
 		}
 		
 		return true;
 	}
 
-	// New methods for three-button system
 	async completeTask(): Promise<void> {
 		if (!this.selectedTask) return;
 		
 		try {
 			this.loadingService.show();
-			// Use first item's location as fallback since ReceivingTask doesn't have direct location property
 			const location = this.selectedTask.items?.[0]?.location || '';
 			const response = await this.receivingTaskService.completeFullTask(this.selectedTask.id, location);
 			if (response.result.success) {
 				this.alertService.success(
-					this.t('task_completed_successfully'),
+					response.result.message || this.t('task_completed_successfully'),
 					this.t('success')
 				);
 				this.closeDetails();
@@ -261,7 +260,6 @@ export class ReceivingTaskListComponent {
 	openAdjustmentDialog(): void {
 		if (!this.selectedTask) return;
 		
-		// Initialize editing quantities for all items
 		this.editingQuantities = {};
 		this.selectedTask.items?.forEach((item, index) => {
 			this.editingQuantities[index] = {
@@ -280,14 +278,11 @@ export class ReceivingTaskListComponent {
 	closeDocument(): void {
 		if (!this.selectedTask) return;
 		
-		// Check if there are any items with 'open' status in lots
 		const hasOpenItems = this.hasIncompleteItems();
 		
 		if (hasOpenItems) {
-			// Show confirmation dialog
 			this.showCloseConfirmation = true;
 		} else {
-			// Close directly
 			this.confirmCloseDocument();
 		}
 	}
@@ -295,19 +290,15 @@ export class ReceivingTaskListComponent {
 	hasIncompleteItems(): boolean {
 		if (!this.selectedTask?.items) return false;
 		
-		// Check if any items have incomplete quantities or 'open' status
 		for (const item of this.selectedTask.items) {
-			// Check if item status is 'open'
 			if (item.status === 'open') {
 				return true;
 			}
 			
-			// Check if received quantity is less than expected quantity
 			if (item.received_qty < item.expected_qty) {
 				return true;
 			}
 			
-			// Check if item has lots and any lot has incomplete quantities
 			if (this.hasLots(item)) {
 				const lots = this.getLotsForItem(item);
 				for (const lot of lots) {
@@ -335,7 +326,7 @@ export class ReceivingTaskListComponent {
 			const response = await this.receivingTaskService.update(this.selectedTask.id, { status: 'closed' });
 			if (response.result.success) {
 				this.alertService.success(
-					this.t('document_closed_successfully'),
+					response.result.message || this.t('document_closed_successfully'),
 					this.t('success')
 				);
 				this.closeDetails();
@@ -767,7 +758,7 @@ export class ReceivingTaskListComponent {
 			const response = await this.receivingTaskService.update(taskId, { status });
 			if (response.result.success) {
 				this.alertService.success(
-					this.t('task_status_updated_successfully'),
+					response.result.message || this.t('task_status_updated_successfully'),
 					this.t('success')
 				);
 				this.closeDetails();
@@ -814,7 +805,7 @@ export class ReceivingTaskListComponent {
 			const response = await this.receivingTaskService.completeFullTask(taskId, location);
 			if (response.result.success) {
 				this.alertService.success(
-					this.t('full_task_completed_successfully'),
+					response.result.message || this.t('full_task_completed_successfully'),
 					this.t('success')
 				);
 				this.closeDetails();
@@ -841,7 +832,7 @@ export class ReceivingTaskListComponent {
 			const response = await this.receivingTaskService.completeReceivingLine(taskId, location, item);
 			if (response.result.success) {
 				this.alertService.success(
-					this.t('receiving_line_completed_successfully'),
+					response.result.message || this.t('receiving_line_completed_successfully'),
 					this.t('success')
 				);
 				this.closeDetails();

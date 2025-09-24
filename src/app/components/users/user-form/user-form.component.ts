@@ -157,8 +157,8 @@ export class UserFormComponent implements OnInit, OnChanges {
 
       if (response.result.success) {
         this.alertService.success(
-          this.t('user_management.success'),
-          this.isEditing ? this.t('user_management.user_updated') : this.t('user_management.user_created')
+          response.result.message || (this.isEditing ? this.t('user_management.user_updated') : this.t('user_management.user_created')),
+          this.t('user_management.success')
         );
         
         this.close();

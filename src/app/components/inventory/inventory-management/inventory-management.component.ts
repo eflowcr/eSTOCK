@@ -128,10 +128,6 @@ export class InventoryManagementComponent implements OnInit {
   onInventorySuccess(): void {
     this.closeCreateDialog();
     this.loadInventory();
-    const message = this.selectedInventory 
-      ? this.t('inventory_updated_successfully') 
-      : this.t('inventory_created_successfully');
-    this.alertService.success(message);
   }
 
   /**
@@ -174,6 +170,4 @@ export class InventoryManagementComponent implements OnInit {
     this.alertService.success(this.t('export_successful'));
     this.closeExportDialog();
   }
-
-
 }

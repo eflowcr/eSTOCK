@@ -103,6 +103,29 @@ export class PickingTaskFormComponent implements OnInit {
 		return this.languageService.t.bind(this.languageService);
 	}
 
+	// Helper method to detect if a response contains an error message
+	private isErrorResponse(response: any): boolean {
+		if (!response.result.success) {
+			return true;
+		}
+		
+		// Check for error keywords in the message even if success is true
+		if (response.result.message) {
+			const message = response.result.message.toLowerCase();
+			return message.includes('not enough') ||
+				   message.includes('insufficient') ||
+				   message.includes('error') ||
+				   message.includes('failed') ||
+				   message.includes('cannot') ||
+				   message.includes('unable') ||
+				   message.includes('invalid') ||
+				   message.includes('denied') ||
+				   message.includes('exceeded');
+		}
+		
+		return false;
+	}
+
 	close(): void {
 		this.resetForm();
 		this.cancel.emit();
@@ -458,31 +481,33 @@ export class PickingTaskFormComponent implements OnInit {
 
 			if (this.task) {
 				const response = await this.pickingTaskService.update(this.task.id, taskData);
-				if (response.result.success) {
+				
+				if (this.isErrorResponse(response)) {
+					this.alertService.error(
+						response.result.message || this.t('failed_to_update_picking_task'),
+						this.t('error')
+					);
+				} else {
 					this.alertService.success(
 						this.t('picking_task_updated_successfully'),
 						this.t('success')
 					);
 					this.success.emit();
-				} else {
-					this.alertService.error(
-						response.result.message || this.t('failed_to_update_picking_task'),
-						this.t('error')
-					);
 				}
 			} else {
 				const response = await this.pickingTaskService.create(taskData);
-				if (response.result.success) {
+				
+				if (this.isErrorResponse(response)) {
+					this.alertService.error(
+						response.result.message || this.t('failed_to_create_picking_task'),
+						this.t('error')
+					);
+				} else {
 					this.alertService.success(
 						this.t('picking_task_created_successfully'),
 						this.t('success')
 					);
 					this.success.emit();
-				} else {
-					this.alertService.error(
-						response.result.message || this.t('failed_to_create_picking_task'),
-						this.t('error')
-					);
 				}
 			}
 		} catch (error) {

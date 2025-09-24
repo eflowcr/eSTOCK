@@ -120,6 +120,23 @@ export class FetchService {
   }
 
   /**
+   * @description Patch data to the server and return text response
+   * @param {Fetch} {URI, API_Gateway, values}
+   * @returns {Promise<string>}
+   * @memberof FetchService
+   * @version 4.17.0.11
+   */
+  patchText({ URI, API_Gateway: apiGateway, values }: Fetch): Promise<string> {
+    const url = returnCompleteURI({ URI, API_Gateway: apiGateway });
+    return lastValueFrom(
+      this.http.patch(url, values, {
+        ...requestHeaders(),
+        responseType: 'text',
+      }).pipe(catchError((error) => handleError(error, this.redirectService))),
+    );
+  }
+
+  /**
    * @description Delete data from the server
    * @param {Fetch} {URI, API_Gateway}
    * @returns {Promise<T>}
