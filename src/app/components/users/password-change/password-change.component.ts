@@ -114,8 +114,8 @@ export class PasswordChangeComponent implements OnInit, OnChanges {
 
       if (response.result.success) {
         this.alertService.success(
-          this.t('user_management.success'),
-          this.t('user_management.password_updated')
+          response.result.message || this.t('user_management.password_updated'),
+          this.t('user_management.success')
         );
         this.passwordForm.reset();
         this.success.emit();

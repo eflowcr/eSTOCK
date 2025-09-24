@@ -917,6 +917,7 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       }
 
       if (response.result.success) {
+        this.alertService.success(response.result.message || this.t('operation_successful'));
         this.success.emit();
         this.resetForm();
       } else {

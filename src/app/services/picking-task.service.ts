@@ -109,4 +109,96 @@ export class PickingTaskService {
 			API_Gateway: `${PICKING_TASK_URL}/export`,
 		});
 	}
+
+	/**
+	 * @description Complete full picking task for a specific location
+	 * @param id Picking task ID
+	 * @param location Location identifier
+	 * @returns Promise<ApiResponse<any>>
+	 */
+	async completeFullTask(id: number, location: string): Promise<ApiResponse<any>> {
+		return await this.fetchService.patch<ApiResponse<any>>({
+			API_Gateway: `${PICKING_TASK_URL}/complete-full-task/${id}/${location}`,
+		});
+	}
+
+	/**
+	 * @description Complete a specific picking line item within a task
+	 * @param id Picking task ID
+	 * @param location Location identifier
+	 * @param item Picking task item data
+	 * @returns Promise<ApiResponse<any>>
+	 */
+	async completePickingLine(id: number, location: string, item: any): Promise<ApiResponse<any>> {
+		// Use custom method to handle malformed response (two concatenated JSONs)
+		return await this.completePickingLineCustom(id, location, item);
+	}
+
+	/**
+	 * @description Custom method to handle malformed response from complete-picking-line endpoint
+	 * @param id Picking task ID
+	 * @param location Location identifier
+	 * @param item Picking task item data
+	 * @returns Promise<ApiResponse<any>>
+	 */
+	private async completePickingLineCustom(id: number, location: string, item: any): Promise<ApiResponse<any>> {
+		const url = `${PICKING_TASK_URL}/complete-picking-line/${id}/${location}`;
+		
+		try {
+			// Make request expecting text response instead of JSON
+			const response = await this.fetchService.patchText({
+				API_Gateway: url,
+				values: item,
+			});
+
+			// Parse the response which contains two concatenated JSONs
+			return this.parseDoubleJsonResponse(response);
+		} catch (error) {
+			console.error('Error in completePickingLineCustom:', error);
+			throw error;
+		}
+	}
+
+	/**
+	 * @description Parse response containing two concatenated JSON objects
+	 * @param responseText Raw text response
+	 * @returns ApiResponse<any>
+	 */
+	private parseDoubleJsonResponse(responseText: string): ApiResponse<any> {
+		try {
+			// Split the response by looking for "}{"
+			const jsonParts = responseText.split('}{');
+			
+			if (jsonParts.length === 2) {
+				// Reconstruct the two JSON objects
+				const firstJson = jsonParts[0] + '}';
+				const secondJson = '{' + jsonParts[1];
+				
+				try {
+					const firstResponse = JSON.parse(firstJson);
+					const secondResponse = JSON.parse(secondJson);
+					
+					// Return the second response (which seems to be the final one)
+					// or the first one if it has success: false
+					if (!firstResponse.result.success) {
+						return firstResponse;
+					} else if (!secondResponse.result.success) {
+						return secondResponse;
+					} else {
+						// Both are success: true, return the second one
+						return secondResponse;
+					}
+				} catch (parseError) {
+					console.error('Error parsing individual JSON parts:', parseError);
+					throw new Error('Invalid JSON response format');
+				}
+			} else {
+				// Try to parse as single JSON
+				return JSON.parse(responseText);
+			}
+		} catch (error) {
+			console.error('Error parsing double JSON response:', error);
+			throw new Error('Failed to parse response');
+		}
+	}
 }

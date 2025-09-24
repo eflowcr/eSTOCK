@@ -279,7 +279,7 @@ export class FileImportComponent {
       this.importResult = importResult;
 
       this.alertService.success(
-        `${this.t('import_complete')} - ${this.t('successful')}: ${importResult.successful}, ${this.t('failed')}: ${importResult.failed}`,
+        response.result.message || `${this.t('import_complete')} - ${this.t('successful')}: ${importResult.successful}, ${this.t('failed')}: ${importResult.failed}`,
         this.t('import_complete'));
 
       this.success.emit(importResult);

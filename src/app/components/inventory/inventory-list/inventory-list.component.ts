@@ -272,6 +272,7 @@ export class InventoryListComponent {
       const response = await this.inventoryService.delete(this.deletingInventorySku, this.deletingLocation);
       
       if (response.result.success) {
+        this.alertService.success(response.result.message || this.t('inventory_deleted_successfully'));
         this.deleteInventory.emit();
         this.closeDeleteDialog();
       } else {

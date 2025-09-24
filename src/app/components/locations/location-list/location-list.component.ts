@@ -178,14 +178,14 @@ export class LocationListComponent {
       
       if (response.result.success) {
         this.alertService.success(
-          this.t('success'),
-          this.t('location_deleted_successfully')
+          response.result.message || this.t('location_deleted_successfully'),
+          this.t('success')
         );
         this.deleted.emit();
       } else {
         this.alertService.error(
-          this.t('error'),
-          response.result.message || this.t('failed_to_delete_location')
+          response.result.message || this.t('failed_to_delete_location'),
+          this.t('error')
         );
       }
     } catch (error: any) {

@@ -40,7 +40,6 @@ export class PickingTaskManagementComponent implements OnInit {
 	editingTask: PickingTask | null = null;
 	activeTab: 'active' | 'processed' = 'active';
 
-	// Export configuration
 	exportConfig: DataExportConfig = {
 		title: 'Export Picking Tasks',
 		endpoint: '/api/export/picking-tasks',
@@ -48,7 +47,6 @@ export class PickingTaskManagementComponent implements OnInit {
 		filename: 'picking_tasks_export'
 	};
 
-	// Import configuration
 	importConfig: FileImportConfig = {
 		title: 'import_picking_tasks',
 		endpoint: '/api/import/picking-tasks',
@@ -104,9 +102,7 @@ export class PickingTaskManagementComponent implements OnInit {
 		try {
 			const response = await this.pickingTaskService.getAll();
 			if (response.result.success) {
-				// Asegurar que siempre sea un array, incluso si data es null
 				this.pickingTasks = response.data || [];
-				// Update export config with current data
 				this.exportConfig.data = this.pickingTasks;
 			} else {
 				this.alertService.error(
@@ -132,7 +128,7 @@ export class PickingTaskManagementComponent implements OnInit {
 
 	get processedTasks(): PickingTask[] {
 		return this.pickingTasks.filter(task => 
-			task.status === 'completed' || task.status === 'cancelled'
+			task.status === 'completed' || task.status === 'cancelled' || task.status === 'closed'
 		);
 	}
 
@@ -143,7 +139,7 @@ export class PickingTaskManagementComponent implements OnInit {
 	get currentTabDescription(): string {
 		return this.activeTab === 'active' 
 			? this.t('tasks_open_or_in_progress') 
-			: this.t('tasks_completed_or_cancelled');
+			: this.t('tasks_completed_cancelled_or_closed');
 	}
 
 	handleEdit(task: PickingTask): void {
@@ -169,10 +165,6 @@ export class PickingTaskManagementComponent implements OnInit {
 	onImportSuccess(): void {
 		this.isImportDialogOpen = false;
 		this.loadPickingTasks();
-		this.alertService.success(
-			this.t('import_completed_successfully'),
-			this.t('success')
-		);
 	}
 
 	onExportSuccess(): void {
@@ -190,7 +182,7 @@ export class PickingTaskManagementComponent implements OnInit {
 		this.isExportDialogOpen = false;
 	}
 
-    onRefresh(): void {
-        this.loadPickingTasks();
-    }
+	onRefresh(): void {
+		this.loadPickingTasks();
+	}
 }

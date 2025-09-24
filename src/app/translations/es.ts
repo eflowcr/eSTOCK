@@ -72,6 +72,22 @@ export const esTranslations = {
   'quantity_exceeds_expected': 'La cantidad excede lo esperado',
   'adjustments_saved_successfully': 'Ajustes guardados exitosamente',
   'failed_to_save_adjustments': 'Error al guardar los ajustes',
+  'cannot_edit_item_not_open': 'No se puede editar el artículo porque su estado no es "abierto"',
+  'select_lot_from_inventory': 'Seleccionar lote del inventario',
+  'select_lot': 'Seleccionar lote',
+  'select_serial': 'Seleccionar serie',
+  'available_in_lot': 'Disponible en lote',
+  'add_from_lot': 'Agregar de lote',
+  'add_lot_quantity': 'Agregar cantidad',
+  'lot_quantity_added_successfully': 'Cantidad de lote agregada exitosamente',
+  'please_select_lot': 'Por favor selecciona un lote',
+  'please_select_serial': 'Por favor selecciona una serie',
+  'quantity_exceeds_available': 'La cantidad excede lo disponible',
+  'available': 'Disponible',
+  'add_from_serial': 'Agregar serie',
+  'quantity_exceeds_maximum': 'La cantidad excede el máximo permitido',
+  'maximum_allowed': 'Máximo permitido',
+  'item_already_complete': 'El artículo ya está completo',
   'auth.welcome': 'Bienvenido a eSTOCK',
   'auth.subtitle': 'Inicia sesión para acceder a tu sistema de gestión de almacenes',
   'auth.signin': 'Iniciar Sesión',
@@ -185,6 +201,8 @@ export const esTranslations = {
   'with_expiration': ' con Vencimiento',
   'select_sku_to_see_product_info': 'Selecciona un SKU para ver la información del producto',
   'lot_number_index': 'Lote {{index}}',
+  'serial_number': 'Número de Serie',
+  'outbound_number_required': 'El número de documento es requerido',
   'enter_lot_number': 'Ingresa el número de lote',
   'enter_serial_numbers_placeholder': 'Ingresa los números de serie (uno por línea)',
   'enter_serial_numbers_instruction': 'Ingresa {{quantity}} números de serie',
@@ -529,7 +547,6 @@ export const esTranslations = {
   'description_required': 'La descripción es requerida',
 
   // Status values
-  'available': 'Disponible',
   'reserved': 'Reservado',
 
   // Presentation values
@@ -640,6 +657,7 @@ export const esTranslations = {
   'processed_tasks': 'Tareas Procesadas',
   'tasks_open_or_in_progress': 'Tareas que están abiertas o en progreso',
   'tasks_completed_or_cancelled': 'Tareas completadas o canceladas',
+  'tasks_completed_cancelled_or_closed': 'Tareas completadas, canceladas o cerradas aparecerán aquí',
   'no_tasks_found': 'No se encontraron tareas',
   'inbound_number': 'Número de Entrada',
   'inbound_number_required': 'El número de entrada es requerido',
@@ -1080,4 +1098,15 @@ export const esTranslations = {
   'lot_numbers_with_expiration': 'Lotes y Fechas de Expiración',
   'no_expiration': 'Sin vencimiento',
   'lot_already_exists': 'Este lote ya existe',
+  
+  // Picking tasks specific translations (only new ones)
+  'adjust_quantities_picked': 'Ajustar Cantidades Recolectadas',
+  'modify_picked_quantities': 'Modificar Cantidades Recolectadas',
+  'picked': 'Recolectado',
+  'available_serials': 'Series disponibles',
+  'required': 'Requerido',
+  'insufficient_serials_available': 'Series insuficientes disponibles',
+  'serials_from_other_locations_shown': 'Se muestran series de todas las ubicaciones disponibles',
+  'no_more_serials_available': 'No hay más series disponibles',
+  'no_serials_in_any_location': 'No se encontraron series disponibles en ninguna ubicación',
 };

@@ -105,15 +105,15 @@ export class LocationFormComponent implements OnInit, OnChanges {
 
       if (response.result.success) {
         this.alertService.success(
-          this.t('success'),
-          this.isEditing ? this.t('location_updated_successfully') : this.t('location_created_successfully')
+          response.result.message || (this.isEditing ? this.t('location_updated_successfully') : this.t('location_created_successfully')),
+          this.t('success')
         );
         this.success.emit();
         this.onClose();
       } else {
         this.alertService.error(
-          this.t('error'),
-          response.result.message || (this.isEditing ? this.t('failed_to_update_location') : this.t('failed_to_create_location'))
+          response.result.message || (this.isEditing ? this.t('failed_to_update_location') : this.t('failed_to_create_location')),
+          this.t('error')
         );
       }
     } catch (error: any) {
