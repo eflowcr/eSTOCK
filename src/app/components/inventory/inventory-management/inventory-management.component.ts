@@ -1,26 +1,23 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { Inventory } from '../../../models/inventory.model';
-import { AlertService } from '../../../services/extras/alert.service';
-import { AuthorizationService } from '../../../services/extras/authorization.service';
-import { LanguageService } from '../../../services/extras/language.service';
-import { InventoryService } from '../../../services/inventory.service';
-import { MainLayoutComponent } from '../../layout/main-layout.component';
-import { InventoryListComponent } from '../inventory-list/inventory-list.component';
-import { InventoryFormComponent } from '../inventory-form/inventory-form.component';
-import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
-import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit} from '@angular/core';
+
+import {Inventory} from '../../../models/inventory.model';
+import {AlertService} from '../../../services/extras/alert.service';
+import {AuthorizationService} from '../../../services/extras/authorization.service';
+import {LanguageService} from '../../../services/extras/language.service';
+import {InventoryService} from '../../../services/inventory.service';
+import {MainLayoutComponent} from '../../layout/main-layout.component';
+import {DataExportComponent, DataExportConfig} from '../../shared/data-export/data-export.component';
+import {FileImportComponent, FileImportConfig, ImportResult} from '../../shared/file-import/file-import.component';
+import {InventoryFormComponent} from '../inventory-form/inventory-form.component';
+import {InventoryListComponent} from '../inventory-list/inventory-list.component';
 
 @Component({
   selector: 'app-inventory-management',
   standalone: true,
   imports: [
-    CommonModule,
-    MainLayoutComponent,
-    InventoryListComponent,
-    InventoryFormComponent,
-    FileImportComponent,
-    DataExportComponent
+    CommonModule, MainLayoutComponent, InventoryListComponent,
+    InventoryFormComponent, FileImportComponent, DataExportComponent
   ],
   templateUrl: './inventory-management.component.html',
   styleUrls: ['./inventory-management.component.css']
@@ -29,7 +26,7 @@ export class InventoryManagementComponent implements OnInit {
   inventory: Inventory[] = [];
   isLoading = false;
   isCreateDialogOpen = false;
-  selectedInventory: Inventory | null = null;
+  selectedInventory: Inventory|null = null;
   isImportDialogOpen = false;
   isExportDialogOpen = false;
 
@@ -46,17 +43,21 @@ export class InventoryManagementComponent implements OnInit {
     title: 'import_inventory',
     endpoint: '/api/inventory/import',
     acceptedFormats: ['.csv', '.xlsx', '.xls'],
-    templateFields: ['sku', 'name', 'description', 'location', 'quantity', 'status', 'presentation', 'unit_price', 'track_by_lot', 'track_by_serial', 'track_expiration', 'min_quantity', 'max_quantity', 'image_url'],
+    templateFields:
+        [
+          'sku', 'name', 'description', 'location', 'quantity', 'status',
+          'presentation', 'unit_price', 'track_by_lot', 'track_by_serial',
+          'track_expiration', 'min_quantity', 'max_quantity', 'image_url'
+        ],
     maxFileSize: 10,
     templateType: 'inventory'
   };
 
   constructor(
-    private inventoryService: InventoryService,
-    private authService: AuthorizationService,
-    private alertService: AlertService,
-    private languageService: LanguageService
-  ) {}
+      private inventoryService: InventoryService,
+      private authService: AuthorizationService,
+      private alertService: AlertService,
+      private languageService: LanguageService) {}
 
   ngOnInit(): void {
     this.loadInventory();
@@ -83,9 +84,14 @@ export class InventoryManagementComponent implements OnInit {
     try {
       this.isLoading = true;
       const response = await this.inventoryService.getAll();
-      
-      if (response.result.success && response.data) {
-        this.inventory = response.data;
+
+      if (response.result.success) {
+        if (response.data !== null) {
+          this.inventory = response.data;
+        } else {
+          this.inventory = [];
+        }
+
         this.exportConfig.data = this.inventory;
       } else {
         this.alertService.error(this.t('failed_to_load_inventory'));
@@ -155,9 +161,7 @@ export class InventoryManagementComponent implements OnInit {
   }
 
   onImportSuccess(result: ImportResult): void {
-    this.alertService.success(
-      this.t('import_successful')
-    );
+    this.alertService.success(this.t('import_successful'));
     this.closeImportDialog();
     this.loadInventory();
   }
