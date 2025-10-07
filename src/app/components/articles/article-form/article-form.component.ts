@@ -2,7 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Article, CreateArticleRequest, UpdateArticleRequest } from '../../../models/article.model';
+import { Presentation } from '../../../models/presentation.model';
 import { ArticleService } from '../../../services/article.service';
+import { PresentationService } from '../../../services/presentation.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 
@@ -22,16 +24,19 @@ export class ArticleFormComponent implements OnInit, OnChanges {
   articleForm!: FormGroup;
   isLoading = false;
   isEditMode = false;
+  availablePresentations: Presentation[] = [];
 
   constructor(
     private fb: FormBuilder,
     private articleService: ArticleService,
     private alertService: AlertService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private presentationService: PresentationService
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
+    this.loadPresentations();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -112,18 +117,14 @@ export class ArticleFormComponent implements OnInit, OnChanges {
         is_active: this.initialData.is_active !== false
       });
 
-      // Coerce invalid combination: expiration without lot
       if (!this.articleForm.get('track_by_lot')?.value && this.articleForm.get('track_expiration')?.value) {
         this.articleForm.patchValue({ track_expiration: false });
       }
 
-      // Coerce invalid combination: both lot and serial tracking enabled
       if (this.articleForm.get('track_by_lot')?.value && this.articleForm.get('track_by_serial')?.value) {
-        // Priority to lot tracking, disable serial
         this.articleForm.patchValue({ track_by_serial: false });
       }
 
-      // Disable SKU field in edit mode
       if (this.isEditMode) {
         this.articleForm.get('sku')?.disable();
       } else {
@@ -288,6 +289,21 @@ export class ArticleFormComponent implements OnInit, OnChanges {
           track_expiration: false 
         });
       }
+    }
+  }
+
+  /**
+   * Load presentations for dropdown
+   */
+  async loadPresentations(): Promise<void> {
+    try {
+      const response = await this.presentationService.getAll();
+      if (response.result.success) {
+        this.availablePresentations = response.data;
+      }
+    } catch (error) {
+      // Silent fail for presentations loading
+      console.warn('Failed to load presentations for dropdown');
     }
   }
 }

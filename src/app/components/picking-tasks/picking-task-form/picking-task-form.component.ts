@@ -295,15 +295,58 @@ export class PickingTaskFormComponent implements OnInit {
 
 		if (this.task.items && this.task.items.length > 0) {
 			this.task.items.forEach((item, i) => {
-				const lotNumbers = item.lotNumbers || item.lot_numbers || [];
-				const serialNumbers = item.serialNumbers || item.serial_numbers || [];
+				// Extract lots and serials from the new embedded structure
+				const lotNumbers: string[] = [];
+				const serialNumbers: string[] = [];
+				
+				// Process lots from embedded structure
+				if (item.lots && Array.isArray(item.lots)) {
+					// Initialize lots with quantity array for this item
+					this.lotsWithQuantityPerItem[i] = [];
+					
+					item.lots.forEach((lot: any) => {
+						lotNumbers.push(lot.lot_number);
+						this.lotsWithQuantityPerItem[i].push({
+							lot_number: lot.lot_number,
+							quantity: lot.quantity || 1,
+							expiration_date: lot.expiration_date || null
+						});
+					});
+				} else {
+					// Fallback: try old structure
+					const oldLotNumbers = item.lotNumbers || item.lot_numbers || [];
+					this.lotsWithQuantityPerItem[i] = [];
+					
+					if (oldLotNumbers && oldLotNumbers.length > 0) {
+						oldLotNumbers.forEach((lotNumber: string) => {
+							lotNumbers.push(lotNumber);
+							this.lotsWithQuantityPerItem[i].push({
+								lot_number: lotNumber,
+								quantity: 1,
+								expiration_date: null
+							});
+						});
+					}
+				}
+				
+				if (item.serials && Array.isArray(item.serials)) {
+					item.serials.forEach((serial: any) => {
+						serialNumbers.push(serial.serial_number);
+					});
+				} else {
+					const oldSerialNumbers = item.serialNumbers || [];
+					if (oldSerialNumbers && oldSerialNumbers.length > 0) {
+						serialNumbers.push(...oldSerialNumbers);
+					}
+				}
+				
 				const requiredQty = item.expectedQty || item.required_qty || 0;
 				
 				this.itemsArray.push(this.fb.group({
 					sku: [item.sku, [Validators.required]],
 					location: [item.location, [Validators.required]],
-					lot_numbers: [lotNumbers?.join(', ') || ''],
-					serial_numbers: [serialNumbers?.join(', ') || '']
+					lot_numbers: [lotNumbers.join(', ') || ''],
+					serial_numbers: [serialNumbers.join(', ') || '']
 				}));
 				
 				this.requiredQuantities[i] = requiredQty;
@@ -317,10 +360,6 @@ export class PickingTaskFormComponent implements OnInit {
 				this.locationSearchTerms[i] = loc ? `${loc.location_code} - ${loc.description}` : item.location;
 				
 				this.loadTrackingOptionsForItem(i, item.sku);
-				
-				if (lotNumbers && lotNumbers.length > 0) {
-					this.loadExistingLotData(i, item.sku, lotNumbers);
-				}
 			});
 		} else {
 			this.addItem();

@@ -2,8 +2,6 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReceivingTask, ReceivingTaskItemRequest } from '@app/models/receiving-task.model';
-import { User } from '@app/models/user.model';
-import { UserService } from '@app/services/user.service';
 import { ReceivingTaskService } from '@app/services/receiving-task.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LoadingService } from '@app/services/extras/loading.service';
@@ -22,7 +20,6 @@ export class ReceivingTaskListComponent {
 	@Output() refresh = new EventEmitter<void>();
 	@Output() edit = new EventEmitter<ReceivingTask>();
 
-	users: User[] = [];
 	selectedTask: ReceivingTask | null = null;
 	expandedItems: Set<number> = new Set(); 
 	
@@ -36,35 +33,22 @@ export class ReceivingTaskListComponent {
 	showAddSerialForm: { [key: number]: boolean } = {};
 
 	constructor(
-		private userService: UserService,
 		private receivingTaskService: ReceivingTaskService,
 		private alertService: AlertService,
 		private loadingService: LoadingService,
 		private languageService: LanguageService
-	) {
-		this.loadUsers();
-	}
+	) {}
 
 	get t() {
 		return this.languageService.t.bind(this.languageService);
 	}
 
-	async loadUsers(): Promise<void> {
-		try {
-			const response = await this.userService.getAll();
-			if (response.result.success) {
-				this.users = response.data;
-			}
-		} catch (error) {
-			console.error('Error loading users:', error);
-		}
+	getUserDisplayName(task: ReceivingTask): string {
+		return task.user_assignee_name || this.t('unassigned');
 	}
 
-	getUserDisplayName(userId: string | null | undefined): string {
-		if (!userId) return this.t('unassigned');
-		const user = this.users.find(u => u.id === userId);
-		if (!user) return userId;
-		return user.first_name + ' ' + user.last_name || user.email;
+	getCreatorDisplayName(task: ReceivingTask): string {
+		return task.user_creator_name || task.created_by || this.t('unknown');
 	}
 
 	getStatusBadge(status: string): { variant: string; className: string; text: string } {

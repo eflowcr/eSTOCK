@@ -1,10 +1,12 @@
 export interface PickingTask {
 	id: number;
 	task_id: string;
-	outbound_number?: string; // Para compatibilidad con frontend
-	order_number?: string; // Campo del backend
+	outbound_number?: string; 
+	order_number?: string; 
 	created_by: string;
 	assigned_to: string;
+	user_assignee_name?: string;
+	user_creator_name?: string;
 	status: string;
 	priority: string;
 	notes?: string | null;
@@ -16,14 +18,25 @@ export interface PickingTask {
 
 export interface PickingTaskItem {
 	sku: string;
-	required_qty?: number; // Para compatibilidad con frontend
-	expectedQty?: number; // Campo del backend
+	item_name?: string;
+	required_qty?: number; 
+	expectedQty?: number;
 	picked_qty?: number;
 	location: string;
-	lot_numbers?: string[]; // Para compatibilidad con frontend
-	serial_numbers?: string[]; // Para compatibilidad con frontend
-	lotNumbers?: string[] | null; // Campo del backend
-	serialNumbers?: string[] | null; // Campo del backend
+	lot_numbers?: string[]; 
+	lotNumbers?: string[] | null; 
+	serialNumbers?: string[] | null; 
+	lots?: Array<{
+		lot_number: string;
+		sku: string;
+		quantity: number;
+		expiration_date?: string | null;
+	}>;
+	serials?: Array<{
+		serial_number: string;
+		sku: string;
+		status: string;
+	}>; 
 }
 
 export interface CreatePickingTaskRequest {

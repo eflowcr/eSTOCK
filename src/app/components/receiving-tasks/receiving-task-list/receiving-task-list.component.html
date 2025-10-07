@@ -27,13 +27,13 @@
 							{{ t('receiving_task_label') }}
 						</p>
 						<p class="text-sm text-gray-500 dark:text-gray-400">
-							{{ t('assigned_to_label') }} {{ getUserDisplayName(task.assigned_to) }}
+							{{ t('assigned_to_label') }} {{ getUserDisplayName(task) }}
 						</p>
 					</div>
 					<div class="flex-shrink-0">
 						<span
 							class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700">
-							{{ task.task_id }}
+							{{ task.inbound_number }}
 						</span>
 					</div>
 				</div>
@@ -181,13 +181,13 @@
 					<div>
 						<label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('assigned_to')
 							}}</label>
-						<p class="text-sm text-gray-900 dark:text-white">{{ getUserDisplayName(selectedTask.assigned_to)
+						<p class="text-sm text-gray-900 dark:text-white">{{ getUserDisplayName(selectedTask)
 							}}</p>
 					</div>
 					<div>
 						<label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('created_by')
 							}}</label>
-						<p class="text-sm text-gray-900 dark:text-white">{{ selectedTask.created_by }}</p>
+						<p class="text-sm text-gray-900 dark:text-white">{{ getCreatorDisplayName(selectedTask) }}</p>
 					</div>
 				</div>
 
@@ -207,11 +207,9 @@
 									<div class="flex-1 min-w-0">
 										<div class="flex items-center gap-4 mb-2">
 											<div class="flex-shrink-0">
-												<span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{
-													t('sku') }}:</span>
 												<span
 													class="ml-1 text-sm font-semibold text-gray-900 dark:text-white">{{
-													item.sku }}</span>
+													item.item_name }}</span><span *ngIf="item.item_name" class="ml-2 text-sm text-gray-600 dark:text-gray-300">({{ item.sku }})</span>
 											</div>
 											<div class="flex-shrink-0">
 												<span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{
@@ -425,7 +423,7 @@
 										</svg>
 									</div>
 									<div>
-										<h4 class="text-sm font-semibold text-gray-900 dark:text-white">{{ item.sku }}
+										<h4 class="text-sm font-semibold text-gray-900 dark:text-white">{{ item.sku }}<span *ngIf="item.item_name" class="ml-2 font-normal text-gray-600 dark:text-gray-300">({{ item.item_name }})</span>
 										</h4>
 										<p class="text-xs text-gray-500 dark:text-gray-400">{{ item.location }}</p>
 									</div>

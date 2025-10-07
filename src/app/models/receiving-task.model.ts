@@ -5,6 +5,8 @@ export interface ReceivingTask {
 	order_number?: string; 
 	created_by: string;
 	assigned_to: string;
+	user_assignee_name?: string;
+	user_creator_name?: string;
 	status: string;
 	priority: string;
 	notes?: string | null;
@@ -16,6 +18,7 @@ export interface ReceivingTask {
 
 export interface ReceivingTaskItem {
 	sku: string;
+	item_name?: string;
 	expected_qty: number;
 	expectedQty?: number; 
 	received_qty: number;
