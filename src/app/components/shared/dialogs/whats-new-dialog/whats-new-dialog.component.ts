@@ -93,6 +93,13 @@ export class WhatsNewDialogComponent {
   private loadWhatsNewContent(): void {
     const items: WhatsNewItem[] = [
       {
+        id: 'inventory-movements',
+        title: "Historial de movimientos",
+        description: "Se ha implementado un nuevo botón en la pantalla de inventario que permite visualizar los movimientos del inventario",
+        type: 'improvement',
+        date: '07/10/2025'
+      },
+      {
         id: 'presentations-system',
         title: "Control de Presentaciones",
         description: "Se ha implementado un nuevo botón en la pantalla de artículos que permite gestionar las presentaciones al crear artículos. El botón se encuentra a la derecha de 'Filtros'",

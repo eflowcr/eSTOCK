@@ -1,0 +1,184 @@
+<!-- Backdrop -->
+<div
+  class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4"
+  (click)="closeDialog()">
+  <!-- Dialog -->
+  <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] flex flex-col"
+    (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <div>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+          {{ t('inventory_movements') }}
+        </h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          {{ t('inventory_movements_description') }}
+        </p>
+      </div>
+      <button type="button" (click)="closeDialog()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Search Filter -->
+      <div class="p-4 pb-0 flex-shrink-0">
+        <div class="mb-4 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+          <div class="flex gap-3 items-center">
+            <!-- SKU Filter with Autocomplete -->
+            <div class="relative flex-1 sku-dropdown">
+              <input id="skuFilter" type="text" [(ngModel)]="skuSearchTerm" (input)="onSkuSearchChange()"
+                (focus)="onSkuInputFocus()" (blur)="onSkuInputBlur()" [placeholder]="t('search_sku_placeholder')"
+                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400">
+
+              <!-- Clear button -->
+              <button *ngIf="skuSearchTerm" (click)="clearSkuFilter()"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+
+              <!-- Dropdown -->
+              <div *ngIf="showSkuDropdown"
+                class="sku-dropdown-menu absolute z-[9999] w-full mt-1 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg shadow-2xl max-h-60 overflow-y-auto"
+                style="z-index: 9999 !important;">
+                <button *ngFor="let sku of filteredSkus()" (click)="selectSku(sku)"
+                  class="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-500 focus:bg-gray-100 dark:focus:bg-gray-500 focus:outline-none text-gray-900 dark:text-gray-100">
+                  {{ sku }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Search Button -->
+            <button (click)="onSearch()" [disabled]="isLoading()"
+              class="px-6 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 whitespace-nowrap">
+              {{ t('search') }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading()" class="flex justify-center items-center py-12 flex-1">
+        <app-loading-spinner></app-loading-spinner>
+      </div>
+
+      <!-- Movements List Container -->
+      <div *ngIf="!isLoading()" class="flex-1 overflow-y-auto px-4 pb-4 min-h-0">
+        <div class="space-y-1.5">
+        <!-- No Results -->
+        <div *ngIf="movements().length === 0" class="text-center py-8">
+          <svg class="h-10 w-10 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+            </path>
+          </svg>
+          <h3 class="text-base font-medium text-gray-900 dark:text-gray-100 mb-1">
+            {{ t('no_movements_found') }}
+          </h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            {{ selectedSku ? t('no_movements_for_sku') : t('no_movements_available') }}
+          </p>
+        </div>
+
+        <!-- Movement Cards - Ultra Compact Version -->
+        <div *ngFor="let movement of movements()"
+          class="bg-gray-50 dark:bg-gray-700 rounded-md p-3 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200 border border-gray-200 dark:border-gray-600">
+          
+          <!-- Single Row Layout -->
+          <div class="flex items-center justify-between gap-4">
+            <!-- Left: SKU + Type -->
+            <div class="flex items-center gap-3 min-w-0 flex-shrink-0">
+              <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                {{ movement.sku }}
+              </span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border"
+                [class]="getMovementTypeClass(movement.movement_type)">
+                {{ getMovementTypeText(movement.movement_type) }}
+              </span>
+            </div>
+
+            <!-- Center: Details Grid -->
+            <div class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs min-w-0">
+              <div class="truncate">
+                <span class="text-gray-500 dark:text-gray-400">{{ t('location') }}:</span>
+                <span class="ml-1 text-gray-900 dark:text-gray-100 font-medium">{{ movement.location }}</span>
+              </div>
+              <div class="truncate">
+                <span class="text-gray-500 dark:text-gray-400">{{ t('quantity') }}:</span>
+                <span class="ml-1 font-semibold"
+                  [class]="movement.quantity >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+                  {{ formatQuantity(movement.quantity) }}
+                </span>
+              </div>
+              <div class="truncate">
+                <span class="text-gray-500 dark:text-gray-400">{{ t('remaining_stock') }}:</span>
+                <span class="ml-1 text-gray-900 dark:text-gray-100 font-medium">{{ movement.remaining_stock }}</span>
+              </div>
+              <div class="truncate">
+                <span class="text-gray-500 dark:text-gray-400">{{ t('created_by') }}:</span>
+                <span class="ml-1 text-gray-900 dark:text-gray-100">{{ movement.created_by }}</span>
+              </div>
+            </div>
+
+            <!-- Right: Date + Icon -->
+            <div class="flex items-center gap-3 flex-shrink-0">
+              <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                {{ formatDate(movement.created_at) }}
+              </span>
+              <div class="w-6 h-6 rounded-full flex items-center justify-center"
+                [class]="getMovementTypeClass(movement.movement_type)">
+                <!-- In/Entrada Icon -->
+                <svg *ngIf="movement.movement_type.toLowerCase() === 'in'" class="h-3 w-3" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                  </path>
+                </svg>
+                <!-- Out/Salida Icon -->
+                <svg *ngIf="movement.movement_type.toLowerCase() === 'out'" class="h-3 w-3" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                </svg>
+                <!-- Adjustment/Ajuste Icon -->
+                <svg *ngIf="movement.movement_type.toLowerCase() === 'adjustment'" class="h-3 w-3" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                  </path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <!-- Transfer/Transferencia Icon -->
+                <svg *ngIf="movement.movement_type.toLowerCase() === 'transfer'" class="h-3 w-3" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                </svg>
+                <!-- Default Icon -->
+                <svg *ngIf="!['in', 'out', 'adjustment', 'transfer'].includes(movement.movement_type.toLowerCase())"
+                  class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                  </path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reason Row (if exists) -->
+          <div *ngIf="movement.reason" class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+            <div class="text-xs text-gray-600 dark:text-gray-300 truncate">
+              <span class="text-gray-500 dark:text-gray-400 font-medium">{{ t('reason') }}:</span>
+              <span class="ml-1">{{ movement.reason }}</span>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

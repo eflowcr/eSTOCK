@@ -19,7 +19,6 @@ export interface ApiResponse<T = any> {
 
 export interface ActionResponse<T = any> extends ApiResponse<T> {}
 
-// Fetch Models
 export interface Fetch {
   URI?: string;
   API_Gateway: string;
@@ -34,7 +33,6 @@ export interface UploadFiles {
 
 export type FetchResponseT<T> = Observable<string | T | {}>;
 
-// Auth Models
 export interface LoginRequest {
   email: string;
   password: string;
@@ -66,9 +64,9 @@ export interface AuthState {
   error: string | null;
 }
 
-// Re-export auth models
 export * from './auth.model';
 export * from './inventory.model';
+export * from './inventory-movement.model';
 export * from './article.model';
 export * from './dashboard.model';
 export * from './picking-task.model';

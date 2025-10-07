@@ -1,0 +1,144 @@
+/* Dialog inventory movements styles */
+
+.dialog-backdrop {
+  @apply fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50;
+  @apply flex items-center justify-center p-4;
+}
+
+.dialog-container {
+  @apply relative bg-white dark:bg-gray-800 rounded-lg shadow-xl;
+  @apply max-w-6xl w-full max-h-[90vh] overflow-hidden;
+}
+
+.dialog-header {
+  @apply flex items-center justify-between p-6;
+  @apply border-b border-gray-200 dark:border-gray-700;
+}
+
+.dialog-content {
+  @apply flex-1 overflow-y-auto p-6;
+}
+
+.search-filter {
+  @apply mb-6 bg-gray-50 dark:bg-gray-700 rounded-lg p-4;
+}
+
+.search-input {
+  @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm;
+  @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  @apply dark:bg-gray-600 dark:text-gray-100 dark:placeholder-gray-400;
+}
+
+.dropdown-container {
+  @apply absolute z-10 w-full mt-1 bg-white dark:bg-gray-600;
+  @apply border border-gray-300 dark:border-gray-500 rounded-lg shadow-lg;
+  @apply max-h-60 overflow-y-auto;
+}
+
+.dropdown-option {
+  @apply w-full px-3 py-2 text-left;
+  @apply hover:bg-gray-100 dark:hover:bg-gray-500;
+  @apply focus:bg-gray-100 dark:focus:bg-gray-500 focus:outline-none;
+  @apply text-gray-900 dark:text-gray-100;
+  @apply transition-colors duration-150;
+}
+
+.search-button {
+  @apply w-full px-4 py-2 bg-blue-600 text-white rounded-lg;
+  @apply hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply transition-colors duration-200;
+}
+
+.clear-button {
+  @apply w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg;
+  @apply dark:bg-gray-600 dark:text-gray-300;
+  @apply hover:bg-gray-200 dark:hover:bg-gray-500;
+  @apply focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+  @apply transition-colors duration-200;
+}
+
+.movements-container {
+  @apply space-y-2 max-h-[500px] overflow-y-auto;
+}
+
+.movement-card {
+  @apply bg-gray-50 dark:bg-gray-700 rounded-md p-2.5;
+  @apply hover:bg-gray-100 dark:hover:bg-gray-600;
+  @apply transition-colors duration-200;
+}
+
+.movement-type-badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border;
+}
+
+.movement-icon {
+  @apply w-6 h-6 rounded-full flex items-center justify-center;
+}
+
+.no-results {
+  @apply text-center py-12;
+}
+
+.no-results-icon {
+  @apply h-12 w-12 text-gray-400 mx-auto mb-4;
+}
+
+/* Dropdown z-index override */
+.sku-dropdown {
+  position: relative;
+  z-index: 1000;
+}
+
+.sku-dropdown-menu {
+  position: absolute !important;
+  z-index: 9999 !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-height: 240px !important;
+  overflow-y: auto !important;
+}
+
+.no-results-title {
+  @apply text-lg font-medium text-gray-900 dark:text-gray-100 mb-2;
+}
+
+.no-results-description {
+  @apply text-gray-500 dark:text-gray-400;
+}
+
+.movements-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.movements-container::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-700 rounded;
+}
+
+.movements-container::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-500 rounded;
+}
+
+.movements-container::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-400;
+}
+
+@media (max-width: 768px) {
+  .dialog-container {
+    @apply max-w-full mx-2;
+  }
+  
+  .dialog-content {
+    @apply p-4;
+  }
+  
+  .search-filter {
+    @apply p-3;
+  }
+  
+  .movement-card {
+    @apply p-3;
+  }
+}

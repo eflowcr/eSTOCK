@@ -6,11 +6,12 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { InventoryService } from '../../../services/inventory.service';
+import { DialogInventoryMovementsComponent } from '../dialog-inventory-movements/dialog-inventory-movements.component';
 
 @Component({
   selector: 'app-inventory-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DialogInventoryMovementsComponent],
   templateUrl: './inventory-list.component.html',
   styleUrls: ['./inventory-list.component.css']
 })
@@ -24,6 +25,9 @@ export class InventoryListComponent {
   deletingInventorySku: string | null = null;
   deletingLocation: string | null = null;
   isDeleting = false;
+  
+  // Inventory movements dialog
+  showInventoryMovementsDialog = false;
 
   // Search and filter properties
   searchTerm = '';
@@ -337,5 +341,14 @@ export class InventoryListComponent {
 
   private resetVisible(): void {
     this.visibleCount = this.itemsPerPage;
+  }
+
+  // Inventory movements dialog methods
+  openInventoryMovementsDialog(): void {
+    this.showInventoryMovementsDialog = true;
+  }
+
+  closeInventoryMovementsDialog(): void {
+    this.showInventoryMovementsDialog = false;
   }
 }
