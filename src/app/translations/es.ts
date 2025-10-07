@@ -1125,4 +1125,21 @@ export const esTranslations = {
   'failed_to_create_presentation': 'Error al crear la presentación',
   'failed_to_delete_presentation': 'Error al eliminar la presentación',
   'presentations': 'Presentaciones',
+
+  // Sistema de Novedades
+  'whats_new_title': 'Novedades',
+  'whats_new_subtitle': 'Descubre las últimas funcionalidades',
+  'whats_new_intro': 'eSTOCK.',
+  'whats_new_tip_title': 'Consejo',
+  'whats_new_version': 'Versión',
+  'got_it': 'Entendido',
+  'whats_new_type_feature': 'Nueva Función',
+  'whats_new_type_improvement': 'Mejora',
+  'whats_new_type_fix': 'Corrección',
+  'whats_new_presentations_title': 'Sistema de Presentaciones',
+  'whats_new_presentations_description': 'Nuevo módulo para gestionar presentaciones de productos.',
+  'whats_new_presentations_impact_title': 'Impacto en el Sistema',
+  'whats_new_presentations_impact_description': 'Las presentaciones se integran con inventario y tareas.',
+  'whats_new_presentations_usage_title': 'Dónde se Utiliza',
+  'whats_new_presentations_usage_description': 'Se solicita en formularios de inventario y tareas.',
 };

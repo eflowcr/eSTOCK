@@ -6,6 +6,7 @@ import {filter} from 'rxjs/operators';
 import {NavigationItems} from '../../../models/navigation.model';
 import {LanguageService} from '../../../services/extras/language.service';
 import {NavigationService} from '../../../services/extras/navigation.service';
+import { environment } from '@environment';
 
 // moved to shared model
 
@@ -14,13 +15,23 @@ import {NavigationService} from '../../../services/extras/navigation.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.component.html',
-  styles: []
+  styles: [`
+    /* Ocultar scrollbar completamente pero mantener funcionalidad */
+    .scrollbar-hide {
+      -ms-overflow-style: none;  /* Internet Explorer 10+ */
+      scrollbar-width: none;  /* Firefox */
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;  /* Safari and Chrome */
+    }
+  `]
 })
 export class SidebarComponent implements OnInit {
   navigation: NavigationItems = [];
 
-  appVersion = 'v1.0.0';
+  appVersion = environment.version;
   currentLocation: string = '/';
+  isMobile = false;
 
   constructor(
       private languageService: LanguageService,
@@ -37,6 +48,12 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     this.currentLocation = this.router.url;
     this.navigation = this.navigationService.getItems();
+    this.checkScreenSize();
+    window.addEventListener('resize', () => this.checkScreenSize());
+  }
+
+  private checkScreenSize(): void {
+    this.isMobile = window.innerWidth < 1024;
   }
 
   t(key: string): string {

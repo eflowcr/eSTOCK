@@ -1,5 +1,5 @@
 export const environment = {
-  version: 'v4.20.0.0',
+  version: 'v4.20.0.1',
   versionBD: '4.20.0.0',
   API: {
     // NOSOTROS EPRAC
