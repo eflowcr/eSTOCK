@@ -86,11 +86,16 @@
         <label for="presentation" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {{ t('presentation') }}
         </label>
-        <input type="text" id="presentation" formControlName="presentation"
-          [placeholder]="t('presentation_placeholder')" [class.border-red-500]="isFieldInvalid('presentation')"
+        <select id="presentation" formControlName="presentation"
+          [class.border-red-500]="isFieldInvalid('presentation')"
           [class.focus:ring-red-500]="isFieldInvalid('presentation')"
           [class.focus:border-red-500]="isFieldInvalid('presentation')"
-          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400" />
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          <option value="">{{ t('select_presentation') }}</option>
+          <option *ngFor="let presentation of availablePresentations" [value]="presentation.presentation_id">
+            {{ presentation.description }}
+          </option>
+        </select>
         <p *ngIf="isFieldInvalid('presentation')" class="mt-1 text-sm text-red-600">
           {{ getFieldError('presentation') }}
         </p>

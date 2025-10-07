@@ -121,15 +121,25 @@ export class PickingTaskManagementComponent implements OnInit {
 	}
 
 	get activeTasks(): PickingTask[] {
-		return this.pickingTasks.filter(task => 
-			task.status === 'open' || task.status === 'in_progress'
-		);
+		return this.pickingTasks
+			.filter(task => task.status === 'open' || task.status === 'in_progress')
+			.sort((a, b) => {
+				// Ordenar por created_at descendente (más nuevas primero)
+				const dateA = new Date(a.created_at || '').getTime();
+				const dateB = new Date(b.created_at || '').getTime();
+				return dateB - dateA;
+			});
 	}
 
 	get processedTasks(): PickingTask[] {
-		return this.pickingTasks.filter(task => 
-			task.status === 'completed' || task.status === 'cancelled' || task.status === 'closed'
-		);
+		return this.pickingTasks
+			.filter(task => task.status === 'completed' || task.status === 'cancelled' || task.status === 'closed')
+			.sort((a, b) => {
+				// Ordenar por completed_at descendente (más recientes primero)
+				const dateA = new Date(a.completed_at || a.updated_at || '').getTime();
+				const dateB = new Date(b.completed_at || b.updated_at || '').getTime();
+				return dateB - dateA;
+			});
 	}
 
 	get currentTabTasks(): PickingTask[] {

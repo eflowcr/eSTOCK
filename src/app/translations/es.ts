@@ -12,6 +12,7 @@ export const esTranslations = {
   'remaining_serials_needed': 'Series restantes necesarias',
   'remaining_quantity': 'Cantidad restante',
   'lot_number_required': 'Número de lote requerido',
+  'expiration_date_required_for_tracking': 'La fecha de expiración es obligatoria para este artículo',
   'enter_serial_number': 'Ingresa el número de serie',
   'lot_added_successfully': 'Lote agregado correctamente',
   'serial': 'Serie',
@@ -533,9 +534,9 @@ export const esTranslations = {
   'delete_inventory_warning': 'Esta acción no se puede deshacer. Se eliminará permanentemente el producto del inventario.',
   'sku_required': 'El código SKU es requerido',
   'location_required': 'la ubicación es requerida',
-  'location_auto_filled': 'La ubicación se completa automáticamente',
-  'location_filled_automatically': 'La ubicación se completará automáticamente al seleccionar un SKU',
-  'location_auto_selected': 'Ubicación seleccionada automáticamente',
+  'location_auto_filled': 'La ubicación se completa automáticaamente',
+  'location_filled_automatically': 'La ubicación se completará automáticaamente al seleccionar un SKU',
+  'location_auto_selected': 'Ubicación seleccionada automáticaamente',
   'quantity_required': 'La cantidad es requerida',
   'status_required': 'El estado es requerido',
   'presentation_required': 'La presentación es requerida',
@@ -758,7 +759,6 @@ export const esTranslations = {
   'get_started_by_creating_task': 'Comienza creando una nueva tarea de recepción',
   'completed_tasks_will_appear_here': 'Las tareas completadas aparecerán aquí',
   
-  // Nuevas traducciones para mejoras del formulario de recepción
   'complete_current_item_before_adding_new': 'Complete el artículo actual antes de agregar uno nuevo',
   'warning': 'Advertencia',
 
@@ -766,7 +766,6 @@ export const esTranslations = {
   'no_results': 'No se encontraron resultados',
   'expected_qty_required': 'La cantidad es requerida',
 
-  // Picking Tasks
   'picking_tasks_management': 'Gestión de tareas de alisto y preparación de pedidos',
   'picking_task': 'Tarea de Alisto',
   'picking_task_label': 'Tarea de Alisto',
@@ -974,8 +973,8 @@ export const esTranslations = {
   'ARTICLE.EXPIRATION_TRACKING': 'Exp',
   'ARTICLE.PRESENTATION': 'Presentación',
   'ARTICLE.PRICE': 'Precio',
-  'ARTICLE.MIN_QTY': 'Mín',
-  'ARTICLE.MAX_QTY': 'Máx',
+  'ARTICLE.MIN_QTY': 'Min',
+  'ARTICLE.MAX_QTY': 'Max',
   'ARTICLE.ASSIGNED_TO': 'Asignado a',
   'BARCODE.QTY_LABEL': 'Cant: {{quantity}}',
   'BARCODE.EXP_LABEL': 'Exp: {{expiration}}',
@@ -1109,4 +1108,21 @@ export const esTranslations = {
   'serials_from_other_locations_shown': 'Se muestran series de todas las ubicaciones disponibles',
   'no_more_serials_available': 'No hay más series disponibles',
   'no_serials_in_any_location': 'No se encontraron series disponibles en ninguna ubicación',
+  
+  // Presentations dialog translations
+  'manage_presentations': 'Gestionar Presentaciones',
+  'add_presentation': 'Agregar Presentación',
+  'new_presentation': 'Nueva Presentación',
+  'presentation_id': 'ID Presentación',
+  'enter_presentation_id': 'Ingresa el ID de la presentación',
+  'no_presentations': 'No hay presentaciones',
+  'create_first_presentation': 'Crea tu primera presentación para comenzar',
+  'delete_presentation': 'Eliminar presentación',
+  'delete_presentation_confirmation': '¿Estás seguro de que deseas eliminar esta presentación?',
+  'presentation_created_successfully': 'Presentación creada exitosamente',
+  'presentation_deleted_successfully': 'Presentación eliminada exitosamente',
+  'failed_to_load_presentations': 'Error al cargar las presentaciones',
+  'failed_to_create_presentation': 'Error al crear la presentación',
+  'failed_to_delete_presentation': 'Error al eliminar la presentación',
+  'presentations': 'Presentaciones',
 };

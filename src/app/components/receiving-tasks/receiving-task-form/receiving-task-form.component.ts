@@ -331,11 +331,11 @@ export class ReceivingTaskFormComponent implements OnInit {
 		this.itemsArray.push(itemGroup);
 
 		const index = this.itemsArray.length - 1;
-		this.lotQuantityPerItem = new Array(this.itemsArray.length).fill(1);
-		this.lotExpirationDatePerItem = new Array(this.itemsArray.length).fill('');
-		this.expectedQuantities = new Array(this.itemsArray.length).fill(1);
+		this.lotQuantityPerItem.push(1);
+		this.lotExpirationDatePerItem.push('');
+		this.expectedQuantities.push(1);
 		this.ensureComboboxState(index);
-		this.cdr.detectChanges(); // Force change detection
+		this.cdr.detectChanges(); 
 	}
 
 	removeItem(index: number): void {
@@ -872,6 +872,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 	addLotWithQuantity(index: number): void {
 		const lotNumber = this.lotSearchTerms[index]?.trim();
 		const quantity = this.lotQuantityPerItem[index] || 1;
+		const expirationDate = this.lotExpirationDatePerItem[index] || null;
 		
 		if (!lotNumber) {
 			this.alertService.warning(
@@ -885,6 +886,18 @@ export class ReceivingTaskFormComponent implements OnInit {
 			this.alertService.warning(
 				this.t('quantity_must_be_positive') || 'La cantidad debe ser mayor a 0',
 				this.t('warning')
+			);
+			return;
+		}
+
+		// Check if expiration date is required for this article
+		const sku = this.itemsArray.at(index).get('sku')?.value;
+		const article = this.getArticleBySku(sku);
+		
+		if (article?.track_expiration && (!expirationDate || expirationDate.trim() === '')) {
+			this.alertService.error(
+				this.t('expiration_date_required_for_tracking') || 'La fecha de expiracion es obligatoria para este articulo',
+				this.t('error')
 			);
 			return;
 		}
@@ -912,7 +925,6 @@ export class ReceivingTaskFormComponent implements OnInit {
 		}
 
 		// Add lot with quantity and expiration date
-		const expirationDate = this.lotExpirationDatePerItem[index] || null;
 		this.lotsWithQuantityPerItem[index].push({
 			lot_number: lotNumber,
 			quantity: quantity,
@@ -961,6 +973,17 @@ export class ReceivingTaskFormComponent implements OnInit {
 			if (remaining > 0) {
 				this.lotQuantityPerItem[index] = remaining;
 			}
+		}
+		
+		// Check if expiration date is required and show warning if not provided
+		const sku = this.itemsArray.at(index).get('sku')?.value;
+		const article = this.getArticleBySku(sku);
+		
+		if (article?.track_expiration && (!this.lotExpirationDatePerItem[index] || this.lotExpirationDatePerItem[index].trim() === '')) {
+			this.alertService.warning(
+				this.t('expiration_date_required_for_tracking') || 'La fecha de expiracion es obligatoria para este articulo',
+				this.t('warning')
+			);
 		}
 	}
 
@@ -1017,10 +1040,22 @@ export class ReceivingTaskFormComponent implements OnInit {
 			return;
 		}
 
+		// Check if expiration date is required for this article
+		const sku = this.itemsArray.at(index).get('sku')?.value;
+		const article = this.getArticleBySku(sku);
+		const expirationDate = this.lotExpirationDatePerItem[index] || null;
+		
+		if (article?.track_expiration && (!expirationDate || expirationDate.trim() === '')) {
+			this.alertService.error(
+				this.t('expiration_date_required_for_tracking') || 'La fecha de expiración es obligatoria para este artículo',
+				this.t('error')
+			);
+			return;
+		}
+
 		// Auto-assign remaining quantity or full quantity if it covers all
 		const quantityToAssign = remainingQty;
 		
-		const expirationDate = this.lotExpirationDatePerItem[index] || null;
 		this.lotsWithQuantityPerItem[index].push({
 			lot_number: lotNumber,
 			quantity: quantityToAssign,

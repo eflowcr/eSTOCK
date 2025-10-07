@@ -121,15 +121,25 @@ export class ReceivingTaskManagementComponent implements OnInit {
 	}
 
 	get activeTasks(): ReceivingTask[] {
-		return this.receivingTasks.filter(task => 
-			task.status === 'open' || task.status === 'in_progress'
-		);
+		return this.receivingTasks
+			.filter(task => task.status === 'open' || task.status === 'in_progress')
+			.sort((a, b) => {
+				// Ordenar por created_at descendente (más nuevas primero)
+				const dateA = new Date(a.created_at || '').getTime();
+				const dateB = new Date(b.created_at || '').getTime();
+				return dateB - dateA;
+			});
 	}
 
 	get processedTasks(): ReceivingTask[] {
-		return this.receivingTasks.filter(task => 
-			task.status !== 'open'
-		);
+		return this.receivingTasks
+			.filter(task => task.status !== 'open' && task.status !== 'in_progress')
+			.sort((a, b) => {
+				// Ordenar por completed_at descendente (más recientes primero)
+				const dateA = new Date(a.completed_at || a.updated_at || '').getTime();
+				const dateB = new Date(b.completed_at || b.updated_at || '').getTime();
+				return dateB - dateA;
+			});
 	}
 
 	// Nuevo: método para obtener las tareas del tab actual

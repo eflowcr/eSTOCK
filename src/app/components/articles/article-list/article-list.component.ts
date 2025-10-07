@@ -1,20 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Article } from '../../../models/article.model';
+import { Presentation } from '../../../models/presentation.model';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { ArticleService } from '../../../services/article.service';
+import { PresentationService } from '../../../services/presentation.service';
+import { DialogPresentationsComponent } from '../dialog-presentations/dialog-presentations.component';
 
 @Component({
   selector: 'app-article-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DialogPresentationsComponent],
   templateUrl: './article-list.component.html',
   styleUrls: ['./article-list.component.css']
 })
-export class ArticleListComponent {
+export class ArticleListComponent implements OnInit {
   @Input() articles: Article[] = [];
   @Input() isLoading = false;
   @Output() articlesChanged = new EventEmitter<void>();
@@ -23,6 +26,10 @@ export class ArticleListComponent {
   viewingArticle: Article | null = null;
   deletingArticleId: number | null = null;
   isDeleting = false;
+  
+  // Presentations dialog
+  showPresentationsDialog = false;
+  availablePresentations: Presentation[] = [];
 
   // Search and filter properties
   searchTerm = '';
@@ -42,8 +49,13 @@ export class ArticleListComponent {
     private articleService: ArticleService,
     private languageService: LanguageService,
     private alertService: AlertService,
-    private authService: AuthorizationService
+    private authService: AuthorizationService,
+    private presentationService: PresentationService
   ) {}
+
+  ngOnInit(): void {
+    this.loadPresentations();
+  }
 
   get t() {
     return this.languageService.t.bind(this.languageService);
@@ -336,5 +348,27 @@ export class ArticleListComponent {
    */
   get Math() {
     return Math;
+  }
+
+  // Presentations dialog methods
+  openPresentationsDialog(): void {
+    this.showPresentationsDialog = true;
+  }
+
+  closePresentationsDialog(): void {
+    this.showPresentationsDialog = false;
+  }
+
+  // Load presentations for filter dropdown
+  async loadPresentations(): Promise<void> {
+    try {
+      const response = await this.presentationService.getAll();
+      if (response.result.success) {
+        this.availablePresentations = response.data;
+      }
+    } catch (error) {
+      // Silent fail for presentations loading
+      console.warn('Failed to load presentations for filter');
+    }
   }
 }

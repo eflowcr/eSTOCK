@@ -2,9 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PickingTask } from '@app/models/picking-task.model';
-import { User } from '@app/models/user.model';
 import { Inventory } from '@app/models/inventory.model';
-import { UserService } from '@app/services/user.service';
 import { PickingTaskService } from '@app/services/picking-task.service';
 import { InventoryService } from '@app/services/inventory.service';
 import { AlertService } from '@app/services/extras/alert.service';
@@ -24,7 +22,6 @@ export class PickingTaskListComponent {
 	@Output() refresh = new EventEmitter<void>();
 	@Output() edit = new EventEmitter<PickingTask>();
 
-	users: User[] = [];
 	selectedTask: PickingTask | null = null;
 	expandedItems: Set<number> = new Set();
 	
@@ -45,15 +42,12 @@ export class PickingTaskListComponent {
 	quantityToAddPerItem: { [key: number]: number } = {};
 
 	constructor(
-		private userService: UserService,
 		private pickingTaskService: PickingTaskService,
 		private inventoryService: InventoryService,
 		private alertService: AlertService,
 		private loadingService: LoadingService,
 		private languageService: LanguageService
-	) {
-		this.loadUsers();
-	}
+	) {}
 
 	get t() {
 		return this.languageService.t.bind(this.languageService);
@@ -80,22 +74,12 @@ export class PickingTaskListComponent {
 		return false;
 	}
 
-	async loadUsers(): Promise<void> {
-		try {
-			const response = await this.userService.getAll();
-			if (response.result.success) {
-				this.users = response.data;
-			}
-		} catch (error) {
-			console.error('Error loading users:', error);
-		}
+	getUserDisplayName(task: PickingTask): string {
+		return task.user_assignee_name || this.t('unassigned');
 	}
 
-	getUserDisplayName(userId: string | null | undefined): string {
-		if (!userId) return this.t('unassigned');
-		const user = this.users.find(u => u.id === userId);
-		if (!user) return userId;
-		return user.first_name + ' ' + user.last_name || user.email;
+	getCreatorDisplayName(task: PickingTask): string {
+		return task.user_creator_name || task.created_by || this.t('unknown');
 	}
 
 	getStatusBadge(status: string): { variant: string; className: string; text: string } {

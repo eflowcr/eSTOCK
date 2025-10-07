@@ -8,6 +8,7 @@ export * from './serial.service';
 export * from './lot.service';
 export * from './receiving-task.service';
 export * from './picking-task.service';
+export * from './presentation.service';
 export * from './extras/fetch.service';
 export * from './extras/language.service';
 export * from './extras/loading.service';
