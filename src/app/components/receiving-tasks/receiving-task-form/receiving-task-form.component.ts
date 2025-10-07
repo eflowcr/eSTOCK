@@ -255,7 +255,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 						this.lotsWithQuantityPerItem[i].push({
 							lot_number: lot.lot_number,
 							quantity: lot.quantity || 1,
-							expiration_date: lot.expiration_date || null
+							expiration_date: this.formatDateForInput(lot.expiration_date) || null
 						});
 					});
 				} else {
@@ -962,7 +962,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 			this.lotQuantityPerItem[index] = selectedLot.quantity;
 			// Auto-fill expiration date if available
 			if (selectedLot.expiration_date) {
-				this.lotExpirationDatePerItem[index] = selectedLot.expiration_date;
+				this.lotExpirationDatePerItem[index] = this.formatDateForInput(selectedLot.expiration_date);
 			}
 		} else {
 			// Fallback: auto-complete remaining quantity if lot not found in objects
@@ -1017,6 +1017,24 @@ export class ReceivingTaskFormComponent implements OnInit {
 		const expDate = new Date(expirationDate);
 		const daysUntilExpiry = Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 		return daysUntilExpiry <= 30 && daysUntilExpiry > 0; // Expires within 30 days
+	}
+
+	formatDateForInput(dateString: string | null): string {
+		if (!dateString) return '';
+		
+		try {
+			const date = new Date(dateString);
+			if (isNaN(date.getTime())) return '';
+			
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			
+			return `${year}-${month}-${day}`;
+		} catch (error) {
+			console.error('Error formatting date:', error);
+			return '';
+		}
 	}
 
 	// Auto-complete when selecting existing lot
