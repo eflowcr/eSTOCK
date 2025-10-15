@@ -566,7 +566,11 @@ export class PickingTaskFormComponent implements OnInit {
 		if (this.showLocationDropdown[index] === undefined) this.showLocationDropdown[index] = false;
 		
 		this.filteredArticlesPerItem[index] = [...this.articles];
-		this.filteredLocationsPerItem[index] = [...this.locations];
+		
+		// Initialize locations based on selected SKU (only locations with inventory)
+		const selectedSku = this.itemsArray.at(index).get('sku')?.value;
+		const availableLocations = selectedSku ? (this.articleLocationMap.get(selectedSku) || []) : [];
+		this.filteredLocationsPerItem[index] = [...availableLocations];
 		
 		if (!this.availableLotsPerItem[index]) this.availableLotsPerItem[index] = [];
 		if (!this.availableSerialsPerItem[index]) this.availableSerialsPerItem[index] = [];
@@ -593,11 +597,21 @@ export class PickingTaskFormComponent implements OnInit {
 
 	filterLocationsForItem(index: number): void {
 		const term = (this.locationSearchTerms[index] || '').toLowerCase();
+		
+		// Get the selected SKU for this item
+		const selectedSku = this.itemsArray.at(index).get('sku')?.value;
+		
+		// Get available locations for the selected SKU (only locations with inventory)
+		const availableLocations = selectedSku ? (this.articleLocationMap.get(selectedSku) || []) : [];
+		
 		if (!term) {
-			this.filteredLocationsPerItem[index] = [...this.locations];
+			// If no search term, show only locations where this SKU has inventory
+			this.filteredLocationsPerItem[index] = [...availableLocations];
 			return;
 		}
-		this.filteredLocationsPerItem[index] = this.locations.filter(l =>
+		
+		// Filter available locations by search term
+		this.filteredLocationsPerItem[index] = availableLocations.filter(l =>
 			(l.location_code || '').toLowerCase().includes(term) || (l.description || '').toLowerCase().includes(term)
 		);
 	}
@@ -623,6 +637,12 @@ export class PickingTaskFormComponent implements OnInit {
 		this.skuSearchTerms[index] = '';
 		this.itemsArray.at(index).get('sku')?.setValue('');
 		this.showSkuDropdown[index] = false;
+		
+		// Clear location data when SKU is cleared
+		this.locationSearchTerms[index] = '';
+		this.itemsArray.at(index).get('location')?.setValue('');
+		this.filteredLocationsPerItem[index] = [];
+		
 		this.clearItemTrackingData(index);
 	}
 
@@ -1390,5 +1410,17 @@ export class PickingTaskFormComponent implements OnInit {
 			}
 		}
 		return '';
+	}
+
+	getAvailableLocationsCount(index: number): number {
+		const selectedSku = this.itemsArray.at(index).get('sku')?.value;
+		if (!selectedSku) return 0;
+		
+		const availableLocations = this.articleLocationMap.get(selectedSku) || [];
+		return availableLocations.length;
+	}
+
+	getAllLocationsCount(): number {
+		return this.locations.length;
 	}
 }

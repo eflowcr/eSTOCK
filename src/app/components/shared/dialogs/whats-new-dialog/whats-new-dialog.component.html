@@ -12,9 +12,6 @@
     <!-- Header -->
     <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700">
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-          <span class="text-xl">🎉</span>
-        </div>
         <div>
           <h2 class="text-xl font-bold text-gray-900 dark:text-white">
             {{ t('whats_new_title') }}
@@ -55,7 +52,7 @@
                   <span 
                     class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
                     [class]="getTypeClass(item.type)">
-                    {{ getTypeIcon(item.type) }} {{ t('whats_new_type_' + item.type) }}
+                    {{ t('whats_new_type_' + item.type) }}
                   </span>
                   <span class="text-xs text-gray-500 dark:text-gray-400">
                     {{ item.date }}

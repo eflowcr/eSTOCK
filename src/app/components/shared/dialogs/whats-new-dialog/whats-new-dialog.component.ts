@@ -72,22 +72,6 @@ export class WhatsNewDialogComponent {
   }
 
   /**
-   * Obtener icono según el tipo para mantener como un estandar
-   */
-  protected getTypeIcon(type: string): string {
-    switch (type) {
-      case 'feature':
-        return '✨';
-      case 'improvement':
-        return '🚀';
-      case 'fix':
-        return '🔧';
-      default:
-        return '📝';
-    }
-  }
-
-  /**
    * Aqui se pone el tema de novedades y eso que se veran en el dialogo
    */
   private loadWhatsNewContent(): void {
@@ -95,7 +79,7 @@ export class WhatsNewDialogComponent {
       {
         id: 'inventory-movements',
         title: "Historial de movimientos",
-        description: "Se ha implementado un nuevo botón en la pantalla de inventario que permite visualizar los movimientos del inventario",
+        description: "Se ha implementado un nuevo botón en la pantalla de inventario que permite visualizar los movimientos del inventario. El botón se encuentra a la derecha de 'Filtros'",
         type: 'improvement',
         date: '07/10/2025'
       },

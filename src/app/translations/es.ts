@@ -1145,7 +1145,7 @@ export const esTranslations = {
 
   // Sistema de Novedades
   'whats_new_title': 'Novedades',
-  'whats_new_subtitle': 'Descubre las últimas funcionalidades',
+  'whats_new_subtitle': 'Últimas funcionalidades',
   'whats_new_intro': 'eSTOCK.',
   'whats_new_tip_title': 'Consejo',
   'whats_new_version': 'Versión',
