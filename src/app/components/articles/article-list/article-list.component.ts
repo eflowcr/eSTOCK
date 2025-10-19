@@ -333,6 +333,14 @@ export class ArticleListComponent implements OnInit {
   }
 
   /**
+   * Format weight
+   */
+  formatWeight(weight: number | null): string {
+    if (!weight || weight === 0) return '-';
+    return weight.toFixed(2) + ' kg';
+  }
+
+  /**
    * Get tracking status
    */
   getTrackingStatus(article: Article): { lot: boolean; serial: boolean; expiration: boolean } {

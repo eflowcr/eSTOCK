@@ -28,6 +28,7 @@
             <option value="sku">{{ t('sku') }}</option>
             <option value="name">{{ t('name') }}</option>
             <option value="unit_price">{{ t('price') }}</option>
+            <option value="weight">{{ t('weight') }}</option>
             <option value="presentation">{{ t('presentation') }}</option>
           </select>
         </div>
@@ -111,6 +112,9 @@
           <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer w-16" (click)="sort('unit_price')">
             {{ t('price') }}
           </th>
+          <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer w-16 hidden sm:table-cell" (click)="sort('weight')">
+            {{ t('weight') }}
+          </th>
           <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase w-20 hidden md:table-cell">
             {{ t('presentation') }}
           </th>
@@ -142,6 +146,9 @@
           </td>
           <td class="px-3 py-3 text-xs text-gray-900 dark:text-white text-center">
             {{ formatPrice(article.unit_price || 0) }}
+          </td>
+          <td class="px-3 py-3 text-xs text-gray-900 dark:text-white text-center hidden sm:table-cell">
+            {{ formatWeight(article.weight || 0) }}
           </td>
           <td class="px-3 py-3 text-center hidden md:table-cell">
             <span [class]="getPresentationBadgeClass(article.presentation)" class="text-xs">
@@ -234,6 +241,10 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('price') }}</label>
           <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ formatPrice(viewingArticle.unit_price || 0) }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('weight') }}</label>
+          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ formatWeight(viewingArticle.weight || 0) }}</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('presentation') }}</label>

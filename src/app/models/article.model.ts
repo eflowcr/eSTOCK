@@ -10,6 +10,7 @@ export interface Article {
 	track_expiration: boolean;
 	min_quantity?: number | null;
 	max_quantity?: number | null;
+	weight?: number | null;
 	image_url?: string | null;
 	is_active?: boolean | null;
 	created_at: string;
@@ -27,6 +28,7 @@ export interface CreateArticleRequest {
 	track_expiration: boolean;
 	min_quantity?: number;
 	max_quantity?: number;
+	weight?: number;
 	image_url?: string;
 	is_active?: boolean;
 }
