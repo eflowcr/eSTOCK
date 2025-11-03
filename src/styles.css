@@ -15,7 +15,6 @@ html, body {
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-
 body {
   background-color: #f8fafc;
   color: #1e293b;
@@ -76,7 +75,6 @@ body {
   --ring: #3b82f6;
 }
 
-/* Custom scrollbar - Exclude alerts containers */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -94,7 +92,6 @@ body {
   background: var(--foreground);
 }
 
-/* Override for alerts containers */
 .alerts-container::-webkit-scrollbar,
 .custom-scroll::-webkit-scrollbar {
   width: 16px !important;

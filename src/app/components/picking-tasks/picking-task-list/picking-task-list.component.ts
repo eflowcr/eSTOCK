@@ -862,7 +862,7 @@ export class PickingTaskListComponent {
 					sku: item.sku,
 					status: 'open',
 					location: item.location,
-					required_qty: item.required_qty,
+					required_qty: Number(item.required_qty) || 0,
 					lots: (adjustments.lots || []).map((lot: any) => ({
 						sku: item.sku,
 						status: 'open',
