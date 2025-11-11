@@ -12,7 +12,8 @@ export const esTranslations = {
   'remaining_serials_needed': 'Series restantes necesarias',
   'remaining_quantity': 'Cantidad restante',
   'lot_number_required': 'Número de lote requerido',
-  'expiration_date_required_for_tracking': 'La fecha de expiración es obligatoria para este artículo',
+  'expiration_date_required_for_tracking':
+      'La fecha de expiración es obligatoria para este artículo',
   'enter_serial_number': 'Ingresa el número de serie',
   'lot_added_successfully': 'Lote agregado correctamente',
   'serial': 'Serie',
@@ -23,8 +24,10 @@ export const esTranslations = {
   'remaining': 'Restante',
   'units': 'unidades',
   'quantity_must_be_positive': 'La cantidad debe ser mayor a 0',
-  'lot_quantity_exceeds_total': 'La cantidad del lote excede el total disponible',
-  'serial_quantity_exceeds_total': 'La cantidad de series excede el total disponible',
+  'lot_quantity_exceeds_total':
+      'La cantidad del lote excede el total disponible',
+  'serial_quantity_exceeds_total':
+      'La cantidad de series excede el total disponible',
   'lot_quantity_complete': 'Cantidad de lotes completa',
   'partial_lot_selection': 'Selección parcial de lotes',
   'partial_serial_selection': 'Selección parcial de series',
@@ -46,8 +49,10 @@ export const esTranslations = {
   'complete_receiving_line': 'Completar Línea de Recepción',
   'full_task_completed_successfully': 'Tarea completa completada exitosamente',
   'failed_to_complete_full_task': 'Error al completar la tarea completa',
-  'receiving_line_completed_successfully': 'Línea de recepción completada exitosamente',
-  'failed_to_complete_receiving_line': 'Error al completar la línea de recepción',
+  'receiving_line_completed_successfully':
+      'Línea de recepción completada exitosamente',
+  'failed_to_complete_receiving_line':
+      'Error al completar la línea de recepción',
   'quantity_to_receive': 'Cantidad a Recibir',
   'expected': 'Esperado',
   'received': 'Recibido',
@@ -56,13 +61,16 @@ export const esTranslations = {
   'total_expected': 'Total Esperado',
   'exceeds_expected_for_lot': 'Excede lo esperado para este lote',
   'partial_lot_receipt': 'Recepción parcial del lote',
-  'invalid_adjustments_cannot_save': 'Ajustes inválidos detectados. No se puede guardar.',
+  'invalid_adjustments_cannot_save':
+      'Ajustes inválidos detectados. No se puede guardar.',
   'complete_task': 'Completar Tarea',
   'adjust_task': 'Ajustar Tarea',
   'close_document': 'Cerrar Documento',
   'close_document_confirmation': 'Confirmar Cierre de Documento',
-  'incomplete_items_warning': 'Hay líneas sin confirmar su cantidad y están en estado abierto.',
-  'close_anyway': '¿Desea ajustar las cantidades o está seguro de cerrar el documento?',
+  'incomplete_items_warning':
+      'Hay líneas sin confirmar su cantidad y están en estado abierto.',
+  'close_anyway':
+      '¿Desea ajustar las cantidades o está seguro de cerrar el documento?',
   'yes_close_document': 'Sí, Cerrar Documento',
   'cancel_close': 'Cancelar',
   'closed': 'Cerrado',
@@ -73,7 +81,8 @@ export const esTranslations = {
   'quantity_exceeds_expected': 'La cantidad excede lo esperado',
   'adjustments_saved_successfully': 'Ajustes guardados exitosamente',
   'failed_to_save_adjustments': 'Error al guardar los ajustes',
-  'cannot_edit_item_not_open': 'No se puede editar el artículo porque su estado no es "abierto"',
+  'cannot_edit_item_not_open':
+      'No se puede editar el artículo porque su estado no es "abierto"',
   'select_lot_from_inventory': 'Seleccionar lote del inventario',
   'select_lot': 'Seleccionar lote',
   'select_serial': 'Seleccionar serie',
@@ -91,7 +100,8 @@ export const esTranslations = {
   'item_already_complete': 'El artículo ya está completo',
   // Inventory Movements
   'inventory_movements': 'Movimientos de Inventario',
-  'inventory_movements_description': 'Registro de los movimientos de inventario del sistema',
+  'inventory_movements_description':
+      'Registro de los movimientos de inventario del sistema',
   'filter_by_sku': 'Filtrar por SKU',
   'search_sku_placeholder': 'Buscar SKU...',
   'search': 'Buscar',
@@ -109,10 +119,12 @@ export const esTranslations = {
   'salida': 'Salida',
   'ajuste': 'Ajuste',
   'transferencia': 'Transferencia',
-  'inventory_movements_load_error': 'Error al cargar los movimientos de inventario',
+  'inventory_movements_load_error':
+      'Error al cargar los movimientos de inventario',
   'error': 'Error',
   'auth.welcome': 'Bienvenido a eSTOCK',
-  'auth.subtitle': 'Inicia sesión para acceder a tu sistema de gestión de almacenes',
+  'auth.subtitle':
+      'Inicia sesión para acceder a tu sistema de gestión de almacenes',
   'auth.signin': 'Iniciar Sesión',
   'auth.signup': 'Crear Cuenta',
   'auth.signin_button': 'Iniciar Sesión',
@@ -121,7 +133,8 @@ export const esTranslations = {
   'auth.signup_tab': 'Crear Cuenta',
   'auth.enter_credentials': 'Ingresa tus credenciales para acceder a eSTOCK',
   'auth.create_account': 'Crear Cuenta',
-  'auth.create_account_desc': 'Crea una nueva cuenta para comenzar a usar eSTOCK',
+  'auth.create_account_desc':
+      'Crea una nueva cuenta para comenzar a usar eSTOCK',
   'auth.first_name': 'Nombre',
   'auth.last_name': 'Apellido',
   'auth.first_name_placeholder': 'Ingresa tu nombre',
@@ -135,13 +148,17 @@ export const esTranslations = {
   'auth.error_login': 'Error al iniciar sesión',
   'auth.error_register': 'Error al registrar',
   'auth.hero_title': 'Gestión de almacenes simple',
-  'auth.hero_subtitle': 'Optimiza tus operaciones de inventario con nuestro sistema integral de gestión de almacenes',
+  'auth.hero_subtitle':
+      'Optimiza tus operaciones de inventario con nuestro sistema integral de gestión de almacenes',
   'auth.inventory_tracking': 'Seguimiento de Inventario',
-  'auth.inventory_tracking_desc': 'Gestión de inventario en tiempo real con seguimiento por lote y número de serie',
+  'auth.inventory_tracking_desc':
+      'Gestión de inventario en tiempo real con seguimiento por lote y número de serie',
   'auth.task_management': 'Gestión de Tareas',
-  'auth.task_management_desc': 'Recepción y alistado optimizados con asignación de usuarios',
+  'auth.task_management_desc':
+      'Recepción y alistado optimizados con asignación de usuarios',
   'auth.smart_alerts': 'Alertas Inteligentes',
-  'auth.smart_alerts_desc': 'Alertas de inventario y monitoreo de fechas de caducidad',
+  'auth.smart_alerts_desc':
+      'Alertas de inventario y monitoreo de fechas de caducidad',
   'email_required': 'El correo electrónico es requerido',
   'email_invalid': 'El correo electrónico no es válido',
   'password_required': 'La contraseña es requerida',
@@ -149,7 +166,8 @@ export const esTranslations = {
   'firstName_required': 'El nombre es requerido',
   'lastName_required': 'El apellido es requerido',
   'assigned_to_required': 'El operador asignado es requerido',
-  'auth.registration_success': 'Usuario creado exitosamente. Por favor inicia sesión.',
+  'auth.registration_success':
+      'Usuario creado exitosamente. Por favor inicia sesión.',
   'auth.registration_complete': 'Registro exitoso',
   'auth.registration_error': 'Error al crear la cuenta',
   'auth.registration_failed': 'Error de registro',
@@ -166,7 +184,7 @@ export const esTranslations = {
   'user': 'Usuario',
   'date': 'Fecha',
   'admin.not_available': 'No disponible',
-  
+
   // Navigation items
   'dashboard': 'Panel de Control',
   'articles': 'Artículos',
@@ -174,7 +192,8 @@ export const esTranslations = {
   'receiving_tasks': 'Tareas de Recepción',
   'picking_tasks': 'Tareas de Picking',
   'stock_adjustments': 'Ajustes de Stock',
-  'stock_adjustments_description': 'Gestiona los ajustes de inventario para mantener el Inventario actualizado',
+  'stock_adjustments_description':
+      'Gestiona los ajustes de inventario para mantener el Inventario actualizado',
   'new_stock_adjustment': 'Nuevo Ajuste de Inventario',
   'adjustment_history': 'Historial de Ajustes',
   'adjustment_details': 'Detalles del Ajuste',
@@ -188,12 +207,14 @@ export const esTranslations = {
   'adjustment': 'Ajuste',
   'submit_adjustment': 'Enviar Ajuste',
   'submitting': 'Enviando...',
-  'stock_adjustment_created_successfully': 'Ajuste de Inventario creado exitosamente',
+  'stock_adjustment_created_successfully':
+      'Ajuste de Inventario creado exitosamente',
   'failed_to_create_stock_adjustment': 'Error al crear el ajuste de Inventario',
   'error_loading_adjustments': 'Error al cargar los ajustes',
   'no_adjustments_found': 'No se encontraron ajustes',
   'no_adjustments_description': 'No hay ajustes de Inventario registrados aún',
-  'failed_to_fetch_adjustment_details': 'Error al obtener los detalles del ajuste',
+  'failed_to_fetch_adjustment_details':
+      'Error al obtener los detalles del ajuste',
   'no_details_available': 'No hay detalles disponibles',
   'search_sku_location_notes': 'Buscar por SKU, ubicación o notas',
   'all_reasons': 'Todas las razones',
@@ -206,7 +227,7 @@ export const esTranslations = {
   'additional_notes_placeholder': 'Notas adicionales (opcional)',
   'lot_information': 'Información de Lotes',
   'add_another_lot': 'Agregar Otro Lote',
-  
+
   // Dropdown actions
   'edit_selection': 'Editar selección',
   'clear_selection': 'Limpiar selección',
@@ -221,12 +242,14 @@ export const esTranslations = {
   'serial_tracking_enabled': 'Rastreo por Serie Habilitado',
   'lot_tracking_enabled': 'Rastreo por Lote Habilitado',
   'with_expiration': ' con Vencimiento',
-  'select_sku_to_see_product_info': 'Selecciona un SKU para ver la información del producto',
+  'select_sku_to_see_product_info':
+      'Selecciona un SKU para ver la información del producto',
   'lot_number_index': 'Lote {{index}}',
   'serial_number': 'Número de Serie',
   'outbound_number_required': 'El número de documento es requerido',
   'enter_lot_number': 'Ingresa el número de lote',
-  'enter_serial_numbers_placeholder': 'Ingresa los números de serie (uno por línea)',
+  'enter_serial_numbers_placeholder':
+      'Ingresa los números de serie (uno por línea)',
   'enter_serial_numbers_instruction': 'Ingresa {{quantity}} números de serie',
   'adding_units': 'Agregando {{quantity}} unidades',
   'assign_quantities_to_lots': 'Asigna las cantidades a los lotes',
@@ -267,7 +290,8 @@ export const esTranslations = {
   'search.no_results': 'Sin resultados',
 
   // User Management
-  'user_management.description': 'Control de los usuarios del sistema y sus roles',
+  'user_management.description':
+      'Control de los usuarios del sistema y sus roles',
   'user_management.add_user': 'Agregar Usuario',
   'user_management.create_user': 'Crear Usuario',
   'user_management.edit_user': 'Editar Usuario',
@@ -291,8 +315,10 @@ export const esTranslations = {
   'user_management.password': 'Contraseña',
   'user_management.enter_password': 'Ingresa la contraseña',
   'user_management.change_password_optional': 'Cambiar Contraseña (Opcional)',
-  'user_management.leave_blank_to_keep_current_password': 'Dejar en blanco para mantener la contraseña actual',
-  'user_management.only_enter_password_if_you_want_to_change_it': 'Solo ingresa una contraseña si deseas cambiarla',
+  'user_management.leave_blank_to_keep_current_password':
+      'Dejar en blanco para mantener la contraseña actual',
+  'user_management.only_enter_password_if_you_want_to_change_it':
+      'Solo ingresa una contraseña si deseas cambiarla',
   'user_management.select_role': 'Seleccionar Rol',
   'user_management.user_id': 'ID de Usuario',
   'user_management.select_image': 'Seleccionar Imagen',
@@ -305,9 +331,11 @@ export const esTranslations = {
   'user_management.failed_update': 'Error al actualizar el usuario',
   'user_management.failed_delete': 'Error al eliminar el usuario',
   'user_management.failed_load_users': 'Error al cargar los usuarios',
-  'user_management.email_registered': 'Este correo electrónico ya está registrado',
+  'user_management.email_registered':
+      'Este correo electrónico ya está registrado',
   'user_management.cannot_delete': 'No se puede eliminar',
-  'user_management.delete_confirm': '¿Estás seguro de que deseas eliminar este usuario?',
+  'user_management.delete_confirm':
+      '¿Estás seguro de que deseas eliminar este usuario?',
   'user_management.delete_warning': 'Esta acción no se puede deshacer.',
   'user_management.cancel': 'Cancelar',
   'user_management.delete': 'Eliminar',
@@ -315,7 +343,8 @@ export const esTranslations = {
   'user_management.creating': 'Creando...',
   'user_management.updating': 'Actualizando...',
   'user_management.no_users_found': 'No se encontraron usuarios',
-  'user_management.get_started_by_creating_user': 'Comienza creando un nuevo usuario',
+  'user_management.get_started_by_creating_user':
+      'Comienza creando un nuevo usuario',
   'user_management.password_required': 'La contraseña es requerida',
   'user_management.email_required': 'El correo electrónico es requerido',
   'user_management.first_name_required': 'El nombre es requerido',
@@ -366,8 +395,9 @@ export const esTranslations = {
   'search_users': 'Buscar usuarios...',
   'all_roles': 'Todos los roles',
   'all_statuses': 'Todos los estados',
-  'no_users_match_search': 'No se encontraron usuarios que coincidan con la búsqueda',
-  
+  'no_users_match_search':
+      'No se encontraron usuarios que coincidan con la búsqueda',
+
   // File operations
   'choose_file': 'Elegir Archivo',
   'template_info': 'Info de Plantilla',
@@ -401,7 +431,8 @@ export const esTranslations = {
   'records_to_export': 'Registros a exportar',
   'exporting': 'Exportando',
   'export_successful': 'Exportación Exitosa',
-  'data_exported_successfully': 'Datos de {title} exportados exitosamente en formato {format}',
+  'data_exported_successfully':
+      'Datos de {title} exportados exitosamente en formato {format}',
   'export_failed': 'Error de Exportación',
   'failed_to_export_data': 'Error al exportar los datos',
   'no_data': 'No hay datos',
@@ -429,7 +460,8 @@ export const esTranslations = {
   // Inventory Management
   'no_inventory_items': 'No hay artículos de inventario',
   'no_matching_inventory': 'No se encontraron artículos que coincidan',
-  'add_first_inventory_message': 'Agrega tu primer artículo de inventario para comenzar',
+  'add_first_inventory_message':
+      'Agrega tu primer artículo de inventario para comenzar',
   'adjust_search_terms': 'Ajusta los términos de búsqueda o filtros',
   'enter_product_name': 'Ingresa el nombre del producto',
   'all_tracking_types': 'Todos los Tipos de Rastreo',
@@ -443,7 +475,8 @@ export const esTranslations = {
   'export_completed_successfully': 'Exportación completada exitosamente',
   'import_successful': 'Importación exitosa',
   'import_inventory': 'Importar Inventario',
-  'import_inventory_description': 'Importa productos de inventario desde un archivo Excel o CSV',
+  'import_inventory_description':
+      'Importa productos de inventario desde un archivo Excel o CSV',
   'inventory_imported_successfully': 'Inventario importado exitosamente',
   'inventory_exported_successfully': 'Inventario exportado exitosamente',
   'failed_to_import_inventory': 'Error al importar el inventario',
@@ -486,8 +519,10 @@ export const esTranslations = {
   'sort_by_type': 'Ordenar por tipo',
   'showing_results': 'Mostrando {{count}} de {{total}} resultados',
   'no_locations_found': 'No se encontraron ubicaciones',
-  'no_locations_match_search': 'No hay ubicaciones que coincidan con la búsqueda',
-  'delete_location_confirm': '¿Estás seguro de que deseas eliminar esta ubicación?',
+  'no_locations_match_search':
+      'No hay ubicaciones que coincidan con la búsqueda',
+  'delete_location_confirm':
+      '¿Estás seguro de que deseas eliminar esta ubicación?',
   'location_created_successfully': 'Ubicación creada exitosamente',
   'location_updated_successfully': 'Ubicación actualizada exitosamente',
   'location_deleted_successfully': 'Ubicación eliminada exitosamente',
@@ -497,7 +532,8 @@ export const esTranslations = {
   'failed_to_load_locations': 'Error al cargar las ubicaciones',
   'import_locations': 'Importar Ubicaciones',
   'export_locations': 'Exportar Ubicaciones',
-  'locations_imported_successfully': '{count} ubicaciones importadas exitosamente',
+  'locations_imported_successfully':
+      '{count} ubicaciones importadas exitosamente',
   'field_required': 'este campo es requerido',
   'field_too_long': 'Este campo es demasiado largo',
   'field_min_value': 'Valor por debajo del mínimo',
@@ -513,7 +549,8 @@ export const esTranslations = {
 
   // Inventory Management
   'inventory_management': 'Gestión de Inventario',
-  'inventory_management.description': 'Administra y controla tu inventario de productos',
+  'inventory_management.description':
+      'Administra y controla tu inventario de productos',
   'add_inventory_entry': 'Agregar Producto',
   'edit_inventory_item': 'Editar Producto',
   'inventory_item': 'Producto de Inventario',
@@ -549,12 +586,15 @@ export const esTranslations = {
   'no_serials': 'Sin números de serie registrados',
   'lot_number': 'Número de Lote',
   'expiration_date': 'Fecha de Expiración',
-  'confirm_delete_inventory': '¿Estás seguro de que deseas eliminar este producto?',
-  'delete_inventory_warning': 'Esta acción no se puede deshacer. Se eliminará permanentemente el producto del inventario.',
+  'confirm_delete_inventory':
+      '¿Estás seguro de que deseas eliminar este producto?',
+  'delete_inventory_warning':
+      'Esta acción no se puede deshacer. Se eliminará permanentemente el producto del inventario.',
   'sku_required': 'El código SKU es requerido',
   'location_required': 'la ubicación es requerida',
   'location_auto_filled': 'La ubicación se completa automáticaamente',
-  'location_filled_automatically': 'La ubicación se completará automáticaamente al seleccionar un SKU',
+  'location_filled_automatically':
+      'La ubicación se completará automáticaamente al seleccionar un SKU',
   'location_auto_selected': 'Ubicación seleccionada automáticaamente',
   'quantity_required': 'La cantidad es requerida',
   'status_required': 'El estado es requerido',
@@ -606,7 +646,8 @@ export const esTranslations = {
   'error_updating_article': 'Error al actualizar el artículo',
   'error_deleting_article': 'Error al eliminar el artículo',
   'error_loading_articles': 'Error al cargar los artículos',
-  'delete_article_confirmation': '¿Estás seguro de que deseas eliminar este artículo? Esta acción no se puede deshacer.',
+  'delete_article_confirmation':
+      '¿Estás seguro de que deseas eliminar este artículo? Esta acción no se puede deshacer.',
   'import_articles': 'Importar Artículos',
   'export_articles': 'Exportar Artículos',
   'sku_already_exists': 'El SKU ya existe en el sistema',
@@ -632,10 +673,14 @@ export const esTranslations = {
   'enable_serial_tracking': 'Habilitar Rastreo por Serie',
   'enable_expiration_tracking': 'Habilitar Rastreo de Vencimiento',
   'expiration_tracking': 'Rastreo de Vencimiento',
-  'lot_tracking_description': 'Permite agrupar productos por lotes de fabricación',
-  'serial_tracking_description': 'Permite rastrear productos individuales por número de serie',
-  'expiration_tracking_description': 'Permite rastrear fechas de vencimiento (requiere rastreo por lote)',
-  'cannot_use_both_lot_and_serial': 'No se puede usar rastreo por lote y serie al mismo tiempo',
+  'lot_tracking_description':
+      'Permite agrupar productos por lotes de fabricación',
+  'serial_tracking_description':
+      'Permite rastrear productos individuales por número de serie',
+  'expiration_tracking_description':
+      'Permite rastrear fechas de vencimiento (requiere rastreo por lote)',
+  'cannot_use_both_lot_and_serial':
+      'No se puede usar rastreo por lote y serie al mismo tiempo',
   'lot_only': 'Solo Lote',
   'serial_only': 'Solo Serie',
   'lot_and_serial': 'Lote y Serie',
@@ -647,7 +692,8 @@ export const esTranslations = {
 
   // Status
   'active_status': 'Estado Activo',
-  'article_active_description': 'Define si el artículo está disponible para uso en el sistema',
+  'article_active_description':
+      'Define si el artículo está disponible para uso en el sistema',
   'enabled': 'Habilitado',
   'disabled': 'Deshabilitado',
   'status': 'Estado',
@@ -678,7 +724,8 @@ export const esTranslations = {
   'processed_tasks': 'Tareas Procesadas',
   'tasks_open_or_in_progress': 'Tareas que están abiertas o en progreso',
   'tasks_completed_or_cancelled': 'Tareas completadas o canceladas',
-  'tasks_completed_cancelled_or_closed': 'Tareas completadas, canceladas o cerradas aparecerán aquí',
+  'tasks_completed_cancelled_or_closed':
+      'Tareas completadas, canceladas o cerradas aparecerán aquí',
   'no_tasks_found': 'No se encontraron tareas',
   'inbound_number': 'Número de Entrada',
   'inbound_number_required': 'El número de entrada es requerido',
@@ -697,15 +744,20 @@ export const esTranslations = {
   'create_receiving_task': 'Crear Tarea de Recepción',
   'edit_receiving_task': 'Editar Tarea de Recepción',
   'update_receiving_task': 'Actualizar Tarea de Recepción',
-  'receiving_task_created_successfully': 'Tarea de recepción creada exitosamente',
-  'receiving_task_updated_successfully': 'Tarea de recepción actualizada exitosamente',
+  'receiving_task_created_successfully':
+      'Tarea de recepción creada exitosamente',
+  'receiving_task_updated_successfully':
+      'Tarea de recepción actualizada exitosamente',
   'failed_to_create_receiving_task': 'Error al crear la tarea de recepción',
-  'failed_to_update_receiving_task': 'Error al actualizar la tarea de recepción',
+  'failed_to_update_receiving_task':
+      'Error al actualizar la tarea de recepción',
   'task_created_successfully': 'Tarea creada exitosamente',
   'task_updated': 'Tarea actualizada',
-  'task_status_updated_successfully': 'Estado de tarea actualizado correctamente',
+  'task_status_updated_successfully':
+      'Estado de tarea actualizado correctamente',
   'failed_to_update_task_status': 'Error al actualizar el estado de la tarea',
-  'invalid_status': 'Estado no válido. Solo se permiten: en progreso, completado o cancelado',
+  'invalid_status':
+      'Estado no válido. Solo se permiten: en progreso, completado o cancelado',
   'view_details': 'Ver Detalles',
   'task_actions': 'Acciones de Tarea',
   'current_status': 'Estado Actual',
@@ -732,7 +784,8 @@ export const esTranslations = {
   'complete': 'Completo',
   'complete_all_items': 'Completar todos los artículos',
   'adjust_quantities': 'Ajustar cantidades recibidas',
-  'adjust_items_description': 'Modifica las cantidades de los artículos recibidos',
+  'adjust_items_description':
+      'Modifica las cantidades de los artículos recibidos',
   'lot_quantity': 'Cantidad del Lote',
   'lot_adjustments': 'Ajustes de Lotes',
   'info': 'Información',
@@ -769,23 +822,27 @@ export const esTranslations = {
   'no_locations_with_inventory': 'No hay ubicaciones con inventario disponible',
   'no_location_found': 'No se encontraron ubicaciones',
   'quantity_min': 'La cantidad debe ser mayor a 0',
-  'please_complete_required_fields': 'Por favor complete todos los campos requeridos',
+  'please_complete_required_fields':
+      'Por favor complete todos los campos requeridos',
   'error_saving_task': 'Error al guardar la tarea de recepción',
   'task_id': 'ID de Tarea',
   'receiving_task_label': 'Tarea de Recepción',
   'no_active_tasks': 'No hay tareas activas',
   'no_processed_tasks': 'No hay tareas procesadas',
-  'get_started_by_creating_task': 'Comienza creando una nueva tarea de recepción',
+  'get_started_by_creating_task':
+      'Comienza creando una nueva tarea de recepción',
   'completed_tasks_will_appear_here': 'Las tareas completadas aparecerán aquí',
-  
-  'complete_current_item_before_adding_new': 'Complete el artículo actual antes de agregar uno nuevo',
+
+  'complete_current_item_before_adding_new':
+      'Complete el artículo actual antes de agregar uno nuevo',
   'warning': 'Advertencia',
 
   'lot_numbers': 'Números de Lote',
   'no_results': 'No se encontraron resultados',
   'expected_qty_required': 'La cantidad es requerida',
 
-  'picking_tasks_management': 'Gestión de tareas de alisto y preparación de pedidos',
+  'picking_tasks_management':
+      'Gestión de tareas de alisto y preparación de pedidos',
   'picking_task': 'Tarea de Alisto',
   'picking_task_label': 'Tarea de Alisto',
   'create_picking_task': 'Crear Tarea de Alisto',
@@ -797,7 +854,8 @@ export const esTranslations = {
   'required_qty': 'Cantidad Requerida',
   'required_qty_required': 'La cantidad requerida es obligatoria',
   'picking_task_created_successfully': 'Tarea de alisto creada exitosamente',
-  'picking_task_updated_successfully': 'Tarea de alisto actualizada exitosamente',
+  'picking_task_updated_successfully':
+      'Tarea de alisto actualizada exitosamente',
   'failed_to_create_picking_task': 'Error al crear la tarea de alisto',
   'failed_to_update_picking_task': 'Error al actualizar la tarea de alisto',
   'failed_to_load_picking_tasks': 'Error al cargar las tareas de alisto',
@@ -805,7 +863,8 @@ export const esTranslations = {
 
   // Stock Alerts
   'STOCK_ALERTS.TITLE': 'Alertas de Inventario',
-  'STOCK_ALERTS.DESCRIPTION': 'Gestión de alertas de inventario con alertas automáticas y recomendaciones',
+  'STOCK_ALERTS.DESCRIPTION':
+      'Gestión de alertas de inventario con alertas automáticas y recomendaciones',
   'STOCK_ALERTS.WIDGET_TITLE': 'Alertas de Inventario',
   'STOCK_ALERTS.ANALYZE': 'Analizar Inventario',
   'STOCK_ALERTS.ANALYZING': 'Analizando...',
@@ -849,7 +908,7 @@ export const esTranslations = {
   'STOCK_ALERTS.CREATED_AT': 'Creado',
   'STOCK_ALERTS.RESOLVED_AT': 'Resuelto',
   'STOCK_ALERTS.RECOMMENDATIONS': 'Recomendaciones de Reabastecimiento',
-  'low_stock':'Inventario bajo',
+  'low_stock': 'Inventario bajo',
   'STOCK_ALERTS.PRIORITY': 'Prioridad',
   'STOCK_ALERTS.LOAD_ERROR': 'Error al cargar las alertas',
   'STOCK_ALERTS.SEARCH_ERROR': 'Error al buscar alertas',
@@ -865,7 +924,8 @@ export const esTranslations = {
   'STOCK_ALERTS.SHOWING_RECENT': 'Mostrando',
   'STOCK_ALERTS.LAST_UPDATED': 'Última actualización',
   'STOCK_ALERTS.NO_RESOLVED_ALERTS': 'No hay alertas resueltas',
-  'STOCK_ALERTS.NO_RESOLVED_DESCRIPTION': 'Las alertas resueltas aparecerán aquí',
+  'STOCK_ALERTS.NO_RESOLVED_DESCRIPTION':
+      'Las alertas resueltas aparecerán aquí',
   'STOCK_ALERTS.NO_CRITICAL': 'No hay alertas críticas',
   'STOCK_ALERTS.NO_HIGH': 'No hay alertas de alta prioridad',
   'STOCK_ALERTS.ALL_ALERTS_SHOWN': 'Todas las alertas mostradas',
@@ -878,13 +938,17 @@ export const esTranslations = {
   'STOCK_ALERTS.SEASONAL': 'Estacional',
   'STOCK_ALERTS.NO_ALERTS_FOUND': 'No se encontraron alertas',
   'STOCK_ALERTS.TRY_DIFFERENT_FILTERS': 'Intenta con diferentes filtros',
-  
+
   // Tab descriptions
-  'STOCK_ALERTS.ALL_ALERTS_DESCRIPTION': 'Todas las alertas de inventario activas y resueltas',
-  'STOCK_ALERTS.CRITICAL_ALERTS_DESCRIPTION': 'Alertas que requieren acción inmediata',
-  'STOCK_ALERTS.HIGH_ALERTS_DESCRIPTION': 'Alertas de alta prioridad que necesitan atención',
-  'STOCK_ALERTS.RESOLVED_ALERTS_DESCRIPTION': 'Alertas que han sido marcadas como resueltas',
-  
+  'STOCK_ALERTS.ALL_ALERTS_DESCRIPTION':
+      'Todas las alertas de inventario activas y resueltas',
+  'STOCK_ALERTS.CRITICAL_ALERTS_DESCRIPTION':
+      'Alertas que requieren acción inmediata',
+  'STOCK_ALERTS.HIGH_ALERTS_DESCRIPTION':
+      'Alertas de alta prioridad que necesitan atención',
+  'STOCK_ALERTS.RESOLVED_ALERTS_DESCRIPTION':
+      'Alertas que han sido marcadas como resueltas',
+
   // Empty state messages
   'STOCK_ALERTS.NO_ALERTS_ALL': 'No hay alertas en esta categoría',
   'STOCK_ALERTS.NO_ALERTS_CRITICAL': 'No hay alertas críticas en este momento',
@@ -914,13 +978,15 @@ export const esTranslations = {
   'BARCODE.SELECTED_ITEMS': '{{count}} seleccionados',
   'BARCODE.CLEAR_SELECTION': 'Limpiar Selección',
   'BARCODE.NO_ITEMS_SELECTED': 'No hay elementos seleccionados',
-  'BARCODE.SELECT_ITEMS_TO_GENERATE': 'Selecciona elementos para generar etiquetas',
+  'BARCODE.SELECT_ITEMS_TO_GENERATE':
+      'Selecciona elementos para generar etiquetas',
   'BARCODE.ITEMS_SELECTED': 'Elementos seleccionados',
   'BARCODE.PRINT': 'Imprimir',
   'BARCODE.DOWNLOAD_PDF': 'Descargar',
   'BARCODE.PREVIEW': 'Vista Previa',
   'BARCODE.NO_PREVIEW_ITEMS': 'Sin elementos para vista previa',
-  'BARCODE.SELECT_ITEMS_TO_PREVIEW': 'Selecciona elementos para ver vista previa',
+  'BARCODE.SELECT_ITEMS_TO_PREVIEW':
+      'Selecciona elementos para ver vista previa',
   'BARCODE.AND_MORE_ITEMS': 'y más elementos...',
   'BARCODE.GENERATING': 'Generando...',
   'BARCODE.GENERATION_ERROR': 'Error al generar código',
@@ -934,16 +1000,18 @@ export const esTranslations = {
 
   // Search
   'BARCODE.SEARCH_SKUS_PLACEHOLDER': 'Buscar SKUs por código o nombre...',
-  'BARCODE.SEARCH_LOCATIONS_PLACEHOLDER': 'Buscar ubicaciones por código o descripción...',
+  'BARCODE.SEARCH_LOCATIONS_PLACEHOLDER':
+      'Buscar ubicaciones por código o descripción...',
   'BARCODE.SEARCH_TASKS_PLACEHOLDER': 'Buscar tareas por ID o descripción...',
 
   // Selection
   'BARCODE.SELECT_ALL': 'Seleccionar Todo',
   'BARCODE.DESELECT_ALL': 'Deseleccionar Todo',
   'BARCODE.VIEW_DETAILS': 'Ver Detalles',
-  
+
   // Receiving Task Validation Messages
-  'complete_all_quantities_first': 'Completa todas las cantidades antes de finalizar la tarea',
+  'complete_all_quantities_first':
+      'Completa todas las cantidades antes de finalizar la tarea',
   'task_quantities_incomplete': 'Las cantidades de la tarea están incompletas',
   'BARCODE.HIDE': 'Ocultar',
 
@@ -953,7 +1021,7 @@ export const esTranslations = {
 
   // Status translations
   'STATUS.COMPLETED': 'Completado',
-  'STATUS.COMPLETADO': 'Completado', 
+  'STATUS.COMPLETADO': 'Completado',
 
   'ARTICLE.ITEMS_COUNT': 'Artículos',
 
@@ -964,31 +1032,31 @@ export const esTranslations = {
   'STATUS.CANCELLED': 'Cancelado',
   'STATUS.CANCELADO': 'Cancelado',
   'STATUS.SELECCION': 'Selección',
-  
+
   // Priority translations
   'PRIORITY.HIGH': 'Alto',
   'PRIORITY.ALTO': 'Alto',
   'PRIORITY.MEDIUM': 'Medio',
-  'PRIORITY.MEDIO': 'Medio', 
+  'PRIORITY.MEDIO': 'Medio',
   'PRIORITY.LOW': 'Bajo',
   'PRIORITY.BAJO': 'Bajo',
   'PRIORITY.NORMAL': 'Normal',
   'PRIORITY.URGENT': 'Urgente',
-  
+
   // Task type translations
   'TASK_TYPE.RECEIVING': 'Recepción',
   'TASK_TYPE.PICKING': 'Picking',
   'TASK_TYPE.TASK': 'Tarea',
-  
+
   // Location type translations
   'LOCATION.PALLET': 'Pallet',
   'LOCATION.BLOCK': 'Block',
   'LOCATION.ZONE': 'Zona',
   'LOCATION.INACTIVE': 'Inactivo',
-  
+
   // Article tracking translations
   'ARTICLE.LOT_TRACKING': 'Lote',
-  'ARTICLE.SERIAL_TRACKING': 'Serie', 
+  'ARTICLE.SERIAL_TRACKING': 'Serie',
   'ARTICLE.EXPIRATION_TRACKING': 'Exp',
   'ARTICLE.PRESENTATION': 'Presentación',
   'ARTICLE.PRICE': 'Precio',
@@ -1012,21 +1080,24 @@ export const esTranslations = {
 
   // Preview
   'BARCODE.PREVIEW_ITEMS': 'Vista Previa ({{count}} elementos)',
-  'BARCODE.GENERATED_LABELS_SUCCESS': 'Se generaron {{count}} etiquetas exitosamente',
+  'BARCODE.GENERATED_LABELS_SUCCESS':
+      'Se generaron {{count}} etiquetas exitosamente',
   'BARCODE.PRINT_SUCCESS': 'Etiquetas enviadas a imprimir',
   'BARCODE.FAILED_TO_GENERATE_PDF': 'Error al generar PDF de etiquetas',
   'BARCODE.FAILED_TO_PRINT': 'Error al imprimir etiquetas',
 
   // Empty states
   'BARCODE.NO_ITEMS_AVAILABLE': 'No hay elementos disponibles',
-  'BARCODE.NO_ITEMS_DESCRIPTION': 'No se encontraron elementos para mostrar en esta categoría',
+  'BARCODE.NO_ITEMS_DESCRIPTION':
+      'No se encontraron elementos para mostrar en esta categoría',
 
   // Data loading
   'BARCODE.LOAD_DATA_ERROR': 'Error al cargar los datos',
 
   // Gamification translations
   'gamification.badges': 'Insignias',
-  'gamification.badges_description': 'Visualiza tu progreso y logros en el sistema',
+  'gamification.badges_description':
+      'Visualiza tu progreso y logros en el sistema',
   'gamification.userPerformance': 'Rendimiento de Usuarios',
   'gamification.loading': 'Cargando datos de gamificación...',
   'gamification.level': 'Nivel',
@@ -1037,7 +1108,8 @@ export const esTranslations = {
   'gamification.avgPickTime': 'Tiempo Promedio de Picking',
   'gamification.yourBadgesCount': 'Tus Insignias ({{count}})',
   'gamification.noBadgesEarned': 'Aún no has ganado insignias',
-  'gamification.completeTasksFirstBadge': 'Completa tareas para ganar tu primera insignia',
+  'gamification.completeTasksFirstBadge':
+      'Completa tareas para ganar tu primera insignia',
   'gamification.earnedDate': 'Ganada el {{date}}',
   'gamification.badgeProgress': 'Progreso de Insignias',
   'gamification.earned': 'Ganada',
@@ -1045,7 +1117,8 @@ export const esTranslations = {
   'gamification.demoActions': 'Acciones de Demostración',
   'gamification.completeReceivingTask': 'Completar Tarea de Recepción',
   'gamification.completePickingTask': 'Completar Tarea de Picking',
-  'gamification.demoActionsDescription': 'Estas son acciones de demostración para probar el sistema de gamificación',
+  'gamification.demoActionsDescription':
+      'Estas son acciones de demostración para probar el sistema de gamificación',
   'gamification.taskCompleted': 'Tarea completada exitosamente',
   'gamification.statsUpdated': 'Estadísticas actualizadas',
   'gamification.badgeEarned': '¡Nueva insignia ganada!',
@@ -1055,14 +1128,16 @@ export const esTranslations = {
   'gamification.error': 'Error',
   'gamification.failed_load_stats': 'Error al cargar las estadísticas',
   'gamification.export_warning': 'Sin datos para exportar',
-  'gamification.no_data_to_export': 'No tienes insignias ganadas ni progreso para exportar',
+  'gamification.no_data_to_export':
+      'No tienes insignias ganadas ni progreso para exportar',
   'user_management': 'Usuarios',
   'user_management.title': 'Gestión de Usuarios',
 
   // Admin Control Center translations
   'admin_control_center': 'Centro de Control Administrativo',
   'live_performance_dashboard': 'Dashboard de Rendimiento en Vivo',
-  'loading_operator_performance_data': 'Cargando datos de rendimiento de operadores...',
+  'loading_operator_performance_data':
+      'Cargando datos de rendimiento de operadores...',
   'active_operators': 'Operadores Activos',
   'registered_in_system': 'Registrados en el sistema',
   'total_tasks': 'Total de Tareas',
@@ -1085,38 +1160,46 @@ export const esTranslations = {
   'admin.unknown': 'Desconocido',
   'admin.operator': 'Operador',
   'admin.no_data': 'Sin datos',
-  'admin.no_operator_performance_data': 'No hay datos de rendimiento de operadores',
-  'admin.operators_will_appear_message': 'Los operadores aparecerán aquí cuando tengan actividad registrada',
+  'admin.no_operator_performance_data':
+      'No hay datos de rendimiento de operadores',
+  'admin.operators_will_appear_message':
+      'Los operadores aparecerán aquí cuando tengan actividad registrada',
   'admin.detailed_performance_metrics': 'Métricas Detalladas de Rendimiento',
   'admin.pick_accuracy': 'Precisión de Picking',
   'admin.receiving_tasks': 'Tareas de Recepción',
   'admin.picking_tasks': 'Tareas de Picking',
   'admin.avg_pick_time': 'Tiempo Promedio de Picking',
   'admin.total_pick_time': 'Tiempo Total de Picking',
-  'admin.failed_to_load_operator_stats': 'Error al cargar estadísticas de operadores',
+  'admin.failed_to_load_operator_stats':
+      'Error al cargar estadísticas de operadores',
   'admin.admin_control_center': 'Centro de Control de Administrador',
 
   'admin.title': 'Centro de Control de Administrador',
   'admin.live_performance_dashboard': 'Panel de Rendimiento en Vivo',
-  'admin.loading_operator_performance_data': 'Cargando datos de rendimiento de operadores...',
+  'admin.loading_operator_performance_data':
+      'Cargando datos de rendimiento de operadores...',
   'admin.active_operators': 'Operadores Activos',
   'admin.registered_in_system': 'registrados en el sistema',
   'admin.total_tasks': 'Total de Tareas',
-  'admin.completed_across_all_operators': 'completadas por todos los operadores',
+  'admin.completed_across_all_operators':
+      'completadas por todos los operadores',
   'admin.average_accuracy': 'Precisión Promedio',
   'admin.fleet_wide_performance': 'rendimiento de todos',
   'admin.badges_earned': 'Insignias Ganadas',
   'admin.achievement_milestones': 'logros alcanzados',
-  'admin.operator_performance_leaderboard': 'Tabla de Rendimiento de Operadores',
+  'admin.operator_performance_leaderboard':
+      'Tabla de Rendimiento de Operadores',
 
   'lots_readonly_edit_mode': 'Lotes cargados (solo lectura)',
-  'tracking_optional_notice':'El seguimiento de lotes y series es opcional para ajustes de inventario.',
+  'tracking_optional_notice':
+      'El seguimiento de lotes y series es opcional para ajustes de inventario.',
   'serials_readonly_edit_mode': 'Series cargadas (solo lectura)',
-  'expiration_date_readonly_edit_mode': 'Fecha de expiración cargada (solo lectura)',
+  'expiration_date_readonly_edit_mode':
+      'Fecha de expiración cargada (solo lectura)',
   'lot_numbers_with_expiration': 'Lotes y Fechas de Expiración',
   'no_expiration': 'Sin vencimiento',
   'lot_already_exists': 'Este lote ya existe',
-  
+
   // Picking tasks specific translations (only new ones)
   'adjust_quantities_picked': 'Ajustar Cantidades Recolectadas',
   'modify_picked_quantities': 'Modificar Cantidades Recolectadas',
@@ -1124,10 +1207,12 @@ export const esTranslations = {
   'available_serials': 'Series disponibles',
   'required': 'Requerido',
   'insufficient_serials_available': 'Series insuficientes disponibles',
-  'serials_from_other_locations_shown': 'Se muestran series de todas las ubicaciones disponibles',
+  'serials_from_other_locations_shown':
+      'Se muestran series de todas las ubicaciones disponibles',
   'no_more_serials_available': 'No hay más series disponibles',
-  'no_serials_in_any_location': 'No se encontraron series disponibles en ninguna ubicación',
-  
+  'no_serials_in_any_location':
+      'No se encontraron series disponibles en ninguna ubicación',
+
   // Presentations dialog translations
   'manage_presentations': 'Gestionar Presentaciones',
   'add_presentation': 'Agregar Presentación',
@@ -1137,7 +1222,8 @@ export const esTranslations = {
   'no_presentations': 'No hay presentaciones',
   'create_first_presentation': 'Crea tu primera presentación para comenzar',
   'delete_presentation': 'Eliminar presentación',
-  'delete_presentation_confirmation': '¿Estás seguro de que deseas eliminar esta presentación?',
+  'delete_presentation_confirmation':
+      '¿Estás seguro de que deseas eliminar esta presentación?',
   'presentation_created_successfully': 'Presentación creada exitosamente',
   'presentation_deleted_successfully': 'Presentación eliminada exitosamente',
   'failed_to_load_presentations': 'Error al cargar las presentaciones',
@@ -1156,9 +1242,14 @@ export const esTranslations = {
   'whats_new_type_improvement': 'Mejora',
   'whats_new_type_fix': 'Corrección',
   'whats_new_presentations_title': 'Sistema de Presentaciones',
-  'whats_new_presentations_description': 'Nuevo módulo para gestionar presentaciones de productos.',
+  'whats_new_presentations_description':
+      'Nuevo módulo para gestionar presentaciones de productos.',
   'whats_new_presentations_impact_title': 'Impacto en el Sistema',
-  'whats_new_presentations_impact_description': 'Las presentaciones se integran con inventario y tareas.',
+  'whats_new_presentations_impact_description':
+      'Las presentaciones se integran con inventario y tareas.',
   'whats_new_presentations_usage_title': 'Dónde se Utiliza',
-  'whats_new_presentations_usage_description': 'Se solicita en formularios de inventario y tareas.',
+  'whats_new_presentations_usage_description':
+      'Se solicita en formularios de inventario y tareas.',
+  'available_inventory': 'Inventario Disponible',
+  'not_enough_inventory_available': 'No hay suficiente inventario disponible',
 };

@@ -24,11 +24,14 @@ export const enTranslations = {
   'auth.error_login': 'Login error',
   'auth.error_register': 'Registration error',
   'auth.hero_title': 'Simple warehouse management',
-  'auth.hero_subtitle': 'Optimize your inventory operations with our comprehensive warehouse management system',
+  'auth.hero_subtitle':
+      'Optimize your inventory operations with our comprehensive warehouse management system',
   'auth.inventory_tracking': 'Inventory Tracking',
-  'auth.inventory_tracking_desc': 'Real-time inventory management with batch and serial number tracking',
+  'auth.inventory_tracking_desc':
+      'Real-time inventory management with batch and serial number tracking',
   'auth.task_management': 'Task Management',
-  'auth.task_management_desc': 'Optimized receiving and picking with user assignment',
+  'auth.task_management_desc':
+      'Optimized receiving and picking with user assignment',
   'auth.smart_alerts': 'Smart Alerts',
   'auth.smart_alerts_desc': 'Inventory alerts and expiration date monitoring',
   'email_required': 'Email is required',
@@ -59,7 +62,8 @@ export const enTranslations = {
   'receiving_tasks': 'Receiving Tasks',
   'picking_tasks': 'Picking Tasks',
   'stock_adjustments': 'Stock Adjustments',
-  'stock_adjustments_description': 'Manage inventory adjustments to keep stock up to date',
+  'stock_adjustments_description':
+      'Manage inventory adjustments to keep stock up to date',
   'new_stock_adjustment': 'New Stock Adjustment',
   'adjustment_history': 'Adjustment History',
   'adjustment_details': 'Adjustment Details',
@@ -73,7 +77,8 @@ export const enTranslations = {
   'adjustment': 'Adjustment',
   'submit_adjustment': 'Submit Adjustment',
   'submitting': 'Submitting...',
-  'stock_adjustment_created_successfully': 'Stock adjustment created successfully',
+  'stock_adjustment_created_successfully':
+      'Stock adjustment created successfully',
   'failed_to_create_stock_adjustment': 'Failed to create stock adjustment',
   'error_loading_adjustments': 'Error loading adjustments',
   'no_adjustments_found': 'No adjustments found',
@@ -161,8 +166,10 @@ export const enTranslations = {
   'user_management.password': 'Password',
   'user_management.enter_password': 'Enter password',
   'user_management.change_password_optional': 'Change Password (Optional)',
-  'user_management.leave_blank_to_keep_current_password': 'Leave blank to keep current password',
-  'user_management.only_enter_password_if_you_want_to_change_it': 'Only enter a password if you want to change it',
+  'user_management.leave_blank_to_keep_current_password':
+      'Leave blank to keep current password',
+  'user_management.only_enter_password_if_you_want_to_change_it':
+      'Only enter a password if you want to change it',
   'user_management.select_role': 'Select Role',
   'user_management.user_id': 'User ID',
   'user_management.select_image': 'Select Image',
@@ -175,9 +182,11 @@ export const enTranslations = {
   'user_management.failed_update': 'Failed to update user',
   'user_management.failed_delete': 'Failed to delete user',
   'user_management.failed_load_users': 'Failed to load users',
-  'user_management.email_registered': 'This email address is already registered',
+  'user_management.email_registered':
+      'This email address is already registered',
   'user_management.cannot_delete': 'Cannot delete',
-  'user_management.delete_confirm': 'Are you sure you want to delete this user?',
+  'user_management.delete_confirm':
+      'Are you sure you want to delete this user?',
   'user_management.delete_warning': 'This action cannot be undone.',
   'user_management.cancel': 'Cancel',
   'user_management.delete': 'Delete',
@@ -185,7 +194,8 @@ export const enTranslations = {
   'user_management.creating': 'Creating...',
   'user_management.updating': 'Updating...',
   'user_management.no_users_found': 'No users found',
-  'user_management.get_started_by_creating_user': 'Get started by creating a new user',
+  'user_management.get_started_by_creating_user':
+      'Get started by creating a new user',
   'user_management.password_required': 'Password is required',
   'user_management.email_required': 'Email is required',
   'user_management.first_name_required': 'First name is required',
@@ -241,7 +251,8 @@ export const enTranslations = {
   'records_to_export': 'Records to export',
   'exporting': 'Exporting',
   'export_successful': 'Export Successful',
-  'data_exported_successfully': '{title} data exported successfully in {format} format',
+  'data_exported_successfully':
+      '{title} data exported successfully in {format} format',
   'export_failed': 'Export Failed',
   'failed_to_export_data': 'Failed to export data',
   'no_data': 'No Data',
@@ -335,7 +346,8 @@ export const enTranslations = {
   'error_updating_article': 'Error updating article',
   'error_deleting_article': 'Error deleting article',
   'error_loading_articles': 'Failed to load articles',
-  'delete_article_confirmation': 'Are you sure you want to delete this article? This action cannot be undone.',
+  'delete_article_confirmation':
+      'Are you sure you want to delete this article? This action cannot be undone.',
   'import_articles': 'Import Articles',
   'export_articles': 'Export Articles',
   'sku_already_exists': 'SKU already exists in the system',
@@ -362,7 +374,8 @@ export const enTranslations = {
   'expiration_tracking': 'Expiration tracking',
   'lot_tracking_description': 'Group products by manufacturing lots',
   'serial_tracking_description': 'Track individual products by serial number',
-  'expiration_tracking_description': 'Track expiration dates (requires lot tracking)',
+  'expiration_tracking_description':
+      'Track expiration dates (requires lot tracking)',
   'lot': 'Lot',
   'serial': 'Serial',
   'expiration': 'Expiration',
@@ -373,7 +386,8 @@ export const enTranslations = {
 
   // Status
   'active_status': 'Active Status',
-  'article_active_description': 'Defines if the article is available for use in the system',
+  'article_active_description':
+      'Defines if the article is available for use in the system',
   'enabled': 'Enabled',
   'disabled': 'Disabled',
   'status': 'Status',
@@ -402,7 +416,8 @@ export const enTranslations = {
 
   // Inventory Management
   'inventory_management': 'Inventory Management',
-  'inventory_management.description': 'Manage and control your product inventory',
+  'inventory_management.description':
+      'Manage and control your product inventory',
   'add_inventory_entry': 'Add Product',
   'edit_inventory_item': 'Edit Product',
   'inventory_item': 'Inventory Product',
@@ -442,7 +457,8 @@ export const enTranslations = {
   'expiration_date': 'Expiration Date',
   'serial_number': 'Serial Number',
   'confirm_delete_inventory': 'Are you sure you want to delete this product?',
-  'delete_inventory_warning': 'This action cannot be undone. The product will be permanently removed from inventory.',
+  'delete_inventory_warning':
+      'This action cannot be undone. The product will be permanently removed from inventory.',
   'sku_required': 'SKU code is required',
   'location_required': 'Location is required',
   'quantity_required': 'Quantity is required',
@@ -461,7 +477,8 @@ export const enTranslations = {
   'failed_to_load_inventory': 'Failed to load inventory',
   'export_completed_successfully': 'Export completed successfully',
   'import_inventory': 'Import Inventory',
-  'import_inventory_description': 'Import inventory products from an Excel or CSV file',
+  'import_inventory_description':
+      'Import inventory products from an Excel or CSV file',
   'inventory_imported_successfully': 'Inventory imported successfully',
   'inventory_exported_successfully': 'Inventory exported successfully',
   'failed_to_import_inventory': 'Failed to import inventory',
@@ -567,7 +584,8 @@ export const enTranslations = {
   'task_updated': 'Task updated',
   'task_status_updated_successfully': 'Task status updated successfully',
   'failed_to_update_task_status': 'Failed to update task status',
-  'invalid_status': 'Invalid status. Only allowed: in progress, completed or cancelled',
+  'invalid_status':
+      'Invalid status. Only allowed: in progress, completed or cancelled',
   'view_details': 'View Details',
   'task_actions': 'Task Actions',
   'current_status': 'Current Status',
@@ -622,11 +640,13 @@ export const enTranslations = {
   'receiving_task_label': 'Receiving Task',
   'no_active_tasks': 'No active tasks',
   'no_processed_tasks': 'No processed tasks',
-  'get_started_by_creating_task': 'Get started by creating a new receiving task',
+  'get_started_by_creating_task':
+      'Get started by creating a new receiving task',
   'completed_tasks_will_appear_here': 'Completed tasks will appear here',
-  
+
   // New translations for receiving form improvements
-  'complete_current_item_before_adding_new': 'Complete the current item before adding a new one',
+  'complete_current_item_before_adding_new':
+      'Complete the current item before adding a new one',
   'warning': 'Warning',
   'random_selection': 'Random Selection',
   'search_and_select_lots': 'Search and select lots',
@@ -645,7 +665,8 @@ export const enTranslations = {
 
   // Stock Alerts
   'STOCK_ALERTS.TITLE': 'Stock Alerts',
-  'STOCK_ALERTS.DESCRIPTION': 'Inventory alert management with automatic alerts and recommendations',
+  'STOCK_ALERTS.DESCRIPTION':
+      'Inventory alert management with automatic alerts and recommendations',
   'STOCK_ALERTS.WIDGET_TITLE': 'Stock Alerts',
   'STOCK_ALERTS.ANALYZE': 'Analyze Inventory',
   'STOCK_ALERTS.ANALYZING': 'Analyzing...',
@@ -717,13 +738,17 @@ export const enTranslations = {
   'STOCK_ALERTS.SEASONAL': 'Seasonal',
   'STOCK_ALERTS.NO_ALERTS_FOUND': 'No alerts found',
   'STOCK_ALERTS.TRY_DIFFERENT_FILTERS': 'Try different filters',
-  
+
   // Tab descriptions
-  'STOCK_ALERTS.ALL_ALERTS_DESCRIPTION': 'All active and resolved inventory alerts',
-  'STOCK_ALERTS.CRITICAL_ALERTS_DESCRIPTION': 'Alerts that require immediate action',
-  'STOCK_ALERTS.HIGH_ALERTS_DESCRIPTION': 'High priority alerts that need attention',
-  'STOCK_ALERTS.RESOLVED_ALERTS_DESCRIPTION': 'Alerts that have been marked as resolved',
-  
+  'STOCK_ALERTS.ALL_ALERTS_DESCRIPTION':
+      'All active and resolved inventory alerts',
+  'STOCK_ALERTS.CRITICAL_ALERTS_DESCRIPTION':
+      'Alerts that require immediate action',
+  'STOCK_ALERTS.HIGH_ALERTS_DESCRIPTION':
+      'High priority alerts that need attention',
+  'STOCK_ALERTS.RESOLVED_ALERTS_DESCRIPTION':
+      'Alerts that have been marked as resolved',
+
   // Empty state messages
   'STOCK_ALERTS.NO_ALERTS_ALL': 'No alerts in this category',
   'STOCK_ALERTS.NO_ALERTS_CRITICAL': 'No critical alerts at this time',
@@ -765,13 +790,14 @@ export const enTranslations = {
   'PRIORITY.URGENT': 'Urgent',
 
   'COMMON.INFO': 'Information',
-  'Low_stock':'Inventario bajo',
+  'Low_stock': 'Inventario bajo',
   'admin.not_available': 'Not Available',
-  
+
   // Admin Control Center
   'admin.admin_control_center': 'Admin Control Center',
   'admin.live_performance_dashboard': 'Live Performance Dashboard',
-  'admin.loading_operator_performance_data': 'Loading operator performance data...',
+  'admin.loading_operator_performance_data':
+      'Loading operator performance data...',
   'admin.active_operators': 'Active Operators',
   'admin.registered_in_system': 'registered in system',
   'admin.total_tasks': 'Total Tasks',
@@ -789,8 +815,10 @@ export const enTranslations = {
   'admin.min': 'min',
   'admin.unknown': 'Unknown',
   'admin.operator': 'Operator',
-  'admin.no_operator_performance_data': 'No operator performance data available',
-  'admin.operators_will_appear_message': 'Operators will appear here once they have recorded activity',
+  'admin.no_operator_performance_data':
+      'No operator performance data available',
+  'admin.operators_will_appear_message':
+      'Operators will appear here once they have recorded activity',
   'admin.detailed_performance_metrics': 'Detailed Performance Metrics',
   'admin.pick_accuracy': 'Pick Accuracy',
   'admin.receiving_tasks': 'Receiving Tasks',
@@ -799,10 +827,13 @@ export const enTranslations = {
   'admin.avg_pick_time': 'Avg Pick Time',
   'admin.failed_to_load_operator_stats': 'Failed to load operator stats',
 
-  'lots_readonly_edit_mode':'Batches loaded (read-only)',
-  'tracking_optional_notice':'Tracking of batches and serials is optional for inventory adjustments.',
+  'lots_readonly_edit_mode': 'Batches loaded (read-only)',
+  'tracking_optional_notice':
+      'Tracking of batches and serials is optional for inventory adjustments.',
   'serials_readonly_edit_mode': 'Series loaded (read-only)',
-  'partial':'Partial',
+  'partial': 'Partial',
   'adjust_quantities_received': 'Adjust Received',
   'modify_received_quantities': 'Modify Received Quantities',
+  'available_inventory': 'Available Inventory',
+  'not_enough_inventory_available': 'Not enough inventory available',
 };
