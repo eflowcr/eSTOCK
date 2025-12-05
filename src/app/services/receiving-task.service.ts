@@ -119,7 +119,7 @@ export class ReceivingTaskService {
 	 * @returns Promise<ApiResponse<any>>
 	 */
 	async completeReceivingLine(
-		inboundNumber: string,
+		inboundNumber: number,
 		lineNumber: number,
 		lineData: ProcessReceivingTaskLine
 	): Promise<ApiResponse<any>> {

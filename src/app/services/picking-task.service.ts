@@ -129,7 +129,7 @@ export class PickingTaskService {
 	 * @returns Promise<ApiResponse<any>>
 	 */
 	async completePickingLine(
-		outboundNumber: string,
+		outboundNumber: number,
 		lineNumber: number,
 		lineData: ProcessPickingTaskLine
 	): Promise<ApiResponse<any>> {
@@ -145,7 +145,7 @@ export class PickingTaskService {
 	 * @returns Promise<ApiResponse<any>>
 	 */
 	private async completePickingLineCustom(
-		outboundNumber: string,
+		outboundNumber: number,
 		lineNumber: number,
 		lineData: ProcessPickingTaskLine
 	): Promise<ApiResponse<any>> {

@@ -246,9 +246,11 @@ export class ReceivingTaskListComponent {
 		
 		this.editingQuantities = {};
 		this.selectedTask.items?.forEach((item, index) => {
+			const lots = this.getLotsForItem(item);
+			
 			this.editingQuantities[index] = {
 				received_qty: item.received_qty || item.expected_qty,
-				lots: this.getLotsForItem(item).map(lot => ({
+				lots: lots.map(lot => ({
 					...lot,
 					received_quantity: (lot as any).received_quantity || lot.quantity || 0
 				})),
@@ -609,7 +611,7 @@ export class ReceivingTaskListComponent {
 		try {
 			this.loadingService.show();
 			
-			const inboundNumber = this.selectedTask.inbound_number || this.selectedTask.task_id;
+			const inboundNumber = this.selectedTask.id;
 			if (!inboundNumber) {
 				this.alertService.error(this.t('inbound_number_required'), this.t('error'));
 				return;

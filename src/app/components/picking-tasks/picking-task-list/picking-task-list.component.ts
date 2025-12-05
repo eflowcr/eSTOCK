@@ -862,7 +862,7 @@ export class PickingTaskListComponent {
 		try {
 			this.loadingService.show();
 			
-			const outboundNumber = this.selectedTask.outbound_number || this.selectedTask.task_id;
+			const outboundNumber = this.selectedTask.id;
 			if (!outboundNumber) {
 				this.alertService.error(this.t('outbound_number_required'), this.t('error'));
 				return;
