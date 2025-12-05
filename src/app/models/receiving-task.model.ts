@@ -17,31 +17,24 @@ export interface ReceivingTask {
 }
 
 export interface ReceivingTaskItem {
+	// Campos del backend
+	inbound_id?: number;
+	line_number?: number;
 	sku: string;
 	item_name?: string;
 	expected_qty: number;
-	expectedQty?: number; 
 	received_qty: number;
 	location: string;
 	status?: string;
+	
+	expectedQty?: number; 
 	lot_numbers?: string[];
 	serial_numbers?: string[];
 	lotNumbers?: string[]; 
 	serialNumbers?: string[];
-	lots?: Array<{
-		lot_number: string;
-		sku: string;
-		quantity: number;
-		expiration_date?: string | null;
-	}>;
-	serials?: Array<{
-		id?: number;
-		serial_number: string;
-		sku: string;
-		status: string;
-		created_at?: string;
-		updated_at?: string;
-	}>;
+	
+	lots?: ReceivingTaskLineLot[] | null;
+	serials?: ReceivingTaskLineSerial[] | null;
 }
 
 export interface CreateReceivingTaskRequest {
@@ -106,4 +99,37 @@ export interface ReceivingTaskItemRequest {
 	serials?: Serial[];
 	status?: string | null;
 	received_qty?: number | null;
+}
+
+export interface ProcessReceivingTaskLine {
+	location: string;
+	quantity: number;
+	series?: ReceivingTaskLineSerial[];
+	lots?: ReceivingTaskLineLot[];
+}
+
+export interface ReceivingTaskLineLot {
+	id?: number;
+	inventory_lot?: number;
+	inbound_id?: number;
+	line_number?: number;
+	lot_number: string;
+	sku: string;
+	quantity: number;
+	expiration_date?: string | null;
+	created_at?: string;
+	updated_at?: string;
+	status?: string;
+}
+
+export interface ReceivingTaskLineSerial {
+	id?: number;
+	inventory_serial?: number;
+	serial_number: string;
+	inbound_id?: number;
+	line_number?: number;
+	sku: string;
+	status: string;
+	created_at?: string;
+	updated_at?: string;
 }

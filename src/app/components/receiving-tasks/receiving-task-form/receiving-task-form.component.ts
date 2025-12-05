@@ -389,10 +389,12 @@ export class ReceivingTaskFormComponent implements OnInit {
 						location: item.location
 					};
 					
+					const lots: any[] = [];
+					const serials: any[] = [];
+					
 					// Build lots array with detailed structure for this item
 					if (item.lot_numbers) {
 						const lotNumbers = item.lot_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s);
-						const lots: any[] = [];
 						
 						// Check if we have quantity-based lots
 						if (this.lotsWithQuantityPerItem[index] && this.lotsWithQuantityPerItem[index].length > 0) {
@@ -405,7 +407,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 									expiration_date: lot.expiration_date || null
 								});
 							});
-						} else {
+						} else if (lotNumbers.length > 0) {
 							// Use simple lots structure (1 quantity each)
 							lotNumbers.forEach((lotNumber: string) => {
 								lots.push({
@@ -416,16 +418,11 @@ export class ReceivingTaskFormComponent implements OnInit {
 								});
 							});
 						}
-						
-						if (lots.length > 0) {
-							itemData.lots = lots;
-						}
 					}
 					
 					// Build serials array with detailed structure for this item
 					if (item.serial_numbers) {
 						const serialNumbers = item.serial_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s);
-						const serials: any[] = [];
 						
 						serialNumbers.forEach((serialNumber: string) => {
 							serials.push({
@@ -434,10 +431,14 @@ export class ReceivingTaskFormComponent implements OnInit {
 								status: 'available'
 							});
 						});
-						
-						if (serials.length > 0) {
-							itemData.serials = serials;
-						}
+					}
+					
+					// Only include lots/serials if they have data
+					if (lots.length > 0) {
+						itemData.lots = lots;
+					}
+					if (serials.length > 0) {
+						itemData.serials = serials;
 					}
 					
 					return itemData;
@@ -453,7 +454,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 				const response = await this.receivingTaskService.update(this.task.id, taskData);
 				if (response.result.success) {
 					this.alertService.success(
-						this.t('receiving_task_updated_successfully'),
+						response.result.message || this.t('receiving_task_updated_successfully'),
 						this.t('success')
 					);
 					this.success.emit();
@@ -467,7 +468,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 				const response = await this.receivingTaskService.create(taskData);
 				if (response.result.success) {
 					this.alertService.success(
-						this.t('receiving_task_created_successfully'),
+						response.result.message || this.t('receiving_task_created_successfully'),
 						this.t('success')
 					);
 					this.success.emit();
@@ -478,9 +479,10 @@ export class ReceivingTaskFormComponent implements OnInit {
 					);
 				}
 			}
-		} catch (error) {
+		} catch (error: any) {
+			const errorMessage = error?.result?.message || error?.message || this.t('error_saving_task');
 			this.alertService.error(
-				this.t('error_saving_task'),
+				errorMessage,
 				this.t('error')
 			);
 		} finally {

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiResponse } from '@app/models';
-import { ReceivingTask, CreateReceivingTaskRequest, UpdateReceivingTaskRequest, ReceivingTaskSearchParams, ReceivingTaskItemRequest } from '@app/models/receiving-task.model';
+import { ReceivingTask, CreateReceivingTaskRequest, UpdateReceivingTaskRequest, ReceivingTaskSearchParams, ProcessReceivingTaskLine } from '@app/models/receiving-task.model';
 import { returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { FetchService } from './extras/fetch.service';
@@ -101,28 +101,31 @@ export class ReceivingTaskService {
 	}
 
 	/**
-	 * @description Complete full receiving task for a specific location
+	 * @description Complete full receiving task
 	 * @param id Receiving task ID
-	 * @param location Location identifier
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	async completeFullTask(id: number, location: string): Promise<ApiResponse<any>> {
+	async completeFullTask(id: number): Promise<ApiResponse<any>> {
 		return await this.fetchService.patch<ApiResponse<any>>({
-			API_Gateway: `${RECEIVING_TASK_URL}/complete-full-task/${id}/${location}`,
+			API_Gateway: `${RECEIVING_TASK_URL}/complete-full-task/${id}`,
 		});
 	}
 
 	/**
 	 * @description Complete a specific receiving line item within a task
-	 * @param id Receiving task ID
-	 * @param location Location identifier
-	 * @param item Receiving task item data
+	 * @param inboundNumber Inbound number identifier
+	 * @param lineNumber Line number to complete
+	 * @param lineData Line data with location, quantity, series and lots
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	async completeReceivingLine(id: number, location: string, item: ReceivingTaskItemRequest): Promise<ApiResponse<any>> {
+	async completeReceivingLine(
+		inboundNumber: string,
+		lineNumber: number,
+		lineData: ProcessReceivingTaskLine
+	): Promise<ApiResponse<any>> {
 		return await this.fetchService.patch<ApiResponse<any>>({
-			API_Gateway: `${RECEIVING_TASK_URL}/complete-receiving-line/${id}/${location}`,
-			values: item,
+			API_Gateway: `${RECEIVING_TASK_URL}/complete-receiving-line/${inboundNumber}/${lineNumber}`,
+			values: lineData,
 		});
 	}
 }

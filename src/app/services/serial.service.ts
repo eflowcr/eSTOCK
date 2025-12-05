@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiResponse } from '@app/models';
 import { Serial, CreateSerialRequest, UpdateSerialRequest, SerialSearchParams } from '@app/models/serial.model';
+import { InventorySerial } from '@app/models/inventory.model';
 import { returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { FetchService } from './extras/fetch.service';
@@ -36,6 +37,17 @@ export class SerialService {
 	async getBySku(sku: string): Promise<ApiResponse<Serial[]>> {
 		return await this.fetchService.get<ApiResponse<Serial[]>>({
 			API_Gateway: `${SERIAL_URL}/by-sku/${sku}`,
+		});
+	}
+
+	/**
+	 * @description Get inventory serials by SKU
+	 * @param sku Article SKU
+	 * @returns Promise<ApiResponse<InventorySerial[]>>
+	 */
+	async getInventoryBySku(sku: string): Promise<ApiResponse<InventorySerial[]>> {
+		return await this.fetchService.get<ApiResponse<InventorySerial[]>>({
+			API_Gateway: `${SERIAL_URL}/inventory/${sku}`,
 		});
 	}
 

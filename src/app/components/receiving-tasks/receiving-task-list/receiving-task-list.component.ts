@@ -216,8 +216,7 @@ export class ReceivingTaskListComponent {
 		
 		try {
 			this.loadingService.show();
-			const location = this.selectedTask.items?.[0]?.location || '';
-			const response = await this.receivingTaskService.completeFullTask(this.selectedTask.id, location);
+			const response = await this.receivingTaskService.completeFullTask(this.selectedTask.id);
 			if (response.result.success) {
 				this.alertService.success(
 					response.result.message || this.t('task_completed_successfully'),
@@ -231,9 +230,10 @@ export class ReceivingTaskListComponent {
 					this.t('error')
 				);
 			}
-		} catch (error) {
+		} catch (error: any) {
+			const errorMessage = error?.result?.message || error?.message || this.t('failed_to_complete_task');
 			this.alertService.error(
-				this.t('failed_to_complete_task'),
+				errorMessage,
 				this.t('error')
 			);
 		} finally {
@@ -608,61 +608,62 @@ export class ReceivingTaskListComponent {
 
 		try {
 			this.loadingService.show();
-			const location = this.getTaskLocation();
+			
+			const inboundNumber = this.selectedTask.inbound_number || this.selectedTask.task_id;
+			if (!inboundNumber) {
+				this.alertService.error(this.t('inbound_number_required'), this.t('error'));
+				return;
+			}
 			
 			for (const [indexStr, editedItem] of Object.entries(this.editingQuantities)) {
 				const index = parseInt(indexStr);
 				const originalItem = this.selectedTask.items[index];
 				const typedEditedItem = editedItem as any;
 				
-				let itemRequest: ReceivingTaskItemRequest;
+				const lineNumber = index;
+				const inboundId = this.selectedTask.id;
 				
-				// Different logic based on whether item has lots or not
-				if (this.hasLots(originalItem)) {
-					// For items WITH lots: use lot quantities, calculate total received_qty from lots
-					const totalReceivedFromLots = typedEditedItem.lots.reduce((sum: number, lot: any) => 
-						sum + (lot.received_quantity || lot.quantity || 0), 0);
-					
-					itemRequest = {
+				// Calculate total quantity
+				const totalQuantity = this.hasLots(originalItem) 
+					? typedEditedItem.lots.reduce((sum: number, lot: any) => {
+						const lotQty = lot.received_quantity !== undefined ? lot.received_quantity : (lot.quantity !== undefined ? lot.quantity : 0);
+						return sum + lotQty;
+					}, 0)
+					: typedEditedItem.received_qty;
+				
+				const lineData: any = {
+					location: typedEditedItem.location || originalItem.location,
+					quantity: totalQuantity
+				};
+				
+				// Only include lots if they exist
+				if (typedEditedItem.lots && typedEditedItem.lots.length > 0) {
+					lineData.lots = typedEditedItem.lots.map((lot: any) => ({
+						lot_number: lot.lot_number,
 						sku: originalItem.sku,
-						expected_qty: originalItem.expected_qty, 
-						location: typedEditedItem.location,
-						received_qty: totalReceivedFromLots, 
-						status: 'completed',
-						lots: typedEditedItem.lots.map((lot: any) => ({
-							lot_number: lot.lot_number,
-							sku: originalItem.sku,
-							quantity: lot.received_quantity, 
-							received_quantity: lot.received_quantity,
-							expiration_date: lot.expiration_date,
-							status: 'received'
-						})),
-						serials: typedEditedItem.serials.map((serial: any) => ({
-							serial_number: serial.serial_number,
-							sku: originalItem.sku,
-							status: 'received'
-						}))
-					};
-				} else {
-					itemRequest = {
+						quantity: lot.received_quantity !== undefined ? lot.received_quantity : (lot.quantity !== undefined ? lot.quantity : 0),
+						expiration_date: lot.expiration_date || null,
+						inbound_id: inboundId,
+						line_number: lineNumber,
+						status: 'received'
+					}));
+				}
+				
+				// Only include series if they exist
+				if (typedEditedItem.serials && typedEditedItem.serials.length > 0) {
+					lineData.series = typedEditedItem.serials.map((serial: any) => ({
+						serial_number: serial.serial_number,
 						sku: originalItem.sku,
-						expected_qty: typedEditedItem.received_qty, 
-						location: typedEditedItem.location,
-						received_qty: typedEditedItem.received_qty,
-						status: 'completed',
-						lots: [],
-						serials: typedEditedItem.serials.map((serial: any) => ({
-							serial_number: serial.serial_number,
-							sku: originalItem.sku,
-							status: 'received'
-						}))
-					};
+						inbound_id: inboundId,
+						line_number: lineNumber,
+						status: 'received'
+					}));
 				}
 
 				const response = await this.receivingTaskService.completeReceivingLine(
-					this.selectedTask.id, 
-					location, 
-					itemRequest
+					inboundNumber,
+					lineNumber,
+					lineData
 				);
 
 				if (!response.result.success) {
@@ -682,9 +683,10 @@ export class ReceivingTaskListComponent {
 			this.closeDetails();
 			this.refresh.emit();
 
-		} catch (error) {
+		} catch (error: any) {
+			const errorMessage = error?.result?.message || error?.message || this.t('failed_to_save_adjustments');
 			this.alertService.error(
-				this.t('failed_to_save_adjustments'),
+				errorMessage,
 				this.t('error')
 			);
 		} finally {
@@ -697,12 +699,11 @@ export class ReceivingTaskListComponent {
 
 		try {
 			this.loadingService.show();
-			const location = this.getTaskLocation();
-			const response = await this.receivingTaskService.completeFullTask(this.selectedTask.id, location);
+			const response = await this.receivingTaskService.completeFullTask(this.selectedTask.id);
 			
 			if (response.result.success) {
 				this.alertService.success(
-					this.t('task_completed_successfully'),
+					response.result.message || this.t('task_completed_successfully'),
 					this.t('success')
 				);
 				this.closeDetails();
@@ -713,9 +714,10 @@ export class ReceivingTaskListComponent {
 					this.t('error')
 				);
 			}
-		} catch (error) {
+		} catch (error: any) {
+			const errorMessage = error?.result?.message || error?.message || this.t('failed_to_complete_task');
 			this.alertService.error(
-				this.t('failed_to_complete_task'),
+				errorMessage,
 				this.t('error')
 			);
 		} finally {
@@ -783,57 +785,4 @@ export class ReceivingTaskListComponent {
 		});
 	}
 
-	async completeFullTask(taskId: number, location: string): Promise<void> {
-		try {
-			this.loadingService.show();
-			const response = await this.receivingTaskService.completeFullTask(taskId, location);
-			if (response.result.success) {
-				this.alertService.success(
-					response.result.message || this.t('full_task_completed_successfully'),
-					this.t('success')
-				);
-				this.closeDetails();
-				this.refresh.emit();
-			} else {
-				this.alertService.error(
-					response.result.message || this.t('failed_to_complete_full_task'),
-					this.t('error')
-				);
-			}
-		} catch (error) {
-			this.alertService.error(
-				this.t('failed_to_complete_full_task'),
-				this.t('error')
-			);
-		} finally {
-			this.loadingService.hide();
-		}
-	}
-
-	async completeReceivingLine(taskId: number, location: string, item: ReceivingTaskItemRequest): Promise<void> {
-		try {
-			this.loadingService.show();
-			const response = await this.receivingTaskService.completeReceivingLine(taskId, location, item);
-			if (response.result.success) {
-				this.alertService.success(
-					response.result.message || this.t('receiving_line_completed_successfully'),
-					this.t('success')
-				);
-				this.closeDetails();
-				this.refresh.emit();
-			} else {
-				this.alertService.error(
-					response.result.message || this.t('failed_to_complete_receiving_line'),
-					this.t('error')
-				);
-			}
-		} catch (error) {
-			this.alertService.error(
-				this.t('failed_to_complete_receiving_line'),
-				this.t('error')
-			);
-		} finally {
-			this.loadingService.hide();
-		}
-	}
 }

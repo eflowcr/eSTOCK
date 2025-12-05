@@ -17,26 +17,28 @@ export interface PickingTask {
 }
 
 export interface PickingTaskItem {
+	// Campos del backend
+	outbound_id?: number;
+	line_number?: number;
 	sku: string;
+	description?: string;
+	location: string;
+	expected_quantity?: number;
+	picked_quantity?: number;
+	status?: string;
+	
+	// Campos legacy/compatibilidad
 	item_name?: string;
 	required_qty?: number; 
 	expectedQty?: number;
 	picked_qty?: number;
-	location: string;
 	lot_numbers?: string[]; 
 	lotNumbers?: string[] | null; 
 	serialNumbers?: string[] | null; 
-	lots?: Array<{
-		lot_number: string;
-		sku: string;
-		quantity: number;
-		expiration_date?: string | null;
-	}>;
-	serials?: Array<{
-		serial_number: string;
-		sku: string;
-		status: string;
-	}>; 
+	
+	// Lotes y series del backend
+	lots?: PickingTaskLineLot[] | null;
+	serials?: PickingTaskLineSerial[] | null;
 }
 
 export interface CreatePickingTaskRequest {
@@ -73,4 +75,37 @@ export interface PickingTaskSearchParams {
 	limit?: number;
 	sort_by?: string;
 	sort_order?: 'asc' | 'desc';
+}
+
+export interface ProcessPickingTaskLine {
+	location: string;
+	quantity: number;
+	series?: PickingTaskLineSerial[];
+	lots?: PickingTaskLineLot[];
+}
+
+export interface PickingTaskLineLot {
+	id?: number;
+	inventory_lot: number;
+	outbound_id: number;
+	line_number: number;
+	lot_number: string;
+	sku: string;
+	quantity: number;
+	expiration_date?: string | null;
+	created_at?: string;
+	updated_at?: string;
+	status?: string;
+}
+
+export interface PickingTaskLineSerial {
+	id?: number;
+	inventory_serial: number;
+	outbound_id: number;
+	line_number: number;
+	serial_number: string;
+	sku: string;
+	status: string;
+	created_at?: string;
+	updated_at?: string;
 }

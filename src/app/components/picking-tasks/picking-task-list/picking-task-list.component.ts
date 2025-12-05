@@ -273,6 +273,14 @@ export class PickingTaskListComponent {
 		return [];
 	}
 
+	getTotalQuantityFromLots(item: any): number {
+		const lots = this.getLotsForItem(item);
+		if (lots.length > 0) {
+			return lots.reduce((sum, lot) => sum + (lot.quantity || 0), 0);
+		}
+		return item.expected_quantity || item.required_qty || 0;
+	}
+
 	isTaskCompletelyPicked(): boolean {
 		if (!this.selectedTask?.items) return false;
 		
@@ -310,8 +318,7 @@ export class PickingTaskListComponent {
 		
 		try {
 			this.loadingService.show();
-			const location = this.selectedTask.items?.[0]?.location || '';
-			const response = await this.pickingTaskService.completeFullTask(this.selectedTask.id, location);
+			const response = await this.pickingTaskService.completeFullTask(this.selectedTask.id);
 			
 			if (this.isErrorResponse(response)) {
 				this.alertService.error(
@@ -709,6 +716,7 @@ export class PickingTaskListComponent {
 				quantity: quantityToAdd,
 				delivered_quantity: quantityToAdd,
 				expiration_date: selectedLot.expiration_date,
+				inventory_lot: selectedLot.inventory_lot,
 				status: 'delivered'
 			};
 
@@ -763,6 +771,7 @@ export class PickingTaskListComponent {
 		const newSerial = {
 			serial_number: selectedSerial.serial_number,
 			sku: originalItem.sku,
+			inventory_serial: selectedSerial.inventory_serial,
 			status: 'delivered'
 		};
 
@@ -853,28 +862,57 @@ export class PickingTaskListComponent {
 		try {
 			this.loadingService.show();
 			
+			const outboundNumber = this.selectedTask.outbound_number || this.selectedTask.task_id;
+			if (!outboundNumber) {
+				this.alertService.error(this.t('outbound_number_required'), this.t('error'));
+				return;
+			}
+			
 			for (const [itemIndex, adjustments] of Object.entries(this.editingQuantities)) {
 				const item = this.selectedTask.items?.[parseInt(itemIndex)];
 				if (!item) continue;
 
-				const location = item.location || '';
-				const adjustmentData = {
-					sku: item.sku,
-					status: 'open',
-					location: item.location,
-					required_qty: Number(item.required_qty) || 0,
+				const lineNumber = parseInt(itemIndex);
+				const outboundId = this.selectedTask.id;
+				
+				let totalQuantity = 0;
+				if (adjustments.lots && adjustments.lots.length > 0) {
+					totalQuantity = adjustments.lots.reduce((sum: number, lot: any) => 
+						sum + (Number(lot.delivered_quantity) || 0), 0);
+				} else if (adjustments.serials && adjustments.serials.length > 0) {
+					totalQuantity = adjustments.serials.length;
+				} else {
+					totalQuantity = Number(adjustments.delivered_qty) || Number(item.required_qty) || 0;
+				}
+				
+				const lineData = {
+					location: item.location || '',
+					quantity: totalQuantity,
 					lots: (adjustments.lots || []).map((lot: any) => ({
-						sku: item.sku,
-						status: 'open',
-						quantity: lot.delivered_quantity,
 						lot_number: lot.lot_number,
-						expiration_date: lot.expiration_date,
-						received_quantity: lot.quantity
+						sku: item.sku,
+						quantity: Number(lot.delivered_quantity) || 0,
+						expiration_date: lot.expiration_date || null,
+						inventory_lot: lot.inventory_lot,
+						outbound_id: outboundId,
+						line_number: lineNumber,
+						status: 'open'
 					})),
-					serials: adjustments.serials || []
+					serials: (adjustments.serials || []).map((serial: any) => ({
+						serial_number: serial.serial_number,
+						sku: item.sku,
+						inventory_serial: serial.inventory_serial,
+						outbound_id: outboundId,
+						line_number: lineNumber,
+						status: serial.status || 'available'
+					}))
 				};
 
-				const response = await this.pickingTaskService.completePickingLine(this.selectedTask.id, location, adjustmentData);
+				const response = await this.pickingTaskService.completePickingLine(
+					outboundNumber,
+					lineNumber,
+					lineData
+				);
 				
 				if (this.isErrorResponse(response)) {
 					this.alertService.error(

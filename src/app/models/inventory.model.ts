@@ -66,3 +66,27 @@ export interface Serial {
 	created_at: string;
 	updated_at: string;
 }
+
+export interface InventoryLot {
+	id: number;
+	inventory_id: number;
+	lot_id: number;
+	quantity: number;
+	location: string;
+	created_at: string;
+	status: string;
+	lot_number?: string;
+	expiration_date?: string | null;
+	sku?: string;
+}
+
+export interface InventorySerial {
+	id: number;
+	inventory_id: number;
+	serial_id: number;
+	location: string;
+	created_at: string;
+	status: string;
+	serial_number?: string;
+	sku?: string;
+}

@@ -202,7 +202,7 @@
                         <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{
                           t('qty') }}:</span>
                         <span class="ml-1 text-sm font-semibold text-gray-900 dark:text-white">{{
-                          item.expectedQty || item.required_qty }}</span>
+                          getTotalQuantityFromLots(item) }}</span>
                       </div>
                       <div class="flex-shrink-0">
                         <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{
