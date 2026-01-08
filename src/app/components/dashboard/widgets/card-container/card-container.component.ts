@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { LanguageService } from '@app/services/extras/language.service';
 
 @Component({
   selector: 'app-dashboard-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './card-container.component.html'
 })
 export class CardContainerComponent {

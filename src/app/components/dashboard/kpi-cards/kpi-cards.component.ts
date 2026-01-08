@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DashboardStats } from '@app/models/dashboard.model';
@@ -7,31 +7,34 @@ import { LanguageService } from '@app/services/extras/language.service';
 @Component({
   selector: 'app-dashboard-kpi-cards',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      <ng-container *ngIf="stats; else skeleton">
-        <div class="bg-white rounded-lg border border-border shadow-sm p-5" *ngFor="let kpi of kpis">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <span class="h-6 w-6 inline-block text-primary" [innerHTML]="sanitize(kpi.icon)"></span>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-primary truncate">{{ kpi.title }}</dt>
-                <dd class="text-lg font-medium text-[var(--foreground)]">{{ kpi.value }}</dd>
-              </dl>
+      @if (stats) {
+        @for (kpi of kpis; track kpi) {
+          <div class="bg-white rounded-lg border border-border shadow-sm p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <span class="h-6 w-6 inline-block text-primary" [innerHTML]="sanitize(kpi.icon)"></span>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-primary truncate">{{ kpi.title }}</dt>
+                  <dd class="text-lg font-medium text-[var(--foreground)]">{{ kpi.value }}</dd>
+                </dl>
+              </div>
             </div>
           </div>
-        </div>
-      </ng-container>
-      <ng-template #skeleton>
-        <div class="bg-white rounded-lg border border-border shadow-sm p-5 animate-pulse" *ngFor="let _ of [0,1,2,3]">
-          <div class="h-16 bg-gray-200 rounded"></div>
-        </div>
-      </ng-template>
+        }
+      } @else {
+        @for (_ of [0,1,2,3]; track _) {
+          <div class="bg-white rounded-lg border border-border shadow-sm p-5 animate-pulse">
+            <div class="h-16 bg-gray-200 rounded"></div>
+          </div>
+        }
+      }
     </div>
-  `,
+    `,
 })
 export class KpiCardsComponent {
   @Input() stats: DashboardStats | null = null;

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { StockAlert, StockAlertSearchParams } from '@app/models/stock-alert.model';
 import { AlertLevel } from '@app/models';
@@ -11,7 +11,7 @@ import { LoadingSpinnerComponent } from '@app/components/shared/extras/loading-s
 @Component({
   selector: 'app-stock-alerts-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LoadingSpinnerComponent],
+  imports: [FormsModule, LoadingSpinnerComponent],
   templateUrl: './stock-alerts-list.component.html',
   styleUrls: ['./stock-alerts-list.component.css']
 })

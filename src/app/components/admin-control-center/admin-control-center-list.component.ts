@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Badge, OperatorStats, UserBadge } from '../../models/gamification.model';
@@ -18,7 +18,7 @@ interface ExtendedOperatorStats extends OperatorStats {
 @Component({
   selector: 'app-admin-control-center-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, DataExportComponent, MainLayoutComponent],
+  imports: [FormsModule, DataExportComponent, MainLayoutComponent],
   templateUrl: './admin-control-center-list.component.html',
   styleUrls: ['./admin-control-center-list.component.css']
 })

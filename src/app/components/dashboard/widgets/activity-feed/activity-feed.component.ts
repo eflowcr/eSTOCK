@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DashboardService } from '@app/services/dashboard.service';
@@ -8,7 +8,7 @@ import { CardContainerComponent } from '../card-container/card-container.compone
 @Component({
   selector: 'app-dashboard-activity-feed',
   standalone: true,
-  imports: [CommonModule, CardContainerComponent],
+  imports: [CardContainerComponent],
   templateUrl: './activity-feed.component.html'
 })
 export class ActivityFeedComponent implements OnInit {

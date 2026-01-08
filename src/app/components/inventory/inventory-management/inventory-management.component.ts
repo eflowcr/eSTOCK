@@ -1,4 +1,4 @@
-import {CommonModule} from '@angular/common';
+
 import {Component, OnInit} from '@angular/core';
 
 import {Inventory} from '../../../models/inventory.model';
@@ -16,9 +16,12 @@ import {InventoryListComponent} from '../inventory-list/inventory-list.component
   selector: 'app-inventory-management',
   standalone: true,
   imports: [
-    CommonModule, MainLayoutComponent, InventoryListComponent,
-    InventoryFormComponent, FileImportComponent, DataExportComponent
-  ],
+    MainLayoutComponent,
+    InventoryListComponent,
+    InventoryFormComponent,
+    FileImportComponent,
+    DataExportComponent
+],
   templateUrl: './inventory-management.component.html',
   styleUrls: ['./inventory-management.component.css']
 })

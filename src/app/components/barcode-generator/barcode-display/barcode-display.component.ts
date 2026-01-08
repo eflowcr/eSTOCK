@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges, ElementRef, ViewChild, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { BarcodeService } from '@app/services/barcode.service';
 import { BarcodeItem, CodeType } from '@app/models/barcode.model';
 import { LanguageService } from '@app/services/extras/language.service';
@@ -7,7 +7,7 @@ import { LanguageService } from '@app/services/extras/language.service';
 @Component({
   selector: 'app-barcode-display',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './barcode-display.component.html',
   styleUrl: './barcode-display.component.css'
 })

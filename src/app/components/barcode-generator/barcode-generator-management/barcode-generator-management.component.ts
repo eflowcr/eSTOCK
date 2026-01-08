@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -23,12 +23,11 @@ import { LoadingSpinnerComponent } from '@app/components/shared/extras/loading-s
   selector: 'app-barcode-generator-management',
   standalone: true,
   imports: [
-    CommonModule, 
     FormsModule,
-    MainLayoutComponent, 
+    MainLayoutComponent,
     LoadingSpinnerComponent,
     BarcodeGeneratorDialogComponent
-  ],
+],
   templateUrl: './barcode-generator-management.component.html',
   styleUrl: './barcode-generator-management.component.css'
 })

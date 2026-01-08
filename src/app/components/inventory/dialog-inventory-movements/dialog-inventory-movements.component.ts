@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { InventoryMovement } from '@app/models/inventory-movement.model';
 import { Inventory } from '@app/models/inventory.model';
@@ -11,7 +11,7 @@ import { LoadingSpinnerComponent } from '@app/components/shared/extras/loading-s
 @Component({
   selector: 'app-dialog-inventory-movements',
   standalone: true,
-  imports: [CommonModule, FormsModule, LoadingSpinnerComponent],
+  imports: [FormsModule, LoadingSpinnerComponent],
   templateUrl: './dialog-inventory-movements.component.html',
   styleUrls: ['./dialog-inventory-movements.component.css']
 })

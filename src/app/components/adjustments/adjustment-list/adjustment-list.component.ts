@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Adjustment } from '../../../models/adjustment.model';
@@ -9,7 +9,7 @@ import { LanguageService } from '../../../services/extras/language.service';
 @Component({
   selector: 'app-adjustment-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './adjustment-list.component.html',
   styleUrl: './adjustment-list.component.css'
 })

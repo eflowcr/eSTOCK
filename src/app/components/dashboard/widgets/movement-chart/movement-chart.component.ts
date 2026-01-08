@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { LanguageService } from '@app/services/extras/language.service';
@@ -8,7 +8,7 @@ import { CardContainerComponent } from '../card-container/card-container.compone
 @Component({
   selector: 'app-dashboard-movement-chart',
   standalone: true,
-  imports: [CommonModule, CardContainerComponent],
+  imports: [CardContainerComponent],
   templateUrl: './movement-chart.component.html'
 })
 export class MovementChartComponent implements OnInit {

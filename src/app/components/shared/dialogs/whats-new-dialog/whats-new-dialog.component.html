@@ -1,79 +1,73 @@
 <!-- Backdrop del modal -->
-<div 
-  *ngIf="isVisible()"
-  class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
-  (click)="onBackdropClick($event)"
-  (keydown)="onKeyDown($event)"
-  tabindex="-1">
-  
-  <!-- Contenedor del modal -->
-  <div class="relative w-full max-w-4xl mx-4 max-h-[90vh] bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden animate-modal-enter">
-    
-    <!-- Header -->
-    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700">
-      <div class="flex items-center space-x-3">
-        <div>
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-            {{ t('whats_new_title') }}
-          </h2>
-          <p class="text-sm text-gray-600 dark:text-gray-300">
-            {{ t('whats_new_subtitle') }}
-          </p>
-        </div>
-      </div>
-      
-      <!-- Botón cerrar -->
-      <button
-        (click)="hide()"
-        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-        [title]="t('close')">
-        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Contenido -->
-    <div class="p-6 max-h-[calc(90vh-140px)] overflow-y-auto">
-      <!-- Lista de novedades -->
-      <div class="space-y-4">
-        <div 
-          *ngFor="let item of whatsNewItems(); trackBy: trackByItemId"
-          class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-5 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow duration-200">
-          
-          <!-- Header del item -->
-          <div class="flex items-start justify-between mb-3">
-            <div class="flex items-center space-x-3">
-              <div>
-                <h3 class="font-semibold text-gray-900 dark:text-white text-base">
-                  {{ item.title }}
-                </h3>
-                <div class="flex items-center space-x-2 mt-1">
-                  <span 
-                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                    [class]="getTypeClass(item.type)">
-                    {{ t('whats_new_type_' + item.type) }}
-                  </span>
-                  <span class="text-xs text-gray-500 dark:text-gray-400">
-                    {{ item.date }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Descripción -->
-          <div class="ml-11">
-            <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-              {{ item.description }}
+@if (isVisible()) {
+  <div
+    class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+    (click)="onBackdropClick($event)"
+    (keydown)="onKeyDown($event)"
+    tabindex="-1">
+    <!-- Contenedor del modal -->
+    <div class="relative w-full max-w-4xl mx-4 max-h-[90vh] bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden animate-modal-enter">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700">
+        <div class="flex items-center space-x-3">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+              {{ t('whats_new_title') }}
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-300">
+              {{ t('whats_new_subtitle') }}
             </p>
           </div>
         </div>
+        <!-- Botón cerrar -->
+        <button
+          (click)="hide()"
+          class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+          [title]="t('close')">
+          <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
-    </div>
-
-    <!-- Footer -->
-    <!-- <div class="flex items-center justify-between p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+      <!-- Contenido -->
+      <div class="p-6 max-h-[calc(90vh-140px)] overflow-y-auto">
+        <!-- Lista de novedades -->
+        <div class="space-y-4">
+          @for (item of whatsNewItems(); track trackByItemId($index, item)) {
+            <div
+              class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-5 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow duration-200">
+              <!-- Header del item -->
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                  <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white text-base">
+                      {{ item.title }}
+                    </h3>
+                    <div class="flex items-center space-x-2 mt-1">
+                      <span
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                        [class]="getTypeClass(item.type)">
+                        {{ t('whats_new_type_' + item.type) }}
+                      </span>
+                      <span class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ item.date }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Descripción -->
+              <div class="ml-11">
+                <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                  {{ item.description }}
+                </p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      <!-- Footer -->
+      <!-- <div class="flex items-center justify-between p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
       <div class="text-xs text-gray-500 dark:text-gray-400">
         {{ t('whats_new_version') }}: {{ version }}
       </div>
@@ -85,21 +79,22 @@
     </div> -->
   </div>
 </div>
+}
 
 <!-- Estilos de animación -->
 <style>
-@keyframes modal-enter {
+  @keyframes modal-enter {
   from {
-    opacity: 0;
-    transform: scale(0.95) translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
+}
+to {
+opacity: 1;
+transform: scale(1) translateY(0);
+}
 }
 
 .animate-modal-enter {
-  animation: modal-enter 0.2s ease-out;
+animation: modal-enter 0.2s ease-out;
 }
 </style>

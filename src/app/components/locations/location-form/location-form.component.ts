@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Location } from '../../../models/location.model';
 import { LocationService } from '../../../services/location.service';
@@ -9,7 +9,7 @@ import { AlertService } from '../../../services/extras/alert.service';
 @Component({
   selector: 'app-location-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './location-form.component.html',
   styleUrls: ['./location-form.component.css']
 })

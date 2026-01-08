@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Presentation } from '@app/models/presentation.model';
 import { PresentationService } from '@app/services';
@@ -11,7 +11,7 @@ import { LanguageService } from '@app/services/extras/language.service';
   templateUrl: './dialog-presentations.component.html',
   styleUrls: ['./dialog-presentations.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [FormsModule]
 })
 export class DialogPresentationsComponent implements OnInit {
   @Input() show = false;

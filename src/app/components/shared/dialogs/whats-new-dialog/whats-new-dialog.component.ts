@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { LanguageService } from '@app/services/extras/language.service';
 import { environment } from '@environment';
 
@@ -14,7 +14,7 @@ export interface WhatsNewItem {
 @Component({
   selector: 'app-whats-new-dialog',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './whats-new-dialog.component.html',
   styleUrl: './whats-new-dialog.component.css'
 })

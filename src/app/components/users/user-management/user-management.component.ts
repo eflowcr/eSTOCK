@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { User } from '../../../models/user.model';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
@@ -15,13 +15,12 @@ import { UserListComponent } from '../user-list/user-list.component';
   selector: 'app-user-management',
   standalone: true,
   imports: [
-    CommonModule, 
-    UserListComponent, 
-    UserFormComponent, 
-    FileImportComponent, 
+    UserListComponent,
+    UserFormComponent,
+    FileImportComponent,
     DataExportComponent,
     MainLayoutComponent
-  ],
+],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css']
 })

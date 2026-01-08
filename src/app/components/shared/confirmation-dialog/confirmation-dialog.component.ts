@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { LanguageService } from '../../../services/extras/language.service';
 
 @Component({
   selector: 'app-confirmation-dialog',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './confirmation-dialog.component.html'
 })
 export class ConfirmationDialogComponent {

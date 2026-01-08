@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -16,16 +16,15 @@ import { ReceivingTaskListComponent } from '../receiving-task-list/receiving-tas
 	selector: 'app-receiving-task-management',
 	standalone: true,
 	imports: [
-		CommonModule,
-		FormsModule,
-		ReactiveFormsModule,
-		RouterModule,
-		DataExportComponent,
-		FileImportComponent,
-		ReceivingTaskListComponent,
-		ReceivingTaskFormComponent,
-		MainLayoutComponent
-	],
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule,
+    DataExportComponent,
+    FileImportComponent,
+    ReceivingTaskListComponent,
+    ReceivingTaskFormComponent,
+    MainLayoutComponent
+],
 	templateUrl: './receiving-task-management.component.html',
 	styleUrls: ['./receiving-task-management.component.css']
 })

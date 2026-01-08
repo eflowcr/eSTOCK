@@ -1,314 +1,357 @@
 <div class="space-y-3">
   <!-- Loading State -->
-  <div *ngIf="isLoading" class="space-y-3">
-    <div *ngFor="let item of [1,2,3]" class="animate-pulse">
-      <div class="h-20 bg-gray-200 rounded dark:bg-gray-700"></div>
+  @if (isLoading) {
+    <div class="space-y-3">
+      @for (item of [1,2,3]; track item) {
+        <div class="animate-pulse">
+          <div class="h-20 bg-gray-200 rounded dark:bg-gray-700"></div>
+        </div>
+      }
     </div>
-  </div>
+  }
 
   <!-- Task List -->
-  <div *ngIf="!isLoading && tasks.length > 0" class="space-y-3">
-    <div *ngFor="let task of tasks"
-      class="bg-white rounded-lg border border-gray-200 shadow-sm p-4 dark:bg-gray-800 dark:border-gray-700">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <div>
-            <p class="text-sm font-medium text-gray-900 dark:text-white">
-              {{ t('picking_task_label') }}
-            </p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              {{ t('assigned_to_label') }} {{ getUserDisplayName(task) }}
-            </p>
+  @if (!isLoading && tasks.length > 0) {
+    <div class="space-y-3">
+      @for (task of tasks; track task) {
+        <div
+          class="bg-white rounded-lg border border-gray-200 shadow-sm p-4 dark:bg-gray-800 dark:border-gray-700">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <div>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ t('picking_task_label') }}
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ t('assigned_to_label') }} {{ getUserDisplayName(task) }}
+                </p>
+              </div>
+              <div class="flex-shrink-0">
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700">
+                  {{ task.order_number }}
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <!-- Priority Badge -->
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                [ngClass]="getPriorityBadge(task.priority).className">
+                {{ getPriorityBadge(task.priority).text }}
+              </span>
+              <!-- Status Badge -->
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                [ngClass]="getStatusBadge(task.status).className">
+                {{ getStatusBadge(task.status).text }}
+              </span>
+              <!-- Edit Button - only show for open picking tasks -->
+              @if (task.status === 'open') {
+                <button (click)="onEdit(task)"
+                  class="inline-flex items-center p-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                    </path>
+                  </svg>
+                </button>
+              }
+              <!-- View Details Button -->
+              <button (click)="onViewDetails(task)"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+                {{ t('view_details') }}
+              </button>
+            </div>
           </div>
-          <div class="flex-shrink-0">
-            <span
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700">
-              {{ task.order_number }}
-            </span>
+          <div class="mt-3">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+              {{ t('created_label') }} {{ formatDate(task.created_at) }}
+              @if (task.completed_at) {
+                <span>
+                  | {{ t('completed_label') }} {{ formatDateTime(task.completed_at) }}
+                </span>
+              }
+              @if (task.items) {
+                <span>
+                  | {{ t('items_label') }} {{ task.items.length }}
+                </span>
+              }
+            </div>
+            @if (task.notes) {
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ task.notes }}</p>
+            }
           </div>
         </div>
-        <div class="flex items-center space-x-2">
-          <!-- Priority Badge -->
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-            [ngClass]="getPriorityBadge(task.priority).className">
-            {{ getPriorityBadge(task.priority).text }}
-          </span>
-
-          <!-- Status Badge -->
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-            [ngClass]="getStatusBadge(task.status).className">
-            {{ getStatusBadge(task.status).text }}
-          </span>
-
-          <!-- Edit Button - only show for open picking tasks -->
-          <button *ngIf="task.status === 'open'" (click)="onEdit(task)"
-            class="inline-flex items-center p-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-              </path>
-            </svg>
-          </button>
-
-          <!-- View Details Button -->
-          <button (click)="onViewDetails(task)"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
-            {{ t('view_details') }}
-          </button>
-        </div>
-      </div>
-      <div class="mt-3">
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-          {{ t('created_label') }} {{ formatDate(task.created_at) }}
-          <span *ngIf="task.completed_at">
-            | {{ t('completed_label') }} {{ formatDateTime(task.completed_at) }}
-          </span>
-          <span *ngIf="task.items">
-            | {{ t('items_label') }} {{ task.items.length }}
-          </span>
-        </div>
-        <p *ngIf="task.notes" class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ task.notes }}</p>
-      </div>
+      }
     </div>
-  </div>
+  }
 
   <!-- Task Details Modal -->
-  <div *ngIf="selectedTask"
-    class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+  @if (selectedTask) {
     <div
-      class="relative mx-auto p-5 border border-gray-200 w-full max-w-3xl shadow-xl rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-          {{ t('picking_task_label') }} - {{ selectedTask.task_id }}
-        </h3>
-        <button (click)="closeDetails()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-
-      <div class="space-y-6">
-        <!-- Current Status Display -->
-        <div class="flex items-center space-x-2 mb-4">
-          <span class="text-sm text-gray-600 dark:text-gray-400">{{ t('current_status') }}:</span>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-            [ngClass]="getStatusBadge(selectedTask.status).className">
-            {{ getStatusBadge(selectedTask.status).text }}
-          </span>
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+      <div
+        class="relative mx-auto p-5 border border-gray-200 w-full max-w-3xl shadow-xl rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+            {{ t('picking_task_label') }} - {{ selectedTask.task_id }}
+          </h3>
+          <button (click)="closeDetails()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
         </div>
-
-        <!-- Acciones -->
-        <div *ngIf="selectedTask.status === 'open' || selectedTask.status === 'in_progress'"
-          class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-600">
-
-          <div class="flex flex-wrap gap-2 justify-center">
-            <button *ngIf="selectedTask.status === 'open'" (click)="updateTaskStatus(selectedTask.id, 'in_progress')"
-              class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-[#00113f] hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] transition-colors duration-200">
-              {{ t('start_task') }}
-            </button>
-
-            <button *ngIf="selectedTask.status === 'in_progress'" (click)="openAdjustmentDialog()"
-              class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                </path>
-              </svg>
-              {{ t('adjust_task') }}
-            </button>
-
-            <button *ngIf="selectedTask.status === 'in_progress'" (click)="completeTask()"
-              [disabled]="!isTaskCompletelyPicked()"
+        <div class="space-y-6">
+          <!-- Current Status Display -->
+          <div class="flex items-center space-x-2 mb-4">
+            <span class="text-sm text-gray-600 dark:text-gray-400">{{ t('current_status') }}:</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+              [ngClass]="getStatusBadge(selectedTask.status).className">
+              {{ getStatusBadge(selectedTask.status).text }}
+            </span>
+          </div>
+          <!-- Acciones -->
+          @if (selectedTask.status === 'open' || selectedTask.status === 'in_progress') {
+            <div
+              class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-600">
+              <div class="flex flex-wrap gap-2 justify-center">
+                @if (selectedTask.status === 'open') {
+                  <button (click)="updateTaskStatus(selectedTask.id, 'in_progress')"
+                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-[#00113f] hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] transition-colors duration-200">
+                    {{ t('start_task') }}
+                  </button>
+                }
+                @if (selectedTask.status === 'in_progress') {
+                  <button (click)="openAdjustmentDialog()"
+                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                      </path>
+                    </svg>
+                    {{ t('adjust_task') }}
+                  </button>
+                }
+                @if (selectedTask.status === 'in_progress') {
+                  <button (click)="completeTask()"
+                    [disabled]="!isTaskCompletelyPicked()"
               [class]="isTaskCompletelyPicked() ?
 								'inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200' :
 								'inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-gray-400 cursor-not-allowed transition-colors duration-200'"
-              [title]="!isTaskCompletelyPicked() ? t('complete_all_quantities_first') : ''">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              {{ t('complete_task') }}
-            </button>
-
-
-            <button *ngIf="selectedTask.status === 'in_progress'" (click)="closeDocument()"
-              class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              {{ t('close_document') }}
-            </button>
-
-            <button *ngIf="selectedTask.status === 'open' || selectedTask.status === 'in_progress'"
-              (click)="updateTaskStatus(selectedTask.id, 'cancelled')"
-              class="inline-flex items-center px-3 py-2 border border-red-300 text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-gray-800 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900 transition-colors duration-200">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-              {{ t('cancel_task') }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Task Details -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('outbound_number') }}</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ selectedTask.order_number ||
-              selectedTask.outbound_number }}</p>
-          </div>
-          <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('priority') }}</label>
-            <p class="text-sm">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                [ngClass]="getPriorityBadge(selectedTask.priority).className">
-                {{ getPriorityBadge(selectedTask.priority).text }}
-              </span>
-            </p>
-          </div>
-          <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('assigned_to') }}</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ getUserDisplayName(selectedTask) }}</p>
-          </div>
-          <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('created_by') }}</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ getCreatorDisplayName(selectedTask) }}</p>
-          </div>
-        </div>
-
-        <!-- Notes -->
-        <div *ngIf="selectedTask.notes">
-          <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('notes') }}</label>
-          <p class="text-sm text-gray-900 dark:text-white mt-1">{{ selectedTask.notes }}</p>
-        </div>
-
-        <!-- Items -->
-        <div *ngIf="selectedTask.items && selectedTask.items.length > 0">
-          <h4 class="font-medium text-gray-900 dark:text-white mb-2">{{ t('items') }}</h4>
-          <div class="space-y-2">
-            <div *ngFor="let item of selectedTask.items; let i = index"
-              class="bg-white rounded border border-gray-200 dark:bg-gray-800 dark:border-gray-600">
-              <div class="p-3">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-4 mb-2">
-                      <div class="flex-shrink-0">
-                        <span class="ml-1 text-sm font-semibold text-gray-900 dark:text-white">{{
-                          item.item_name }}</span><span *ngIf="item.item_name" class="ml-2 text-sm text-gray-600 dark:text-gray-300">({{ item.sku }})</span>
-                      </div>
-                      <div class="flex-shrink-0">
-                        <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{
-                          t('qty') }}:</span>
-                        <span class="ml-1 text-sm font-semibold text-gray-900 dark:text-white">{{
-                          getTotalQuantityFromLots(item) }}</span>
-                      </div>
-                      <div class="flex-shrink-0">
-                        <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{
-                          t('location') }}:</span>
-                        <span class="ml-1 text-sm font-semibold text-gray-900 dark:text-white">{{
-                          item.location }}</span>
-                      </div>
-                    </div>
-
-                    <div *ngIf="hasLotsOrSerials(item)" class="flex flex-wrap gap-1">
-                      <span *ngIf="getLotsForItem(item).length > 0"
-                        class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
-                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
-                          </path>
-                        </svg>
-                        {{ getLotsForItem(item).length }} lotes
-                      </span>
-                      <span *ngIf="getSerialsForItem(item).length > 0"
-                        class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300">
-                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
-                        </svg>
-                        {{ getSerialsForItem(item).length }} series
-                      </span>
-                    </div>
-                  </div>
-
-                  <div *ngIf="hasLotsOrSerials(item)" class="ml-2 flex-shrink-0">
-                    <button (click)="toggleItemExpansion(i)"
-                      class="inline-flex items-center justify-center w-6 h-6 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-all duration-200 dark:hover:text-gray-300 dark:hover:bg-gray-700"
-                      [attr.aria-expanded]="isItemExpanded(i)"
-                      [attr.aria-label]="isItemExpanded(i) ? t('collapse_details') : t('expand_details')">
-                      <svg class="w-4 h-4 transform transition-transform duration-200"
-                        [class.rotate-180]="isItemExpanded(i)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Detalles expandibles -->
-              <div *ngIf="hasLotsOrSerials(item) && isItemExpanded(i)"
-                class="border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50">
-                <div class="p-3 space-y-3">
-                  <!-- Sección de lotes -->
-                  <div *ngIf="getLotsForItem(item).length > 0">
-                    <div class="flex items-center mb-2">
-                      <svg class="w-3 h-3 text-blue-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
-                        </path>
-                      </svg>
-                      <h5 class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
-                        {{ t('lot_numbers') }}</h5>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                      <div *ngFor="let lot of getLotsForItem(item)"
-                        class="inline-flex items-center bg-white rounded border border-blue-200 px-2 py-1 dark:bg-gray-800 dark:border-blue-700">
-                        <span class="text-xs font-medium text-gray-900 dark:text-white mr-1">
-                          {{ lot.lot_number || lot }}
-                        </span>
-                        <span *ngIf="getReadOnlyQuantityForLot(item, lot)"
-                          class="text-xs text-gray-500 dark:text-gray-400 mr-1">
-                          ({{ getReadOnlyQuantityForLot(item, lot) }})
-                        </span>
-                        <span *ngIf="lot.expiration_date" class="text-xs text-orange-600 dark:text-orange-400">
-                          {{ formatDate(lot.expiration_date) }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Sección de series -->
-                  <div *ngIf="getSerialsForItem(item).length > 0">
-                    <div class="flex items-center mb-2">
-                      <svg class="w-3 h-3 text-green-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
-                      </svg>
-                      <h5 class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
-                        {{ t('serial_numbers') }}</h5>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                      <div *ngFor="let serial of getSerialsForItem(item)"
-                        class="inline-flex items-center bg-white rounded border border-green-200 px-2 py-1 dark:bg-gray-800 dark:border-green-700">
-                        <span class="text-xs font-medium text-gray-900 dark:text-white">
-                          {{ serial.serial_number || serial }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                    [title]="!isTaskCompletelyPicked() ? t('complete_all_quantities_first') : ''">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {{ t('complete_task') }}
+                  </button>
+                }
+                @if (selectedTask.status === 'in_progress') {
+                  <button (click)="closeDocument()"
+                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {{ t('close_document') }}
+                  </button>
+                }
+                @if (selectedTask.status === 'open' || selectedTask.status === 'in_progress') {
+                  <button
+                    (click)="updateTaskStatus(selectedTask.id, 'cancelled')"
+                    class="inline-flex items-center px-3 py-2 border border-red-300 text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-gray-800 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900 transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    {{ t('cancel_task') }}
+                  </button>
+                }
               </div>
             </div>
+          }
+          <!-- Task Details -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('outbound_number') }}</label>
+              <p class="text-sm text-gray-900 dark:text-white">{{ selectedTask.order_number ||
+              selectedTask.outbound_number }}</p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('priority') }}</label>
+              <p class="text-sm">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                  [ngClass]="getPriorityBadge(selectedTask.priority).className">
+                  {{ getPriorityBadge(selectedTask.priority).text }}
+                </span>
+              </p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('assigned_to') }}</label>
+              <p class="text-sm text-gray-900 dark:text-white">{{ getUserDisplayName(selectedTask) }}</p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('created_by') }}</label>
+              <p class="text-sm text-gray-900 dark:text-white">{{ getCreatorDisplayName(selectedTask) }}</p>
+            </div>
           </div>
-        </div>
+          <!-- Notes -->
+          @if (selectedTask.notes) {
+            <div>
+              <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('notes') }}</label>
+              <p class="text-sm text-gray-900 dark:text-white mt-1">{{ selectedTask.notes }}</p>
+            </div>
+          }
+          <!-- Items -->
+          @if (selectedTask.items && selectedTask.items.length > 0) {
+            <div>
+              <h4 class="font-medium text-gray-900 dark:text-white mb-2">{{ t('items') }}</h4>
+              <div class="space-y-2">
+                @for (item of selectedTask.items; track item; let i = $index) {
+                  <div
+                    class="bg-white rounded border border-gray-200 dark:bg-gray-800 dark:border-gray-600">
+                    <div class="p-3">
+                      <div class="flex items-start justify-between">
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-4 mb-2">
+                            <div class="flex-shrink-0">
+                              <span class="ml-1 text-sm font-semibold text-gray-900 dark:text-white">{{
+                              item.item_name }}</span>@if (item.item_name) {
+                              <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">({{ item.sku }})</span>
+                            }
+                          </div>
+                          <div class="flex-shrink-0">
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{
+                            t('qty') }}:</span>
+                            <span class="ml-1 text-sm font-semibold text-gray-900 dark:text-white">{{
+                            getTotalQuantityFromLots(item) }}</span>
+                          </div>
+                          <div class="flex-shrink-0">
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{
+                            t('location') }}:</span>
+                            <span class="ml-1 text-sm font-semibold text-gray-900 dark:text-white">{{
+                            item.location }}</span>
+                          </div>
+                        </div>
+                        @if (hasLotsOrSerials(item)) {
+                          <div class="flex flex-wrap gap-1">
+                            @if (getLotsForItem(item).length > 0) {
+                              <span
+                                class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
+                                  </path>
+                                </svg>
+                                {{ getLotsForItem(item).length }} lotes
+                              </span>
+                            }
+                            @if (getSerialsForItem(item).length > 0) {
+                              <span
+                                class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                                </svg>
+                                {{ getSerialsForItem(item).length }} series
+                              </span>
+                            }
+                          </div>
+                        }
+                      </div>
+                      @if (hasLotsOrSerials(item)) {
+                        <div class="ml-2 flex-shrink-0">
+                          <button (click)="toggleItemExpansion(i)"
+                            class="inline-flex items-center justify-center w-6 h-6 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-all duration-200 dark:hover:text-gray-300 dark:hover:bg-gray-700"
+                            [attr.aria-expanded]="isItemExpanded(i)"
+                            [attr.aria-label]="isItemExpanded(i) ? t('collapse_details') : t('expand_details')">
+                            <svg class="w-4 h-4 transform transition-transform duration-200"
+                              [class.rotate-180]="isItemExpanded(i)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                  <!-- Detalles expandibles -->
+                  @if (hasLotsOrSerials(item) && isItemExpanded(i)) {
+                    <div
+                      class="border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50">
+                      <div class="p-3 space-y-3">
+                        <!-- Sección de lotes -->
+                        @if (getLotsForItem(item).length > 0) {
+                          <div>
+                            <div class="flex items-center mb-2">
+                              <svg class="w-3 h-3 text-blue-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
+                                </path>
+                              </svg>
+                              <h5 class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                              {{ t('lot_numbers') }}</h5>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                              @for (lot of getLotsForItem(item); track lot) {
+                                <div
+                                  class="inline-flex items-center bg-white rounded border border-blue-200 px-2 py-1 dark:bg-gray-800 dark:border-blue-700">
+                                  <span class="text-xs font-medium text-gray-900 dark:text-white mr-1">
+                                    {{ lot.lot_number || lot }}
+                                  </span>
+                                  @if (getReadOnlyQuantityForLot(item, lot)) {
+                                    <span
+                                      class="text-xs text-gray-500 dark:text-gray-400 mr-1">
+                                      ({{ getReadOnlyQuantityForLot(item, lot) }})
+                                    </span>
+                                  }
+                                  @if (lot.expiration_date) {
+                                    <span class="text-xs text-orange-600 dark:text-orange-400">
+                                      {{ formatDate(lot.expiration_date) }}
+                                    </span>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+                        <!-- Sección de series -->
+                        @if (getSerialsForItem(item).length > 0) {
+                          <div>
+                            <div class="flex items-center mb-2">
+                              <svg class="w-3 h-3 text-green-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                              </svg>
+                              <h5 class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                              {{ t('serial_numbers') }}</h5>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                              @for (serial of getSerialsForItem(item); track serial) {
+                                <div
+                                  class="inline-flex items-center bg-white rounded border border-green-200 px-2 py-1 dark:bg-gray-800 dark:border-green-700">
+                                  <span class="text-xs font-medium text-gray-900 dark:text-white">
+                                    {{ serial.serial_number || serial }}
+                                  </span>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
       </div>
     </div>
   </div>
+}
 
-  <!-- Close Document Confirmation Modal -->
-  <div *ngIf="showCloseConfirmation"
+<!-- Close Document Confirmation Modal -->
+@if (showCloseConfirmation) {
+  <div
     class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-[60] flex items-center justify-center p-4">
     <div
       class="relative mx-auto p-6 border border-gray-200 w-full max-w-md shadow-xl rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700">
@@ -323,7 +366,6 @@
           </svg>
         </button>
       </div>
-
       <div class="space-y-4">
         <div class="flex items-start space-x-3">
           <svg class="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
@@ -337,7 +379,6 @@
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ t('close_anyway') }}</p>
           </div>
         </div>
-
         <div class="flex space-x-3 pt-4">
           <button (click)="closeConfirmationModal()"
             class="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
@@ -351,9 +392,11 @@
       </div>
     </div>
   </div>
+}
 
-  <!-- Adjustment Dialog -->
-  <div *ngIf="showAdjustmentDialog"
+<!-- Adjustment Dialog -->
+@if (showAdjustmentDialog) {
+  <div
     class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-[70] flex items-center justify-center p-4">
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col">
@@ -373,273 +416,302 @@
             </svg>
           </button>
         </div>
-
         <!-- Scrollable Content -->
         <div class="flex-1 overflow-y-auto p-4">
           <div class="space-y-3">
-            <div *ngFor="let item of selectedTask?.items; let i = index"
-              class="border border-gray-200 rounded-lg dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50">
-
-              <!-- Item Header - Compact -->
+            @for (item of selectedTask?.items; track item; let i = $index) {
               <div
-                class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-t-lg border-b border-gray-200 dark:border-gray-600">
-                <div class="flex items-center space-x-2">
-                  <div class="w-6 h-6 bg-blue-100 dark:bg-blue-900/30 rounded flex items-center justify-center">
-                    <svg class="w-3 h-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                class="border border-gray-200 rounded-lg dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50">
+                <!-- Item Header - Compact -->
+                <div
+                  class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-t-lg border-b border-gray-200 dark:border-gray-600">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 bg-blue-100 dark:bg-blue-900/30 rounded flex items-center justify-center">
+                      <svg class="w-3 h-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-semibold text-gray-900 dark:text-white">{{ item.item_name }}@if (item.item_name) {
+                        <span class="ml-2 font-normal text-gray-600 dark:text-gray-300">({{ item.sku }})</span>
+                      }</h4>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">{{ item.location }}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white">{{ item.item_name }}<span *ngIf="item.item_name" class="ml-2 font-normal text-gray-600 dark:text-gray-300">({{ item.sku }})</span></h4>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ item.location }}</p>
-                  </div>
-                </div>
-                <div class="flex items-center space-x-3">
-                  <div class="text-xs text-gray-600 dark:text-gray-400">
-                    <span class="font-medium">{{ t('picked') }}:</span>
-                    <span class="font-semibold text-gray-900 dark:text-white ml-1">{{ getCollectedQuantityForItem(i)
+                  <div class="flex items-center space-x-3">
+                    <div class="text-xs text-gray-600 dark:text-gray-400">
+                      <span class="font-medium">{{ t('picked') }}:</span>
+                      <span class="font-semibold text-gray-900 dark:text-white ml-1">{{ getCollectedQuantityForItem(i)
                       }}</span>
-                    <span class="text-gray-500 dark:text-gray-400">/ {{ item.required_qty }}</span>
-                  </div>
-                  <button *ngIf="hasLots(item)" (click)="toggleItemExpansion(i)"
-                    class="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-transform duration-200"
-                    [class.rotate-180]="isItemExpanded(i)">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Adjustment for Items WITHOUT Lots - Compact -->
-              <div *ngIf="!hasLots(item) && !hasSerials(item)" class="p-3 bg-white dark:bg-gray-800 rounded-b-lg">
-                <div class="flex items-center space-x-3">
-                  <label class="text-xs font-medium text-gray-900 dark:text-white min-w-[80px]">{{ t('quantity')
-                    }}:</label>
-                  <input *ngIf="editingQuantities[i]" type="number" [(ngModel)]="editingQuantities[i].delivered_qty"
-                    min="0" [disabled]="!canEditItem(item)"
-                    class="flex-1 px-2 py-1 text-xs text-gray-900 font-medium border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-                    placeholder="{{ item.required_qty }}">
-                </div>
-              </div>
-
-              <!-- Adjustment for Items WITH Lots - Collapsible -->
-              <div *ngIf="hasLots(item)" class="bg-white dark:bg-gray-800 rounded-b-lg"
-                [class.hidden]="!isItemExpanded(i)">
-                <div class="p-2 border-t border-gray-200 dark:border-gray-600">
-                  <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 flex justify-between">
-                    <span>{{ editingQuantities[i]?.lots?.length || 0 }} {{ t('lots_count') }}</span>
-                    <span>{{ t('total_expected') }}: {{ item.required_qty }}</span>
-                  </div>
-
-                  <!-- Existing Lots -->
-                  <div class="space-y-1 max-h-48 overflow-y-auto mb-3">
-                    <div *ngFor="let lot of editingQuantities[i]?.lots; let lotIndex = index"
-                      class="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-700 rounded text-xs">
-                      <div
-                        class="w-4 h-4 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                        <svg class="w-2 h-2 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
-                          viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                        </svg>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="font-medium text-gray-900 dark:text-white truncate">{{ lot.lot_number }}</div>
-                        <div *ngIf="lot.expiration_date" class="text-orange-600 dark:text-orange-400 truncate">{{
-                          t('expires') }}: {{ formatDate(lot.expiration_date) }}</div>
-                      </div>
-                      <div class="flex items-center space-x-1 flex-shrink-0">
-                        <input type="number" [ngModel]="getDisplayQuantityForLot(item, lot)"
-                          (ngModelChange)="canEditItem(item) ? lot.delivered_quantity = $event : null" min="0"
-                          [max]="lot.quantity" [disabled]="!canEditItem(item)"
-                          class="w-16 px-1 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:text-white disabled:bg-gray-100 disabled:text-gray-500"
-                          placeholder="{{ lot.quantity }}">
-                        <span class="text-gray-500 dark:text-gray-400">/ {{ lot.quantity }}</span>
-                      </div>
+                      <span class="text-gray-500 dark:text-gray-400">/ {{ item.required_qty }}</span>
                     </div>
-                  </div>
-
-                  <!-- Add More from Existing Lots Section -->
-                  <div *ngIf="needsMoreQuantity(i)" class="border-t border-gray-200 dark:border-gray-600 pt-2">
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-xs font-medium text-gray-700 dark:text-gray-300">{{ t('remaining_quantity') }}:
-                        {{ getRemainingQuantityForItem(i) }}</span>
-                      <button *ngIf="!showAddLotForm[i] && canEditItem(item)" (click)="showAddLotFormForItem(i)"
-                        class="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                          </path>
+                    @if (hasLots(item)) {
+                      <button (click)="toggleItemExpansion(i)"
+                        class="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-transform duration-200"
+                        [class.rotate-180]="isItemExpanded(i)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
-                        {{ t('add_from_lot') }}
                       </button>
+                    }
+                  </div>
+                </div>
+                <!-- Adjustment for Items WITHOUT Lots - Compact -->
+                @if (!hasLots(item) && !hasSerials(item)) {
+                  <div class="p-3 bg-white dark:bg-gray-800 rounded-b-lg">
+                    <div class="flex items-center space-x-3">
+                      <label class="text-xs font-medium text-gray-900 dark:text-white min-w-[80px]">{{ t('quantity')
+                      }}:</label>
+                      @if (editingQuantities[i]) {
+                        <input type="number" [(ngModel)]="editingQuantities[i].delivered_qty"
+                          min="0" [disabled]="!canEditItem(item)"
+                          class="flex-1 px-2 py-1 text-xs text-gray-900 font-medium border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                          placeholder="{{ item.required_qty }}">
+                      }
                     </div>
-
-                    <!-- Add Lot From Inventory Form -->
-                    <div *ngIf="showAddLotForm[i]"
-                      class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded border border-blue-200 dark:border-blue-700">
-                      <div class="space-y-2">
-                        <div class="text-xs font-medium text-blue-800 dark:text-blue-200 mb-2">{{
-                          t('select_lot_from_inventory') }}</div>
-
-                        <!-- Lot Selection -->
-                        <div class="flex space-x-2">
-                          <div class="flex-1">
-                            <select [(ngModel)]="selectedLotPerItem[i]"
-                              class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                              <option [ngValue]="null">{{ t('select_lot') }}</option>
-                              <option *ngFor="let lot of availableLotsPerItem[i]" [ngValue]="lot">
-                                {{ lot.lot_number }} ({{ t('available') }}: {{ lot.available_quantity }})
-                                <span *ngIf="lot.expiration_date"> - {{ t('expires') }}: {{
-                                  formatDate(lot.expiration_date) }}</span>
-                              </option>
+                  </div>
+                }
+                <!-- Adjustment for Items WITH Lots - Collapsible -->
+                @if (hasLots(item)) {
+                  <div class="bg-white dark:bg-gray-800 rounded-b-lg"
+                    [class.hidden]="!isItemExpanded(i)">
+                    <div class="p-2 border-t border-gray-200 dark:border-gray-600">
+                      <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 flex justify-between">
+                        <span>{{ editingQuantities[i]?.lots?.length || 0 }} {{ t('lots_count') }}</span>
+                        <span>{{ t('total_expected') }}: {{ item.required_qty }}</span>
+                      </div>
+                      <!-- Existing Lots -->
+                      <div class="space-y-1 max-h-48 overflow-y-auto mb-3">
+                        @for (lot of editingQuantities[i]?.lots; track lot; let lotIndex = $index) {
+                          <div
+                            class="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-700 rounded text-xs">
+                            <div
+                              class="w-4 h-4 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                              <svg class="w-2 h-2 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                              </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                              <div class="font-medium text-gray-900 dark:text-white truncate">{{ lot.lot_number }}</div>
+                              @if (lot.expiration_date) {
+                                <div class="text-orange-600 dark:text-orange-400 truncate">{{
+                                t('expires') }}: {{ formatDate(lot.expiration_date) }}</div>
+                              }
+                            </div>
+                            <div class="flex items-center space-x-1 flex-shrink-0">
+                              <input type="number" [ngModel]="getDisplayQuantityForLot(item, lot)"
+                                (ngModelChange)="canEditItem(item) ? lot.delivered_quantity = $event : null" min="0"
+                                [max]="lot.quantity" [disabled]="!canEditItem(item)"
+                                class="w-16 px-1 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:text-white disabled:bg-gray-100 disabled:text-gray-500"
+                                placeholder="{{ lot.quantity }}">
+                              <span class="text-gray-500 dark:text-gray-400">/ {{ lot.quantity }}</span>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                      <!-- Add More from Existing Lots Section -->
+                      @if (needsMoreQuantity(i)) {
+                        <div class="border-t border-gray-200 dark:border-gray-600 pt-2">
+                          <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-medium text-gray-700 dark:text-gray-300">{{ t('remaining_quantity') }}:
+                            {{ getRemainingQuantityForItem(i) }}</span>
+                            @if (!showAddLotForm[i] && canEditItem(item)) {
+                              <button (click)="showAddLotFormForItem(i)"
+                                class="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                                  </path>
+                                </svg>
+                                {{ t('add_from_lot') }}
+                              </button>
+                            }
+                          </div>
+                          <!-- Add Lot From Inventory Form -->
+                          @if (showAddLotForm[i]) {
+                            <div
+                              class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded border border-blue-200 dark:border-blue-700">
+                              <div class="space-y-2">
+                                <div class="text-xs font-medium text-blue-800 dark:text-blue-200 mb-2">{{
+                                t('select_lot_from_inventory') }}</div>
+                                <!-- Lot Selection -->
+                                <div class="flex space-x-2">
+                                  <div class="flex-1">
+                                    <select [(ngModel)]="selectedLotPerItem[i]"
+                                      class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                      <option [ngValue]="null">{{ t('select_lot') }}</option>
+                                      @for (lot of availableLotsPerItem[i]; track lot) {
+                                        <option [ngValue]="lot">
+                                          {{ lot.lot_number }} ({{ t('available') }}: {{ lot.available_quantity }})
+                                          @if (lot.expiration_date) {
+                                            <span> - {{ t('expires') }}: {{
+                                            formatDate(lot.expiration_date) }}</span>
+                                          }
+                                        </option>
+                                      }
+                                    </select>
+                                  </div>
+                                  <div class="w-20">
+                                    <input type="number" [(ngModel)]="quantityToAddPerItem[i]" min="1"
+                                      [max]="selectedLotPerItem[i]?.available_quantity || 1" placeholder="{{ t('qty') }}"
+                                      class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                  </div>
+                                </div>
+                                <!-- Available quantity info -->
+                                @if (selectedLotPerItem[i]) {
+                                  <div class="text-xs text-blue-600 dark:text-blue-400">
+                                    {{ t('available_in_lot') }}: {{ selectedLotPerItem[i].available_quantity }}
+                                    @if (selectedLotPerItem[i].expiration_date) {
+                                      <span
+                                        class="ml-2 text-orange-600 dark:text-orange-400">
+                                        {{ t('expires') }}: {{ formatDate(selectedLotPerItem[i].expiration_date) }}
+                                      </span>
+                                    }
+                                  </div>
+                                }
+                                <div class="flex space-x-2">
+                                  <button (click)="addLotFromInventory(i)"
+                                    class="flex-1 text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 focus:outline-none focus:ring-1 focus:ring-green-500">{{
+                                  t('add_lot_quantity') }}</button>
+                                  <button (click)="hideAddLotFormForItem(i)"
+                                    class="flex-1 text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-500">{{
+                                  t('cancel') }}</button>
+                                </div>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+                <!-- Serials Management -->
+                @if (hasSerials(item)) {
+                  <div class="mt-4 border-t border-gray-200 dark:border-gray-600 pt-3">
+                    <div class="flex items-center justify-between mb-2">
+                      <div>
+                        <h6 class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('serial_numbers') }} ({{
+                        editingQuantities[i]?.serials?.length || 0 }})</h6>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <span>{{ t('available_serials') }}: {{ availableSerialsPerItem[i] ?
+                          availableSerialsPerItem[i].length : 0 }}</span>
+                          <span class="mx-2">|</span>
+                          <span>{{ t('required') }}: {{ item.required_qty }}</span>
+                        </div>
+                      </div>
+                      @if (needsMoreQuantity(i) && !showAddSerialForm[i] && canEditItem(item)) {
+                        <button
+                          (click)="showAddSerialFormForItem(i)"
+                          class="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 focus:outline-none focus:ring-1 focus:ring-green-500">
+                          <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                          </svg>
+                          {{ t('add_serial') }}
+                        </button>
+                      }
+                    </div>
+                    <!-- Existing Serials -->
+                    <div class="flex flex-wrap gap-2 mb-3">
+                      @for (serial of editingQuantities[i]?.serials; track serial; let serialIndex = $index) {
+                        <div
+                          class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 group">
+                          {{ serial.serial_number }}
+                          @if (canEditItem(item)) {
+                            <button (click)="removeSerial(i, serialIndex)"
+                              class="ml-1 text-green-600 hover:text-red-600 focus:outline-none opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="{{ t('remove_serial') }}">
+                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                                </path>
+                              </svg>
+                            </button>
+                          }
+                        </div>
+                      }
+                    </div>
+                    <!-- Add Serial from Inventory Form -->
+                    @if (showAddSerialForm[i] && canEditItem(item)) {
+                      <div
+                        class="bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-200 dark:border-green-700">
+                        <div class="space-y-2">
+                          <div>
+                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+                            t('select_serial') }}:</label>
+                            <select [(ngModel)]="selectedSerialPerItem[i]"
+                              class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-green-500 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                              <option [ngValue]="null">{{ t('select_serial') }}</option>
+                              @for (serial of availableSerialsPerItem[i]; track serial) {
+                                <option [ngValue]="serial">
+                                  {{ serial.serial_number }} - {{ serial.location }}
+                                </option>
+                              }
                             </select>
                           </div>
-                          <div class="w-20">
-                            <input type="number" [(ngModel)]="quantityToAddPerItem[i]" min="1"
-                              [max]="selectedLotPerItem[i]?.available_quantity || 1" placeholder="{{ t('qty') }}"
-                              class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                          <div class="flex space-x-2">
+                            <button (click)="addSerialFromInventory(i)"
+                              class="flex-1 text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 focus:outline-none focus:ring-1 focus:ring-green-500">{{
+                            t('add_serial') }}</button>
+                            <button (click)="hideAddSerialFormForItem(i)"
+                              class="flex-1 text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-500">{{
+                            t('cancel') }}</button>
                           </div>
                         </div>
-
-                        <!-- Available quantity info -->
-                        <div *ngIf="selectedLotPerItem[i]" class="text-xs text-blue-600 dark:text-blue-400">
-                          {{ t('available_in_lot') }}: {{ selectedLotPerItem[i].available_quantity }}
-                          <span *ngIf="selectedLotPerItem[i].expiration_date"
-                            class="ml-2 text-orange-600 dark:text-orange-400">
-                            {{ t('expires') }}: {{ formatDate(selectedLotPerItem[i].expiration_date) }}
-                          </span>
-                        </div>
-
-                        <div class="flex space-x-2">
-                          <button (click)="addLotFromInventory(i)"
-                            class="flex-1 text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 focus:outline-none focus:ring-1 focus:ring-green-500">{{
-                            t('add_lot_quantity') }}</button>
-                          <button (click)="hideAddLotFormForItem(i)"
-                            class="flex-1 text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-500">{{
-                            t('cancel') }}</button>
-                        </div>
                       </div>
-                    </div>
+                    }
+                    <!-- Remaining Quantity Info for Serials -->
+                    @if (needsMoreQuantity(i)) {
+                      <div class="mt-2">
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ t('remaining_serials_needed') }}: {{
+                        getRemainingQuantityForItem(i) }}</div>
+                        <!-- Alert when no more serials available -->
+                        @if (!hasAvailableSerialsToAdd(i)) {
+                          <div
+                            class="mt-1 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded text-xs">
+                            <div class="flex items-start space-x-2">
+                              <svg class="w-3 h-3 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                              </svg>
+                              <div>
+                                <div class="font-medium text-red-800 dark:text-red-200">{{ t('no_more_serials_available') }}
+                                </div>
+                                <div class="text-red-700 dark:text-red-300 mt-1">{{ t('no_serials_in_any_location') }}</div>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                        <!-- Alert when insufficient serials available -->
+                        @if (hasAvailableSerialsToAdd(i) && (availableSerialsPerItem[i]?.length || 0) < getRemainingQuantityForItem(i)) {
+                          <div
+                            class="mt-1 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded text-xs">
+                            <div class="flex items-start space-x-2">
+                              <svg class="w-3 h-3 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z">
+                                </path>
+                              </svg>
+                              <div>
+                                <div class="font-medium text-yellow-800 dark:text-yellow-200">{{
+                                t('insufficient_serials_available') }}</div>
+                                <div class="text-yellow-700 dark:text-yellow-300 mt-1">{{
+                                t('serials_from_other_locations_shown') }}</div>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
                   </div>
-                </div>
+                }
               </div>
-
-              <!-- Serials Management -->
-              <div *ngIf="hasSerials(item)" class="mt-4 border-t border-gray-200 dark:border-gray-600 pt-3">
-                <div class="flex items-center justify-between mb-2">
-                  <div>
-                    <h6 class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('serial_numbers') }} ({{
-                      editingQuantities[i]?.serials?.length || 0 }})</h6>
-                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      <span>{{ t('available_serials') }}: {{ availableSerialsPerItem[i] ?
-                        availableSerialsPerItem[i].length : 0 }}</span>
-
-                      <span class="mx-2">|</span>
-                      <span>{{ t('required') }}: {{ item.required_qty }}</span>
-                    </div>
-                  </div>
-                  <button *ngIf="needsMoreQuantity(i) && !showAddSerialForm[i] && canEditItem(item)"
-                    (click)="showAddSerialFormForItem(i)"
-                    class="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 focus:outline-none focus:ring-1 focus:ring-green-500">
-                    <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    {{ t('add_serial') }}
-                  </button>
-                </div>
-
-                <!-- Existing Serials -->
-                <div class="flex flex-wrap gap-2 mb-3">
-                  <div *ngFor="let serial of editingQuantities[i]?.serials; let serialIndex = index"
-                    class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 group">
-                    {{ serial.serial_number }}
-                    <button *ngIf="canEditItem(item)" (click)="removeSerial(i, serialIndex)"
-                      class="ml-1 text-green-600 hover:text-red-600 focus:outline-none opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="{{ t('remove_serial') }}">
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Add Serial from Inventory Form -->
-                <div *ngIf="showAddSerialForm[i] && canEditItem(item)"
-                  class="bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-200 dark:border-green-700">
-                  <div class="space-y-2">
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{
-                        t('select_serial') }}:</label>
-                      <select [(ngModel)]="selectedSerialPerItem[i]"
-                        class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-green-500 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option [ngValue]="null">{{ t('select_serial') }}</option>
-                        <option *ngFor="let serial of availableSerialsPerItem[i]" [ngValue]="serial">
-                          {{ serial.serial_number }} - {{ serial.location }}
-                        </option>
-                      </select>
-                    </div>
-                    <div class="flex space-x-2">
-                      <button (click)="addSerialFromInventory(i)"
-                        class="flex-1 text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 focus:outline-none focus:ring-1 focus:ring-green-500">{{
-                        t('add_serial') }}</button>
-                      <button (click)="hideAddSerialFormForItem(i)"
-                        class="flex-1 text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-500">{{
-                        t('cancel') }}</button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Remaining Quantity Info for Serials -->
-                <div *ngIf="needsMoreQuantity(i)" class="mt-2">
-                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ t('remaining_serials_needed') }}: {{
-                    getRemainingQuantityForItem(i) }}</div>
-
-                  <!-- Alert when no more serials available -->
-                  <div *ngIf="!hasAvailableSerialsToAdd(i)"
-                    class="mt-1 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded text-xs">
-                    <div class="flex items-start space-x-2">
-                      <svg class="w-3 h-3 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                      </svg>
-                      <div>
-                        <div class="font-medium text-red-800 dark:text-red-200">{{ t('no_more_serials_available') }}
-                        </div>
-                        <div class="text-red-700 dark:text-red-300 mt-1">{{ t('no_serials_in_any_location') }}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Alert when insufficient serials available -->
-                  <div
-                    *ngIf="hasAvailableSerialsToAdd(i) && (availableSerialsPerItem[i]?.length || 0) < getRemainingQuantityForItem(i)"
-                    class="mt-1 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded text-xs">
-                    <div class="flex items-start space-x-2">
-                      <svg class="w-3 h-3 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z">
-                        </path>
-                      </svg>
-                      <div>
-                        <div class="font-medium text-yellow-800 dark:text-yellow-200">{{
-                          t('insufficient_serials_available') }}</div>
-                        <div class="text-yellow-700 dark:text-yellow-300 mt-1">{{
-                          t('serials_from_other_locations_shown') }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            }
           </div>
         </div>
-
         <!-- Footer -->
         <div class="flex justify-end space-x-3 p-4 border-t border-gray-200 dark:border-gray-600 flex-shrink-0">
           <button (click)="closeAdjustmentDialog()"
@@ -655,4 +727,5 @@
       </div>
     </div>
   </div>
+}
 </div>

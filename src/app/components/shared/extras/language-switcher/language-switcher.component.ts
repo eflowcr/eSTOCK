@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { LanguageService, Language } from '../../../../services/extras/language.service';
 
 @Component({
   selector: 'app-language-switcher',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './language-switcher.component.html',
   styleUrls: ['./language-switcher.component.css']
 })

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { Location } from '../../../models/location.model';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
@@ -15,7 +15,6 @@ import { LocationFormComponent } from '../location-form/location-form.component'
   selector: 'app-location-management',
   standalone: true,
   imports: [
-    CommonModule,
     FileImportComponent,
     DataExportComponent,
     MainLayoutComponent,

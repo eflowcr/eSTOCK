@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { Subject, interval, startWith, switchMap, takeUntil } from 'rxjs';
 import { StockAlertService } from '@app/services';
@@ -12,7 +12,7 @@ import { CardContainerComponent } from '../card-container/card-container.compone
 @Component({
   selector: 'app-dashboard-stock-alerts',
   standalone: true,
-	imports: [CommonModule, RouterModule, LoadingSpinnerComponent, CardContainerComponent],
+	imports: [RouterModule, LoadingSpinnerComponent, CardContainerComponent],
 	templateUrl: './stock-alerts-widget.component.html',
 	styleUrl: './stock-alerts-widget.component.css'
 })

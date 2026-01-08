@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { Adjustment } from '../../../models/adjustment.model';
 import { AdjustmentService } from '../../../services/adjustment.service';
@@ -14,12 +14,11 @@ import { AdjustmentListComponent } from '../adjustment-list/adjustment-list.comp
   selector: 'app-adjustment-management',
   standalone: true,
   imports: [
-    CommonModule,
     DataExportComponent,
     MainLayoutComponent,
     AdjustmentListComponent,
     AdjustmentFormComponent
-  ],
+],
   templateUrl: './adjustment-management.component.html',
   styleUrl: './adjustment-management.component.css'
 })

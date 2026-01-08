@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, computed, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { GamificationService } from '../../../services/gamification.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
@@ -13,7 +13,7 @@ interface UserBadgeWithBadge extends UserBadge {
 @Component({
   selector: 'app-gamification-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './gamification-panel.component.html',
   styleUrls: ['./gamification-panel.component.css']
 })

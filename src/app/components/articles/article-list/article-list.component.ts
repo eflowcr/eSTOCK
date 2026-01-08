@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Article } from '../../../models/article.model';
@@ -13,7 +13,7 @@ import { DialogPresentationsComponent } from '../dialog-presentations/dialog-pre
 @Component({
   selector: 'app-article-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, DialogPresentationsComponent],
+  imports: [FormsModule, DialogPresentationsComponent],
   templateUrl: './article-list.component.html',
   styleUrls: ['./article-list.component.css']
 })

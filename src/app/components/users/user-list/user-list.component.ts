@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { User } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
@@ -12,7 +12,7 @@ import { PasswordChangeComponent } from '../password-change/password-change.comp
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, UserFormComponent, PasswordChangeComponent],
+  imports: [FormsModule, UserFormComponent, PasswordChangeComponent],
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css']
 })

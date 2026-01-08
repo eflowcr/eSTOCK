@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { FetchService } from '../../../services/extras/fetch.service';
@@ -25,7 +25,7 @@ export interface FileImportConfig {
 @Component({
   selector: 'app-file-import',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './file-import.component.html',
   styleUrls: ['./file-import.component.css']
 })

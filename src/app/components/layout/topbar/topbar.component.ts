@@ -1,5 +1,5 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmationDialogComponent],
+  imports: [FormsModule, ConfirmationDialogComponent],
   template: `
     <div class="sticky top-0 z-40 flex h-16 bg-white shadow-sm border-b border-gray-200">
       <div class="flex-1 px-4 flex justify-between items-center">
@@ -38,29 +38,31 @@ import { Subscription } from 'rxjs';
               (keydown.arrowdown)="moveActive(1)"
               (keydown.arrowup)="moveActive(-1)"
               (keydown.escape)="closeSuggestions()"
-            />
+              />
             <!-- Suggestions -->
-            <div *ngIf="showSuggestions" class="absolute mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
-              <ng-container *ngIf="filteredItems.length; else noResults">
-                <ul class="max-h-64 overflow-auto py-1">
-                  <li
-                    *ngFor="let item of filteredItems; let i = index"
-                    (click)="navigate(item)"
-                    [class]="i === activeIndex ? 'bg-gray-100' : ''"
-                    class="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center"
-                  >
-                    <span class="text-sm text-gray-700">{{ t(item.name) }}</span>
-                    <span class="ml-auto text-xs text-gray-400">{{ item.href }}</span>
-                  </li>
-                </ul>
-              </ng-container>
-              <ng-template #noResults>
-                <div class="px-3 py-2 text-sm text-gray-500">{{ t('search.no_results') }}</div>
-              </ng-template>
-            </div>
+            @if (showSuggestions) {
+              <div class="absolute mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                @if (filteredItems.length) {
+                  <ul class="max-h-64 overflow-auto py-1">
+                    @for (item of filteredItems; track item; let i = $index) {
+                      <li
+                        (click)="navigate(item)"
+                        [class]="i === activeIndex ? 'bg-gray-100' : ''"
+                        class="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center"
+                        >
+                        <span class="text-sm text-gray-700">{{ t(item.name) }}</span>
+                        <span class="ml-auto text-xs text-gray-400">{{ item.href }}</span>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <div class="px-3 py-2 text-sm text-gray-500">{{ t('search.no_results') }}</div>
+                }
+              </div>
+            }
           </div>
         </div>
-        
+    
         <!-- User Section -->
         <div class="ml-4 flex items-center space-x-4">
           <div class="flex items-center space-x-3">
@@ -73,13 +75,13 @@ import { Subscription } from 'rxjs';
                 {{ getInitials(firstName, lastName) }}
               </span>
             </div>
-            
-            
+    
+    
             <!-- Logout Button -->
-            <button 
+            <button
               (click)="openLogoutConfirm()"
               class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] transition-colors duration-200"
-            >
+              >
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
               </svg>
@@ -88,7 +90,7 @@ import { Subscription } from 'rxjs';
         </div>
       </div>
     </div>
-
+    
     <!-- Logout Confirmation Dialog -->
     <app-confirmation-dialog
       [isOpen]="isLogoutDialogOpen"
@@ -98,7 +100,7 @@ import { Subscription } from 'rxjs';
       (confirmed)="handleLogout()"
       (cancelled)="isLogoutDialogOpen = false"
     ></app-confirmation-dialog>
-  `,
+    `,
   styles: []
 })
 export class TopbarComponent implements OnInit, OnDestroy {

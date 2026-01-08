@@ -17,7 +17,7 @@
             (ngModelChange)="onSearch($event)"
             [placeholder]="t('search_users')"
             class="pl-9 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-          />
+            />
         </div>
       </div>
 
@@ -30,7 +30,7 @@
             [(ngModel)]="sortBy"
             (ngModelChange)="onSort($event)"
             class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          >
+            >
             <option value="first_name">{{ t('user_management.name') }}</option>
             <option value="email">{{ t('user_management.email') }}</option>
             <option value="role">{{ t('user_management.role') }}</option>
@@ -46,7 +46,7 @@
           [class.bg-blue-50]="filtersExpanded"
           [class.text-blue-600]="filtersExpanded"
           [class.border-blue-200]="filtersExpanded"
-        >
+          >
           <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
           </svg>
@@ -57,267 +57,277 @@
         </button>
 
         <!-- Clear Filters Button -->
-        <button
-          *ngIf="hasActiveFilters()"
-          type="button"
-          (click)="clearFilters()"
-          class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/30"
-        >
-          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-          {{ t('clear_filters') }}
-        </button>
+        @if (hasActiveFilters()) {
+          <button
+            type="button"
+            (click)="clearFilters()"
+            class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/30"
+            >
+            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            {{ t('clear_filters') }}
+          </button>
+        }
       </div>
     </div>
 
     <!-- Expandable Filters Section -->
-    <div *ngIf="filtersExpanded" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Role Filter -->
-        <div>
-          <label for="roleFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {{ t('user_management.role') }}
-          </label>
-          <select
-            id="roleFilter"
-            [(ngModel)]="roleFilter"
-            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          >
-            <option value="">{{ t('all_roles') }}</option>
-            <option *ngFor="let role of uniqueRoles" [value]="role">{{ role }}</option>
-          </select>
-        </div>
-
-        <!-- Status Filter -->
-        <div>
-          <label for="statusFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {{ t('user_management.status') }}
-          </label>
-          <select
-            id="statusFilter"
-            [(ngModel)]="statusFilter"
-            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          >
-            <option value="">{{ t('all_statuses') }}</option>
-            <option value="active">{{ t('user_management.active') }}</option>
-            <option value="inactive">{{ t('user_management.inactive') }}</option>
-          </select>
+    @if (filtersExpanded) {
+      <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Role Filter -->
+          <div>
+            <label for="roleFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {{ t('user_management.role') }}
+            </label>
+            <select
+              id="roleFilter"
+              [(ngModel)]="roleFilter"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              >
+              <option value="">{{ t('all_roles') }}</option>
+              @for (role of uniqueRoles; track role) {
+                <option [value]="role">{{ role }}</option>
+              }
+            </select>
+          </div>
+          <!-- Status Filter -->
+          <div>
+            <label for="statusFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {{ t('user_management.status') }}
+            </label>
+            <select
+              id="statusFilter"
+              [(ngModel)]="statusFilter"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              >
+              <option value="">{{ t('all_statuses') }}</option>
+              <option value="active">{{ t('user_management.active') }}</option>
+              <option value="inactive">{{ t('user_management.inactive') }}</option>
+            </select>
+          </div>
         </div>
       </div>
-    </div>
+    }
   </div>
 
   <!-- Table -->
   <div class="table-scroll-container overflow-x-auto" (scroll)="onTableScroll($event)">
-    <ng-container *ngIf="filteredAndSortedUsers.length > 0; else noDataTemplate">
-    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 users-table-fixed">
-      <thead class="bg-gray-50 dark:bg-gray-700">
-        <tr>
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer" (click)="onSort('first_name')">
-            {{ t('user_management.name') }}
-          </th>
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer" (click)="onSort('email')">
-            {{ t('user_management.email') }}
-          </th>
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer" (click)="onSort('role')">
-            {{ t('user_management.role') }}
-          </th>
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-            {{ t('user_management.status') }}
-          </th>
-          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer" (click)="onSort('created_at')">
-            {{ t('user_management.created') }}
-          </th>
-          <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-            {{ t('user_management.actions') }}
-          </th>
-        </tr>
-      </thead>
-      
-      <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-        <!-- Loading State -->
-        <tr *ngIf="isLoading">
-          <td colspan="6" class="px-6 py-4 text-center">
-            <div class="flex justify-center items-center space-x-2">
-              <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#4465ec]"></div>
-              <span class="text-gray-500 dark:text-gray-400">{{ t('loading') }}...</span>
-            </div>
-          </td>
-        </tr>
-
-        <!-- No Results -->
-        <tr *ngIf="!isLoading && filteredAndSortedUsers.length === 0">
-          <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-            <div class="flex flex-col items-center space-y-2">
-              <svg class="h-12 w-12 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-              </svg>
-              <p>{{ searchTerm ? t('no_users_match_search') : t('user_management.no_users_found') }}</p>
-            </div>
-          </td>
-        </tr>
-
-        <!-- User Rows -->
-        <tr *ngFor="let user of filteredAndSortedUsers; trackBy: trackByUserId" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-          <!-- Name with Avatar -->
-          <td class="px-3 py-3 whitespace-nowrap">
-            <div class="flex items-center">
-              <div class="h-10 w-10 rounded-full bg-[#00113f] flex items-center justify-center flex-shrink-0">
-                <img *ngIf="user.profile_image_url" 
-                     [src]="user.profile_image_url" 
-                     [alt]="getUserDisplayName(user)"
-                     class="h-10 w-10 rounded-full object-cover">
-                <span *ngIf="!user.profile_image_url" class="text-white text-sm font-medium">
-                  {{ getInitials(user.first_name, user.last_name) }}
-                </span>
-              </div>
-              <div class="ml-4">
-                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                  {{ getUserDisplayName(user) }}
+    @if (filteredAndSortedUsers.length > 0) {
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 users-table-fixed">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer" (click)="onSort('first_name')">
+              {{ t('user_management.name') }}
+            </th>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer" (click)="onSort('email')">
+              {{ t('user_management.email') }}
+            </th>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer" (click)="onSort('role')">
+              {{ t('user_management.role') }}
+            </th>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+              {{ t('user_management.status') }}
+            </th>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase cursor-pointer" (click)="onSort('created_at')">
+              {{ t('user_management.created') }}
+            </th>
+            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+              {{ t('user_management.actions') }}
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <!-- Loading State -->
+          @if (isLoading) {
+            <tr>
+              <td colspan="6" class="px-6 py-4 text-center">
+                <div class="flex justify-center items-center space-x-2">
+                  <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#4465ec]"></div>
+                  <span class="text-gray-500 dark:text-gray-400">{{ t('loading') }}...</span>
                 </div>
-                <!-- <div class="text-sm text-gray-500 dark:text-gray-400">
-                  ID: {{ user.id }}
-                </div> -->
+              </td>
+            </tr>
+          }
+          <!-- No Results -->
+          @if (!isLoading && filteredAndSortedUsers.length === 0) {
+            <tr>
+              <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                <div class="flex flex-col items-center space-y-2">
+                  <svg class="h-12 w-12 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                  </svg>
+                  <p>{{ searchTerm ? t('no_users_match_search') : t('user_management.no_users_found') }}</p>
+                </div>
+              </td>
+            </tr>
+          }
+          <!-- User Rows -->
+          @for (user of filteredAndSortedUsers; track trackByUserId($index, user)) {
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <!-- Name with Avatar -->
+              <td class="px-3 py-3 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 rounded-full bg-[#00113f] flex items-center justify-center flex-shrink-0">
+                    @if (user.profile_image_url) {
+                      <img
+                        [src]="user.profile_image_url"
+                        [alt]="getUserDisplayName(user)"
+                        class="h-10 w-10 rounded-full object-cover">
+                    }
+                    @if (!user.profile_image_url) {
+                      <span class="text-white text-sm font-medium">
+                        {{ getInitials(user.first_name, user.last_name) }}
+                      </span>
+                    }
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">
+                      {{ getUserDisplayName(user) }}
+                    </div>
+                    <!-- <div class="text-sm text-gray-500 dark:text-gray-400">
+                    ID: {{ user.id }}
+                  </div> -->
+                </div>
               </div>
-            </div>
-          </td>
-          
-          <!-- Email -->
-          <td class="px-3 py-3 whitespace-nowrap">
-            <div class="text-sm text-gray-900 dark:text-white">{{ user.email }}</div>
-          </td>
-          
-          <!-- Role -->
-          <td class="px-3 py-3 whitespace-nowrap">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  [class]="getRoleBadgeClass(user.role)">
-              {{ user.role }}
-            </span>
-          </td>
-          
-          <!-- Status -->
-          <td class="px-3 py-3 whitespace-nowrap">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  [class]="getStatusBadgeClass(user.is_active)">
-              {{ user.is_active ? t('user_management.active') : t('user_management.inactive') }}
-            </span>
-          </td>
-          
-          <!-- Created Date -->
-          <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-            {{ formatDate(user.created_at) }}
-          </td>
-          
-          <!-- Actions -->
-          <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium">
-            <div class="flex justify-center space-x-2">
-              <!-- Edit Button - Only for admin -->
-              <button *ngIf="isAdmin()"
-                      (click)="onEdit(user)"
-                      class="text-gray-400 hover:text-[#4465ec] p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]"
-                      [title]="t('user_management.edit_user')">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-              </button>
-              
-              <!-- View Button - Available for all users -->
-              <button (click)="onView(user)"
-                      class="text-gray-400 hover:text-[#4465ec] p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]"
-                      [title]="t('user_management.view_details')">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                </svg>
-              </button>
-              
-              <!-- Change Password Button - Only for admin -->
-              <button *ngIf="isAdmin()"
-                      (click)="onChangePassword(user)"
-                      class="text-gray-400 hover:text-orange-600 p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
-                      [title]="t('user_management.change_password')">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2a2 2 0 00-2 2m2-2V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0a2 2 0 002 2h6a2 2 0 002-2m0 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V9z"></path>
-                </svg>
-              </button>
-              
-              <!-- Delete Button - Only for admin -->
-              <button *ngIf="isAdmin()"
-                      (click)="onDelete(user.id)"
-                      class="text-gray-400 hover:text-red-600 p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      [title]="t('user_management.delete_user')">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-              </button>
-            </div>
-          </td>
-        </tr>
+            </td>
+            <!-- Email -->
+            <td class="px-3 py-3 whitespace-nowrap">
+              <div class="text-sm text-gray-900 dark:text-white">{{ user.email }}</div>
+            </td>
+            <!-- Role -->
+            <td class="px-3 py-3 whitespace-nowrap">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                [class]="getRoleBadgeClass(user.role)">
+                {{ user.role }}
+              </span>
+            </td>
+            <!-- Status -->
+            <td class="px-3 py-3 whitespace-nowrap">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                [class]="getStatusBadgeClass(user.is_active)">
+                {{ user.is_active ? t('user_management.active') : t('user_management.inactive') }}
+              </span>
+            </td>
+            <!-- Created Date -->
+            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+              {{ formatDate(user.created_at) }}
+            </td>
+            <!-- Actions -->
+            <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium">
+              <div class="flex justify-center space-x-2">
+                <!-- Edit Button - Only for admin -->
+                @if (isAdmin()) {
+                  <button
+                    (click)="onEdit(user)"
+                    class="text-gray-400 hover:text-[#4465ec] p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]"
+                    [title]="t('user_management.edit_user')">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                  </button>
+                }
+                <!-- View Button - Available for all users -->
+                <button (click)="onView(user)"
+                  class="text-gray-400 hover:text-[#4465ec] p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]"
+                  [title]="t('user_management.view_details')">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                </button>
+                <!-- Change Password Button - Only for admin -->
+                @if (isAdmin()) {
+                  <button
+                    (click)="onChangePassword(user)"
+                    class="text-gray-400 hover:text-orange-600 p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                    [title]="t('user_management.change_password')">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2a2 2 0 00-2 2m2-2V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0a2 2 0 002 2h6a2 2 0 002-2m0 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V9z"></path>
+                    </svg>
+                  </button>
+                }
+                <!-- Delete Button - Only for admin -->
+                @if (isAdmin()) {
+                  <button
+                    (click)="onDelete(user.id)"
+                    class="text-gray-400 hover:text-red-600 p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    [title]="t('user_management.delete_user')">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        }
       </tbody>
     </table>
-    </ng-container>
+  } @else {
+    <div class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ t('user_management.no_users_found') }}</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('user_management.no_users_description') }}</p>
+    </div>
+  }
 
-    <!-- No Data Template -->
-    <ng-template #noDataTemplate>
-      <div class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ t('user_management.no_users_found') }}</h3>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('user_management.no_users_description') }}</p>
-      </div>
-    </ng-template>
-  </div>
+  <!-- No Data Template -->
+</div>
 </div>
 
 <!-- Edit User Dialog -->
-<app-user-form 
-  [initialData]="editingUser" 
+<app-user-form
+  [initialData]="editingUser"
   [isOpen]="!!editingUser"
   (success)="onEditSuccess()"
   (closed)="closeEditDialog()">
 </app-user-form>
 
 <!-- View User Details Dialog -->
-<div *ngIf="viewingUser" class="fixed inset-0 z-50 overflow-y-auto">
-  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <!-- Background overlay -->
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeViewDialog()"></div>
-
-    <!-- Dialog -->
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full dark:bg-gray-800">
-      <!-- Header -->
-      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-          {{ t('user_management.view_details') }}
-        </h3>
-      </div>
-      
-      <!-- Content -->
-      <div class="bg-white px-4 pb-4 sm:p-6 space-y-4 dark:bg-gray-800">
-        <!-- User Avatar and Name -->
-        <div class="flex items-center space-x-4">
-          <div class="h-12 w-12 rounded-full bg-[#00113f] flex items-center justify-center">
-            <img *ngIf="viewingUser.profile_image_url" 
-                 [src]="viewingUser.profile_image_url" 
-                 [alt]="getUserDisplayName(viewingUser)"
-                 class="h-12 w-12 rounded-full object-cover">
-            <span *ngIf="!viewingUser.profile_image_url" class="text-white text-lg font-medium">
-              {{ getInitials(viewingUser.first_name, viewingUser.last_name) }}
-            </span>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ getUserDisplayName(viewingUser) }}
-            </h3>
-            <p class="text-gray-600 dark:text-gray-400">{{ viewingUser.email }}</p>
-          </div>
+@if (viewingUser) {
+  <div class="fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeViewDialog()"></div>
+      <!-- Dialog -->
+      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full dark:bg-gray-800">
+        <!-- Header -->
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+            {{ t('user_management.view_details') }}
+          </h3>
         </div>
-        
-        <!-- User Details Grid -->
-        <div class="grid grid-cols-2 gap-4">
-          <!-- <div>
+        <!-- Content -->
+        <div class="bg-white px-4 pb-4 sm:p-6 space-y-4 dark:bg-gray-800">
+          <!-- User Avatar and Name -->
+          <div class="flex items-center space-x-4">
+            <div class="h-12 w-12 rounded-full bg-[#00113f] flex items-center justify-center">
+              @if (viewingUser.profile_image_url) {
+                <img
+                  [src]="viewingUser.profile_image_url"
+                  [alt]="getUserDisplayName(viewingUser)"
+                  class="h-12 w-12 rounded-full object-cover">
+              }
+              @if (!viewingUser.profile_image_url) {
+                <span class="text-white text-lg font-medium">
+                  {{ getInitials(viewingUser.first_name, viewingUser.last_name) }}
+                </span>
+              }
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                {{ getUserDisplayName(viewingUser) }}
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400">{{ viewingUser.email }}</p>
+            </div>
+          </div>
+          <!-- User Details Grid -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- <div>
             <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('user_management.user_id') }}</label>
             <p class="text-sm text-gray-900 dark:text-white">{{ viewingUser.id }}</p>
           </div> -->
@@ -325,7 +335,7 @@
             <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('user_management.role') }}</label>
             <p class="text-sm">
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    [class]="getRoleBadgeClass(viewingUser.role)">
+                [class]="getRoleBadgeClass(viewingUser.role)">
                 {{ viewingUser.role }}
               </span>
             </p>
@@ -334,7 +344,7 @@
             <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('user_management.status') }}</label>
             <p class="text-sm">
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    [class]="getStatusBadgeClass(viewingUser.is_active)">
+                [class]="getStatusBadgeClass(viewingUser.is_active)">
                 {{ viewingUser.is_active ? t('user_management.active') : t('user_management.inactive') }}
               </span>
             </p>
@@ -345,71 +355,73 @@
           </div>
         </div>
       </div>
-      
       <!-- Footer -->
       <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse dark:bg-gray-700">
-        <button type="button" 
-                (click)="closeViewDialog()"
-                class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-500">
+        <button type="button"
+          (click)="closeViewDialog()"
+          class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-500">
           {{ t('close') }}
         </button>
       </div>
     </div>
   </div>
 </div>
+}
 
 <!-- Delete Confirmation Dialog -->
-<div *ngIf="deletingUserId" class="fixed inset-0 z-50 overflow-y-auto">
-  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <!-- Background overlay -->
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeDeleteDialog()"></div>
-
-    <!-- Dialog -->
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full dark:bg-gray-800">
-      <!-- Header -->
-      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
-        <div class="sm:flex sm:items-start">
-          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-            </svg>
-          </div>
-          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-              {{ t('user_management.delete_user') }}
-            </h3>
-            <div class="mt-2">
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                {{ t('user_management.delete_confirm') }}<br/>
-                {{ t('user_management.delete_warning') }}
-              </p>
+@if (deletingUserId) {
+  <div class="fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeDeleteDialog()"></div>
+      <!-- Dialog -->
+      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full dark:bg-gray-800">
+        <!-- Header -->
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
+          <div class="sm:flex sm:items-start">
+            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+              <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+            </div>
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                {{ t('user_management.delete_user') }}
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ t('user_management.delete_confirm') }}<br/>
+                  {{ t('user_management.delete_warning') }}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <!-- Footer -->
-      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse dark:bg-gray-700">
-        <button type="button"
-                (click)="confirmDelete()"
-                [disabled]="isDeleting"
-                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
-          <span *ngIf="isDeleting" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-          {{ isDeleting ? t('user_management.deleting') : t('user_management.delete') }}
-        </button>
-        <button type="button"
-                (click)="closeDeleteDialog()"
-                [disabled]="isDeleting"
-                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:mr-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-500">
-          {{ t('user_management.cancel') }}
-        </button>
+        <!-- Footer -->
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse dark:bg-gray-700">
+          <button type="button"
+            (click)="confirmDelete()"
+            [disabled]="isDeleting"
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
+            @if (isDeleting) {
+              <span class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+            }
+            {{ isDeleting ? t('user_management.deleting') : t('user_management.delete') }}
+          </button>
+          <button type="button"
+            (click)="closeDeleteDialog()"
+            [disabled]="isDeleting"
+            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:mr-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-500">
+            {{ t('user_management.cancel') }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+}
 
 <!-- Change Password Dialog -->
-<app-password-change 
+<app-password-change
   [user]="changingPasswordUser"
   [isOpen]="!!changingPasswordUser"
   (success)="onPasswordChangeSuccess()"

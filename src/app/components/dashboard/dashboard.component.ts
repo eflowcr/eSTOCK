@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { MainLayoutComponent } from '../layout/main-layout.component';
@@ -16,13 +16,12 @@ import { StockAlertsWidgetComponent } from './widgets/stock-alerts/stock-alerts-
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
     MainLayoutComponent,
     KpiCardsComponent,
     ActivityFeedComponent,
     MovementChartComponent,
-    StockAlertsWidgetComponent,
-  ],
+    StockAlertsWidgetComponent
+],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })

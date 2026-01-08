@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { Article } from '../../../models/article.model';
 import { ArticleService } from '../../../services/article.service';
@@ -15,7 +15,6 @@ import { ArticleListComponent } from '../article-list/article-list.component';
   selector: 'app-article-management',
   standalone: true,
   imports: [
-    CommonModule,
     FileImportComponent,
     DataExportComponent,
     MainLayoutComponent,

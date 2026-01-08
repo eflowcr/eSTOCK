@@ -1,30 +1,34 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Subscription } from 'rxjs';
 import { LoadingService } from '../../../../services/extras/loading.service';
 
 @Component({
   selector: 'app-loading-spinner',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <!-- Spinner sutil en la esquina superior derecha -->
-    <div 
-      *ngIf="showSpinner" 
-      class="loading-indicator"
-      [class.visible]="showSpinner"
-    >
-      <div class="subtle-spinner"></div>
-      <span class="loading-text" *ngIf="showText">Cargando</span>
-    </div>
-
+    @if (showSpinner) {
+      <div
+        class="loading-indicator"
+        [class.visible]="showSpinner"
+        >
+        <div class="subtle-spinner"></div>
+        @if (showText) {
+          <span class="loading-text">Cargando</span>
+        }
+      </div>
+    }
+    
     <!-- Barra de progreso sutil en la parte superior -->
-    <div 
-      *ngIf="showSpinner" 
-      class="loading-bar"
-      [class.active]="showSpinner"
-    ></div>
-  `,
+    @if (showSpinner) {
+      <div
+        class="loading-bar"
+        [class.active]="showSpinner"
+      ></div>
+    }
+    `,
   styles: [`
     /* Indicador sutil en esquina superior derecha */
     .loading-indicator {

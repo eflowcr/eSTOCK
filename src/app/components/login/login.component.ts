@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -27,7 +27,7 @@ interface RegisterFormData {
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LanguageSwitcherComponent, AlertComponent],
+  imports: [ReactiveFormsModule, LanguageSwitcherComponent, AlertComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })

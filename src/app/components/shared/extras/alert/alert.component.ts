@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Subscription } from 'rxjs';
 import { AlertService, Alert } from '../../../../services/extras/alert.service';
 
 @Component({
   selector: 'app-alert',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './alert.component.html',
   styles: [`
     @keyframes slide-in-right {

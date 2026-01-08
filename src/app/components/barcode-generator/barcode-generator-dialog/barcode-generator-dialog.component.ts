@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, signal, computed, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { BarcodeItem, BarcodeOptions, DEFAULT_BARCODE_OPTIONS, CodeType } from '@app/models/barcode.model';
 import { BarcodeService } from '@app/services/barcode.service';
@@ -11,10 +11,9 @@ import { BarcodeDisplayComponent } from '../barcode-display/barcode-display.comp
   selector: 'app-barcode-generator-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     BarcodeDisplayComponent
-  ],
+],
   templateUrl: './barcode-generator-dialog.component.html',
   styleUrl: './barcode-generator-dialog.component.css'
 })

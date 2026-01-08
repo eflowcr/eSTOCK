@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
@@ -16,7 +16,7 @@ export type ExportFormat = 'csv' | 'xlsx';
 @Component({
   selector: 'app-data-export',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './data-export.component.html',
   styleUrl: './data-export.component.css'
 })

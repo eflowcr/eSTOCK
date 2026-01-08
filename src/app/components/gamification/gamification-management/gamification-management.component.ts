@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { AlertService } from '../../../services/extras/alert.service';
@@ -13,11 +13,10 @@ import { UserStat, Badge } from '../../../models/gamification.model';
   selector: 'app-gamification-management',
   standalone: true,
   imports: [
-    CommonModule, 
     GamificationPanelComponent,
     DataExportComponent,
     MainLayoutComponent
-  ],
+],
   templateUrl: './gamification-management.component.html',
   styleUrls: ['./gamification-management.component.css']
 })

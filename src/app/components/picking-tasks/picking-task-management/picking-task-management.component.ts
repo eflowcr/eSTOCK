@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { PickingTask } from '@app/models/picking-task.model';
@@ -17,16 +17,15 @@ import { MainLayoutComponent } from '@app/components/layout/main-layout.componen
 	selector: 'app-picking-task-management',
 	standalone: true,
 	imports: [
-		CommonModule,
-		FormsModule,
-		ReactiveFormsModule,
-		RouterModule,
-		DataExportComponent,
-		FileImportComponent,
-		PickingTaskListComponent,
-		PickingTaskFormComponent,
-		MainLayoutComponent
-	],
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule,
+    DataExportComponent,
+    FileImportComponent,
+    PickingTaskListComponent,
+    PickingTaskFormComponent,
+    MainLayoutComponent
+],
 	templateUrl: './picking-task-management.component.html',
 	styleUrls: ['./picking-task-management.component.css']
 })

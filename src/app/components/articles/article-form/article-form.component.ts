@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Article, CreateArticleRequest, UpdateArticleRequest } from '../../../models/article.model';
@@ -11,7 +11,7 @@ import { LanguageService } from '../../../services/extras/language.service';
 @Component({
   selector: 'app-article-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './article-form.component.html',
   styleUrls: ['./article-form.component.css']
 })

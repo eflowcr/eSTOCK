@@ -1,4 +1,4 @@
-import {CommonModule} from '@angular/common';
+
 import {Component, OnInit} from '@angular/core';
 import {NavigationEnd, Router, RouterModule} from '@angular/router';
 import {filter} from 'rxjs/operators';
@@ -13,7 +13,7 @@ import { environment } from '@environment';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './sidebar.component.html',
   styles: [`
     /* Ocultar scrollbar completamente pero mantener funcionalidad */
