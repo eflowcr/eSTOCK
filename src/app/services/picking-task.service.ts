@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiResponse } from '@app/models';
-import { PickingTask, CreatePickingTaskRequest, UpdatePickingTaskRequest, PickingTaskSearchParams } from '@app/models/picking-task.model';
+import { PickingTask, CreatePickingTaskRequest, UpdatePickingTaskRequest, PickingTaskSearchParams, ProcessPickingTaskLine } from '@app/models/picking-task.model';
 import { returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { FetchService } from './extras/fetch.service';
@@ -111,44 +111,51 @@ export class PickingTaskService {
 	}
 
 	/**
-	 * @description Complete full picking task for a specific location
+	 * @description Complete full picking task
 	 * @param id Picking task ID
-	 * @param location Location identifier
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	async completeFullTask(id: number, location: string): Promise<ApiResponse<any>> {
+	async completeFullTask(id: number): Promise<ApiResponse<any>> {
 		return await this.fetchService.patch<ApiResponse<any>>({
-			API_Gateway: `${PICKING_TASK_URL}/complete-full-task/${id}/${location}`,
+			API_Gateway: `${PICKING_TASK_URL}/complete-full-task/${id}`,
 		});
 	}
 
 	/**
 	 * @description Complete a specific picking line item within a task
-	 * @param id Picking task ID
-	 * @param location Location identifier
-	 * @param item Picking task item data
+	 * @param outboundNumber Outbound number identifier
+	 * @param lineNumber Line number to complete
+	 * @param lineData Line data with location, quantity, series and lots
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	async completePickingLine(id: number, location: string, item: any): Promise<ApiResponse<any>> {
+	async completePickingLine(
+		outboundNumber: number,
+		lineNumber: number,
+		lineData: ProcessPickingTaskLine
+	): Promise<ApiResponse<any>> {
 		// Use custom method to handle malformed response (two concatenated JSONs)
-		return await this.completePickingLineCustom(id, location, item);
+		return await this.completePickingLineCustom(outboundNumber, lineNumber, lineData);
 	}
 
 	/**
 	 * @description Custom method to handle malformed response from complete-picking-line endpoint
-	 * @param id Picking task ID
-	 * @param location Location identifier
-	 * @param item Picking task item data
+	 * @param outboundNumber Outbound number identifier
+	 * @param lineNumber Line number to complete
+	 * @param lineData Line data with location, quantity, series and lots
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	private async completePickingLineCustom(id: number, location: string, item: any): Promise<ApiResponse<any>> {
-		const url = `${PICKING_TASK_URL}/complete-picking-line/${id}/${location}`;
+	private async completePickingLineCustom(
+		outboundNumber: number,
+		lineNumber: number,
+		lineData: ProcessPickingTaskLine
+	): Promise<ApiResponse<any>> {
+		const url = `${PICKING_TASK_URL}/complete-picking-line/${outboundNumber}/${lineNumber}`;
 		
 		try {
 			// Make request expecting text response instead of JSON
 			const response = await this.fetchService.patchText({
 				API_Gateway: url,
-				values: item,
+				values: lineData,
 			});
 
 			// Parse the response which contains two concatenated JSONs

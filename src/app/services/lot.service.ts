@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiResponse } from '@app/models';
 import { Lot, CreateLotRequest, UpdateLotRequest, LotSearchParams } from '@app/models/lot.model';
+import { InventoryLot } from '@app/models/inventory.model';
 import { returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { FetchService } from './extras/fetch.service';
@@ -35,6 +36,17 @@ export class LotService {
 	async getBySku(sku: string): Promise<ApiResponse<Lot[]>> {
 		return await this.fetchService.get<ApiResponse<Lot[]>>({
 			API_Gateway: `${LOT_URL}/${sku}`,
+		});
+	}
+
+	/**
+	 * @description Get inventory lots by SKU
+	 * @param sku Article SKU
+	 * @returns Promise<ApiResponse<InventoryLot[]>>
+	 */
+	async getInventoryBySku(sku: string): Promise<ApiResponse<InventoryLot[]>> {
+		return await this.fetchService.get<ApiResponse<InventoryLot[]>>({
+			API_Gateway: `${LOT_URL}/inventory/${sku}`,
 		});
 	}
 

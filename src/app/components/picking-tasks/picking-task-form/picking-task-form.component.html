@@ -29,7 +29,7 @@
 
       <!-- Form Content -->
       <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 max-h-[80vh] overflow-y-auto">
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+        <form *ngIf="formReady" [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
           <!-- Task Header Information -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Outbound Number -->
@@ -379,6 +379,7 @@
                                         class="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-1 py-0.5 rounded">
                                         {{ lotObj.quantity }}
                                       </span>
+                                      
                                     </div>
                                     <div *ngIf="lotObj.expiration_date && shouldShowExpirationDate(i)" class="text-xs"
                                       [class.text-red-600]="isLotExpired(lotObj.expiration_date)"
