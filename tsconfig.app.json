@@ -8,7 +8,7 @@
     "baseUrl": "./",
     "paths": {
       "@app/*": ["src/app/*"],
-      "@environment": ["src/enviroment/environment.base.ts"],
+      "@environment": ["src/environment/environment.base.ts"],
       "@services": ["src/app/services/index.ts"]
     }
   },

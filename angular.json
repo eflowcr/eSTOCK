@@ -31,6 +31,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environment/environment.base.ts",
+                  "with": "src/environment/environment.generated.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -46,6 +52,12 @@
               "outputHashing": "all"
             },
             "development": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environment/environment.base.ts",
+                  "with": "src/environment/environment.generated.ts"
+                }
+              ],
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true

@@ -252,8 +252,10 @@ export class AuthService {
 			error: null
 		});
 
-		// Navigate to dashboard or home
-		this.router.navigate(['/dashboard']);
+		// Navigate to dashboard, or to the URL stored before redirect to login
+		const redirectUrl = localStorage.getItem('redirectUrl') || '/dashboard';
+		localStorage.removeItem('redirectUrl');
+		this.router.navigateByUrl(redirectUrl);
 	}
 
 	/**
@@ -301,6 +303,22 @@ export class AuthService {
 	 */
 	private clearAuthData(): void {
 		localStorage.removeItem(this.AUTH_STORAGE_KEY);
+	}
+
+	/**
+	 * @description Clear session and redirect to login (e.g. on 401). Does not call backend logout.
+	 * @memberof AuthService
+	 */
+	clearSession(): void {
+		this.clearAuthData();
+		this.updateAuthState({
+			user: null,
+			token: null,
+			isAuthenticated: false,
+			isLoading: false,
+			error: null
+		});
+		this.router.navigate(['/login']);
 	}
 
 	/**

@@ -18,9 +18,9 @@ export class FetchService {
     private redirectService: RedirectService,
   ) {}
 
-  enviroment = environment.API.BASE;
+  apiBase = environment.API.BASE;
   Simple() {
-    this.http.get(`${this.enviroment}/`);
+    this.http.get(`${this.apiBase}/`);
   }
 
   // #region Deprecated

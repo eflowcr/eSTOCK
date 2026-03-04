@@ -8,8 +8,13 @@ export const handleError = (error: HttpErrorResponse, redirectService: RedirectS
     localStorage.setItem('error', JSON.stringify(error));
   }
 
+  // 401 handled by AuthInterceptor (clear session + redirect to login)
   if (error.status === 401) {
-    redirectService.redirectToLogin();
+    return throwError(() => error.error);
+  }
+  // 403 message shown by AuthInterceptor
+  if (error.status === 403) {
+    return throwError(() => error.error);
   }
 
   return throwError(() => error.error);

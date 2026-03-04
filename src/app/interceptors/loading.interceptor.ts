@@ -3,7 +3,7 @@ import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse, Htt
 import { Observable } from 'rxjs';
 import { tap, finalize } from 'rxjs/operators';
 import { LoadingService } from '../services/extras/loading.service';
-import { environment } from '../../enviroment/environment.base';
+import { environment } from '@environment';
 
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
