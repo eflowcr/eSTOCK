@@ -9,6 +9,7 @@ import { User } from '../../../models/user.model';
 import { NavigationItem, NavigationItems } from '../../../models/navigation.model';
 import { NavigationService } from '../../../services/extras/navigation.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
+import { SidebarService } from '@app/services';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Subscription } from 'rxjs';
 
@@ -17,19 +18,24 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, FormsModule, ConfirmationDialogComponent],
   template: `
-    <div class="sticky top-0 z-40 flex h-16 bg-white shadow-sm border-b border-gray-200">
-      <div class="flex-1 px-4 flex justify-between items-center">
-        <!-- Search Section -->
-        <div class="flex-1 flex max-w-lg" (keydown)="$event.stopPropagation()">
-          <div class="relative w-full text-gray-400 focus-within:text-gray-600">
-            <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
+    <div class="flex flex-1 items-center gap-2">
+      <button
+        type="button"
+        (click)="toggleSidebar()"
+        class="inline-flex size-8 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground md:flex shrink-0"
+        aria-label="Toggle sidebar"
+      >
+        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="h-4 w-px shrink-0 bg-border mx-2" aria-hidden="true"></div>
+      <div class="flex-1 flex max-w-lg min-w-0" (keydown)="$event.stopPropagation()">
+          <div class="relative w-full text-muted-foreground focus-within:text-foreground">
+            <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none pl-2">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             </div>
             <input
               [(ngModel)]="searchQuery"
-              class="block w-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-0 focus:border-transparent rounded-md"
+              class="h-9 w-full rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               [placeholder]="t('search.placeholder')"
               type="search"
               (focus)="openSuggestions()"
@@ -39,54 +45,40 @@ import { Subscription } from 'rxjs';
               (keydown.arrowup)="moveActive(-1)"
               (keydown.escape)="closeSuggestions()"
             />
-            <!-- Suggestions -->
-            <div *ngIf="showSuggestions" class="absolute mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
+            <div *ngIf="showSuggestions" class="absolute left-0 right-0 top-full mt-1 rounded-md border border-border bg-popover text-popover-foreground shadow-md z-50">
               <ng-container *ngIf="filteredItems.length; else noResults">
                 <ul class="max-h-64 overflow-auto py-1">
                   <li
                     *ngFor="let item of filteredItems; let i = index"
                     (click)="navigate(item)"
-                    [class]="i === activeIndex ? 'bg-gray-100' : ''"
-                    class="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center"
+                    [class]="i === activeIndex ? 'bg-accent' : ''"
+                    class="flex cursor-pointer items-center px-3 py-2 text-sm hover:bg-accent"
                   >
-                    <span class="text-sm text-gray-700">{{ t(item.name) }}</span>
-                    <span class="ml-auto text-xs text-gray-400">{{ item.href }}</span>
+                    <span class="text-foreground">{{ t(item.name) }}</span>
+                    <span class="ml-auto text-xs text-muted-foreground">{{ item.href }}</span>
                   </li>
                 </ul>
               </ng-container>
               <ng-template #noResults>
-                <div class="px-3 py-2 text-sm text-gray-500">{{ t('search.no_results') }}</div>
+                <div class="px-3 py-2 text-sm text-muted-foreground">{{ t('search.no_results') }}</div>
               </ng-template>
             </div>
           </div>
         </div>
-        
-        <!-- User Section -->
-        <div class="ml-4 flex items-center space-x-4">
-          <div class="flex items-center space-x-3">
-            <!-- User Avatar -->
-            <span class="text-sm text-gray-700 whitespace-nowrap" [title]="fullName">
-              {{ fullName }}
-            </span>
-            <div class="h-8 w-8 rounded-full bg-[#00113f] flex items-center justify-center">
-              <span class="text-white text-sm font-medium">
-                {{ getInitials(firstName, lastName) }}
-              </span>
-            </div>
-            
-            
-            <!-- Logout Button -->
-            <button 
-              (click)="openLogoutConfirm()"
-              class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] transition-colors duration-200"
-            >
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-              </svg>
-            </button>
+        <div class="flex flex-1 justify-end gap-2">
+          <span class="hidden text-sm text-muted-foreground sm:inline-block truncate max-w-[120px]" [title]="fullName">{{ fullName }}</span>
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-medium">
+            {{ getInitials(firstName, lastName) }}
           </div>
+          <button
+            type="button"
+            (click)="openLogoutConfirm()"
+            class="inline-flex size-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            aria-label="Logout"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </button>
         </div>
-      </div>
     </div>
 
     <!-- Logout Confirmation Dialog -->
@@ -123,7 +115,12 @@ export class TopbarComponent implements OnInit, OnDestroy {
     private router: Router,
     private navigationService: NavigationService,
     private authorizationService: AuthorizationService,
+    private sidebarService: SidebarService,
   ) {}
+
+  toggleSidebar(): void {
+    this.sidebarService.toggle();
+  }
 
   ngOnInit(): void {
     // Get current user from auth service

@@ -1,17 +1,160 @@
 <app-main-layout>
-  <div class="space-y-4 h-full overflow-hidden">
-    <div>
-      <h1 class="text-2xl font-semibold text-primary">{{ t('dashboard') }}</h1>
+  <div class="space-y-6">
+    <!-- Header: title + controls -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <h1 class="text-2xl font-semibold text-foreground">{{ t('dashboard') }}</h1>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="rounded-md border border-border bg-background px-3 py-1.5 text-sm text-muted-foreground">Oct 18 – Nov 18</span>
+        <select class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground">
+          <option>{{ t('dashboard.monthly') }}</option>
+        </select>
+        <button type="button" class="inline-flex h-9 items-center justify-center rounded-md border border-border bg-background px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+          {{ t('dashboard.filter') }}
+        </button>
+        <button type="button" class="inline-flex h-9 items-center justify-center rounded-md border border-border bg-background px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+          {{ t('dashboard.export') }}
+        </button>
+      </div>
     </div>
 
-    <div class="flex-none">
-      <app-dashboard-kpi-cards [stats]="stats"></app-dashboard-kpi-cards>
+    <!-- KPI cards (3) -->
+    <div class="grid gap-4 sm:grid-cols-3">
+      <div
+        *ngFor="let kpi of kpis"
+        class="rounded-xl border border-border bg-card p-6 text-card-foreground shadow-sm"
+      >
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-sm font-medium text-muted-foreground">{{ t(kpi.title) }}</p>
+            <p class="mt-2 text-2xl font-bold tracking-tight">{{ kpi.value }}</p>
+            <p class="mt-1 flex items-center gap-1 text-xs" [class.text-red-600]="kpi.changePercent < 0" [class.text-emerald-600]="kpi.changePercent >= 0">
+              <span>{{ kpi.changePercent >= 0 ? '↑' : '↓' }}</span>
+              <span>{{ (kpi.changePercent >= 0 ? '' : '') + kpi.changePercent + '%' }}</span>
+              <span class="text-muted-foreground">{{ t(kpi.changeLabel || 'dashboard.vs_last_month') }}</span>
+            </p>
+          </div>
+          <button type="button" class="rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground" aria-label="Info">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 min-h-0 overflow-hidden">
-      <app-dashboard-movement-chart></app-dashboard-movement-chart>
-      <app-dashboard-activity-feed></app-dashboard-activity-feed>
-      <app-dashboard-stock-alerts></app-dashboard-stock-alerts>
+    <!-- Row: Movements overview (stacked bar) + Tasks this week (bar) -->
+    <div class="grid gap-6 lg:grid-cols-3">
+      <!-- Movements overview - stacked bar -->
+      <div class="rounded-xl border border-border bg-card p-6 shadow-sm lg:col-span-2">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-semibold text-foreground">{{ t('dashboard.movements_overview') }}</h3>
+            <p class="mt-0.5 text-sm text-muted-foreground">$9,257.51 <span class="text-emerald-600">15.8% ↑ +$143.50</span></p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" class="text-sm text-muted-foreground hover:text-foreground">{{ t('dashboard.filter') }}</button>
+            <button type="button" class="text-sm text-muted-foreground hover:text-foreground">{{ t('dashboard.sort') }}</button>
+            <button type="button" class="rounded p-1 text-muted-foreground hover:bg-accent">…</button>
+          </div>
+        </div>
+        <div class="mt-6 flex items-end justify-between gap-4">
+          <div *ngFor="let point of stackedBarData" class="flex flex-1 flex-col items-center gap-2">
+            <div class="flex w-full flex-row gap-0.5 rounded overflow-hidden" style="height: 32px;">
+              <div
+                *ngFor="let seg of point.segments"
+                class="min-w-0 transition-opacity hover:opacity-90"
+                [style.flex]="seg.value + ' 1 0'"
+                [style.background]="seg.color"
+              ></div>
+            </div>
+            <span class="text-xs font-medium text-muted-foreground">{{ point.period }}</span>
+            <span class="text-xs text-muted-foreground">${{ point.total.toFixed(2) }}</span>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-4 border-t border-border pt-4">
+          <span *ngFor="let seg of stackedBarLegend" class="flex items-center gap-2 text-xs text-muted-foreground">
+            <span class="h-3 w-3 rounded-sm shrink-0" [style.background]="seg.color"></span>
+            {{ t('dashboard.' + seg.key) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Tasks this week -->
+      <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-semibold text-foreground">{{ t('dashboard.tasks_this_week') }}</h3>
+            <p class="mt-0.5 text-sm text-muted-foreground">24,473 <span class="text-emerald-600">8.3% ↑ +749</span></p>
+          </div>
+          <select class="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground">
+            <option>{{ t('dashboard.weekly') }}</option>
+          </select>
+        </div>
+        <div class="mt-6 flex items-end justify-between gap-1" style="height: 140px;">
+          <div *ngFor="let d of tasksByDay" class="flex flex-1 flex-col items-center gap-1">
+            <div
+              class="w-full max-w-[24px] rounded-t-sm bg-primary/80 transition-opacity hover:opacity-90"
+              [style.height.%]="(d.count / maxTasksCount) * 100"
+            ></div>
+            <span class="text-xs text-muted-foreground">{{ d.day }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row: Donut + Table -->
+    <div class="grid gap-6 lg:grid-cols-2">
+      <!-- Inventory distribution - donut -->
+      <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-semibold text-foreground">{{ t('dashboard.inventory_distribution') }}</h3>
+          <select class="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground">
+            <option>{{ t('dashboard.monthly') }}</option>
+          </select>
+        </div>
+        <div class="mt-6 flex flex-col items-center gap-4 sm:flex-row">
+          <div class="relative h-40 w-40 shrink-0 rounded-full" [style.background]="donutConicGradient">
+            <div class="absolute inset-[25%] rounded-full bg-card" aria-hidden="true"></div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <div *ngFor="let slice of donutData" class="flex items-center gap-2 text-sm">
+              <span class="h-3 w-3 rounded-sm shrink-0" [style.background]="slice.color"></span>
+              <span class="text-foreground">{{ slice.label }}</span>
+              <span class="text-muted-foreground">{{ slice.amount }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top articles table -->
+      <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-semibold text-foreground">{{ t('dashboard.top_articles') }}</h3>
+          <a routerLink="/articles" class="text-sm font-medium text-primary hover:underline">{{ t('dashboard.see_all') }}</a>
+        </div>
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-border text-left text-muted-foreground">
+                <th class="pb-3 font-medium">{{ t('dashboard.application') }}</th>
+                <th class="pb-3 font-medium">{{ t('dashboard.type') }}</th>
+                <th class="pb-3 font-medium">{{ t('dashboard.rate') }}</th>
+                <th class="pb-3 font-medium text-right">{{ t('dashboard.profit') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of tableRows" class="border-b border-border last:border-0">
+                <td class="py-3 font-medium text-foreground">{{ row.name }}</td>
+                <td class="py-3 text-muted-foreground">{{ row.type }}</td>
+                <td class="py-3">
+                  <div class="h-2 w-full max-w-[80px] overflow-hidden rounded-full bg-muted">
+                    <div class="h-full rounded-full bg-primary" [style.width.%]="row.ratePercent"></div>
+                  </div>
+                </td>
+                <td class="py-3 text-right font-medium text-foreground">{{ row.amount }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </app-main-layout>

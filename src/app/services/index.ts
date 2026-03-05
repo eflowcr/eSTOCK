@@ -11,6 +11,7 @@ export * from './picking-task.service';
 export * from './extras/fetch.service';
 export * from './extras/language.service';
 export * from './extras/loading.service';
+export * from './extras/sidebar.service';
 export * from './dashboard.service';
 export * from './stock-alert.service';
 export * from './barcode.service';
