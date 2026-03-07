@@ -1,11 +1,20 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed, EventEmitter, Input, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import {
+  ColumnDef,
+  PaginationState,
+  SortingState,
+  createAngularTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+} from '@tanstack/angular-table';
 import { User } from '../../../models/user.model';
-import { UserService } from '../../../services/user.service';
-import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
+import { LanguageService } from '../../../services/extras/language.service';
+import { UserService } from '../../../services/user.service';
 import { UserFormComponent } from '../user-form/user-form.component';
 import { PasswordChangeComponent } from '../password-change/password-change.component';
 
@@ -17,7 +26,9 @@ import { PasswordChangeComponent } from '../password-change/password-change.comp
   styleUrls: ['./user-list.component.css']
 })
 export class UserListComponent {
-  @Input() users: User[] = [];
+  @Input() set users(value: User[]) {
+    this.usersSignal.set(value ?? []);
+  }
   @Input() isLoading = false;
   @Output() refresh = new EventEmitter<void>();
 
@@ -27,13 +38,80 @@ export class UserListComponent {
   isDeleting = false;
   changingPasswordUser: User | null = null;
 
-  // Search and filter properties
   searchTerm = '';
   roleFilter = '';
   statusFilter = '';
   sortBy = 'first_name';
   sortOrder: 'asc' | 'desc' = 'asc';
   filtersExpanded = false;
+
+  private readonly usersSignal = signal<User[]>([]);
+  private readonly searchTermSignal = signal('');
+  private readonly roleFilterSignal = signal('');
+  private readonly statusFilterSignal = signal('');
+  private readonly sorting = signal<SortingState>([{ id: 'first_name', desc: false }]);
+  private readonly pagination = signal<PaginationState>({
+    pageIndex: 0,
+    pageSize: 25,
+  });
+
+  readonly filteredUsers = computed(() => {
+    const rows = this.usersSignal();
+    const search = this.searchTermSignal().toLowerCase();
+    const role = this.roleFilterSignal();
+    const status = this.statusFilterSignal();
+
+    return rows.filter((user) => {
+      if (search) {
+        const matchesSearch =
+          (user.first_name && user.first_name.toLowerCase().includes(search)) ||
+          (user.last_name && user.last_name.toLowerCase().includes(search)) ||
+          (user.email && user.email.toLowerCase().includes(search)) ||
+          (user.role && user.role.toLowerCase().includes(search));
+        if (!matchesSearch) return false;
+      }
+      if (role && user.role !== role) return false;
+      if (status) {
+        const isActive = status === 'active';
+        if (user.is_active !== isActive) return false;
+      }
+      return true;
+    });
+  });
+
+  readonly columns: ColumnDef<User>[] = [
+    { id: 'first_name', accessorKey: 'first_name', enableSorting: true },
+    { id: 'email', accessorKey: 'email', enableSorting: true },
+    { id: 'role', accessorKey: 'role', enableSorting: true },
+    { id: 'status', accessorFn: (row) => (row.is_active ? 'active' : 'inactive'), enableSorting: false },
+    { id: 'created_at', accessorFn: (row) => new Date(row.created_at || '').getTime(), enableSorting: true },
+    { id: 'actions', accessorFn: () => '', enableSorting: false },
+  ];
+
+  readonly table = createAngularTable<User>(() => ({
+    data: this.filteredUsers(),
+    columns: this.columns,
+    state: {
+      sorting: this.sorting(),
+      pagination: this.pagination(),
+    },
+    onSortingChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(this.sorting()) : updater;
+      this.sorting.set(next);
+      const first = next[0];
+      if (first) {
+        this.sortBy = first.id;
+        this.sortOrder = first.desc ? 'desc' : 'asc';
+      }
+    },
+    onPaginationChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(this.pagination()) : updater;
+      this.pagination.set(next);
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  }));
 
   constructor(
     private userService: UserService,
@@ -47,32 +125,30 @@ export class UserListComponent {
   }
 
   getInitials(firstName?: string | null, lastName?: string | null): string {
-    if (!firstName && !lastName) return "U";
-    return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase();
+    if (!firstName && !lastName) return 'U';
+    return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
   }
 
   getRoleBadgeClass(role: string): string {
-    const variants = {
-      admin: "bg-[#00113f] text-white",
-      operator: "bg-gray-500 text-white",
-    } as const;
-    
-    return variants[role as keyof typeof variants] || "bg-gray-500 text-white";
+    const variants: Record<string, string> = {
+      admin: 'bg-[#00113f] text-white',
+      operator: 'bg-gray-500 text-white',
+    };
+    return variants[role] ?? 'bg-gray-500 text-white';
   }
 
   getStatusBadgeClass(isActive: boolean): string {
-    return isActive 
-      ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-      : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100";
+    return isActive
+      ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
+      : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100';
   }
 
   formatDate(dateString: string): string {
     try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
       });
     } catch {
       return dateString;
@@ -81,7 +157,7 @@ export class UserListComponent {
 
   getUserDisplayName(user: User): string {
     if (user.first_name || user.last_name) {
-      return `${user.first_name || ""} ${user.last_name || ""}`.trim();
+      return `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim();
     }
     return user.email || user.id;
   }
@@ -131,116 +207,51 @@ export class UserListComponent {
     if (!this.deletingUserId) return;
 
     this.isDeleting = true;
-
     try {
       const response = await this.userService.delete(this.deletingUserId);
-      
       if (response.result.success) {
-        this.alertService.success(
-          this.t('user_management.success'),
-          this.t('user_management.user_deleted')
-        );
+        this.alertService.success(this.t('user_management.success'), this.t('user_management.user_deleted'));
         this.refresh.emit();
+        this.closeDeleteDialog();
       } else {
         throw new Error(response.result.message || this.t('delete_failed'));
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { message?: string };
       let errorMessage = this.t('user_management.failed_delete');
       let errorTitle = this.t('user_management.error');
-      
-      // Parse specific error messages
-      if (error.message?.includes('Cannot delete user')) {
+      if (err?.message?.includes('Cannot delete user')) {
         errorTitle = this.t('user_management.cannot_delete');
-        errorMessage = error.message;
-      } else if (error.message) {
-        errorMessage = error.message;
+        errorMessage = err.message;
+      } else if (err?.message) {
+        errorMessage = err.message;
       }
-      
       this.alertService.error(errorTitle, errorMessage);
     } finally {
       this.isDeleting = false;
-      this.closeDeleteDialog();
     }
   }
 
-  get filteredAndSortedUsers(): User[] {
-    let filtered = this.users.filter(user => {
-      // Search filter
-      if (this.searchTerm) {
-        const searchLower = this.searchTerm.toLowerCase();
-        const matchesSearch = (
-          (user.first_name && user.first_name.toLowerCase().includes(searchLower)) ||
-          (user.last_name && user.last_name.toLowerCase().includes(searchLower)) ||
-          (user.email && user.email.toLowerCase().includes(searchLower)) ||
-          (user.role && user.role.toLowerCase().includes(searchLower))
-        );
-        if (!matchesSearch) return false;
-      }
-
-      // Role filter
-      if (this.roleFilter && this.roleFilter !== '') {
-        if (user.role !== this.roleFilter) return false;
-      }
-
-      // Status filter
-      if (this.statusFilter && this.statusFilter !== '') {
-        const isActive = this.statusFilter === 'active';
-        if (user.is_active !== isActive) return false;
-      }
-
-      return true;
-    });
-
-    // Sort
-    return filtered.sort((a, b) => {
-      let aValue: string | number;
-      let bValue: string | number;
-
-      switch (this.sortBy) {
-        case 'first_name':
-          aValue = a.first_name || '';
-          bValue = b.first_name || '';
-          break;
-        case 'email':
-          aValue = a.email || '';
-          bValue = b.email || '';
-          break;
-        case 'role':
-          aValue = a.role || '';
-          bValue = b.role || '';
-          break;
-        case 'created_at':
-          aValue = new Date(a.created_at || '').getTime();
-          bValue = new Date(b.created_at || '').getTime();
-          break;
-        default:
-          aValue = a.first_name || '';
-          bValue = b.first_name || '';
-      }
-
-      let comparison = 0;
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        comparison = aValue.localeCompare(bValue);
-      } else {
-        comparison = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      }
-      
-      return this.sortOrder === 'asc' ? comparison : -comparison;
-    });
-  }
-
-  get uniqueRoles(): string[] {
-    const roles = [...new Set(this.users.map(u => u.role).filter(r => r))] as string[];
-    return roles.sort();
-  }
-
-  onSort(field: string): void {
-    if (this.sortBy === field) {
+  sort(columnId: string): void {
+    if (this.sortBy === columnId) {
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
     } else {
-      this.sortBy = field;
+      this.sortBy = columnId;
       this.sortOrder = 'asc';
     }
+    this.sorting.set([{ id: columnId, desc: this.sortOrder === 'desc' }]);
+    this.setPageIndex(0);
+  }
+
+  onSearch(term: string): void {
+    this.searchTermSignal.set(term);
+    this.setPageIndex(0);
+  }
+
+  onFilterChange(): void {
+    this.roleFilterSignal.set(this.roleFilter);
+    this.statusFilterSignal.set(this.statusFilter);
+    this.setPageIndex(0);
   }
 
   toggleFilters(): void {
@@ -248,30 +259,75 @@ export class UserListComponent {
   }
 
   hasActiveFilters(): boolean {
-    return this.roleFilter !== '' || this.statusFilter !== '';
+    return !!(this.roleFilter || this.statusFilter);
   }
 
   clearFilters(): void {
     this.searchTerm = '';
     this.roleFilter = '';
     this.statusFilter = '';
+    this.searchTermSignal.set('');
+    this.roleFilterSignal.set('');
+    this.statusFilterSignal.set('');
+    this.setPageIndex(0);
   }
 
-  trackByUserId(index: number, user: User): string {
-    return user.id;
+  get uniqueRoles(): string[] {
+    const roles = [...new Set(this.usersSignal().map((u) => u.role).filter(Boolean))] as string[];
+    return roles.sort();
   }
 
-  onSearch(term: string): void {
-    this.searchTerm = term;
+  getSortIcon(columnId: string): 'none' | 'asc' | 'desc' {
+    const active = this.sorting().find((s) => s.id === columnId);
+    if (!active) return 'none';
+    return active.desc ? 'desc' : 'asc';
   }
 
-  onTableScroll(event: Event): void {
-    // Handle table scroll events if needed
-    // This method is required for the table scroll container
+  getHeaderLabel(columnId: string): string {
+    const labels: Record<string, string> = {
+      first_name: this.t('user_management.name'),
+      email: this.t('user_management.email'),
+      role: this.t('user_management.role'),
+      status: this.t('user_management.status'),
+      created_at: this.t('user_management.created'),
+      actions: this.t('user_management.actions'),
+    };
+    return labels[columnId] ?? columnId;
   }
 
-  // Authorization methods
+  get pageIndex(): number {
+    return this.table.getState().pagination.pageIndex;
+  }
+
+  get pageSize(): number {
+    return this.table.getState().pagination.pageSize;
+  }
+
+  get totalFilteredRows(): number {
+    return this.filteredUsers().length;
+  }
+
+  setPageSize(size: number): void {
+    const current = this.pagination();
+    this.pagination.set({ ...current, pageSize: size, pageIndex: 0 });
+  }
+
+  nextPage(): void {
+    this.table.nextPage();
+  }
+
+  previousPage(): void {
+    this.table.previousPage();
+  }
+
+  private setPageIndex(pageIndex: number): void {
+    const current = this.pagination();
+    this.pagination.set({ ...current, pageIndex });
+  }
+
   isAdmin(): boolean {
     return this.authService.isAdmin();
   }
+
+  readonly Math = Math;
 }

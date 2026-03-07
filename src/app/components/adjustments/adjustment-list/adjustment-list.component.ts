@@ -1,10 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, computed, Input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import {
+  ColumnDef,
+  PaginationState,
+  SortingState,
+  createAngularTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+} from '@tanstack/angular-table';
 import { Adjustment } from '../../../models/adjustment.model';
 import { User } from '../../../models/user.model';
-import { UserService } from '../../../services/user.service';
 import { LanguageService } from '../../../services/extras/language.service';
+import { UserService } from '../../../services/user.service';
 
 @Component({
   selector: 'app-adjustment-list',
@@ -14,21 +23,79 @@ import { LanguageService } from '../../../services/extras/language.service';
   styleUrl: './adjustment-list.component.css'
 })
 export class AdjustmentListComponent implements OnInit {
-  @Input() adjustments: Adjustment[] = [];
+  @Input() set adjustments(value: Adjustment[]) {
+    this.adjustmentsSignal.set(value ?? []);
+  }
   @Input() isLoading = false;
 
   users: User[] = [];
-
-  // Search and filter properties
   searchTerm = '';
   reasonFilter = '';
   sortBy = 'createdAt';
   sortOrder: 'asc' | 'desc' = 'desc';
 
-  // Pagination - Changed to infinite scroll like inventory
-  itemsPerPage = 25; // batch size for infinite scroll
-  visibleCount = this.itemsPerPage;
-  isLoadingMore = false;
+  private readonly adjustmentsSignal = signal<Adjustment[]>([]);
+  private readonly searchTermSignal = signal('');
+  private readonly reasonFilterSignal = signal('');
+  private readonly sorting = signal<SortingState>([{ id: 'createdAt', desc: true }]);
+  private readonly pagination = signal<PaginationState>({
+    pageIndex: 0,
+    pageSize: 25,
+  });
+
+  readonly filteredAdjustments = computed(() => {
+    const rows = this.adjustmentsSignal();
+    const search = this.searchTermSignal().toLowerCase();
+    const reason = this.reasonFilterSignal();
+
+    return rows.filter((adj) => {
+      if (search) {
+        const matchesSearch =
+          adj.sku.toLowerCase().includes(search) ||
+          adj.location.toLowerCase().includes(search) ||
+          (adj.notes && adj.notes.toLowerCase().includes(search));
+        if (!matchesSearch) return false;
+      }
+      if (reason && reason !== 'all' && adj.reason !== reason) return false;
+      return true;
+    });
+  });
+
+  readonly columns: ColumnDef<Adjustment>[] = [
+    { id: 'createdAt', accessorFn: (row) => new Date(row.created_at).getTime(), enableSorting: true },
+    { id: 'sku', accessorKey: 'sku', enableSorting: true },
+    { id: 'location', accessorKey: 'location', enableSorting: true },
+    { id: 'previous_quantity', accessorKey: 'previous_quantity', enableSorting: false },
+    { id: 'adjustment_quantity', accessorKey: 'adjustment_quantity', enableSorting: true },
+    { id: 'new_quantity', accessorKey: 'new_quantity', enableSorting: false },
+    { id: 'reason', accessorKey: 'reason', enableSorting: true },
+    { id: 'user_id', accessorKey: 'user_id', enableSorting: false },
+  ];
+
+  readonly table = createAngularTable<Adjustment>(() => ({
+    data: this.filteredAdjustments(),
+    columns: this.columns,
+    state: {
+      sorting: this.sorting(),
+      pagination: this.pagination(),
+    },
+    onSortingChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(this.sorting()) : updater;
+      this.sorting.set(next);
+      const first = next[0];
+      if (first) {
+        this.sortBy = first.id;
+        this.sortOrder = first.desc ? 'desc' : 'asc';
+      }
+    },
+    onPaginationChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(this.pagination()) : updater;
+      this.pagination.set(next);
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  }));
 
   constructor(
     private userService: UserService,
@@ -43,9 +110,6 @@ export class AdjustmentListComponent implements OnInit {
     return this.languageService.t.bind(this.languageService);
   }
 
-  /**
-   * Load users for display
-   */
   private async loadUsers(): Promise<void> {
     try {
       const response = await this.userService.getAll();
@@ -55,174 +119,103 @@ export class AdjustmentListComponent implements OnInit {
     }
   }
 
-  /**
-   * Get user display name
-   */
   getUserDisplay(userId: string): string {
-    const user = this.users.find(u => u.id === userId);
-    if (!user) {
-      return userId;
-    }
-    
-    // Display full name if available, otherwise email
-    const displayName = user.first_name && user.last_name 
+    const user = this.users.find((u) => u.id === userId);
+    if (!user) return userId;
+    return user.first_name && user.last_name
       ? `${user.first_name} ${user.last_name}`
       : user.email;
-
-    return displayName;
   }
 
-  /**
-   * Get filtered and sorted adjustments
-   */
-  get filteredAdjustments(): Adjustment[] {
-    let filtered = this.adjustments.filter(adjustment => {
-      // Search filter
-      if (this.searchTerm) {
-        const searchLower = this.searchTerm.toLowerCase();
-        const matchesSearch = (
-          adjustment.sku.toLowerCase().includes(searchLower) ||
-          adjustment.location.toLowerCase().includes(searchLower) ||
-          (adjustment.notes && adjustment.notes.toLowerCase().includes(searchLower))
-        );
-        if (!matchesSearch) return false;
-      }
-
-      // Reason filter
-      if (this.reasonFilter && this.reasonFilter !== 'all') {
-        if (adjustment.reason !== this.reasonFilter) return false;
-      }
-
-      return true;
-    });
-
-    // Sort
-    filtered.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      switch (this.sortBy) {
-        case 'sku':
-          aValue = a.sku || '';
-          bValue = b.sku || '';
-          break;
-        case 'location':
-          aValue = a.location || '';
-          bValue = b.location || '';
-          break;
-        case 'adjustmentQuantity':
-          aValue = a.adjustment_quantity || 0;
-          bValue = b.adjustment_quantity || 0;
-          break;
-        case 'reason':
-          aValue = a.reason || '';
-          bValue = b.reason || '';
-          break;
-        case 'createdAt':
-        default:
-          aValue = new Date(a.created_at).getTime();
-          bValue = new Date(b.created_at).getTime();
-          break;
-      }
-
-      let comparison: number;
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
-        comparison = aValue - bValue;
-      } else {
-        comparison = String(aValue).localeCompare(String(bValue));
-      }
-
-      return this.sortOrder === 'asc' ? comparison : -comparison;
-    });
-
-    return filtered;
-  }
-
-  /**
-   * Get paginated adjustments
-   */
-  get visibleAdjustments(): Adjustment[] {
-    return this.filteredAdjustments.slice(0, this.visibleCount);
-  }
-
-  /**
-   * Whether all items are loaded in current view
-   */
-  get allLoaded(): boolean {
-    return this.visibleCount >= this.filteredAdjustments.length;
-  }
-
-  /**
-   * Handle search
-   */
   onSearch(): void {
-    this.resetVisible();
+    this.searchTermSignal.set(this.searchTerm);
+    this.setPageIndex(0);
   }
 
-  /**
-   * Handle sort
-   */
-  sort(field: string): void {
-    if (this.sortBy === field) {
+  onReasonFilterChange(): void {
+    this.reasonFilterSignal.set(this.reasonFilter);
+    this.setPageIndex(0);
+  }
+
+  sort(columnId: string): void {
+    if (this.sortBy === columnId) {
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
     } else {
-      this.sortBy = field;
-      this.sortOrder = 'asc';
+      this.sortBy = columnId;
+      this.sortOrder = columnId === 'createdAt' ? 'desc' : 'asc';
     }
-    this.resetVisible();
+    this.sorting.set([{ id: columnId, desc: this.sortOrder === 'desc' }]);
+    this.setPageIndex(0);
   }
 
-  /**
-   * Handle internal table scroll to implement infinite loading
-   */
-  onTableScroll(event: Event): void {
-    const target = event.target as HTMLElement;
-    if (!target) return;
-    const thresholdPx = 200;
-    const reachedBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - thresholdPx;
-    if (reachedBottom) {
-      this.loadMore();
-    }
+  getSortIcon(columnId: string): 'none' | 'asc' | 'desc' {
+    const active = this.sorting().find((s) => s.id === columnId);
+    if (!active) return 'none';
+    return active.desc ? 'desc' : 'asc';
   }
 
-  private loadMore(): void {
-    if (this.isLoadingMore || this.allLoaded) return;
-    this.isLoadingMore = true;
-    // Simulate async to avoid blocking UI; adjust count in next macrotask
-    setTimeout(() => {
-      const remaining = this.filteredAdjustments.length - this.visibleCount;
-      const toAdd = Math.min(this.itemsPerPage, remaining);
-      this.visibleCount += toAdd;
-      this.isLoadingMore = false;
-    }, 0);
+  getHeaderLabel(columnId: string): string {
+    const labels: Record<string, string> = {
+      createdAt: this.t('date'),
+      sku: this.t('sku_code'),
+      location: this.t('location'),
+      previous_quantity: this.t('previous_qty'),
+      adjustment_quantity: this.t('adjustment'),
+      new_quantity: this.t('new_qty'),
+      reason: this.t('reason'),
+      user_id: this.t('user'),
+    };
+    return labels[columnId] ?? columnId;
   }
 
-  private resetVisible(): void {
-    this.visibleCount = this.itemsPerPage;
-  }
-
-  /**
-   * Get adjustment quantity badge class
-   */
   getAdjustmentBadgeClass(quantity: number): string {
-    const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
-    
-    if (quantity >= 0) {
-      return `${baseClasses} bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200`;
-    } else {
-      return `${baseClasses} bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200`;
-    }
+    const base = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
+    return quantity >= 0
+      ? `${base} bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200`
+      : `${base} bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200`;
   }
 
-  /**
-   * Format date
-   */
   formatDate(date: Date | string): string {
-    const d = new Date(date);
-    return d.toLocaleDateString('es-ES', {
+    return new Date(date).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
+
+  get pageIndex(): number {
+    return this.table.getState().pagination.pageIndex;
+  }
+
+  get pageSize(): number {
+    return this.table.getState().pagination.pageSize;
+  }
+
+  get totalFilteredRows(): number {
+    return this.filteredAdjustments().length;
+  }
+
+  setPageSize(size: number): void {
+    const current = this.pagination();
+    this.pagination.set({ ...current, pageSize: size, pageIndex: 0 });
+  }
+
+  nextPage(): void {
+    this.table.nextPage();
+  }
+
+  previousPage(): void {
+    this.table.previousPage();
+  }
+
+  private setPageIndex(pageIndex: number): void {
+    const current = this.pagination();
+    this.pagination.set({ ...current, pageIndex });
+  }
+
+  get adjustmentsCount(): number {
+    return this.adjustmentsSignal().length;
+  }
+
+  readonly Math = Math;
 }

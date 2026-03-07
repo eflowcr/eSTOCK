@@ -1,6 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, computed, EventEmitter, Input, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import {
+  ColumnDef,
+  PaginationState,
+  SortingState,
+  createAngularTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+} from '@tanstack/angular-table';
 import { Inventory } from '../../../models/inventory.model';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
@@ -15,7 +24,9 @@ import { InventoryService } from '../../../services/inventory.service';
   styleUrls: ['./inventory-list.component.css']
 })
 export class InventoryListComponent {
-  @Input() inventory: Inventory[] = [];
+  @Input() set inventory(value: Inventory[]) {
+    this.inventorySignal.set(value ?? []);
+  }
   @Input() isLoading = false;
   @Output() editInventory = new EventEmitter<Inventory>();
   @Output() deleteInventory = new EventEmitter<void>();
@@ -25,7 +36,6 @@ export class InventoryListComponent {
   deletingLocation: string | null = null;
   isDeleting = false;
 
-  // Search and filter properties
   searchTerm = '';
   statusFilter = '';
   locationFilter = '';
@@ -35,10 +45,77 @@ export class InventoryListComponent {
   sortOrder: 'asc' | 'desc' = 'asc';
   filtersExpanded = false;
 
-  // Pagination
-  itemsPerPage = 25; // batch size for infinite scroll
-  visibleCount = this.itemsPerPage;
-  isLoadingMore = false;
+  private readonly inventorySignal = signal<Inventory[]>([]);
+  private readonly searchTermSignal = signal('');
+  private readonly statusFilterSignal = signal('');
+  private readonly locationFilterSignal = signal('');
+  private readonly presentationFilterSignal = signal('');
+  private readonly trackingFilterSignal = signal('');
+  private readonly sorting = signal<SortingState>([{ id: 'sku', desc: false }]);
+  private readonly pagination = signal<PaginationState>({
+    pageIndex: 0,
+    pageSize: 25,
+  });
+
+  readonly filteredInventory = computed(() => {
+    const rows = this.inventorySignal();
+    const search = this.searchTermSignal().toLowerCase();
+    const status = this.statusFilterSignal();
+    const location = this.locationFilterSignal();
+    const presentation = this.presentationFilterSignal();
+    const tracking = this.trackingFilterSignal();
+
+    return rows.filter((item) => {
+      if (search) {
+        const matchesSearch =
+          item.sku.toLowerCase().includes(search) ||
+          (item.name && item.name.toLowerCase().includes(search)) ||
+          item.location.toLowerCase().includes(search);
+        if (!matchesSearch) return false;
+      }
+      if (status && item.status !== status) return false;
+      if (location && item.location !== location) return false;
+      if (presentation && item.presentation !== presentation) return false;
+      if (tracking && !this.matchesTrackingFilter(item, tracking)) return false;
+      return true;
+    });
+  });
+
+  readonly columns: ColumnDef<Inventory>[] = [
+    { id: 'sku', accessorKey: 'sku', enableSorting: true },
+    { id: 'name', accessorKey: 'name', enableSorting: true },
+    { id: 'location', accessorKey: 'location', enableSorting: true },
+    { id: 'quantity', accessorKey: 'quantity', enableSorting: true },
+    { id: 'presentation', accessorKey: 'presentation', enableSorting: true },
+    { id: 'status', accessorKey: 'status', enableSorting: true },
+    { id: 'tracking', accessorFn: () => '', enableSorting: false },
+    { id: 'actions', accessorFn: () => '', enableSorting: false },
+  ];
+
+  readonly table = createAngularTable<Inventory>(() => ({
+    data: this.filteredInventory(),
+    columns: this.columns,
+    state: {
+      sorting: this.sorting(),
+      pagination: this.pagination(),
+    },
+    onSortingChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(this.sorting()) : updater;
+      this.sorting.set(next);
+      const first = next[0];
+      if (first) {
+        this.sortBy = first.id;
+        this.sortOrder = first.desc ? 'desc' : 'asc';
+      }
+    },
+    onPaginationChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(this.pagination()) : updater;
+      this.pagination.set(next);
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  }));
 
   constructor(
     private inventoryService: InventoryService,
@@ -51,150 +128,70 @@ export class InventoryListComponent {
     return this.languageService.t.bind(this.languageService);
   }
 
-  /**
-   * @description Check if user is admin
-   */
   isAdmin(): boolean {
     return this.authService.isAdmin();
   }
 
-  /**
-   * @description Toggle filters visibility
-   */
   toggleFilters(): void {
     this.filtersExpanded = !this.filtersExpanded;
   }
 
-  /**
-   * @description Check if there are active filters
-   */
   hasActiveFilters(): boolean {
-    return this.searchTerm !== '' || 
-           this.statusFilter !== '' || 
-           this.locationFilter !== '' || 
-           this.presentationFilter !== '' ||
-           this.trackingFilter !== '';
+    return !!(
+      this.searchTerm ||
+      this.statusFilter ||
+      this.locationFilter ||
+      this.presentationFilter ||
+      this.trackingFilter
+    );
   }
 
-  /**
-   * @description Clear all filters
-   */
   clearFilters(): void {
     this.searchTerm = '';
     this.statusFilter = '';
     this.locationFilter = '';
     this.presentationFilter = '';
     this.trackingFilter = '';
-    this.resetVisible();
+    this.searchTermSignal.set('');
+    this.statusFilterSignal.set('');
+    this.locationFilterSignal.set('');
+    this.presentationFilterSignal.set('');
+    this.trackingFilterSignal.set('');
+    this.setPageIndex(0);
   }
 
-  /**
-   * @description Handle search input
-   */
   onSearch(term: string): void {
-    this.searchTerm = term;
-    this.resetVisible();
+    this.searchTermSignal.set(term);
+    this.setPageIndex(0);
   }
 
-  /**
-   * @description Get filtered and sorted inventory
-   */
-  get filteredInventory(): Inventory[] {
-    let filtered = this.inventory.filter(item => {
-      const matchesSearch = !this.searchTerm || 
-        item.sku.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        (item.name && item.name.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
-        item.location.toLowerCase().includes(this.searchTerm.toLowerCase());
-
-      const matchesStatus = !this.statusFilter || item.status === this.statusFilter;
-      const matchesLocation = !this.locationFilter || item.location === this.locationFilter;
-      const matchesPresentation = !this.presentationFilter || item.presentation === this.presentationFilter;
-      
-      const matchesTracking = !this.trackingFilter || this.matchesTrackingFilter(item, this.trackingFilter);
-
-      return matchesSearch && matchesStatus && matchesLocation && matchesPresentation && matchesTracking;
-    });
-
-    // Sort
-    filtered.sort((a, b) => {
-      let aValue: any = a[this.sortBy as keyof Inventory];
-      let bValue: any = b[this.sortBy as keyof Inventory];
-
-      if (this.sortBy === 'quantity') {
-        aValue = Number(aValue) || 0;
-        bValue = Number(bValue) || 0;
-      } else {
-        aValue = String(aValue || '').toLowerCase();
-        bValue = String(bValue || '').toLowerCase();
-      }
-
-      if (aValue < bValue) return this.sortOrder === 'asc' ? -1 : 1;
-      if (aValue > bValue) return this.sortOrder === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    return filtered;
+  onFilterChange(): void {
+    this.statusFilterSignal.set(this.statusFilter);
+    this.locationFilterSignal.set(this.locationFilter);
+    this.presentationFilterSignal.set(this.presentationFilter);
+    this.trackingFilterSignal.set(this.trackingFilter);
+    this.setPageIndex(0);
   }
 
-  /**
-   * @description Get inventory currently visible (infinite scroll window)
-   */
-  get visibleInventory(): Inventory[] {
-    return this.filteredInventory.slice(0, this.visibleCount);
-  }
-
-  /**
-   * @description Whether all items are loaded in current view
-   */
-  get allLoaded(): boolean {
-    return this.visibleCount >= this.filteredInventory.length;
-  }
-
-  /**
-   * @description Get unique locations for filter
-   */
   get uniqueLocations(): string[] {
-    return Array.from(new Set(this.inventory.map(item => item.location).filter(Boolean)));
+    return Array.from(new Set(this.inventorySignal().map((item) => item.location).filter(Boolean)));
   }
 
-  /**
-   * @description Get unique presentations for filter
-   */
   get uniquePresentations(): string[] {
-    return Array.from(new Set(this.inventory.map(item => item.presentation).filter(Boolean)));
+    return Array.from(new Set(this.inventorySignal().map((item) => item.presentation).filter(Boolean)));
   }
 
-  /**
-   * @description Handle sort change
-   */
-  onSort(field: string): void {
-    if (this.sortBy === field) {
+  sort(columnId: string): void {
+    if (this.sortBy === columnId) {
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
     } else {
-      this.sortBy = field;
+      this.sortBy = columnId;
       this.sortOrder = 'asc';
     }
-    this.resetVisible();
+    this.sorting.set([{ id: columnId, desc: this.sortOrder === 'desc' }]);
+    this.setPageIndex(0);
   }
 
-  /**
-   * @description Handle filter changes (reset visible window)
-   */
-  onFilterChange(): void {
-    this.resetVisible();
-  }
-
-  /**
-   * @description Change items per page (batch size)
-   */
-  changeItemsPerPage(items: number): void {
-    this.itemsPerPage = items;
-    this.resetVisible();
-  }
-
-  /**
-   * @description Check if item matches tracking filter
-   */
   matchesTrackingFilter(item: Inventory, filter: string): boolean {
     switch (filter) {
       case 'lot_only':
@@ -210,67 +207,47 @@ export class InventoryListComponent {
     }
   }
 
-  /**
-   * @description Get status badge class
-   */
   getStatusBadgeClass(status: string): string {
     switch (status) {
-      case 'available': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'reserved': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'damaged': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+      case 'available':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'reserved':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'damaged':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   }
 
-  /**
-   * @description View inventory details
-   */
   viewInventory(inventory: Inventory): void {
     this.viewingInventory = inventory;
   }
 
-  /**
-   * @description Close view modal
-   */
   closeViewModal(): void {
     this.viewingInventory = null;
   }
 
-  /**
-   * @description Edit inventory
-   */
   editInventoryItem(inventory: Inventory): void {
     this.editInventory.emit(inventory);
   }
 
-  /**
-   * @description Confirm delete inventory
-   */
   confirmDelete(inventory: Inventory): void {
     this.deletingInventorySku = inventory.sku;
     this.deletingLocation = inventory.location;
   }
 
-  /**
-   * @description Close delete dialog
-   */
   closeDeleteDialog(): void {
     this.deletingInventorySku = null;
     this.deletingLocation = null;
   }
 
-  /**
-   * @description Delete inventory
-   */
   async deleteInventoryItem(): Promise<void> {
-    if (!this.deletingInventorySku || !this.deletingLocation) {
-      return;
-    }
+    if (!this.deletingInventorySku || !this.deletingLocation) return;
 
     try {
       this.isDeleting = true;
       const response = await this.inventoryService.delete(this.deletingInventorySku, this.deletingLocation);
-      
       if (response.result.success) {
         this.deleteInventory.emit();
         this.closeDeleteDialog();
@@ -284,24 +261,56 @@ export class InventoryListComponent {
     }
   }
 
-  /**
-   * @description Get page numbers for pagination
-   */
-  getPageNumbers(): (number | string)[] {
-    // Not used with infinite scroll; kept for compatibility if needed
-    return [];
+  getSortIcon(columnId: string): 'none' | 'asc' | 'desc' {
+    const active = this.sorting().find((s) => s.id === columnId);
+    if (!active) return 'none';
+    return active.desc ? 'desc' : 'asc';
   }
 
-  /**
-   * @description Math object for template access
-   */
-  get Math() {
-    return Math;
+  getHeaderLabel(columnId: string): string {
+    const labels: Record<string, string> = {
+      sku: this.t('sku_code'),
+      name: this.t('description'),
+      location: this.t('location'),
+      quantity: this.t('quantity'),
+      presentation: this.t('presentation'),
+      status: this.t('status'),
+      tracking: this.t('tracking'),
+      actions: this.t('actions'),
+    };
+    return labels[columnId] ?? columnId;
   }
 
-  /**
-   * @description Handle backdrop click
-   */
+  get pageIndex(): number {
+    return this.table.getState().pagination.pageIndex;
+  }
+
+  get pageSize(): number {
+    return this.table.getState().pagination.pageSize;
+  }
+
+  get totalFilteredRows(): number {
+    return this.filteredInventory().length;
+  }
+
+  setPageSize(size: number): void {
+    const current = this.pagination();
+    this.pagination.set({ ...current, pageSize: size, pageIndex: 0 });
+  }
+
+  nextPage(): void {
+    this.table.nextPage();
+  }
+
+  previousPage(): void {
+    this.table.previousPage();
+  }
+
+  private setPageIndex(pageIndex: number): void {
+    const current = this.pagination();
+    this.pagination.set({ ...current, pageIndex });
+  }
+
   onBackdropClick(event: Event): void {
     if (event.target === event.currentTarget) {
       this.closeViewModal();
@@ -309,32 +318,5 @@ export class InventoryListComponent {
     }
   }
 
-  /**
-   * @description Handle internal table scroll to implement infinite loading
-   */
-  onTableScroll(event: Event): void {
-    const target = event.target as HTMLElement;
-    if (!target) return;
-    const thresholdPx = 200;
-    const reachedBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - thresholdPx;
-    if (reachedBottom) {
-      this.loadMore();
-    }
-  }
-
-  private loadMore(): void {
-    if (this.isLoadingMore || this.allLoaded) return;
-    this.isLoadingMore = true;
-    // Simulate async to avoid blocking UI; adjust count in next macrotask
-    setTimeout(() => {
-      const remaining = this.filteredInventory.length - this.visibleCount;
-      const toAdd = Math.min(this.itemsPerPage, remaining);
-      this.visibleCount += toAdd;
-      this.isLoadingMore = false;
-    }, 0);
-  }
-
-  private resetVisible(): void {
-    this.visibleCount = this.itemsPerPage;
-  }
+  readonly Math = Math;
 }
