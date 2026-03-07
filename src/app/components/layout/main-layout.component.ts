@@ -1,10 +1,10 @@
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SidebarComponent } from './sidebar/sidebar.component';
-import { TopbarComponent } from './topbar/topbar.component';
-import { AlertComponent } from '../shared/extras/alert/alert.component';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { SidebarService } from '@app/services';
 import { Subscription } from 'rxjs';
+import { AlertComponent } from '../shared/extras/alert/alert.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { TopbarComponent } from './topbar/topbar.component';
 
 @Component({
   selector: 'app-main-layout',
@@ -18,16 +18,14 @@ import { Subscription } from 'rxjs';
         class="flex flex-1 flex-col transition-[margin] duration-200 ease-linear"
         [class.md:ml-64]="!sidebarCollapsed"
       >
-        <header class="flex h-16 shrink-0 items-center gap-2 border-b border-border px-4 sticky top-0 z-30 bg-background">
-          <app-topbar></app-topbar>
-        </header>
+        <app-topbar></app-topbar>
         <main class="flex flex-1 flex-col gap-4 p-4 pt-0">
           <ng-content></ng-content>
         </main>
       </div>
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
   sidebarCollapsed = false;
@@ -36,7 +34,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   constructor(@Inject(SidebarService) private sidebarService: SidebarService) {}
 
   ngOnInit(): void {
-    this.sub = this.sidebarService.collapsed$.subscribe((c: boolean) => (this.sidebarCollapsed = c));
+    this.sub = this.sidebarService.collapsed$.subscribe(
+      (c: boolean) => (this.sidebarCollapsed = c),
+    );
   }
 
   ngOnDestroy(): void {

@@ -179,8 +179,13 @@ export const esTranslations = {
   'dashboard.profit': 'Valor',
 
   // Search
-  'search.placeholder': 'Buscar en el menú...',
+  'search.placeholder': 'Buscar',
   'search.no_results': 'Sin resultados',
+  'nav.rewards': 'Recompensas',
+  'nav.notifications': 'Notificaciones',
+  'nav.quick_add': 'Agregar',
+  'nav.logout': 'Cerrar sesión',
+  'nav.account': 'Cuenta',
 
   // User Management
   'user_management.description': 'Control de los usuarios del sistema y sus roles',

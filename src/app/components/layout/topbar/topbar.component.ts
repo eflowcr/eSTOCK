@@ -1,41 +1,89 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { SidebarService } from '@app/services';
+import { Subscription } from 'rxjs';
+import {
+  NavigationItem,
+  NavigationItems,
+} from '../../../models/navigation.model';
+import { User } from '../../../models/user.model';
 import { AuthService } from '../../../services/auth.service';
 import { AlertService } from '../../../services/extras/alert.service';
-import { LanguageService } from '../../../services/extras/language.service';
-import { User } from '../../../models/user.model';
-import { NavigationItem, NavigationItems } from '../../../models/navigation.model';
-import { NavigationService } from '../../../services/extras/navigation.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
-import { SidebarService } from '@app/services';
+import { LanguageService } from '../../../services/extras/language.service';
+import { NavigationService } from '../../../services/extras/navigation.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmationDialogComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    ConfirmationDialogComponent,
+  ],
   template: `
-    <div class="flex flex-1 items-center gap-2">
-      <button
-        type="button"
-        (click)="toggleSidebar()"
-        class="inline-flex size-8 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground md:flex shrink-0"
-        aria-label="Toggle sidebar"
-      >
-        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
-      <div class="h-4 w-px shrink-0 bg-border mx-2" aria-hidden="true"></div>
-      <div class="flex-1 flex max-w-lg min-w-0" (keydown)="$event.stopPropagation()">
-          <div class="relative w-full text-muted-foreground focus-within:text-foreground">
-            <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none pl-2">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            </div>
+    <header
+      class="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-t border-b border-border bg-background px-4 shadow-sm"
+    >
+      <!-- Left side -->
+      <div class="flex min-w-0 items-center gap-4">
+        <button
+          type="button"
+          (click)="toggleSidebar()"
+          class="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="Toggle sidebar"
+        >
+          <svg
+            class="size-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+        <div class="h-6 w-px bg-border" aria-hidden="true"></div>
+
+        <div
+          class="relative w-full max-w-sm min-w-0"
+          (keydown)="$event.stopPropagation()"
+        >
+          <div
+            class="flex items-center gap-2 rounded-lg border border-border bg-muted/60 py-2 pl-3 pr-2 text-muted-foreground transition-colors focus-within:bg-background focus-within:text-foreground focus-within:ring-2 focus-within:ring-ring"
+          >
+            <svg
+              class="size-4 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
             <input
+              #searchInput
               [(ngModel)]="searchQuery"
-              class="h-9 w-full rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              class="min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               [placeholder]="t('search.placeholder')"
               type="search"
               (focus)="openSuggestions()"
@@ -45,41 +93,159 @@ import { Subscription } from 'rxjs';
               (keydown.arrowup)="moveActive(-1)"
               (keydown.escape)="closeSuggestions()"
             />
-            <div *ngIf="showSuggestions" class="absolute left-0 right-0 top-full mt-1 rounded-md border border-border bg-popover text-popover-foreground shadow-md z-50">
-              <ng-container *ngIf="filteredItems.length; else noResults">
-                <ul class="max-h-64 overflow-auto py-1">
-                  <li
-                    *ngFor="let item of filteredItems; let i = index"
-                    (click)="navigate(item)"
-                    [class]="i === activeIndex ? 'bg-accent' : ''"
-                    class="flex cursor-pointer items-center px-3 py-2 text-sm hover:bg-accent"
-                  >
-                    <span class="text-foreground">{{ t(item.name) }}</span>
-                    <span class="ml-auto text-xs text-muted-foreground">{{ item.href }}</span>
-                  </li>
-                </ul>
-              </ng-container>
-              <ng-template #noResults>
-                <div class="px-3 py-2 text-sm text-muted-foreground">{{ t('search.no_results') }}</div>
-              </ng-template>
-            </div>
+            <kbd
+              class="hidden shrink-0 rounded border border-border bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline-block"
+              aria-label="Shortcut"
+              >&#8984; F</kbd
+            >
+          </div>
+          <div
+            *ngIf="showSuggestions"
+            class="absolute left-0 right-0 top-full z-50 mt-1 rounded-lg border border-border bg-popover py-1 text-popover-foreground shadow-lg"
+          >
+            <ng-container *ngIf="filteredItems.length; else noResults">
+              <ul class="max-h-64 overflow-auto">
+                <li
+                  *ngFor="let item of filteredItems; let i = index"
+                  (click)="navigate(item)"
+                  [class]="i === activeIndex ? 'bg-accent' : ''"
+                  class="flex cursor-pointer items-center px-3 py-2 text-sm hover:bg-accent"
+                >
+                  <span class="text-foreground">{{ t(item.name) }}</span>
+                  <span class="ml-auto text-xs text-muted-foreground">{{
+                    item.href
+                  }}</span>
+                </li>
+              </ul>
+            </ng-container>
+            <ng-template #noResults>
+              <div class="px-3 py-2 text-sm text-muted-foreground">
+                {{ t('search.no_results') }}
+              </div>
+            </ng-template>
           </div>
         </div>
-        <div class="flex flex-1 justify-end gap-2">
-          <span class="hidden text-sm text-muted-foreground sm:inline-block truncate max-w-[120px]" [title]="fullName">{{ fullName }}</span>
-          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-medium">
-            {{ getInitials(firstName, lastName) }}
-          </div>
+      </div>
+
+      <!-- Right side -->
+      <div class="flex shrink-0 items-center gap-6">
+        <div class="flex items-center gap-2">
+          <a
+            [routerLink]="['/gamification']"
+            class="inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            [title]="t('nav.rewards')"
+            aria-label="Rewards"
+          >
+            <svg
+              class="size-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+              />
+            </svg>
+          </a>
+          <a
+            [routerLink]="['/stock-alerts']"
+            class="inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            [title]="t('nav.notifications')"
+            aria-label="Notifications"
+          >
+            <svg
+              class="size-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+              />
+            </svg>
+          </a>
+          <a
+            routerLink="/articles"
+            class="inline-flex size-9 items-center justify-center rounded-full border border-border bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            [title]="t('nav.quick_add')"
+            aria-label="Quick add"
+          >
+            <svg
+              class="size-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </a>
+        </div>
+
+        <div class="h-8 w-px bg-border" aria-hidden="true"></div>
+
+        <div class="user-menu-zone relative">
           <button
             type="button"
-            (click)="openLogoutConfirm()"
-            class="inline-flex size-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-            aria-label="Logout"
+            (click)="userMenuOpen = !userMenuOpen"
+            class="flex items-center gap-3 rounded-lg py-1.5 pl-1 pr-2 text-left transition-colors hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring"
+            aria-expanded="userMenuOpen"
+            aria-haspopup="true"
           >
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            <div
+              class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground"
+            >
+              {{ getInitials(firstName, lastName) }}
+            </div>
+            <div class="hidden min-w-0 sm:block">
+              <p
+                class="truncate text-sm font-medium leading-tight text-foreground"
+              >
+                {{ fullName || t('nav.account') }}
+              </p>
+              <p class="truncate text-xs leading-tight text-muted-foreground">
+                {{ userRoleLabel }}
+              </p>
+            </div>
           </button>
+          <div
+            *ngIf="userMenuOpen"
+            class="absolute right-0 top-full z-50 mt-1 min-w-[160px] rounded-lg border border-border bg-popover py-1 shadow-lg"
+          >
+            <button
+              type="button"
+              (click)="openLogoutConfirm(); userMenuOpen = false"
+              class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-accent-foreground"
+            >
+              <svg
+                class="size-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              {{ t('nav.logout') }}
+            </button>
+          </div>
         </div>
-    </div>
+      </div>
+    </header>
 
     <!-- Logout Confirmation Dialog -->
     <app-confirmation-dialog
@@ -91,7 +257,7 @@ import { Subscription } from 'rxjs';
       (cancelled)="isLogoutDialogOpen = false"
     ></app-confirmation-dialog>
   `,
-  styles: []
+  styles: [],
 })
 export class TopbarComponent implements OnInit, OnDestroy {
   searchQuery = '';
@@ -101,12 +267,16 @@ export class TopbarComponent implements OnInit, OnDestroy {
   showSuggestions = false;
   activeIndex = 0;
   private subs = new Subscription();
-  
+
   // Display data from localStorage auth_estock
   fullName = '';
   firstName = '';
   lastName = '';
+  userRoleLabel = '';
   isLogoutDialogOpen = false;
+  userMenuOpen = false;
+
+  @ViewChild('searchInput') searchInputRef?: ElementRef<HTMLInputElement>;
 
   constructor(
     private authService: AuthService,
@@ -122,6 +292,14 @@ export class TopbarComponent implements OnInit, OnDestroy {
     this.sidebarService.toggle();
   }
 
+  @HostListener('window:keydown', ['$event'])
+  onGlobalKeyDown(event: KeyboardEvent): void {
+    if ((event.metaKey || event.ctrlKey) && event.key === 'f') {
+      event.preventDefault();
+      this.searchInputRef?.nativeElement?.focus();
+    }
+  }
+
   ngOnInit(): void {
     // Get current user from auth service
     this.loadCurrentUser();
@@ -133,7 +311,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
     this.subs.add(
       this.authService.authState$.subscribe((_authState: any) => {
         this.refreshUserDisplay();
-      })
+      }),
     );
     // Initial load from localStorage
     this.refreshUserDisplay();
@@ -151,7 +329,8 @@ export class TopbarComponent implements OnInit, OnDestroy {
     // Fallbacks: derive missing parts from user_name in auth state or stored
     if (!first || !last) {
       const stateUser = this.authService.getCurrentUser() as any;
-      const userName: string | undefined = stateUser?.user_name || stored?.user_name;
+      const userName: string | undefined =
+        stateUser?.user_name || stored?.user_name;
       if (userName) {
         const tokens = userName.trim().split(/\s+/);
         if (!first && tokens.length >= 1) first = tokens[0];
@@ -164,6 +343,13 @@ export class TopbarComponent implements OnInit, OnDestroy {
     this.lastName = last;
     const parts = [first, last].filter(Boolean);
     this.fullName = parts.length ? parts.join(' ') : '';
+    const stateUser = this.authService.getCurrentUser() as {
+      role?: string;
+    } | null;
+    const role = stateUser?.role || (stored as { role?: string })?.role || '';
+    this.userRoleLabel = role
+      ? role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
+      : 'eSTOCK';
   }
 
   getInitials(firstName?: string, lastName?: string): string {
@@ -174,19 +360,21 @@ export class TopbarComponent implements OnInit, OnDestroy {
   async handleLogout(): Promise<void> {
     try {
       await this.authService.logout();
-      
+
       this.alertService.success(
         this.t('auth.logout_success') || 'Sesión cerrada exitosamente',
-        this.t('auth.goodbye') || 'Hasta luego'
+        this.t('auth.goodbye') || 'Hasta luego',
       );
-      
+
       // Navigate to login
       this.router.navigate(['/login']);
     } catch (error: any) {
       console.error('Logout error:', error);
       this.alertService.error(
-        error.message || this.t('auth.logout_error') || 'Error al cerrar sesión',
-        this.t('auth.logout_failed') || 'Error'
+        error.message ||
+          this.t('auth.logout_error') ||
+          'Error al cerrar sesión',
+        this.t('auth.logout_failed') || 'Error',
       );
     }
   }
@@ -204,12 +392,14 @@ export class TopbarComponent implements OnInit, OnDestroy {
     }
 
     // search by translated label and by route path
-    this.filteredItems = this.items.filter(item => {
-      const translated = this.t(item.name).toLowerCase();
-      const nameMatch = translated.includes(query);
-      const routeMatch = item.href.toLowerCase().includes(query);
-      return nameMatch || routeMatch;
-    }).slice(0, 10);
+    this.filteredItems = this.items
+      .filter((item) => {
+        const translated = this.t(item.name).toLowerCase();
+        const nameMatch = translated.includes(query);
+        const routeMatch = item.href.toLowerCase().includes(query);
+        return nameMatch || routeMatch;
+      })
+      .slice(0, 10);
 
     this.showSuggestions = this.filteredItems.length > 0;
     this.activeIndex = 0;
@@ -253,9 +443,14 @@ export class TopbarComponent implements OnInit, OnDestroy {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    const closestSearch = target.closest('input[type="search"], .absolute.mt-1');
+    const closestSearch = target.closest(
+      'input[type="search"], .absolute.mt-1',
+    );
     if (!closestSearch) {
       this.closeSuggestions();
+    }
+    if (!target.closest('.user-menu-zone')) {
+      this.userMenuOpen = false;
     }
   }
 

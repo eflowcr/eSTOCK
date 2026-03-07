@@ -152,8 +152,13 @@ export const enTranslations = {
   'dashboard.profit': 'Value',
 
   // Search
-  'search.placeholder': 'Search menu...',
+  'search.placeholder': 'Search',
   'search.no_results': 'No results',
+  'nav.rewards': 'Rewards',
+  'nav.notifications': 'Notifications',
+  'nav.quick_add': 'Quick add',
+  'nav.logout': 'Log out',
+  'nav.account': 'Account',
 
   // User Management
   'user_management.description': 'Manage system users and roles',
