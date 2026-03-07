@@ -19,7 +19,7 @@ interface SidebarSection {
   imports: [CommonModule, RouterModule],
   template: `
     <div
-      class="fixed bottom-3 left-3 top-3 z-40 hidden w-64 flex-col rounded-2xl border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm md:flex md:translate-x-0"
+      class="fixed bottom-3 left-3 top-3 z-40 hidden w-64 flex-col rounded-2xl border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm transition-transform duration-200 ease-in-out md:flex md:translate-x-0"
       [class.-translate-x-full]="collapsed"
       [class.md:translate-x-0]="!collapsed"
     >
