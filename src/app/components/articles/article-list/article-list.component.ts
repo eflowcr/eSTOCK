@@ -1,6 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import {
+  ColumnDef,
+  PaginationState,
+  SortingState,
+  createAngularTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+} from '@tanstack/angular-table';
+import { computed, signal } from '@angular/core';
 import { Article } from '../../../models/article.model';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
@@ -15,7 +25,9 @@ import { ArticleService } from '../../../services/article.service';
   styleUrls: ['./article-list.component.css']
 })
 export class ArticleListComponent {
-  @Input() articles: Article[] = [];
+  @Input() set articles(value: Article[]) {
+    this.articlesSignal.set(value ?? []);
+  }
   @Input() isLoading = false;
   @Output() articlesChanged = new EventEmitter<void>();
   @Output() editArticle = new EventEmitter<Article>();
@@ -24,7 +36,7 @@ export class ArticleListComponent {
   deletingArticleId: number | null = null;
   isDeleting = false;
 
-  // Search and filter properties
+  // Search and filter state
   searchTerm = '';
   presentationFilter = '';
   trackingFilter = '';
@@ -33,10 +45,125 @@ export class ArticleListComponent {
   sortOrder: 'asc' | 'desc' = 'asc';
   filtersExpanded = false;
 
-  // Infinite scroll properties
-  itemsPerPage = 25; // batch size for infinite scroll
-  visibleCount = this.itemsPerPage;
-  isLoadingMore = false;
+  private readonly articlesSignal = signal<Article[]>([]);
+  private readonly searchTermSignal = signal('');
+  private readonly presentationFilterSignal = signal('');
+  private readonly trackingFilterSignal = signal('');
+  private readonly statusFilterSignal = signal('');
+  private readonly sorting = signal<SortingState>([{ id: 'sku', desc: false }]);
+  private readonly pagination = signal<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  readonly filteredArticles = computed(() => {
+    const rows = this.articlesSignal();
+    const search = this.searchTermSignal().toLowerCase();
+    const presentation = this.presentationFilterSignal();
+    const tracking = this.trackingFilterSignal();
+    const status = this.statusFilterSignal();
+
+    return rows.filter((article) => {
+      if (search) {
+        const matchesSearch =
+          article.sku.toLowerCase().includes(search) ||
+          article.name.toLowerCase().includes(search) ||
+          (article.description || '').toLowerCase().includes(search);
+        if (!matchesSearch) return false;
+      }
+
+      if (presentation && presentation !== 'all') {
+        if (article.presentation !== presentation) return false;
+      }
+
+      if (tracking && tracking !== 'all') {
+        if (tracking === 'lot' && !article.track_by_lot) return false;
+        if (tracking === 'serial' && !article.track_by_serial) return false;
+        if (tracking === 'both' && (!article.track_by_lot || !article.track_by_serial)) return false;
+        if (tracking === 'none' && (article.track_by_lot || article.track_by_serial)) return false;
+      }
+
+      if (status && status !== 'all') {
+        if (status === 'active' && !article.is_active) return false;
+        if (status === 'inactive' && article.is_active) return false;
+      }
+
+      return true;
+    });
+  });
+
+  readonly columns: ColumnDef<Article>[] = [
+    {
+      id: 'sku',
+      accessorKey: 'sku',
+      enableSorting: true,
+    },
+    {
+      id: 'name',
+      accessorKey: 'name',
+      enableSorting: true,
+    },
+    {
+      id: 'description',
+      accessorKey: 'description',
+      enableSorting: false,
+    },
+    {
+      id: 'unit_price',
+      accessorKey: 'unit_price',
+      enableSorting: true,
+    },
+    {
+      id: 'presentation',
+      accessorKey: 'presentation',
+      enableSorting: true,
+    },
+    {
+      id: 'stock_range',
+      accessorFn: (row) => `${row.min_quantity || 0}-${row.max_quantity || 0}`,
+      enableSorting: false,
+    },
+    {
+      id: 'tracking',
+      accessorFn: () => '',
+      enableSorting: false,
+    },
+    {
+      id: 'status',
+      accessorFn: (row) => (row.is_active ? 'active' : 'inactive'),
+      enableSorting: false,
+    },
+    {
+      id: 'actions',
+      accessorFn: () => '',
+      enableSorting: false,
+    },
+  ];
+
+  readonly table = createAngularTable<Article>(() => ({
+    data: this.filteredArticles(),
+    columns: this.columns,
+    state: {
+      sorting: this.sorting(),
+      pagination: this.pagination(),
+    },
+    onSortingChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(this.sorting()) : updater;
+      this.sorting.set(next);
+      const first = next[0];
+      if (first) {
+        this.sortBy = first.id;
+        this.sortOrder = first.desc ? 'desc' : 'asc';
+      }
+    },
+    onPaginationChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(this.pagination()) : updater;
+      this.pagination.set(next);
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  }));
 
   constructor(
     private articleService: ArticleService,
@@ -49,140 +176,35 @@ export class ArticleListComponent {
     return this.languageService.t.bind(this.languageService);
   }
 
-  /**
-   * Get filtered and sorted articles
-   */
-  get filteredArticles(): Article[] {
-    let filtered = this.articles.filter(article => {
-      // Search filter
-      if (this.searchTerm) {
-        const searchLower = this.searchTerm.toLowerCase();
-        const matchesSearch = (
-          article.sku.toLowerCase().includes(searchLower) ||
-          article.name.toLowerCase().includes(searchLower) ||
-          (article.description && article.description.toLowerCase().includes(searchLower))
-        );
-        if (!matchesSearch) return false;
-      }
-
-      // Presentation filter
-      if (this.presentationFilter && this.presentationFilter !== 'all') {
-        if (article.presentation !== this.presentationFilter) return false;
-      }
-
-      // Tracking filter
-      if (this.trackingFilter && this.trackingFilter !== 'all') {
-        if (this.trackingFilter === 'lot' && !article.track_by_lot) return false;
-        if (this.trackingFilter === 'serial' && !article.track_by_serial) return false;
-        if (this.trackingFilter === 'both' && (!article.track_by_lot || !article.track_by_serial)) return false;
-        if (this.trackingFilter === 'none' && (article.track_by_lot || article.track_by_serial)) return false;
-      }
-
-      // Status filter
-      if (this.statusFilter && this.statusFilter !== 'all') {
-        if (this.statusFilter === 'active' && !article.is_active) return false;
-        if (this.statusFilter === 'inactive' && article.is_active) return false;
-      }
-
-      return true;
-    });
-
-    // Sort
-    filtered.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      switch (this.sortBy) {
-        case 'sku':
-          aValue = a.sku || '';
-          bValue = b.sku || '';
-          break;
-        case 'name':
-          aValue = a.name || '';
-          bValue = b.name || '';
-          break;
-        case 'unit_price':
-          aValue = a.unit_price || 0;
-          bValue = b.unit_price || 0;
-          break;
-        case 'presentation':
-          aValue = a.presentation || '';
-          bValue = b.presentation || '';
-          break;
-        default:
-          aValue = a.sku || '';
-          bValue = b.sku || '';
-      }
-
-      let comparison: number;
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
-        comparison = aValue - bValue;
-      } else {
-        comparison = String(aValue).localeCompare(String(bValue));
-      }
-
-      return this.sortOrder === 'asc' ? comparison : -comparison;
-    });
-
-    return filtered;
-  }
-
-  /**
-   * Get visible articles for infinite scroll
-   */
-  get visibleArticles(): Article[] {
-    return this.filteredArticles.slice(0, this.visibleCount);
-  }
-
-  /**
-   * Check if all articles are loaded
-   */
-  get allLoaded(): boolean {
-    return this.visibleCount >= this.filteredArticles.length;
-  }
-
-  /**
-   * Check if user is admin
-   */
   isAdmin(): boolean {
     return this.authService.isAdmin();
   }
 
-  /**
-   * Toggle filters
-   */
   toggleFilters(): void {
     this.filtersExpanded = !this.filtersExpanded;
   }
 
-  /**
-   * Check if there are active filters
-   */
   hasActiveFilters(): boolean {
     return !!(this.searchTerm || this.presentationFilter || this.trackingFilter || this.statusFilter);
   }
 
-  /**
-   * Clear all filters
-   */
   clearFilters(): void {
     this.searchTerm = '';
     this.presentationFilter = '';
     this.trackingFilter = '';
     this.statusFilter = '';
-    this.resetVisible();
+    this.searchTermSignal.set('');
+    this.presentationFilterSignal.set('');
+    this.trackingFilterSignal.set('');
+    this.statusFilterSignal.set('');
+    this.setPageIndex(0);
   }
 
-  /**
-   * Handle search
-   */
   onSearch(): void {
-    this.resetVisible();
+    this.searchTermSignal.set(this.searchTerm);
+    this.setPageIndex(0);
   }
 
-  /**
-   * Handle sort
-   */
   sort(field: string): void {
     if (this.sortBy === field) {
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
@@ -190,76 +212,105 @@ export class ArticleListComponent {
       this.sortBy = field;
       this.sortOrder = 'asc';
     }
-    this.resetVisible();
+    this.sorting.set([{ id: this.sortBy, desc: this.sortOrder === 'desc' }]);
+    this.setPageIndex(0);
   }
 
-  /**
-   * Handle internal table scroll to implement infinite loading
-   */
-  onTableScroll(event: Event): void {
-    const target = event.target as HTMLElement;
-    if (!target) return;
-    const thresholdPx = 200;
-    const reachedBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - thresholdPx;
-    if (reachedBottom) {
-      this.loadMore();
+  onFiltersChanged(): void {
+    this.presentationFilterSignal.set(this.presentationFilter);
+    this.trackingFilterSignal.set(this.trackingFilter);
+    this.statusFilterSignal.set(this.statusFilter);
+    this.setPageIndex(0);
+  }
+
+  get pageIndex(): number {
+    return this.table.getState().pagination.pageIndex;
+  }
+
+  get pageSize(): number {
+    return this.table.getState().pagination.pageSize;
+  }
+
+  get totalFilteredRows(): number {
+    return this.filteredArticles().length;
+  }
+
+  setPageSize(size: number): void {
+    const current = this.pagination();
+    this.pagination.set({
+      ...current,
+      pageSize: size,
+      pageIndex: 0,
+    });
+  }
+
+  nextPage(): void {
+    this.table.nextPage();
+  }
+
+  previousPage(): void {
+    this.table.previousPage();
+  }
+
+  private setPageIndex(pageIndex: number): void {
+    const current = this.pagination();
+    this.pagination.set({
+      ...current,
+      pageIndex,
+    });
+  }
+
+  getSortIcon(columnId: string): 'none' | 'asc' | 'desc' {
+    const active = this.sorting().find((s) => s.id === columnId);
+    if (!active) return 'none';
+    return active.desc ? 'desc' : 'asc';
+  }
+
+  getHeaderLabel(columnId: string): string {
+    switch (columnId) {
+      case 'sku':
+        return this.t('sku');
+      case 'name':
+        return this.t('product_name');
+      case 'description':
+        return this.t('description');
+      case 'unit_price':
+        return this.t('price');
+      case 'presentation':
+        return this.t('presentation');
+      case 'stock_range':
+        return this.t('stock_range');
+      case 'tracking':
+        return this.t('tracking');
+      case 'status':
+        return this.t('status');
+      case 'actions':
+        return this.t('actions');
+      default:
+        return columnId;
     }
   }
 
-  private loadMore(): void {
-    if (this.isLoadingMore || this.allLoaded) return;
-    this.isLoadingMore = true;
-    // Simulate async to avoid blocking UI; adjust count in next macrotask
-    setTimeout(() => {
-      const remaining = this.filteredArticles.length - this.visibleCount;
-      const toAdd = Math.min(this.itemsPerPage, remaining);
-      this.visibleCount += toAdd;
-      this.isLoadingMore = false;
-    }, 0);
-  }
-
-  private resetVisible(): void {
-    this.visibleCount = this.itemsPerPage;
-  }
-
-  /**
-   * Open edit form
-   */
   openEditForm(article: Article): void {
     this.editArticle.emit(article);
   }
 
-  /**
-   * View article details
-   */
   viewArticle(article: Article): void {
     this.viewingArticle = article;
   }
 
-  /**
-   * Close view modal
-   */
   closeViewModal(): void {
     this.viewingArticle = null;
   }
 
-  /**
-   * Open delete dialog
-   */
   openDeleteDialog(articleId: number): void {
     this.deletingArticleId = articleId;
   }
 
-  /**
-   * Close delete dialog
-   */
   closeDeleteDialog(): void {
     this.deletingArticleId = null;
   }
 
-  /**
-   * Delete article
-   */
   async deleteArticle(): Promise<void> {
     if (!this.deletingArticleId) return;
 
@@ -277,11 +328,6 @@ export class ArticleListComponent {
     }
   }
 
-
-
-  /**
-   * Get presentation badge class
-   */
   getPresentationBadgeClass(presentation: string): string {
     const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
     
@@ -299,9 +345,6 @@ export class ArticleListComponent {
     }
   }
 
-  /**
-   * Get status badge class
-   */
   getStatusBadgeClass(isActive: boolean): string {
     const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
     
@@ -312,29 +355,10 @@ export class ArticleListComponent {
     }
   }
 
-  /**
-   * Format price
-   */
   formatPrice(price: number | null): string {
     if (!price || price === 0) return '-';
     return price.toFixed(2);
   }
 
-  /**
-   * Get tracking status
-   */
-  getTrackingStatus(article: Article): { lot: boolean; serial: boolean; expiration: boolean } {
-    return {
-      lot: article.track_by_lot,
-      serial: article.track_by_serial,
-      expiration: article.track_expiration
-    };
-  }
-
-  /**
-   * Math object for template access
-   */
-  get Math() {
-    return Math;
-  }
+  readonly Math = Math;
 }
