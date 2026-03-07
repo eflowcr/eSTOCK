@@ -186,6 +186,11 @@ export const esTranslations = {
   'nav.quick_add': 'Agregar',
   'nav.logout': 'Cerrar sesión',
   'nav.account': 'Cuenta',
+  'sidebar.section.overview': 'Resumen',
+  'sidebar.section.quick_actions': 'Acciones rápidas',
+  'sidebar.section.general_management': 'Gestión general',
+  'sidebar.section.administration': 'Administración',
+  'sidebar.section.more': 'Más',
 
   // User Management
   'user_management.description': 'Control de los usuarios del sistema y sus roles',

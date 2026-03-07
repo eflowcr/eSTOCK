@@ -3,10 +3,15 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
-import { NavigationItems } from '../../../models/navigation.model';
+import { NavigationItem, NavigationItems } from '../../../models/navigation.model';
 import { LanguageService } from '../../../services/extras/language.service';
 import { NavigationService } from '../../../services/extras/navigation.service';
 import { SidebarService } from '@app/services';
+
+interface SidebarSection {
+  titleKey: string;
+  items: NavigationItem[];
+}
 
 @Component({
   selector: 'app-sidebar',
@@ -14,7 +19,7 @@ import { SidebarService } from '@app/services';
   imports: [CommonModule, RouterModule],
   template: `
     <div
-      class="fixed inset-y-0 left-0 z-40 hidden h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[transform] duration-200 ease-linear md:flex md:translate-x-0"
+      class="fixed bottom-3 left-3 top-3 z-40 hidden w-64 flex-col rounded-2xl border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm md:flex md:translate-x-0"
       [class.-translate-x-full]="collapsed"
       [class.md:translate-x-0]="!collapsed"
     >
@@ -27,15 +32,19 @@ import { SidebarService } from '@app/services';
             <span class="text-base">eSTOCK</span>
           </a>
         </div>
-        <div class="flex min-h-0 flex-1 flex-col gap-2 overflow-auto p-2">
-          <nav class="flex w-full flex-col gap-1">
-            <a
-              *ngFor="let item of navigation"
-              [routerLink]="item.href"
-              routerLinkActive="bg-sidebar-accent font-medium text-sidebar-accent-foreground"
-              [routerLinkActiveOptions]="{ exact: item.href === '/' }"
-              class="flex items-center gap-2 overflow-hidden rounded-md p-2 text-sm outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            >
+        <div class="flex min-h-0 flex-1 flex-col overflow-auto p-2">
+          <nav class="flex w-full flex-col gap-4">
+            <section *ngFor="let section of sections" class="flex flex-col gap-1">
+              <h3 class="px-2 pt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {{ t(section.titleKey) }}
+              </h3>
+              <a
+                *ngFor="let item of section.items"
+                [routerLink]="item.href"
+                routerLinkActive="bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                [routerLinkActiveOptions]="{ exact: item.href === '/' }"
+                class="flex items-center gap-2.5 overflow-hidden rounded-lg px-2.5 py-2 text-[15px] outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              >
               <svg *ngIf="item.icon === 'LayoutDashboard'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z"></path>
@@ -98,7 +107,8 @@ import { SidebarService } from '@app/services';
               </svg>
               
               {{ t(item.name) }}
-            </a>
+              </a>
+            </section>
           </nav>
         </div>
         <div class="flex flex-col gap-2 border-t border-sidebar-border p-2" data-sidebar="footer">
@@ -114,6 +124,7 @@ import { SidebarService } from '@app/services';
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   navigation: NavigationItems = [];
+  sections: SidebarSection[] = [];
   appVersion = 'v1.0.0';
   collapsed = false;
   private sub?: Subscription;
@@ -131,6 +142,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.navigation = this.navigationService.getItems();
+    this.sections = this.buildSections(this.navigation);
     this.sub = this.sidebarService.collapsed$.subscribe((c) => (this.collapsed = c));
   }
 
@@ -142,7 +154,44 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return this.languageService.t(key);
   }
 
-  getItemClasses(_href: string): string {
-    return '';
+  private buildSections(items: NavigationItems): SidebarSection[] {
+    const sectionConfig: Array<{ titleKey: string; hrefs: string[] }> = [
+      { titleKey: 'sidebar.section.overview', hrefs: ['/'] },
+      {
+        titleKey: 'sidebar.section.quick_actions',
+        hrefs: ['/receiving-tasks', '/picking-tasks', '/stock-adjustments', '/stock-alerts'],
+      },
+      {
+        titleKey: 'sidebar.section.general_management',
+        hrefs: ['/articles', '/inventory', '/locations', '/barcode-generator'],
+      },
+      {
+        titleKey: 'sidebar.section.administration',
+        hrefs: ['/gamification', '/admin-control-center', '/users'],
+      },
+    ];
+
+    const itemByHref = new Map(items.map((item) => [item.href, item]));
+    const assigned = new Set<string>();
+
+    const sections = sectionConfig
+      .map((section) => {
+        const sectionItems = section.hrefs
+          .map((href) => itemByHref.get(href))
+          .filter((item): item is NavigationItem => Boolean(item));
+        sectionItems.forEach((item) => assigned.add(item.href));
+        return { titleKey: section.titleKey, items: sectionItems };
+      })
+      .filter((section) => section.items.length > 0);
+
+    const remainingItems = items.filter((item) => !assigned.has(item.href));
+    if (remainingItems.length) {
+      sections.push({
+        titleKey: 'sidebar.section.more',
+        items: [...remainingItems],
+      });
+    }
+
+    return sections;
   }
 }

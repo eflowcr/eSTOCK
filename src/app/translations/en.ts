@@ -159,6 +159,11 @@ export const enTranslations = {
   'nav.quick_add': 'Quick add',
   'nav.logout': 'Log out',
   'nav.account': 'Account',
+  'sidebar.section.overview': 'Overview',
+  'sidebar.section.quick_actions': 'Quick actions',
+  'sidebar.section.general_management': 'General management',
+  'sidebar.section.administration': 'Administration',
+  'sidebar.section.more': 'More',
 
   // User Management
   'user_management.description': 'Manage system users and roles',
