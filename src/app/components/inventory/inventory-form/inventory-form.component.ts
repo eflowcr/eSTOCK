@@ -7,11 +7,13 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { LocationService } from '../../../services/location.service';
+import { ZardSelectComponent } from '../../../shared/components/select/select.component';
+import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-inventory-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './inventory-form.component.html',
   styleUrls: ['./inventory-form.component.css']
 })

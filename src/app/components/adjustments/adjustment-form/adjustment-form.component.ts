@@ -10,13 +10,16 @@ import { InventoryService } from '../../../services/inventory.service';
 import { LocationService } from '../../../services/location.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
+import { ZardSelectComponent } from '../../../shared/components/select/select.component';
+import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
+import { SearchSelectComponent, SearchSelectOption } from '../../shared/search-select/search-select.component';
 
 
 
 @Component({
   selector: 'app-adjustment-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent, SearchSelectComponent],
   templateUrl: './adjustment-form.component.html',
   styleUrl: './adjustment-form.component.css'
 })
@@ -49,6 +52,20 @@ export class AdjustmentFormComponent implements OnInit {
   serialSearchTerm = '';
   selectedLots: string[] = [];
   selectedSerials: string[] = [];
+
+  get inventorySearchOptions(): SearchSelectOption[] {
+    return this.inventoryItems.map((item) => ({
+      id: `${item.sku}::${item.location}`,
+      name: `${item.sku} - ${item.name} (${item.location})`,
+    }));
+  }
+
+  get selectedSkuOptionId(): string | null {
+    const sku = this.adjustmentForm.get('sku')?.value;
+    const location = this.adjustmentForm.get('location')?.value;
+    if (!sku || !location) return null;
+    return `${sku}::${location}`;
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -160,6 +177,21 @@ export class AdjustmentFormComponent implements OnInit {
     
     // Close dropdown
     this.showSkuDropdown = false;
+  }
+
+  onSkuOptionChange(option: SearchSelectOption | null): void {
+    if (!option) {
+      this.clearSkuManually();
+      return;
+    }
+
+    const [sku, location] = option.id.split('::');
+    const match = this.inventoryItems.find(
+      (item) => item.sku === sku && item.location === location,
+    );
+    if (match) {
+      this.onInventoryItemSelected(match);
+    }
   }
 
   /**

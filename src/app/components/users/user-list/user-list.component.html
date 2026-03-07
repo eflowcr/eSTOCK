@@ -12,6 +12,7 @@
             </svg>
           </div>
           <input
+            z-input
             type="text"
             [(ngModel)]="searchTerm"
             (ngModelChange)="onSearch($event)"
@@ -26,20 +27,22 @@
         <!-- Sort Dropdown -->
         <div class="flex items-center gap-2">
           <span class="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ t('sort_by') }}</span>
-          <select
+          <z-select
             [(ngModel)]="sortBy"
             (ngModelChange)="sort(sortBy)"
-            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="min-w-40"
           >
-            <option value="first_name">{{ t('user_management.name') }}</option>
-            <option value="email">{{ t('user_management.email') }}</option>
-            <option value="role">{{ t('user_management.role') }}</option>
-            <option value="created_at">{{ t('user_management.created') }}</option>
-          </select>
+            <z-select-item zValue="first_name">{{ t('user_management.name') }}</z-select-item>
+            <z-select-item zValue="email">{{ t('user_management.email') }}</z-select-item>
+            <z-select-item zValue="role">{{ t('user_management.role') }}</z-select-item>
+            <z-select-item zValue="created_at">{{ t('user_management.created') }}</z-select-item>
+          </z-select>
         </div>
 
         <!-- Filters Toggle -->
         <button
+          z-button
+          zType="outline"
           type="button"
           (click)="toggleFilters()"
           class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 transition-colors dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
@@ -58,6 +61,8 @@
 
         <!-- Clear Filters Button -->
         <button
+          z-button
+          zType="destructive"
           *ngIf="hasActiveFilters()"
           type="button"
           (click)="clearFilters()"
@@ -79,15 +84,15 @@
           <label for="roleFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {{ t('user_management.role') }}
           </label>
-          <select
+          <z-select
             id="roleFilter"
             [(ngModel)]="roleFilter"
             (ngModelChange)="onFilterChange()"
-            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="block w-full"
           >
-            <option value="">{{ t('all_roles') }}</option>
-            <option *ngFor="let role of uniqueRoles" [value]="role">{{ role }}</option>
-          </select>
+            <z-select-item zValue="">{{ t('all_roles') }}</z-select-item>
+            <z-select-item *ngFor="let role of uniqueRoles" [zValue]="role">{{ role }}</z-select-item>
+          </z-select>
         </div>
 
         <!-- Status Filter -->
@@ -95,16 +100,16 @@
           <label for="statusFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {{ t('user_management.status') }}
           </label>
-          <select
+          <z-select
             id="statusFilter"
             [(ngModel)]="statusFilter"
             (ngModelChange)="onFilterChange()"
-            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="block w-full"
           >
-            <option value="">{{ t('all_statuses') }}</option>
-            <option value="active">{{ t('user_management.active') }}</option>
-            <option value="inactive">{{ t('user_management.inactive') }}</option>
-          </select>
+            <z-select-item zValue="">{{ t('all_statuses') }}</z-select-item>
+            <z-select-item zValue="active">{{ t('user_management.active') }}</z-select-item>
+            <z-select-item zValue="inactive">{{ t('user_management.inactive') }}</z-select-item>
+          </z-select>
         </div>
       </div>
     </div>
@@ -205,20 +210,20 @@
       {{ t('showing') }} {{ pageIndex * pageSize + 1 }} {{ t('to') }} {{ Math.min((pageIndex + 1) * pageSize, totalFilteredRows) }} {{ t('of') }} {{ totalFilteredRows }} {{ t('results') }}
     </div>
     <div class="flex items-center gap-3">
-      <select
-        [ngModel]="pageSize"
-        (ngModelChange)="setPageSize($event)"
-        class="px-2 py-1 border border-gray-300 rounded-md text-xs dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+      <z-select
+        [zValue]="pageSize.toString()"
+        (zValueChange)="setPageSize(+$any($event))"
+        class="w-20"
       >
-        <option [ngValue]="10">10</option>
-        <option [ngValue]="25">25</option>
-        <option [ngValue]="50">50</option>
-      </select>
-      <button type="button" (click)="previousPage()" [disabled]="!table.getCanPreviousPage()" class="px-2 py-1 border border-gray-300 rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600">
+        <z-select-item zValue="10">10</z-select-item>
+        <z-select-item zValue="25">25</z-select-item>
+        <z-select-item zValue="50">50</z-select-item>
+      </z-select>
+      <button z-button zType="outline" zSize="sm" type="button" (click)="previousPage()" [disabled]="!table.getCanPreviousPage()" class="px-2 py-1 border border-gray-300 rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600">
         {{ t('previous') }}
       </button>
       <span class="text-xs text-gray-600 dark:text-gray-300">{{ pageIndex + 1 }} / {{ table.getPageCount() || 1 }}</span>
-      <button type="button" (click)="nextPage()" [disabled]="!table.getCanNextPage()" class="px-2 py-1 border border-gray-300 rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600">
+      <button z-button zType="outline" zSize="sm" type="button" (click)="nextPage()" [disabled]="!table.getCanNextPage()" class="px-2 py-1 border border-gray-300 rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600">
         {{ t('next') }}
       </button>
     </div>

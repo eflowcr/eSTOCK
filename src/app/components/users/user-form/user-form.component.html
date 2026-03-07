@@ -148,12 +148,14 @@
               <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('user_management.role') }}
               </label>
-              <select id="role"
-                      formControlName="role"
-                      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                <option value="admin">Admin</option>
-                <option value="operator">Operator</option>
-              </select>
+              <z-select
+                id="role"
+                formControlName="role"
+                class="mt-1 block w-full"
+              >
+                <z-select-item zValue="admin">Admin</z-select-item>
+                <z-select-item zValue="operator">Operator</z-select-item>
+              </z-select>
             </div>
 
             <!-- Status -->
@@ -161,12 +163,14 @@
               <label for="is_active" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('user_management.status') }}
               </label>
-              <select id="is_active"
-                      formControlName="is_active"
-                      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                <option [value]="true">{{ t('active') }}</option>
-                <option [value]="false">{{ t('inactive') }}</option>
-              </select>
+              <z-select
+                id="is_active"
+                formControlName="is_active"
+                class="mt-1 block w-full"
+              >
+                <z-select-item zValue="true">{{ t('active') }}</z-select-item>
+                <z-select-item zValue="false">{{ t('inactive') }}</z-select-item>
+              </z-select>
             </div>
           </div>
 

@@ -288,20 +288,17 @@
               <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('status') }} *
               </label>
-              <select id="status" formControlName="status" 
-                class="mt-1 block w-full px-3 py-2.5 border rounded-md shadow-sm focus:outline-none text-[#00113f] dark:bg-gray-700 dark:text-white h-10"
+              <z-select
+                id="status"
+                formControlName="status"
+                class="mt-1 block w-full"
                 [class.border-red-500]="isFieldInvalid('status')"
-                [class.focus:ring-red-500]="isFieldInvalid('status')"
-                [class.focus:border-red-500]="isFieldInvalid('status')"
-                [class.focus:ring-[#3e66ea]]="!isFieldInvalid('status')"
-                [class.focus:border-[#3e66ea]]="!isFieldInvalid('status')"
-                [class.border-gray-300]="!isFieldInvalid('status')"
-                [class.dark:border-gray-600]="!isFieldInvalid('status')">
-                <option value="">{{ t('select_status') }}</option>
-                <option *ngFor="let option of statusOptions" [value]="option.value">
+              >
+                <z-select-item zValue="">{{ t('select_status') }}</z-select-item>
+                <z-select-item *ngFor="let option of statusOptions" [zValue]="option.value">
                   {{ t(option.label) }}
-                </option>
-              </select>
+                </z-select-item>
+              </z-select>
               <p *ngIf="isFieldInvalid('status')" class="mt-1 text-sm text-red-600">
                 {{ getFieldError('status') }}
               </p>

@@ -12,6 +12,7 @@
             </svg>
           </div>
           <input
+            z-input
             type="text"
             [(ngModel)]="searchTerm"
             (ngModelChange)="onSearch($event)"
@@ -26,20 +27,22 @@
         <!-- Sort Dropdown -->
         <div class="flex items-center gap-2">
           <span class="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ t('sort_by') }}</span>
-          <select
+          <z-select
             [(ngModel)]="sortBy"
             (ngModelChange)="sort(sortBy)"
-            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="min-w-40"
           >
-            <option value="location_code">{{ t('sort_by_code') }}</option>
-            <option value="description">{{ t('sort_by_description') }}</option>
-            <option value="zone">{{ t('sort_by_zone') }}</option>
-            <option value="type">{{ t('sort_by_type') }}</option>
-          </select>
+            <z-select-item zValue="location_code">{{ t('sort_by_code') }}</z-select-item>
+            <z-select-item zValue="description">{{ t('sort_by_description') }}</z-select-item>
+            <z-select-item zValue="zone">{{ t('sort_by_zone') }}</z-select-item>
+            <z-select-item zValue="type">{{ t('sort_by_type') }}</z-select-item>
+          </z-select>
         </div>
 
         <!-- Filters Toggle -->
         <button
+          z-button
+          zType="outline"
           type="button"
           (click)="toggleFilters()"
           class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 transition-colors dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
@@ -58,6 +61,8 @@
 
         <!-- Clear Filters Button -->
         <button
+          z-button
+          zType="destructive"
           *ngIf="hasActiveFilters()"
           type="button"
           (click)="clearFilters()"
@@ -79,15 +84,15 @@
           <label for="typeFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {{ t('location_type') }}
           </label>
-          <select
+          <z-select
             id="typeFilter"
             [(ngModel)]="typeFilter"
             (ngModelChange)="onFilterChange()"
-            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="block w-full"
           >
-            <option value="">{{ t('all_types') }}</option>
-            <option *ngFor="let type of uniqueTypes" [value]="type">{{ t(type.toLowerCase()) }}</option>
-          </select>
+            <z-select-item zValue="">{{ t('all_types') }}</z-select-item>
+            <z-select-item *ngFor="let type of uniqueTypes" [zValue]="type">{{ t(type.toLowerCase()) }}</z-select-item>
+          </z-select>
         </div>
 
         <!-- Zone Filter -->
@@ -95,15 +100,15 @@
           <label for="zoneFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {{ t('location_zone') }}
           </label>
-          <select
+          <z-select
             id="zoneFilter"
             [(ngModel)]="zoneFilter"
             (ngModelChange)="onFilterChange()"
-            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="block w-full"
           >
-            <option value="">{{ t('all_zones') }}</option>
-            <option *ngFor="let zone of uniqueZones" [value]="zone">{{ zone }}</option>
-          </select>
+            <z-select-item zValue="">{{ t('all_zones') }}</z-select-item>
+            <z-select-item *ngFor="let zone of uniqueZones" [zValue]="zone">{{ zone }}</z-select-item>
+          </z-select>
         </div>
 
         <!-- Status Filter -->
@@ -111,16 +116,16 @@
           <label for="statusFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {{ t('location_status') }}
           </label>
-          <select
+          <z-select
             id="statusFilter"
             [(ngModel)]="statusFilter"
             (ngModelChange)="onFilterChange()"
-            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="block w-full"
           >
-            <option value="">{{ t('all_statuses') }}</option>
-            <option value="active">{{ t('user_management.active') }}</option>
-            <option value="inactive">{{ t('user_management.inactive') }}</option>
-          </select>
+            <z-select-item zValue="">{{ t('all_statuses') }}</z-select-item>
+            <z-select-item zValue="active">{{ t('user_management.active') }}</z-select-item>
+            <z-select-item zValue="inactive">{{ t('user_management.inactive') }}</z-select-item>
+          </z-select>
         </div>
       </div>
     </div>
@@ -205,20 +210,20 @@
       {{ t('showing') }} {{ pageIndex * pageSize + 1 }} {{ t('to') }} {{ Math.min((pageIndex + 1) * pageSize, totalFilteredRows) }} {{ t('of') }} {{ totalFilteredRows }} {{ t('results') }}
     </div>
     <div class="flex items-center gap-3">
-      <select
-        [ngModel]="pageSize"
-        (ngModelChange)="setPageSize($event)"
-        class="px-2 py-1 border border-gray-300 rounded-md text-xs dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+      <z-select
+        [zValue]="pageSize.toString()"
+        (zValueChange)="setPageSize(+$any($event))"
+        class="w-20"
       >
-        <option [ngValue]="10">10</option>
-        <option [ngValue]="25">25</option>
-        <option [ngValue]="50">50</option>
-      </select>
-      <button type="button" (click)="previousPage()" [disabled]="!table.getCanPreviousPage()" class="px-2 py-1 border border-gray-300 rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600">
+        <z-select-item zValue="10">10</z-select-item>
+        <z-select-item zValue="25">25</z-select-item>
+        <z-select-item zValue="50">50</z-select-item>
+      </z-select>
+      <button z-button zType="outline" zSize="sm" type="button" (click)="previousPage()" [disabled]="!table.getCanPreviousPage()" class="px-2 py-1 border border-gray-300 rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600">
         {{ t('previous') }}
       </button>
       <span class="text-xs text-gray-600 dark:text-gray-300">{{ pageIndex + 1 }} / {{ table.getPageCount() || 1 }}</span>
-      <button type="button" (click)="nextPage()" [disabled]="!table.getCanNextPage()" class="px-2 py-1 border border-gray-300 rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600">
+      <button z-button zType="outline" zSize="sm" type="button" (click)="nextPage()" [disabled]="!table.getCanNextPage()" class="px-2 py-1 border border-gray-300 rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600">
         {{ t('next') }}
       </button>
     </div>

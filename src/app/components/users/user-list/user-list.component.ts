@@ -17,11 +17,15 @@ import { LanguageService } from '../../../services/extras/language.service';
 import { UserService } from '../../../services/user.service';
 import { UserFormComponent } from '../user-form/user-form.component';
 import { PasswordChangeComponent } from '../password-change/password-change.component';
+import { ZardButtonComponent } from '../../../shared/components/button/button.component';
+import { ZardInputDirective } from '../../../shared/components/input/input.directive';
+import { ZardSelectComponent } from '../../../shared/components/select/select.component';
+import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, UserFormComponent, PasswordChangeComponent],
+  imports: [CommonModule, FormsModule, UserFormComponent, PasswordChangeComponent, ZardButtonComponent, ZardInputDirective, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css']
 })

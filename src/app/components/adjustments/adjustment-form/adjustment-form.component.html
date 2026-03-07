@@ -38,51 +38,16 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('sku_code') }} *
               </label>
-              <div class="mt-1 relative">
-                <input type="text"
-                  (focus)="showSkuDropdown = true"
-                  (blur)="onSkuBlur()"
-                  [(ngModel)]="skuSearchTerm"
-                  (input)="filterInventoryItems()"
-                  (keydown.enter)="$event.preventDefault(); confirmFirstInventoryItemIfAny()"
-                  [ngModelOptions]="{standalone: true}"
-                  placeholder="{{ t('select_sku') }}"
-                  class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  [class.border-red-500]="isFieldInvalid('sku') && !hasValidSkuSelection()"
-                  [class.border-green-500]="hasValidSkuSelection()"
-                  [class.border-amber-500]="!isFieldInvalid('sku') && !hasValidSkuSelection() && skuSearchTerm"
+              <div class="mt-1">
+                <app-search-select
+                  [options]="inventorySearchOptions"
+                  [value]="selectedSkuOptionId"
+                  [placeholder]="t('select_sku')"
+                  [searchPlaceholder]="t('search')"
+                  [emptyText]="t('no_results')"
+                  (optionChange)="onSkuOptionChange($event)"
                 />
                 <input type="hidden" formControlName="sku" />
-                
-                <!-- Action buttons -->
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 space-x-1">
-                  <button type="button" *ngIf="hasValidSkuSelection()" (click)="enableSkuEdit()" 
-                    class="text-gray-400 hover:text-blue-600 focus:outline-none" 
-                    title="{{ t('edit_selection') }}">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
-                  </button>
-                  <button type="button" *ngIf="skuSearchTerm" (click)="clearSkuManually()" 
-                    class="text-gray-400 hover:text-red-600 focus:outline-none" 
-                    title="{{ t('clear_selection') }}">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Dropdown -->
-              <div *ngIf="showSkuDropdown" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-56 overflow-auto shadow-lg">
-                <button type="button" *ngFor="let item of filteredInventoryItems" (mousedown)="$event.preventDefault()" (click)="onInventoryItemSelected(item)"
-                  class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
-                  <div class="font-medium">{{ item.sku }} - {{ item.name }}</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ t('location') }}: {{ item.location }} | {{ t('quantity') }}: {{ item.quantity }}</div>
-                </button>
-                <div *ngIf="filteredInventoryItems.length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-                  {{ t('no_results') }}
-                </div>
               </div>
               
               <!-- Feedback message -->
@@ -158,16 +123,19 @@
               <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('reason') }} *
               </label>
-              <select formControlName="reason" id="reason"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                [class.border-red-500]="isFieldInvalid('reason')">
-                <option value="">{{ t('select_reason') }}</option>
-                <option value="damaged">{{ t('damaged') }}</option>
-                <option value="lost">{{ t('lost') }}</option>
-                <option value="found">{{ t('found') }}</option>
-                <option value="cycle_count_correction">{{ t('cycle_count_correction') }}</option>
-                <option value="other">{{ t('other') }}</option>
-              </select>
+              <z-select
+                formControlName="reason"
+                id="reason"
+                class="mt-1 block w-full"
+                [class.border-red-500]="isFieldInvalid('reason')"
+              >
+                <z-select-item zValue="">{{ t('select_reason') }}</z-select-item>
+                <z-select-item zValue="damaged">{{ t('damaged') }}</z-select-item>
+                <z-select-item zValue="lost">{{ t('lost') }}</z-select-item>
+                <z-select-item zValue="found">{{ t('found') }}</z-select-item>
+                <z-select-item zValue="cycle_count_correction">{{ t('cycle_count_correction') }}</z-select-item>
+                <z-select-item zValue="other">{{ t('other') }}</z-select-item>
+              </z-select>
               <p *ngIf="isFieldInvalid('reason')" class="mt-1 text-sm text-red-600">
                 {{ getFieldError('reason') }}
               </p>

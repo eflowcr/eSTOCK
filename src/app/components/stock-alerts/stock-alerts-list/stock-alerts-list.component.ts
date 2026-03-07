@@ -7,11 +7,13 @@ import { StockAlertService } from '@app/services';
 import { LanguageService } from '@app/services/extras/language.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LoadingSpinnerComponent } from '@app/components/shared/extras/loading-spinner/loading-spinner.component';
+import { ZardSelectComponent } from '../../../shared/components/select/select.component';
+import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-stock-alerts-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LoadingSpinnerComponent],
+  imports: [CommonModule, FormsModule, LoadingSpinnerComponent, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './stock-alerts-list.component.html',
   styleUrls: ['./stock-alerts-list.component.css']
 })

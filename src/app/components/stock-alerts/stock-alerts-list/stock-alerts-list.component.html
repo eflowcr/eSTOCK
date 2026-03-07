@@ -21,17 +21,17 @@
         <label for="alertLevel" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           {{ t('STOCK_ALERTS.ALERT_LEVEL') }}
         </label>
-        <select
+        <z-select
           id="alertLevel"
           [(ngModel)]="searchParams.alert_level"
-          (change)="onFilterChange()"
-          class="filter-select">
-          <option value="">{{ t('STOCK_ALERTS.ALL_LEVELS') }}</option>
-          <option value="critical">{{ t('STOCK_ALERTS.CRITICAL') }}</option>
-          <option value="high">{{ t('STOCK_ALERTS.HIGH') }}</option>
-          <option value="medium">{{ t('STOCK_ALERTS.MEDIUM') }}</option>
-          <option value="low">{{ t('STOCK_ALERTS.LOW') }}</option>
-        </select>
+          (ngModelChange)="onFilterChange()"
+          class="w-full">
+          <z-select-item zValue="">{{ t('STOCK_ALERTS.ALL_LEVELS') }}</z-select-item>
+          <z-select-item zValue="critical">{{ t('STOCK_ALERTS.CRITICAL') }}</z-select-item>
+          <z-select-item zValue="high">{{ t('STOCK_ALERTS.HIGH') }}</z-select-item>
+          <z-select-item zValue="medium">{{ t('STOCK_ALERTS.MEDIUM') }}</z-select-item>
+          <z-select-item zValue="low">{{ t('STOCK_ALERTS.LOW') }}</z-select-item>
+        </z-select>
       </div>
 
       <!-- Alert Type Filter -->
@@ -39,17 +39,17 @@
         <label for="alertType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           {{ t('STOCK_ALERTS.ALERT_TYPE') }}
         </label>
-        <select
+        <z-select
           id="alertType"
           [(ngModel)]="searchParams.alert_type"
-          (change)="onFilterChange()"
-          class="filter-select">
-          <option value="">{{ t('STOCK_ALERTS.ALL_TYPES') }}</option>
-          <option value="low_stock">{{ t('STOCK_ALERTS.LOW_STOCK') }}</option>
-          <option value="trend_based">{{ t('STOCK_ALERTS.TREND_BASED') }}</option>
-          <option value="seasonal">{{ t('STOCK_ALERTS.SEASONAL') }}</option>
-          <option value="expiration">{{ t('STOCK_ALERTS.EXPIRATION') }}</option>
-        </select>
+          (ngModelChange)="onFilterChange()"
+          class="w-full">
+          <z-select-item zValue="">{{ t('STOCK_ALERTS.ALL_TYPES') }}</z-select-item>
+          <z-select-item zValue="low_stock">{{ t('STOCK_ALERTS.LOW_STOCK') }}</z-select-item>
+          <z-select-item zValue="trend_based">{{ t('STOCK_ALERTS.TREND_BASED') }}</z-select-item>
+          <z-select-item zValue="seasonal">{{ t('STOCK_ALERTS.SEASONAL') }}</z-select-item>
+          <z-select-item zValue="expiration">{{ t('STOCK_ALERTS.EXPIRATION') }}</z-select-item>
+        </z-select>
       </div>
     </div>
   </div>

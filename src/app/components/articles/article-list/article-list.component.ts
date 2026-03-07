@@ -16,11 +16,13 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { ArticleService } from '../../../services/article.service';
+import { ZardSelectComponent } from '../../../shared/components/select/select.component';
+import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-article-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './article-list.component.html',
   styleUrls: ['./article-list.component.css']
 })

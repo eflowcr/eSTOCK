@@ -14,11 +14,15 @@ import { Adjustment } from '../../../models/adjustment.model';
 import { User } from '../../../models/user.model';
 import { LanguageService } from '../../../services/extras/language.service';
 import { UserService } from '../../../services/user.service';
+import { ZardButtonComponent } from '../../../shared/components/button/button.component';
+import { ZardInputDirective } from '../../../shared/components/input/input.directive';
+import { ZardSelectComponent } from '../../../shared/components/select/select.component';
+import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-adjustment-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ZardButtonComponent, ZardInputDirective, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './adjustment-list.component.html',
   styleUrl: './adjustment-list.component.css'
 })

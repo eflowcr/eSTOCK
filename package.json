@@ -25,7 +25,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "20.1.6",
-    "@angular/cdk": "20.1.6",
+    "@angular/cdk": "^20.2.14",
     "@angular/common": "20.1.6",
     "@angular/compiler": "20.1.6",
     "@angular/core": "20.1.6",
@@ -36,10 +36,14 @@
     "@tanstack/angular-table": "^8.21.3",
     "@tanstack/table-core": "^8.21.3",
     "@types/qrcode": "^1.5.5",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "jsbarcode": "^3.12.1",
     "jspdf": "^3.0.1",
+    "lucide-angular": "^0.577.0",
     "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",
+    "tailwind-merge": "^3.5.0",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5",
     "zone.js": "~0.15.0"

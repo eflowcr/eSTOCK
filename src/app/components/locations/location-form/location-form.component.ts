@@ -5,11 +5,13 @@ import { Location } from '../../../models/location.model';
 import { LocationService } from '../../../services/location.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
+import { ZardSelectComponent } from '../../../shared/components/select/select.component';
+import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-location-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './location-form.component.html',
   styleUrls: ['./location-form.component.css']
 })
@@ -68,7 +70,7 @@ export class LocationFormComponent implements OnInit, OnChanges {
       description: ['', [Validators.maxLength(255)]],
       zone: ['', [Validators.maxLength(100)]],
       type: ['SHELF', [Validators.required]],
-      is_active: [true]
+      is_active: ['true']
     });
 
     this.loadLocationData();
@@ -81,7 +83,7 @@ export class LocationFormComponent implements OnInit, OnChanges {
         description: this.initialData.description || '',
         zone: this.initialData.zone || '',
         type: this.initialData.type || 'SHELF',
-        is_active: this.initialData.is_active ?? true
+        is_active: this.initialData.is_active ? 'true' : 'false'
       });
     }
   }
@@ -94,7 +96,12 @@ export class LocationFormComponent implements OnInit, OnChanges {
 
     try {
       this.isSubmitting = true;
-      const formData = this.locationForm.value;
+      const formData = {
+        ...this.locationForm.value,
+        is_active:
+          this.locationForm.value.is_active === true ||
+          this.locationForm.value.is_active === 'true',
+      };
 
       let response;
       if (this.isEditing && this.initialData) {

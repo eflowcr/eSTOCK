@@ -39,27 +39,29 @@
           <!-- Code Type -->
           <div class="space-y-2">
             <label class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('BARCODE.CODE_TYPE') }}</label>
-            <select [(ngModel)]="options.codeType" (ngModelChange)="onConfigurationChange()" 
-                    class="config-field w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-gray-900">
-              <option value="qr">
-                <span class="flex items-center gap-2">
-                  QR Code
-                </span>
-              </option>
-              <option value="code128">Code 128</option>
-              <option value="ean13">EAN-13</option>
-            </select>
+            <z-select
+              [(ngModel)]="options.codeType"
+              (ngModelChange)="onConfigurationChange()"
+              class="config-field w-full"
+            >
+              <z-select-item zValue="qr">QR Code</z-select-item>
+              <z-select-item zValue="code128">Code 128</z-select-item>
+              <z-select-item zValue="ean13">EAN-13</z-select-item>
+            </z-select>
           </div>
 
           <!-- Label Size -->
           <div class="space-y-2">
             <label class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('BARCODE.LABEL_SIZE') }}</label>
-            <select [(ngModel)]="options.labelSize" (ngModelChange)="onConfigurationChange()" 
-                    class="config-field w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-gray-900">
-              <option value="4x2">{{ t('BARCODE.LABEL_SIZE_4X2') }} (4" x 2")</option>
-              <option value="2x1">{{ t('BARCODE.LABEL_SIZE_2X1') }} (2" x 1")</option>
-              <option value="3x1">{{ t('BARCODE.LABEL_SIZE_3X1') }} (3" x 1")</option>
-            </select>
+            <z-select
+              [(ngModel)]="options.labelSize"
+              (ngModelChange)="onConfigurationChange()"
+              class="config-field w-full"
+            >
+              <z-select-item zValue="4x2">{{ t('BARCODE.LABEL_SIZE_4X2') }} (4" x 2")</z-select-item>
+              <z-select-item zValue="2x1">{{ t('BARCODE.LABEL_SIZE_2X1') }} (2" x 1")</z-select-item>
+              <z-select-item zValue="3x1">{{ t('BARCODE.LABEL_SIZE_3X1') }} (3" x 1")</z-select-item>
+            </z-select>
           </div>
 
           <!-- Company Name -->

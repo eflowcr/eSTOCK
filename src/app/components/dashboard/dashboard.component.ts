@@ -8,11 +8,13 @@ import { DashboardService } from '../../services/dashboard.service';
 import { DashboardStats } from '../../models/dashboard.model';
 import { LanguageService } from '@app/services/extras/language.service';
 import type { DashboardKpi, StackedBarPoint, StackedBarSegment, DonutSlice, DashboardTableRow } from '@app/models/dashboard.model';
+import { ZardSelectComponent } from '../../shared/components/select/select.component';
+import { ZardSelectItemComponent } from '../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, RouterModule, MainLayoutComponent, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })

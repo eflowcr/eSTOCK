@@ -15,11 +15,15 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { LocationService } from '../../../services/location.service';
+import { ZardButtonComponent } from '../../../shared/components/button/button.component';
+import { ZardInputDirective } from '../../../shared/components/input/input.directive';
+import { ZardSelectComponent } from '../../../shared/components/select/select.component';
+import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-location-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ZardButtonComponent, ZardInputDirective, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './location-list.component.html',
   styleUrls: ['./location-list.component.css']
 })

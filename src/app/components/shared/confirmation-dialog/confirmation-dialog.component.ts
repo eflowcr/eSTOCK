@@ -1,11 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LanguageService } from '../../../services/extras/language.service';
+import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 
 @Component({
   selector: 'app-confirmation-dialog',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ZardButtonComponent],
   templateUrl: './confirmation-dialog.component.html'
 })
 export class ConfirmationDialogComponent {

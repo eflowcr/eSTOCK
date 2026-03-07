@@ -22,6 +22,8 @@ import { AuthorizationService } from '../../../services/extras/authorization.ser
 import { LanguageService } from '../../../services/extras/language.service';
 import { NavigationService } from '../../../services/extras/navigation.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ZardButtonComponent } from '../../../shared/components/button/button.component';
+import { ZardInputDirective } from '../../../shared/components/input/input.directive';
 
 @Component({
   selector: 'app-topbar',
@@ -31,6 +33,8 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
     FormsModule,
     RouterModule,
     ConfirmationDialogComponent,
+    ZardButtonComponent,
+    ZardInputDirective,
   ],
   template: `
     <header
@@ -39,6 +43,9 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
       <!-- Left side -->
       <div class="flex min-w-0 items-center gap-4">
         <button
+          z-button
+          zType="ghost"
+          zSize="icon"
           type="button"
           (click)="toggleSidebar()"
           class="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -81,6 +88,7 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
               />
             </svg>
             <input
+              z-input
               #searchInput
               [(ngModel)]="searchQuery"
               class="min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
@@ -196,6 +204,8 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
 
         <div class="user-menu-zone relative">
           <button
+            z-button
+            zType="ghost"
             type="button"
             (click)="userMenuOpen = !userMenuOpen"
             class="flex items-center gap-3 rounded-lg py-1.5 pl-1 pr-2 text-left transition-colors hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring"
@@ -223,6 +233,8 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
             class="absolute right-0 top-full z-50 mt-1 min-w-[160px] rounded-lg border border-border bg-popover py-1 shadow-lg"
           >
             <button
+              z-button
+              zType="ghost"
               type="button"
               (click)="openLogoutConfirm(); userMenuOpen = false"
               class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-accent-foreground"

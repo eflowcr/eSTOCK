@@ -15,11 +15,13 @@ import { ArticleService } from '@app/services/article.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { LanguageService } from '@app/services/extras/language.service';
+import { ZardSelectComponent } from '../../../shared/components/select/select.component';
+import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
 	selector: 'app-picking-task-form',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, FormsModule],
+	imports: [CommonModule, ReactiveFormsModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent],
 	templateUrl: './picking-task-form.component.html',
 	styleUrls: ['./picking-task-form.component.css']
 })

@@ -21,16 +21,16 @@
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-2">
           <label class="text-sm text-gray-600 dark:text-gray-400">{{ t('sort_by') }}:</label>
-          <select
+          <z-select
             [(ngModel)]="sortBy"
             (ngModelChange)="sort(sortBy)"
-            class="block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+            class="min-w-36"
           >
-            <option value="sku">{{ t('sku') }}</option>
-            <option value="name">{{ t('name') }}</option>
-            <option value="unit_price">{{ t('price') }}</option>
-            <option value="presentation">{{ t('presentation') }}</option>
-          </select>
+            <z-select-item zValue="sku">{{ t('sku') }}</z-select-item>
+            <z-select-item zValue="name">{{ t('name') }}</z-select-item>
+            <z-select-item zValue="unit_price">{{ t('price') }}</z-select-item>
+            <z-select-item zValue="presentation">{{ t('presentation') }}</z-select-item>
+          </z-select>
         </div>
 
         <button
@@ -62,43 +62,43 @@
     <div *ngIf="filtersExpanded" class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <select
+          <z-select
             [(ngModel)]="presentationFilter"
             (ngModelChange)="onFiltersChanged()"
-            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="mt-1 block w-full"
           >
-            <option value="">{{ t('all_presentations') }}</option>
-            <option value="unit">{{ t('unit') }}</option>
-            <option value="box">{{ t('box') }}</option>
-            <option value="pallet">{{ t('pallet') }}</option>
-            <option value="pack">{{ t('pack') }}</option>
-          </select>
+            <z-select-item zValue="">{{ t('all_presentations') }}</z-select-item>
+            <z-select-item zValue="unit">{{ t('unit') }}</z-select-item>
+            <z-select-item zValue="box">{{ t('box') }}</z-select-item>
+            <z-select-item zValue="pallet">{{ t('pallet') }}</z-select-item>
+            <z-select-item zValue="pack">{{ t('pack') }}</z-select-item>
+          </z-select>
         </div>
 
         <div>
-          <select
+          <z-select
             [(ngModel)]="trackingFilter"
             (ngModelChange)="onFiltersChanged()"
-            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="mt-1 block w-full"
           >
-            <option value="">{{ t('all_tracking') }}</option>
-            <option value="lot">{{ t('lot_only') }}</option>
-            <option value="serial">{{ t('serial_only') }}</option>
-            <option value="both">{{ t('lot_and_serial') }}</option>
-            <option value="none">{{ t('no_tracking') }}</option>
-          </select>
+            <z-select-item zValue="">{{ t('all_tracking') }}</z-select-item>
+            <z-select-item zValue="lot">{{ t('lot_only') }}</z-select-item>
+            <z-select-item zValue="serial">{{ t('serial_only') }}</z-select-item>
+            <z-select-item zValue="both">{{ t('lot_and_serial') }}</z-select-item>
+            <z-select-item zValue="none">{{ t('no_tracking') }}</z-select-item>
+          </z-select>
         </div>
 
         <div>
-          <select
+          <z-select
             [(ngModel)]="statusFilter"
             (ngModelChange)="onFiltersChanged()"
-            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="mt-1 block w-full"
           >
-            <option value="">{{ t('all_status') }}</option>
-            <option value="active">{{ t('active') }}</option>
-            <option value="inactive">{{ t('inactive') }}</option>
-          </select>
+            <z-select-item zValue="">{{ t('all_status') }}</z-select-item>
+            <z-select-item zValue="active">{{ t('active') }}</z-select-item>
+            <z-select-item zValue="inactive">{{ t('inactive') }}</z-select-item>
+          </z-select>
         </div>
       </div>
     </div>
@@ -207,15 +207,15 @@
       {{ t('results') }}
     </div>
     <div class="flex items-center gap-3">
-      <select
-        [ngModel]="pageSize"
-        (ngModelChange)="setPageSize($event)"
-        class="px-2 py-1 border border-gray-300 rounded-md text-xs dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+      <z-select
+        [zValue]="pageSize.toString()"
+        (zValueChange)="setPageSize(+$any($event))"
+        class="w-20"
       >
-        <option [ngValue]="10">10</option>
-        <option [ngValue]="20">20</option>
-        <option [ngValue]="50">50</option>
-      </select>
+        <z-select-item zValue="10">10</z-select-item>
+        <z-select-item zValue="20">20</z-select-item>
+        <z-select-item zValue="50">50</z-select-item>
+      </z-select>
       <button
         type="button"
         (click)="previousPage()"

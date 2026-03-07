@@ -90,19 +90,19 @@
               <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('location_type') }} <span class="text-red-500">*</span>
               </label>
-              <select
+              <z-select
                 id="type"
                 formControlName="type"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                class="mt-1 block w-full"
                 [class.border-red-500]="isFieldInvalid('type')"
                 [class.focus:ring-red-500]="isFieldInvalid('type')"
                 [class.focus:border-red-500]="isFieldInvalid('type')"
               >
-                <option value="" disabled>{{ t('select_type') }}</option>
-                <option *ngFor="let type of locationTypes" [value]="type.value">
+                <z-select-item zValue="">{{ t('select_type') }}</z-select-item>
+                <z-select-item *ngFor="let type of locationTypes" [zValue]="type.value">
                   {{ t(type.label) }}
-                </option>
-              </select>
+                </z-select-item>
+              </z-select>
               <p *ngIf="getFieldError('type')" class="mt-1 text-sm text-red-600">
                 {{ getFieldError('type') }}
               </p>
@@ -113,17 +113,17 @@
               <label for="is_active" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('location_status') }}
               </label>
-              <select
+              <z-select
                 id="is_active"
                 formControlName="is_active"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                class="mt-1 block w-full"
                 [class.border-red-500]="isFieldInvalid('is_active')"
                 [class.focus:ring-red-500]="isFieldInvalid('is_active')"
                 [class.focus:border-red-500]="isFieldInvalid('is_active')"
               >
-                <option [value]="true">{{ t('active') }}</option>
-                <option [value]="false">{{ t('inactive') }}</option>
-              </select>
+                <z-select-item zValue="true">{{ t('active') }}</z-select-item>
+                <z-select-item zValue="false">{{ t('inactive') }}</z-select-item>
+              </z-select>
               <p *ngIf="getFieldError('is_active')" class="mt-1 text-sm text-red-600">
                 {{ getFieldError('is_active') }}
               </p>

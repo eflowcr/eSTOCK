@@ -6,6 +6,8 @@ import { BarcodeService } from '@app/services/barcode.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { BarcodeDisplayComponent } from '../barcode-display/barcode-display.component';
+import { ZardSelectComponent } from '../../../shared/components/select/select.component';
+import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-barcode-generator-dialog',
@@ -13,7 +15,9 @@ import { BarcodeDisplayComponent } from '../barcode-display/barcode-display.comp
   imports: [
     CommonModule,
     FormsModule,
-    BarcodeDisplayComponent
+    BarcodeDisplayComponent,
+    ZardSelectComponent,
+    ZardSelectItemComponent
   ],
   templateUrl: './barcode-generator-dialog.component.html',
   styleUrl: './barcode-generator-dialog.component.css'

@@ -5,11 +5,13 @@ import { User } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
+import { ZardSelectComponent } from '../../../shared/components/select/select.component';
+import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-user-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.css']
 })
@@ -61,7 +63,7 @@ export class UserFormComponent implements OnInit, OnChanges {
       last_name: ['', [Validators.required]],
       password: [''],
       role: ['admin', [Validators.required]],
-      is_active: [true, [Validators.required]]
+      is_active: ['true', [Validators.required]]
     });
     
     // Add password validation for new users
@@ -80,7 +82,7 @@ export class UserFormComponent implements OnInit, OnChanges {
       last_name: this.initialData.last_name,
       password: '', // Always empty for editing
       role: this.initialData.role,
-      is_active: this.initialData.is_active
+      is_active: this.initialData.is_active ? 'true' : 'false'
     });
     
     // Remove password validation for editing
@@ -136,6 +138,7 @@ export class UserFormComponent implements OnInit, OnChanges {
 
     try {
       const formData = { ...this.userForm.value };
+      formData.is_active = formData.is_active === true || formData.is_active === 'true';
       
       // Remove empty password for updates
       if (this.isEditing && !formData.password) {

@@ -7,6 +7,7 @@
     "types": [],
     "baseUrl": "./",
     "paths": {
+      "@/*": ["src/app/*"],
       "@app/*": ["src/app/*"],
       "@environment": ["src/environment/environment.base.ts"],
       "@services": ["src/app/services/index.ts"]
