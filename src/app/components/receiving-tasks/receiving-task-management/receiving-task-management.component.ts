@@ -8,6 +8,7 @@ import { FileImportComponent, FileImportConfig } from '@app/components/shared/fi
 import { ReceivingTask } from '@app/models/receiving-task.model';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LanguageService } from '@app/services/extras/language.service';
+import { handleApiError } from '@app/utils';
 import { ReceivingTaskService } from '@app/services/receiving-task.service';
 import { ReceivingTaskFormComponent } from '../receiving-task-form/receiving-task-form.component';
 import { ReceivingTaskListComponent } from '../receiving-task-list/receiving-task-list.component';
@@ -110,9 +111,9 @@ export class ReceivingTaskManagementComponent implements OnInit {
 					this.t('error')
 				);
 			}
-		} catch (error) {
+		} catch (error: any) {
 			this.alertService.error(
-				this.t('failed_to_load_receiving_tasks'),
+				handleApiError(error, this.t('failed_to_load_receiving_tasks')),
 				this.t('error')
 			);
 		} finally {

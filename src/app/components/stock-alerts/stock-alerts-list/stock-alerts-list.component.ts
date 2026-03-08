@@ -6,6 +6,7 @@ import { AlertLevel } from '@app/models';
 import { StockAlertService } from '@app/services';
 import { LanguageService } from '@app/services/extras/language.service';
 import { AlertService } from '@app/services/extras/alert.service';
+import { handleApiError } from '@app/utils';
 import { LoadingSpinnerComponent } from '@app/components/shared/extras/loading-spinner/loading-spinner.component';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
@@ -93,9 +94,9 @@ export class StockAlertsListComponent implements OnInit {
           );
         }
       })
-      .catch(error => {
+      .catch((error: any) => {
         this.alertService.error(
-          this.t('STOCK_ALERTS.SEARCH_ERROR'),
+          handleApiError(error, this.t('STOCK_ALERTS.SEARCH_ERROR')),
           this.t('COMMON.ERROR')
         );
       })
@@ -147,10 +148,10 @@ export class StockAlertsListComponent implements OnInit {
           this.t('COMMON.ERROR')
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error resolving alert:', error);
       this.alertService.error(
-        this.t('STOCK_ALERTS.RESOLVE_ERROR'),
+        handleApiError(error, this.t('STOCK_ALERTS.RESOLVE_ERROR')),
         this.t('COMMON.ERROR')
       );
     } finally {

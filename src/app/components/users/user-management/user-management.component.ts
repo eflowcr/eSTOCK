@@ -5,6 +5,7 @@ import { AuthorizationService } from '../../../services/extras/authorization.ser
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { UserService } from '../../../services/user.service';
+import { handleApiError } from '@app/utils';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
 import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
@@ -91,7 +92,7 @@ export class UserManagementComponent implements OnInit {
       this.users = [];
       this.alertService.error(
         this.t('user_management.error'),
-        error.message || this.t('user_management.failed_load_users')
+        handleApiError(error, this.t('user_management.failed_load_users'))
       );
     } finally {
       this.isLoading = false;

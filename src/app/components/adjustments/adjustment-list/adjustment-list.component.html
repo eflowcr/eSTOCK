@@ -3,15 +3,7 @@
     <div class="loading-spinner"></div>
   </div>
 
-  <div *ngIf="!isLoading && adjustmentsCount === 0" class="empty-state">
-    <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-    </svg>
-    <h3 class="empty-state-title">{{ t('no_adjustments_found') }}</h3>
-    <p class="empty-state-description">{{ t('no_adjustments_description') }}</p>
-  </div>
-
-  <div *ngIf="!isLoading && adjustmentsCount > 0">
+  <div *ngIf="!isLoading">
     <div class="p-4 sm:p-6">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="sm:col-span-2">
@@ -71,8 +63,13 @@
             </td>
           </tr>
           <tr *ngIf="!isLoading && table.getRowModel().rows.length === 0">
-            <td [attr.colspan]="columns.length" class="px-3 py-6 text-center text-sm text-gray-500 dark:text-gray-300">
-              {{ t('no_data') }}
+            <td [attr.colspan]="columns.length" class="px-3 py-10 text-center">
+              <div class="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                <svg class="h-10 w-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                </svg>
+                <span class="text-sm font-medium">{{ t('no_data') }}</span>
+              </div>
             </td>
           </tr>
           <tr *ngFor="let row of table.getRowModel().rows" class="hover:bg-gray-50 dark:hover:bg-gray-700">

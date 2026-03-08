@@ -5,6 +5,7 @@ import { User } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
+import { handleApiError } from '@app/utils';
 
 @Component({
   selector: 'app-password-change',
@@ -123,14 +124,8 @@ export class PasswordChangeComponent implements OnInit, OnChanges {
         throw new Error(response.result.message || this.t('password_update_failed'));
       }
     } catch (error: any) {
-      let errorMessage = this.t('user_management.failed_update_password');
-      let errorTitle = this.t('user_management.error');
-      
-      if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      this.alertService.error(errorTitle, errorMessage);
+      const fallback = this.t('user_management.failed_update_password');
+      this.alertService.error(this.t('user_management.error'), handleApiError(error, fallback));
     } finally {
       this.isSubmitting = false;
     }

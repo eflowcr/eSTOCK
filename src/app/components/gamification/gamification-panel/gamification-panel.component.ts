@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { GamificationService } from '../../../services/gamification.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
+import { handleApiError } from '@app/utils';
 import { UserStat, Badge, UserBadge, CompleteTasks } from '../../../models/gamification.model';
 import { Subject } from 'rxjs';
 
@@ -86,10 +87,7 @@ export class GamificationPanelComponent implements OnInit, OnDestroy {
       }
     } catch (error: any) {
       console.error('Error loading gamification data:', error);
-      this.alertService.error(
-        this.t('gamification.errorLoading'),
-        error.message || this.t('gamification.loadError')
-      );
+      // Do not show error toast when data is empty; UI shows "No data" state.
     } finally {
       this.isLoading.set(false);
     }
@@ -162,7 +160,7 @@ export class GamificationPanelComponent implements OnInit, OnDestroy {
       console.error('Error completing task:', error);
       this.alertService.error(
         this.t('gamification.taskError'),
-        error.message || this.t('common.error.title')
+        handleApiError(error, this.t('common.error.title'))
       );
     } finally {
       this.isCompletingTask.set(false);

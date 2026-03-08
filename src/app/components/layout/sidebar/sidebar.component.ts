@@ -19,9 +19,16 @@ interface SidebarSection {
   imports: [CommonModule, RouterModule],
   template: `
     <div
-      class="fixed bottom-3 left-3 top-3 z-40 hidden w-64 flex-col rounded-2xl border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm transition-transform duration-200 ease-in-out md:flex md:translate-x-0"
-      [class.-translate-x-full]="collapsed"
+      *ngIf="mobileOpen"
+      class="fixed inset-0 z-30 bg-black/35 backdrop-blur-[1px] md:hidden"
+      (click)="closeMobileSidebar()"
+      aria-hidden="true"
+    ></div>
+    <div
+      class="fixed bottom-3 left-3 top-3 z-40 flex w-64 flex-col rounded-2xl border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm transition-transform duration-200 ease-in-out -translate-x-[calc(100%+1.5rem)] md:translate-x-0"
+      [class.translate-x-0]="mobileOpen"
       [class.md:translate-x-0]="!collapsed"
+      [class.md:-translate-x-[calc(100%+1.5rem)]]="collapsed"
     >
       <div class="flex h-full w-full flex-col">
         <div class="flex flex-col gap-2 p-2" data-sidebar="header">
@@ -41,6 +48,7 @@ interface SidebarSection {
               <a
                 *ngFor="let item of section.items"
                 [routerLink]="item.href"
+                (click)="onNavigationClick()"
                 routerLinkActive="bg-sidebar-accent font-medium text-sidebar-accent-foreground"
                 [routerLinkActiveOptions]="{ exact: item.href === '/' }"
                 class="flex items-center gap-2.5 overflow-hidden rounded-lg px-2.5 py-2 text-[15px] outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -127,7 +135,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
   sections: SidebarSection[] = [];
   appVersion = 'v1.0.0';
   collapsed = false;
-  private sub?: Subscription;
+  mobileOpen = false;
+  private subs = new Subscription();
 
   constructor(
     private languageService: LanguageService,
@@ -143,15 +152,28 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.navigation = this.navigationService.getItems();
     this.sections = this.buildSections(this.navigation);
-    this.sub = this.sidebarService.collapsed$.subscribe((c) => (this.collapsed = c));
+    this.subs.add(
+      this.sidebarService.desktopCollapsed$.subscribe((c) => (this.collapsed = c)),
+    );
+    this.subs.add(
+      this.sidebarService.mobileOpen$.subscribe((open) => (this.mobileOpen = open)),
+    );
   }
 
   ngOnDestroy(): void {
-    this.sub?.unsubscribe();
+    this.subs.unsubscribe();
   }
 
   t(key: string): string {
     return this.languageService.t(key);
+  }
+
+  closeMobileSidebar(): void {
+    this.sidebarService.closeMobile();
+  }
+
+  onNavigationClick(): void {
+    this.sidebarService.closeMobile();
   }
 
   private buildSections(items: NavigationItems): SidebarSection[] {

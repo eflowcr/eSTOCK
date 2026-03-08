@@ -87,12 +87,10 @@ export class InventoryManagementComponent implements OnInit {
       if (response.result.success && response.data) {
         this.inventory = response.data;
         this.exportConfig.data = this.inventory;
-      } else {
-        this.alertService.error(this.t('failed_to_load_inventory'));
       }
+      // When data is empty or load fails, no error toast; UI shows "No data" state.
     } catch (error) {
       console.error('Error loading inventory:', error);
-      this.alertService.error(this.t('failed_to_load_inventory'));
     } finally {
       this.isLoading = false;
     }

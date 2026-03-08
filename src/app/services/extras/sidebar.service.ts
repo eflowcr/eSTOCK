@@ -5,18 +5,37 @@ export const SIDEBAR_WIDTH_REM = 16; // 16rem like shadcn
 
 @Injectable({ providedIn: 'root' })
 export class SidebarService {
-  private collapsedSubject = new BehaviorSubject<boolean>(false);
-  collapsed$ = this.collapsedSubject.asObservable();
+  private desktopCollapsedSubject = new BehaviorSubject<boolean>(false);
+  private mobileOpenSubject = new BehaviorSubject<boolean>(false);
 
-  get collapsed(): boolean {
-    return this.collapsedSubject.value;
+  desktopCollapsed$ = this.desktopCollapsedSubject.asObservable();
+  mobileOpen$ = this.mobileOpenSubject.asObservable();
+
+  get desktopCollapsed(): boolean {
+    return this.desktopCollapsedSubject.value;
   }
 
-  toggle(): void {
-    this.collapsedSubject.next(!this.collapsedSubject.value);
+  get mobileOpen(): boolean {
+    return this.mobileOpenSubject.value;
   }
 
-  setCollapsed(value: boolean): void {
-    this.collapsedSubject.next(value);
+  toggleDesktop(): void {
+    this.desktopCollapsedSubject.next(!this.desktopCollapsedSubject.value);
+  }
+
+  setDesktopCollapsed(value: boolean): void {
+    this.desktopCollapsedSubject.next(value);
+  }
+
+  toggleMobile(): void {
+    this.mobileOpenSubject.next(!this.mobileOpenSubject.value);
+  }
+
+  openMobile(): void {
+    this.mobileOpenSubject.next(true);
+  }
+
+  closeMobile(): void {
+    this.mobileOpenSubject.next(false);
   }
 }

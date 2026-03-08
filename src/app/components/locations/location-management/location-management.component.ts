@@ -78,18 +78,10 @@ export class LocationManagementComponent implements OnInit {
       if (response.result.success && response.data) {
         this.locations = response.data;
         this.exportConfig.data = this.locations;
-      } else {
-        this.alertService.error(
-          this.t('error'),
-          this.t('failed_to_load_locations')
-        );
       }
+      // When data is empty or load fails, no error toast; UI shows "No data" state.
     } catch (error) {
       console.error('Error loading locations:', error);
-      this.alertService.error(
-        this.t('error'),
-        this.t('failed_to_load_locations')
-      );
     } finally {
       this.isLoading = false;
     }

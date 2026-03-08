@@ -45,8 +45,29 @@ export class ArticleService {
 	 */
 	async getBySku(sku: string): Promise<ApiResponse<Article>> {
 		return await this.fetchService.get<ApiResponse<Article>>({
-			API_Gateway: `${ARTICLE_URL}/sku/${sku}`,
+			API_Gateway: `${ARTICLE_URL}/sku/${encodeURIComponent(sku)}`,
 		});
+	}
+
+	/**
+	 * @description Check if a SKU is already in use (for real-time validation when creating articles).
+	 * @param sku SKU to check
+	 * @returns 'in_use' if article exists, 'available' if 404, 'error' on other failures
+	 */
+	async checkSkuAvailability(sku: string): Promise<'available' | 'in_use' | 'error'> {
+		const trimmed = (sku || '').trim();
+		if (!trimmed) return 'available';
+		try {
+			const response = await this.getBySku(trimmed);
+			if (response?.result?.success && response?.data) {
+				return 'in_use';
+			}
+			return 'available';
+		} catch (err: any) {
+			const status = Number(err?.status);
+			if (status === 404) return 'available';
+			return 'error';
+		}
 	}
 
 	/**

@@ -1,6 +1,6 @@
-<div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-6">
+<div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-6 min-h-[72vh] flex flex-col">
   <!-- Modern Search and Controls Bar -->
-  <div class="p-4 sm:p-6">
+  <div class="p-5 sm:p-6">
     <!-- Main Controls Row -->
     <div class="flex flex-col lg:flex-row lg:items-center gap-4">
       <!-- Search Section -->
@@ -131,13 +131,13 @@
     </div>
   </div>
 
-  <div class="overflow-x-auto">
+  <div class="overflow-x-auto flex-1 min-h-[460px]">
     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 inventory-table-fixed">
       <thead class="bg-gray-50 dark:bg-gray-700">
         <tr *ngFor="let headerGroup of table.getHeaderGroups()">
           <th
             *ngFor="let header of headerGroup.headers"
-            class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
+            class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
           >
             <button
               *ngIf="header.column.getCanSort(); else plainHeader"
@@ -156,17 +156,22 @@
       </thead>
       <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
         <tr *ngIf="isLoading">
-          <td [attr.colspan]="columns.length" class="px-3 py-6 text-center text-sm text-gray-500 dark:text-gray-300">
+          <td [attr.colspan]="columns.length" class="px-3 py-10 text-center text-sm text-gray-500 dark:text-gray-300">
             {{ t('loading') }}
           </td>
         </tr>
         <tr *ngIf="!isLoading && table.getRowModel().rows.length === 0">
-          <td [attr.colspan]="columns.length" class="px-3 py-6 text-center text-sm text-gray-500 dark:text-gray-300">
-            {{ searchTerm ? t('no_locations_match_search') : t('no_locations_found') }}
+          <td [attr.colspan]="columns.length" class="px-3 py-10 text-center">
+            <div class="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+              <svg class="h-10 w-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+              </svg>
+              <span class="text-sm font-medium">{{ searchTerm ? t('no_results') : t('no_data') }}</span>
+            </div>
           </td>
         </tr>
         <tr *ngFor="let row of table.getRowModel().rows" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-          <td *ngFor="let cell of row.getVisibleCells()" class="px-3 py-3 text-sm text-gray-900 dark:text-white align-top">
+          <td *ngFor="let cell of row.getVisibleCells()" class="px-3 py-4 text-sm text-gray-900 dark:text-white align-top">
             <ng-container [ngSwitch]="cell.column.id">
               <span *ngSwitchCase="'location_code'" class="font-mono text-xs font-medium">{{ row.original.location_code }}</span>
               <span *ngSwitchCase="'description'" class="text-gray-600 dark:text-gray-300">{{ row.original.description || '-' }}</span>
@@ -205,7 +210,7 @@
     </table>
   </div>
 
-  <div class="flex flex-col gap-3 border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+  <div class="mt-auto flex flex-col gap-3 border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
     <div class="text-xs text-gray-500 dark:text-gray-300">
       {{ t('showing') }} {{ pageIndex * pageSize + 1 }} {{ t('to') }} {{ Math.min((pageIndex + 1) * pageSize, totalFilteredRows) }} {{ t('of') }} {{ totalFilteredRows }} {{ t('results') }}
     </div>
@@ -230,64 +235,109 @@
   </div>
 </div>
 
-<!-- View Location Dialog -->
-<div *ngIf="viewingLocation" class="fixed inset-0 z-50 overflow-y-auto">
+<!-- View Location Dialog (design system: card, border, muted, foreground, primary) -->
+<div *ngIf="viewingLocation" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-labelledby="location-details-title">
   <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <!-- Background overlay -->
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeViewDialog()"></div>
+    <div class="fixed inset-0 bg-foreground/50 transition-opacity" (click)="closeViewDialog()"></div>
 
-    <!-- Dialog -->
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full dark:bg-gray-800">
+    <div class="relative inline-block align-bottom rounded-xl border border-border bg-card text-left overflow-hidden shadow-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
       <!-- Header -->
-      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-          {{ t('location_details') }}
-        </h3>
+      <div class="border-b border-border px-5 pt-5 pb-4">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="flex items-center justify-center size-11 rounded-lg bg-muted text-muted-foreground shrink-0">
+              <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <h2 id="location-details-title" class="text-lg font-semibold text-foreground">{{ t('location_details') }}</h2>
+              <p class="mt-0.5 text-sm font-mono text-muted-foreground truncate">{{ viewingLocation.location_code }}</p>
+            </div>
+          </div>
+          <button type="button" (click)="closeViewDialog()"
+            class="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring shrink-0"
+            [attr.aria-label]="t('close')">
+            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
       </div>
-      
-      <!-- Content -->
-      <div class="bg-white px-4 pb-4 sm:p-6 space-y-4 dark:bg-gray-800">
-        <!-- Location Info Grid -->
-        <div class="grid grid-cols-1 gap-4">
-          <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('location_code') }}</label>
-            <p class="text-sm text-gray-900 dark:text-white font-medium">{{ viewingLocation.location_code }}</p>
+
+      <!-- Content: detail rows with icons -->
+      <div class="px-5 py-4 space-y-0">
+        <div class="flex items-start gap-3 py-3 border-b border-border">
+          <div class="size-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>
           </div>
-          <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('location_description') }}</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ viewingLocation.description || '-' }}</p>
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">{{ t('location_code') }}</p>
+            <p class="mt-0.5 text-sm font-semibold text-foreground font-mono">{{ viewingLocation.location_code }}</p>
           </div>
-          <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('location_zone') }}</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ viewingLocation.zone || '-' }}</p>
+        </div>
+        <div class="flex items-start gap-3 py-3 border-b border-border">
+          <div class="size-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
           </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('location_type') }}</label>
-              <p class="text-sm">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" [ngClass]="getTypeBadgeClass(viewingLocation.type)">
-                  {{ t(viewingLocation.type.toLowerCase()) }}
-                </span>
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">{{ t('location_description') }}</p>
+            <p class="mt-0.5 text-sm text-foreground">{{ viewingLocation.description || '—' }}</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 py-3 border-b border-border">
+          <div class="size-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">{{ t('location_zone') }}</p>
+            <p class="mt-0.5 text-sm text-foreground">{{ viewingLocation.zone || '—' }}</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 py-3 border-b border-border">
+          <div class="flex items-start gap-3">
+            <div class="size-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+              <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8 4-8-4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            </div>
+            <div class="min-w-0">
+              <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">{{ t('location_type') }}</p>
+              <p class="mt-0.5">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold" [ngClass]="getTypeBadgeClass(viewingLocation.type)">{{ t(viewingLocation.type.toLowerCase()) }}</span>
               </p>
             </div>
-            <div>
-              <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('location_status') }}</label>
-              <p class="text-sm">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusBadgeClass(viewingLocation.is_active)">
-                  {{ viewingLocation.is_active ? t('user_management.active') : t('user_management.inactive') }}
-                </span>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="size-9 rounded-lg flex items-center justify-center shrink-0" [ngClass]="viewingLocation.is_active ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'">
+              <span class="w-2.5 h-2.5 rounded-full" [ngClass]="viewingLocation.is_active ? 'bg-green-500' : 'bg-red-500'"></span>
+            </div>
+            <div class="min-w-0">
+              <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">{{ t('location_status') }}</p>
+              <p class="mt-0.5">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold" [ngClass]="getStatusBadgeClass(viewingLocation.is_active)">{{ viewingLocation.is_active ? t('user_management.active') : t('user_management.inactive') }}</span>
               </p>
             </div>
           </div>
         </div>
+        <div class="flex items-start gap-3 py-3">
+          <div class="size-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">{{ t('updated_at') }}</p>
+            <p class="mt-0.5 text-sm text-foreground">{{ viewingLocation.updated_at ? (viewingLocation.updated_at | date:'medium') : '—' }}</p>
+          </div>
+        </div>
       </div>
-      
+
       <!-- Footer -->
-      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse dark:bg-gray-700">
-        <button type="button" 
-                (click)="closeViewDialog()"
-                class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-500">
+      <div class="border-t border-border bg-muted/30 px-5 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3">
+        <button type="button" (click)="closeViewDialog()"
+          class="inline-flex justify-center rounded-md border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
           {{ t('close') }}
+        </button>
+        <button *ngIf="isAdmin()" type="button" (click)="onEdit(viewingLocation); closeViewDialog()"
+          class="inline-flex justify-center items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+          <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+          {{ t('edit') }}
         </button>
       </div>
     </div>

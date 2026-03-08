@@ -15,6 +15,7 @@ import { ArticleService } from '@app/services/article.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { LanguageService } from '@app/services/extras/language.service';
+import { handleApiError } from '@app/utils';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
@@ -389,9 +390,9 @@ export class ReceivingTaskFormComponent implements OnInit {
 					);
 				}
 			}
-		} catch (error) {
+		} catch (error: any) {
 			this.alertService.error(
-				this.t('error_saving_task'),
+				handleApiError(error, this.t('error_saving_task')),
 				this.t('error')
 			);
 		} finally {

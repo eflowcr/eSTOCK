@@ -5,6 +5,7 @@ import { AdjustmentService } from '../../../services/adjustment.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
+import { handleApiError } from '@app/utils';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
 import { AdjustmentFormComponent } from '../adjustment-form/adjustment-form.component';
@@ -56,9 +57,9 @@ export class AdjustmentManagementComponent implements OnInit {
       this.isLoading = true;
       const response = await this.adjustmentService.getAll();
       this.adjustments = response.data || [];
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading adjustments:', error);
-      this.alertService.error(this.t('error_loading_adjustments'));
+      this.alertService.error(handleApiError(error, this.t('error_loading_adjustments')));
     } finally {
       this.isLoading = false;
     }

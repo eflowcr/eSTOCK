@@ -15,6 +15,7 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { UserService } from '../../../services/user.service';
+import { handleApiError } from '@app/utils';
 import { UserFormComponent } from '../user-form/user-form.component';
 import { PasswordChangeComponent } from '../password-change/password-change.component';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
@@ -220,17 +221,11 @@ export class UserListComponent {
       } else {
         throw new Error(response.result.message || this.t('delete_failed'));
       }
-    } catch (error: unknown) {
-      const err = error as { message?: string };
-      let errorMessage = this.t('user_management.failed_delete');
-      let errorTitle = this.t('user_management.error');
-      if (err?.message?.includes('Cannot delete user')) {
-        errorTitle = this.t('user_management.cannot_delete');
-        errorMessage = err.message;
-      } else if (err?.message) {
-        errorMessage = err.message;
-      }
-      this.alertService.error(errorTitle, errorMessage);
+    } catch (error: any) {
+      const fallback = this.t('user_management.failed_delete');
+      const msg = handleApiError(error, fallback);
+      const errorTitle = msg.includes('Cannot delete user') ? this.t('user_management.cannot_delete') : this.t('user_management.error');
+      this.alertService.error(errorTitle, msg);
     } finally {
       this.isDeleting = false;
     }

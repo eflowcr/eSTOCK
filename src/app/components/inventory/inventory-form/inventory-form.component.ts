@@ -7,6 +7,7 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { LocationService } from '../../../services/location.service';
+import { handleApiError } from '@app/utils';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
@@ -757,8 +758,8 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       } else {
         this.alertService.error(response.result.message || this.t('operation_failed'));
       }
-    } catch (error) {
-      this.alertService.error(this.t('operation_failed'));
+    } catch (error: any) {
+      this.alertService.error(handleApiError(error, this.t('operation_failed')));
     } finally {
       this.isSubmitting = false;
     }

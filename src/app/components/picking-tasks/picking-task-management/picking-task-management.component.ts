@@ -7,6 +7,7 @@ import { PickingTaskService } from '@app/services/picking-task.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LanguageService } from '@app/services/extras/language.service';
+import { handleApiError } from '@app/utils';
 import { DataExportComponent, DataExportConfig } from '@app/components/shared/data-export/data-export.component';
 import { FileImportComponent, FileImportConfig } from '@app/components/shared/file-import/file-import.component';
 import { PickingTaskFormComponent } from '../picking-task-form/picking-task-form.component';
@@ -114,9 +115,9 @@ export class PickingTaskManagementComponent implements OnInit {
 					this.t('error')
 				);
 			}
-		} catch (error) {
+		} catch (error: any) {
 			this.alertService.error(
-				this.t('failed_to_load_picking_tasks'),
+				handleApiError(error, this.t('failed_to_load_picking_tasks')),
 				this.t('error')
 			);
 		} finally {

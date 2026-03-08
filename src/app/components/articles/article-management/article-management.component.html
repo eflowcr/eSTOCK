@@ -1,8 +1,8 @@
 <app-main-layout>
 
   <div class="space-y-6">
-    <!-- Header Section -->
-    <div class="flex justify-between items-center mb-6">
+    <!-- Header Section (same margin/padding as /locations) -->
+    <div class="flex justify-between items-center">
       <div>
         <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
           {{ t('article_management') }}
@@ -12,8 +12,17 @@
         </p>
       </div>
 
-      <!-- Action Buttons -->
+      <!-- Action Buttons: Create | Export | Import (same order and style as /locations) -->
       <div class="flex gap-2">
+        <!-- Create Button - next to Export -->
+        <button type="button" (click)="openCreateForm()"
+          class="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]">
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          {{ t('create') }}
+        </button>
+
         <!-- Export Button - Available for all users -->
         <button type="button" (click)="openExportDialog()"
           class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-[#4465ec] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-[#4465ec]">
@@ -34,15 +43,6 @@
             </path>
           </svg>
           {{ t('import') }}
-        </button>
-
-        <!-- Create Button - Only for admin -->
-        <button *ngIf="isAdmin()" type="button" (click)="openCreateForm()"
-          class="flex items-center px-4 py-2 bg-[#00113f] text-white rounded-md shadow-sm text-sm font-medium hover:bg-[#4465ec] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-[#00113f] dark:hover:bg-[#4465ec]">
-          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          {{ t('create_article') }}
         </button>
       </div>
     </div>

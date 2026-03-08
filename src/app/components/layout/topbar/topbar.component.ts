@@ -21,9 +21,9 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { NavigationService } from '../../../services/extras/navigation.service';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { handleApiError } from '@app/utils';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
-import { ZardInputDirective } from '../../../shared/components/input/input.directive';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-topbar',
@@ -34,7 +34,6 @@ import { ZardInputDirective } from '../../../shared/components/input/input.direc
     RouterModule,
     ConfirmationDialogComponent,
     ZardButtonComponent,
-    ZardInputDirective,
   ],
   template: `
     <header
@@ -68,14 +67,15 @@ import { ZardInputDirective } from '../../../shared/components/input/input.direc
         <div class="h-6 w-px bg-border" aria-hidden="true"></div>
 
         <div
-          class="relative w-full max-w-sm min-w-0"
+          class="relative w-full max-w-md min-w-0"
+          data-topbar-search-root
           (keydown)="$event.stopPropagation()"
         >
           <div
-            class="flex items-center gap-2 rounded-lg border border-border bg-muted/60 py-2 pl-3 pr-2 text-muted-foreground transition-colors focus-within:bg-background focus-within:text-foreground focus-within:ring-2 focus-within:ring-ring"
+            class="group flex h-10 items-center gap-2 rounded-xl border border-border/70 bg-muted/30 px-3 text-muted-foreground transition-colors focus-within:border-ring focus-within:bg-background focus-within:text-foreground"
           >
             <svg
-              class="size-4 shrink-0"
+              class="size-4 shrink-0 text-muted-foreground transition-colors group-focus-within:text-foreground"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -88,10 +88,9 @@ import { ZardInputDirective } from '../../../shared/components/input/input.direc
               />
             </svg>
             <input
-              z-input
               #searchInput
               [(ngModel)]="searchQuery"
-              class="min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+              class="min-w-0 flex-1 border-0 bg-transparent p-0 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0"
               [placeholder]="t('search.placeholder')"
               type="search"
               (focus)="openSuggestions()"
@@ -102,14 +101,15 @@ import { ZardInputDirective } from '../../../shared/components/input/input.direc
               (keydown.escape)="closeSuggestions()"
             />
             <kbd
-              class="hidden shrink-0 rounded border border-border bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline-block"
+              class="hidden shrink-0 rounded-md border border-border bg-background px-2 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline-block"
               aria-label="Shortcut"
               >&#8984; F</kbd
             >
           </div>
           <div
             *ngIf="showSuggestions"
-            class="absolute left-0 right-0 top-full z-50 mt-1 rounded-lg border border-border bg-popover py-1 text-popover-foreground shadow-lg"
+            class="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border border-border bg-popover py-1 text-popover-foreground shadow-lg"
+            data-topbar-search-suggestions
           >
             <ng-container *ngIf="filteredItems.length; else noResults">
               <ul class="max-h-64 overflow-auto">
@@ -301,7 +301,12 @@ export class TopbarComponent implements OnInit, OnDestroy {
   ) {}
 
   toggleSidebar(): void {
-    this.sidebarService.toggle();
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    if (isMobile) {
+      this.sidebarService.toggleMobile();
+      return;
+    }
+    this.sidebarService.toggleDesktop();
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -383,9 +388,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
     } catch (error: any) {
       console.error('Logout error:', error);
       this.alertService.error(
-        error.message ||
-          this.t('auth.logout_error') ||
-          'Error al cerrar sesión',
+        handleApiError(error, this.t('auth.logout_error') || 'Error al cerrar sesión'),
         this.t('auth.logout_failed') || 'Error',
       );
     }
@@ -455,9 +458,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    const closestSearch = target.closest(
-      'input[type="search"], .absolute.mt-1',
-    );
+    const closestSearch = target.closest('[data-topbar-search-root]');
     if (!closestSearch) {
       this.closeSuggestions();
     }

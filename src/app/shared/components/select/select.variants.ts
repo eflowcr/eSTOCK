@@ -57,7 +57,7 @@ export const selectItemVariants = cva(
   },
 );
 
-export const selectItemIconVariants = cva('absolute flex size-3.5 items-center justify-center', {
+export const selectItemIconVariants = cva('absolute flex size-3.5 shrink-0 items-center justify-center overflow-hidden', {
   variants: {
     // zSize variants are placeholders for compound variant matching
     zSize: {

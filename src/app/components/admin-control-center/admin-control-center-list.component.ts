@@ -125,18 +125,10 @@ export class AdminControlCenterListComponent implements OnInit {
         });
         
         this.operatorStats.set(extendedStats);
-      } else {
-        this.alertService.error(
-          this.t('error'),
-          this.t('admin.failed_to_load_operator_stats')
-        );
       }
+      // When data is empty or load fails, no error toast; UI shows "No data" state.
     } catch (error) {
       console.error('Error loading operator stats:', error);
-      this.alertService.error(
-        this.t('error'),
-        this.t('admin.failed_to_load_operator_stats')
-      );
     } finally {
       this.isLoading.set(false);
     }

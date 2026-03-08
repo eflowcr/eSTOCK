@@ -17,5 +17,10 @@ export const handleError = (error: HttpErrorResponse, redirectService: RedirectS
     return throwError(() => error.error);
   }
 
-  return throwError(() => error.error);
+  // Pass body plus status so callers can detect 409 Conflict (e.g. duplicate SKU)
+  const body = error.error ?? {};
+  const payload = typeof body === 'object' && body !== null && !('status' in body)
+    ? { ...body, status: error.status }
+    : body;
+  return throwError(() => payload);
 };

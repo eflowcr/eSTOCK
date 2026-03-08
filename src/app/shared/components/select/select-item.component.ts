@@ -32,10 +32,10 @@ interface SelectHost {
   template: `
     @if (isSelected()) {
       <span [class]="iconClasses()">
-        <z-icon zType="check" [zStrokeWidth]="strokeWidth()" aria-hidden="true" data-testid="check-icon" />
+        <z-icon zType="check" [zStrokeWidth]="strokeWidth()" class="size-3.5 shrink-0" aria-hidden="true" data-testid="check-icon" />
       </span>
     }
-    <span class="truncate">
+    <span class="truncate min-w-0">
       <ng-content />
     </span>
   `,

@@ -37,20 +37,25 @@ export function returnCustomURI(config: { URI?: string; API_Gateway: string }):
 }
 
 /**
- * @description Utility function to handle API errors
- * @param error Error object
+ * Get the message from the backend's API error body (envelope: result.message, then message, error).
+ * Use this in catch blocks when the thrown value is the response body from handleError.
+ */
+export function getApiErrorMessage(error: any): string {
+  if (error == null) return '';
+  if (typeof error === 'string') return error;
+  const msg = error?.result?.message ?? error?.message ?? error?.error ?? '';
+  return typeof msg === 'string' ? msg : '';
+}
+
+/**
+ * @description Utility function to handle API errors (alias for getApiErrorMessage with fallback).
+ * @param error Error object (backend body with result.message, or Error with message)
+ * @param fallback Fallback message when no message is found
  * @returns Formatted error message
  */
-export function handleApiError(error: any): string {
-  if (error?.result?.message) {
-    return error.result.message;
-  }
-
-  if (error?.message) {
-    return error.message;
-  }
-
-  return 'An unexpected error occurred';
+export function handleApiError(error: any, fallback: string = 'An unexpected error occurred'): string {
+  const msg = getApiErrorMessage(error);
+  return msg || fallback;
 }
 
 /**

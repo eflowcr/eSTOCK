@@ -15,6 +15,7 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { LocationService } from '../../../services/location.service';
+import { handleApiError } from '@app/utils';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardInputDirective } from '../../../shared/components/input/input.directive';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
@@ -200,11 +201,8 @@ export class LocationListComponent {
       } else {
         this.alertService.error(this.t('error'), response.result.message || this.t('failed_to_delete_location'));
       }
-    } catch (error: unknown) {
-      const err = error as { message?: string };
-      let errorMessage = this.t('failed_to_delete_location');
-      if (err?.message?.includes('Cannot delete location')) errorMessage = err.message;
-      this.alertService.error(this.t('error'), errorMessage);
+    } catch (error: any) {
+      this.alertService.error(this.t('error'), handleApiError(error, this.t('failed_to_delete_location')));
     } finally {
       this.isDeleting = false;
       this.deletingLocationId = null;

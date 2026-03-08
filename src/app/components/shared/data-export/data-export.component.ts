@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
+import { handleApiError } from '@app/utils';
 
 export interface DataExportConfig {
   title: string;
@@ -86,7 +87,7 @@ export class DataExportComponent {
       console.error('Export error:', error);
       this.alertService.error(
         this.t('export_failed'),
-        error.message || this.t('failed_to_export_data')
+        handleApiError(error, this.t('failed_to_export_data'))
       );
     } finally {
       this.isExporting = false;

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiResponse, AuthData, AuthState, LoginRequest, RegisterRequest, User } from '@app/models';
-import { returnCompleteURI } from '@app/utils';
+import { getApiErrorMessage, returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { BehaviorSubject } from 'rxjs';
 import { FetchService } from './extras/fetch.service';
@@ -265,14 +265,7 @@ export class AuthService {
 	 * @version 4.17.0.11
 	 */
 	private handleAuthError(error: any): void {
-		let errorMessage = 'An error occurred during authentication';
-
-		if (error?.result?.message) {
-			errorMessage = error.result.message;
-		} else if (error?.message) {
-			errorMessage = error.message;
-		}
-
+		const errorMessage = getApiErrorMessage(error) || error?.message || 'An error occurred during authentication';
 		this.updateAuthState({
 			isLoading: false,
 			error: errorMessage

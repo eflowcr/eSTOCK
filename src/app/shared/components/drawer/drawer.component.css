@@ -1,0 +1,75 @@
+.drawer-panel {
+  position: fixed;
+  z-index: 51;
+}
+
+/* Bottom/top: content in a centered column (like frontend_template Create Doctor drawer) */
+.drawer-inner.drawer-inner-centered {
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  .drawer-inner.drawer-inner-centered {
+    max-width: 48rem; /* 768px = max-w-3xl */
+  }
+}
+
+.drawer-panel.drawer-right {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 32rem; /* 512px - wide enough for forms */
+}
+
+.drawer-panel.drawer-left {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.drawer-panel.drawer-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  min-height: 20rem;
+  max-height: 90vh;
+}
+
+.drawer-panel.drawer-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  min-height: 20rem;
+  max-height: 90vh;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.drawer-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgb(229 231 235);
+}
+
+.dark .drawer-header {
+  border-bottom-color: rgb(55 65 81);
+}
+
+.drawer-content {
+  padding: 1.5rem;
+}
+
+.drawer-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgb(229 231 235);
+}
+
+.dark .drawer-footer {
+  border-top-color: rgb(55 65 81);
+}

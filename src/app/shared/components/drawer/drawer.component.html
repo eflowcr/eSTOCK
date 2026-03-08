@@ -1,0 +1,47 @@
+@if (isVisible) {
+  <div class="fixed inset-0 z-50">
+    <!-- Backdrop (fade in/out) -->
+    <div
+      class="fixed inset-0 bg-black/50 dark:bg-black/60"
+      [@overlay]="overlayState"
+      (click)="onBackdropClick()"
+      role="button"
+      tabindex="-1"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Panel (slide in/out from direction: left | right | top | bottom) -->
+    <div
+      class="drawer-panel drawer-{{ direction }} bg-white dark:bg-gray-800 shadow-xl flex flex-col {{ panelClass }}"
+      [@panelSlide]="{ value: panelState, params: panelParams }"
+      (@panelSlide.done)="onPanelSlideDone($event)"
+      (click)="$event.stopPropagation()"
+      role="dialog"
+      aria-modal="true"
+    >
+      <!-- Drag handle (bottom/top only, like shadcn/Vaul) -->
+      @if (direction === 'bottom' || direction === 'top') {
+        <div
+          class="flex-shrink-0 rounded-full bg-gray-200 dark:bg-gray-600 mx-auto h-2 w-[100px]"
+          [class.mt-4]="direction === 'bottom'"
+          [class.mb-4]="direction === 'top'"
+        ></div>
+      }
+      <!-- Inner wrapper: centered max-width column for bottom/top (like Create Doctor drawer) -->
+      <div
+        class="drawer-inner flex flex-col flex-1 min-h-0 w-full"
+        [class.drawer-inner-centered]="direction === 'bottom' || direction === 'top'"
+      >
+        <div class="drawer-header flex-shrink-0">
+          <ng-content select="[drawerHeader]"></ng-content>
+        </div>
+        <div class="drawer-content flex-1 overflow-y-auto min-h-0">
+          <ng-content select="[drawerContent]"></ng-content>
+        </div>
+        <div class="drawer-footer flex-shrink-0">
+          <ng-content select="[drawerFooter]"></ng-content>
+        </div>
+      </div>
+    </div>
+  </div>
+}

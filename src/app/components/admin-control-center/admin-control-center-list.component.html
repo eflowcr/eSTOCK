@@ -153,13 +153,12 @@
             </div>
           </div>
 
-          <!-- Empty State -->
-          <div *ngIf="operatorStats().length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
-            <svg class="h-12 w-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 515.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 919.288 0M15 7a3 3 0 11-6 0 3 3 0 616 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          <!-- No data -->
+          <div *ngIf="operatorStats().length === 0" class="flex flex-col items-center justify-center gap-2 py-10 text-muted-foreground">
+            <svg class="h-10 w-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
             </svg>
-            <p>{{ t('admin.no_operator_performance_data') }}</p>
-            <p class="text-sm">{{ t('admin.operators_will_appear_message') }}</p>
+            <span class="text-sm font-medium">{{ t('no_data') }}</span>
           </div>
         </div>
       </div>

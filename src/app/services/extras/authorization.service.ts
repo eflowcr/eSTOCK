@@ -48,7 +48,8 @@ export class AuthorizationService {
    * Verifica si el usuario es administrador
    */
   isAdmin(): boolean {
-    return this.getCurrentUserRole() === 'admin';
+    const role = this.getCurrentUserRole();
+    return role != null && role.toLowerCase() === 'admin';
   }
 
   /**

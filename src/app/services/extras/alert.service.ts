@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { toast } from 'ngx-sonner';
 
 export interface Alert {
   id: string;
@@ -11,85 +11,111 @@ export interface Alert {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AlertService {
-  private alertsSubject = new BehaviorSubject<Alert[]>([]);
-  public alerts$ = this.alertsSubject.asObservable();
+  private static readonly GENERIC_LABELS = new Set([
+    'success',
+    'error',
+    'warning',
+    'info',
+    'confirm',
+    'confirmed',
+    'failed',
+    'exito',
+    'éxito',
+  ]);
 
-  constructor() {}
+  private normalizeToastContent(
+    message: string,
+    title?: string,
+  ): { title: string; description?: string } {
+    if (!title) {
+      return { title: message };
+    }
 
-  private generateId(): string {
-    return Math.random().toString(36).substr(2, 9);
+    const messageIsGeneric = this.isGenericLabel(message);
+    const titleIsGeneric = this.isGenericLabel(title);
+
+    // Common case in current app: success('Success', 'Entity created')
+    if (messageIsGeneric && !titleIsGeneric) {
+      return { title: message, description: title };
+    }
+
+    // Default expected order: success('Entity created', 'Success')
+    return { title, description: message };
   }
 
-  private addAlert(alert: Omit<Alert, 'id'>): void {
-    const newAlert: Alert = {
-      id: this.generateId(),
-      dismissible: true,
-      duration: 1500, 
-      ...alert
+  private isGenericLabel(value: string): boolean {
+    const normalized = value.trim().toLowerCase();
+    return (
+      AlertService.GENERIC_LABELS.has(normalized) || normalized.length <= 12
+    );
+  }
+
+  private show(
+    type: Alert['type'],
+    message: string,
+    title?: string,
+    options?: Partial<Alert>,
+  ): void {
+    const defaultDurations: Record<Alert['type'], number> = {
+      success: 2500,
+      info: 3500,
+      warning: 4000,
+      error: 5000,
     };
 
-    const currentAlerts = this.alertsSubject.value;
-    this.alertsSubject.next([...currentAlerts, newAlert]);
+    const normalized = this.normalizeToastContent(
+      message,
+      title ?? options?.title,
+    );
 
-    // Auto-dismiss if duration is set
-    if (newAlert.duration && newAlert.duration > 0) {
-      setTimeout(() => {
-        this.dismiss(newAlert.id);
-      }, newAlert.duration);
+    const payload = {
+      description: normalized.description,
+      duration: options?.duration ?? defaultDurations[type],
+      dismissible: options?.dismissible ?? true,
+      important: type === 'error' || type === 'warning',
+    };
+
+    switch (type) {
+      case 'success':
+        toast.success(normalized.title, payload);
+        break;
+      case 'error':
+        toast.error(normalized.title, payload);
+        break;
+      case 'warning':
+        toast.warning(normalized.title, payload);
+        break;
+      case 'info':
+      default:
+        toast.info(normalized.title, payload);
+        break;
     }
   }
 
   success(message: string, title?: string, options?: Partial<Alert>): void {
-    this.addAlert({
-      type: 'success',
-      title,
-      message,
-      duration: 1500,
-      ...options
-    });
+    this.show('success', message, title, options);
   }
 
   error(message: string, title?: string, options?: Partial<Alert>): void {
-    this.addAlert({
-      type: 'error',
-      title,
-      message,
-      duration: 1500,
-      ...options
-    });
+    this.show('error', message, title, options);
   }
 
   warning(message: string, title?: string, options?: Partial<Alert>): void {
-    this.addAlert({
-      type: 'warning',
-      title,
-      message,
-      duration: 1500,
-      ...options
-    });
+    this.show('warning', message, title, options);
   }
 
   info(message: string, title?: string, options?: Partial<Alert>): void {
-    this.addAlert({
-      type: 'info',
-      title,
-      message,
-      duration: 1500,
-      ...options
-    });
+    this.show('info', message, title, options);
   }
 
-
-
   dismiss(id: string): void {
-    const currentAlerts = this.alertsSubject.value;
-    this.alertsSubject.next(currentAlerts.filter(alert => alert.id !== id));
+    toast.dismiss(id);
   }
 
   clear(): void {
-    this.alertsSubject.next([]);
+    toast.dismiss();
   }
 }

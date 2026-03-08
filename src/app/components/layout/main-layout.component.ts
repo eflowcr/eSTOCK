@@ -16,7 +16,7 @@ import { TopbarComponent } from './topbar/topbar.component';
       <app-sidebar></app-sidebar>
       <div
         class="flex flex-1 flex-col md:pl-3"
-        [class.md:ml-64]="!sidebarCollapsed"
+        [class.md:ml-64]="!desktopSidebarCollapsed"
       >
         <app-topbar></app-topbar>
         <main class="flex flex-1 flex-col gap-4 p-4">
@@ -28,14 +28,14 @@ import { TopbarComponent } from './topbar/topbar.component';
   styles: [],
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
-  sidebarCollapsed = false;
+  desktopSidebarCollapsed = false;
   private sub?: Subscription;
 
   constructor(@Inject(SidebarService) private sidebarService: SidebarService) {}
 
   ngOnInit(): void {
-    this.sub = this.sidebarService.collapsed$.subscribe(
-      (c: boolean) => (this.sidebarCollapsed = c),
+    this.sub = this.sidebarService.desktopCollapsed$.subscribe(
+      (c: boolean) => (this.desktopSidebarCollapsed = c),
     );
   }
 

@@ -7,6 +7,7 @@ import { StockAlert, StockAlertResponse } from '@app/models/stock-alert.model';
 import { AlertLevel } from '@app/models';
 import { LanguageService } from '@app/services/extras/language.service';
 import { LoadingService } from '@app/services/extras/loading.service';
+import { handleApiError } from '@app/utils';
 import { LoadingSpinnerComponent } from '@app/components/shared/extras/loading-spinner/loading-spinner.component';
 import { MainLayoutComponent } from "@app/components/layout/main-layout.component";
 
@@ -128,9 +129,9 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 					);
 				}
 			})
-			.catch(error => {
+			.catch((error: any) => {
 				this.alertService.error(
-					this.languageService.translate('STOCK_ALERTS.LOAD_ERROR'),
+					handleApiError(error, this.languageService.translate('STOCK_ALERTS.LOAD_ERROR')),
 					this.languageService.translate('COMMON.ERROR')
 				);
 			})
@@ -286,7 +287,11 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 					throw new Error(response.result.message || 'Analysis failed');
 				}
 			})
-			.catch(error => {
+			.catch((error: any) => {
+				this.alertService.error(
+					handleApiError(error, 'Analysis failed'),
+					this.languageService.translate('COMMON.ERROR')
+				);
 			})
 			.finally(() => {
 				this.loadingService.hide();
@@ -319,9 +324,9 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 					throw new Error(response.result.message || 'Resolution failed');
 				}
 			})
-			.catch(error => {
+			.catch((error: any) => {
 				this.alertService.error(
-					this.languageService.translate('STOCK_ALERTS.RESOLVE_ERROR'),
+					handleApiError(error, this.languageService.translate('STOCK_ALERTS.RESOLVE_ERROR')),
 					this.languageService.translate('COMMON.ERROR')
 				);
 			})
@@ -355,9 +360,9 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 					throw new Error(response.result.message || 'Export failed');
 				}
 			})
-			.catch(error => {
+			.catch((error: any) => {
 				this.alertService.error(
-					this.languageService.translate('STOCK_ALERTS.EXPORT_ERROR'),
+					handleApiError(error, this.languageService.translate('STOCK_ALERTS.EXPORT_ERROR')),
 					this.languageService.translate('COMMON.ERROR')
 				);
 			})

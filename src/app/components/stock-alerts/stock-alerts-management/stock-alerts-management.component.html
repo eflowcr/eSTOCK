@@ -111,18 +111,13 @@
 		<app-loading-spinner></app-loading-spinner>
 	</div>
 
-	<!-- No Alerts State -->
+	<!-- No data -->
 	<div *ngIf="!isLoading() && alerts().length === 0" class="bg-white dark:bg-gray-800 shadow rounded-lg">
-		<div class="text-center py-12">
-			<svg class="mx-auto h-12 w-12 text-green-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+		<div class="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
+			<svg class="h-10 w-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
 			</svg>
-			<h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-				{{ t('STOCK_ALERTS.NO_ALERTS') }}
-			</h3>
-			<p class="text-gray-600 dark:text-gray-300">
-				{{ t('STOCK_ALERTS.ALL_HEALTHY') }}
-			</p>
+			<span class="text-sm font-medium">{{ t('no_data') }}</span>
 		</div>
 	</div>
 
@@ -258,19 +253,12 @@
 				</div>
 			</div>
 
-			<!-- Empty State -->
-			<div *ngIf="currentTabAlerts().length === 0 && !isLoading()" class="text-center py-12">
-				<div class="mx-auto h-12 w-12 text-gray-400">
-					<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-					</svg>
-				</div>
-				<h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-					{{ t('STOCK_ALERTS.NO_ALERTS_IN_CATEGORY') }}
-				</h3>
-				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					{{ getEmptyStateMessage() }}
-				</p>
+			<!-- No data -->
+			<div *ngIf="currentTabAlerts().length === 0 && !isLoading()" class="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
+				<svg class="h-10 w-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+				</svg>
+				<span class="text-sm font-medium">{{ t('no_data') }}</span>
 			</div>
 		</div>
 	</div>

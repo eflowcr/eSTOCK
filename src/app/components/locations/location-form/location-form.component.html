@@ -19,11 +19,11 @@
         </div>
       </div>
       
-      <!-- Content -->
+      <!-- Content: fields aligned with backend POST /api/locations/ (location_code*, type* required; description, zone optional) -->
       <div class="bg-white px-4 pb-4 sm:p-6 dark:bg-gray-800">
         <form [formGroup]="locationForm" (ngSubmit)="onSubmit()" class="space-y-4">
           
-          <!-- Location Code -->
+          <!-- Location Code (required, max 50) -->
           <div>
             <label for="location_code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ t('location_code') }} <span class="text-red-500">*</span>

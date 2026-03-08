@@ -345,6 +345,12 @@ export const enTranslations = {
   // Filters and sorting
   'filters': 'Filters',
   'clear_filters': 'Clear filters',
+  'advanced_filters': 'Advanced Filters',
+  'advanced_filters_description': 'Create custom filters to refine your search',
+  'no_filters_added': 'No filters added. Click "Add Filter" to get started.',
+  'add_filter': 'Add Filter',
+  'reset': 'Reset',
+  'apply_filters': 'Apply Filters',
   'sort_by': 'Sort by',
 
   // Article Management
@@ -352,7 +358,9 @@ export const enTranslations = {
   'article_management.description': 'Control articles in the system',
   'article': 'Article',
   'create_article': 'Create Article',
+  'create_article_description': 'Create a new article with product and inventory details',
   'edit_article': 'Edit Article',
+  'edit_article_description': 'Update article information',
   'delete_article': 'Delete Article',
   'article_details': 'Article Details',
   'search_articles': 'Search articles by SKU, name, or description...',
@@ -367,7 +375,10 @@ export const enTranslations = {
   'delete_article_confirmation': 'Are you sure you want to delete this article? This action cannot be undone.',
   'import_articles': 'Import Articles',
   'export_articles': 'Export Articles',
-  'sku_already_exists': 'SKU already exists in the system',
+  'sku_already_exists': 'This SKU code is already in use. Please choose a different code.',
+  'sku_checking': 'Checking availability...',
+  'sku_available': 'This SKU code is available.',
+  'sku_check_error': 'Could not verify. Please try again.',
 
   // Article fields
   'sku': 'SKU',
@@ -379,6 +390,7 @@ export const enTranslations = {
   'unit_price_placeholder': 'Enter unit price',
   'minimum_stock_level': 'Minimum Stock Level',
   'maximum_stock_level': 'Maximum Stock Level',
+  'min_max_quantity_invalid': 'Minimum must be less than or equal to maximum',
   'stock_range': 'Stock Range',
   'image_url_placeholder': 'https://example.com/image.jpg',
 
@@ -441,6 +453,7 @@ export const enTranslations = {
   'select_location': 'Select a location',
   'unit_price': 'Unit Price',
   'tracking_options': 'Tracking Options',
+  'tracking_options_help': 'Click a card to turn it on (green); click again to turn it off.',
   'track_by_lot': 'Track by Lot',
   'track_by_serial': 'Track by Serial',
   'track_expiration': 'Track Expiration',
@@ -827,6 +840,8 @@ export const enTranslations = {
   'admin.total_pick_time': 'Total Pick Time',
   'admin.avg_pick_time': 'Avg Pick Time',
   'admin.failed_to_load_operator_stats': 'Failed to load operator stats',
+
+  'gamification.errorLoading': 'Error loading gamification data',
 
   'lots_readonly_edit_mode':'Batches loaded (read-only)',
   'tracking_optional_notice':'Tracking of batches and serials is optional for inventory adjustments.',

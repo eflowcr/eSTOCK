@@ -7,6 +7,7 @@ import { ReceivingTaskService } from '@app/services/receiving-task.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { LanguageService } from '@app/services/extras/language.service';
+import { handleApiError } from '@app/utils';
 
 @Component({
 	selector: 'app-receiving-task-list',
@@ -145,9 +146,9 @@ export class ReceivingTaskListComponent {
 					this.t('error')
 				);
 			}
-		} catch (error) {
+		} catch (error: any) {
 			this.alertService.error(
-				this.t('failed_to_update_task_status'),
+				handleApiError(error, this.t('failed_to_update_task_status')),
 				this.t('error')
 			);
 		} finally {

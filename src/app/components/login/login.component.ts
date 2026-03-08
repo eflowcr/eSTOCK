@@ -8,6 +8,7 @@ import { AlertService } from '../../services/extras/alert.service';
 import { LanguageService } from '../../services/extras/language.service';
 import { LanguageSwitcherComponent } from '../shared/extras/language-switcher/language-switcher.component';
 import { AlertComponent } from '../shared/extras/alert/alert.component';
+import { handleApiError } from '@app/utils';
 import { LoginRequest, RegisterRequest } from '../../models/auth.model';
 import { User } from '../../models/user.model';
 
@@ -113,7 +114,7 @@ export class LoginComponent implements OnInit {
       } catch (error: any) {
         console.error('Login error:', error);
         this.alertService.error(
-          error.message || this.t('auth.login_error') || 'Error al iniciar sesión',
+          handleApiError(error, this.t('auth.login_error') || 'Error al iniciar sesión'),
           this.t('auth.login_failed') || 'Error de autenticación'
         );
       } finally {
@@ -159,7 +160,7 @@ export class LoginComponent implements OnInit {
       } catch (error: any) {
         console.error('Registration error:', error);
         this.alertService.error(
-          error.message || this.t('auth.registration_error') || 'Error al crear la cuenta',
+          handleApiError(error, this.t('auth.registration_error') || 'Error al crear la cuenta'),
           this.t('auth.registration_failed') || 'Error de registro'
         );
       } finally {

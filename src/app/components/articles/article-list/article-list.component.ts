@@ -16,13 +16,15 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { ArticleService } from '../../../services/article.service';
+import { handleApiError } from '@app/utils';
+import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-article-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent],
+  imports: [CommonModule, FormsModule, ZardButtonComponent, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './article-list.component.html',
   styleUrls: ['./article-list.component.css']
 })
@@ -46,6 +48,7 @@ export class ArticleListComponent {
   sortBy = 'sku';
   sortOrder: 'asc' | 'desc' = 'asc';
   filtersExpanded = false;
+  filtersModalOpen = false;
 
   private readonly articlesSignal = signal<Article[]>([]);
   private readonly searchTermSignal = signal('');
@@ -183,7 +186,22 @@ export class ArticleListComponent {
   }
 
   toggleFilters(): void {
-    this.filtersExpanded = !this.filtersExpanded;
+    this.filtersModalOpen = true;
+  }
+
+  closeFiltersModal(): void {
+    this.filtersModalOpen = false;
+  }
+
+  applyFiltersAndClose(): void {
+    this.onFiltersChanged();
+    this.filtersModalOpen = false;
+  }
+
+  resetFiltersInModal(): void {
+    this.presentationFilter = '';
+    this.trackingFilter = '';
+    this.statusFilter = '';
   }
 
   hasActiveFilters(): boolean {
@@ -322,9 +340,9 @@ export class ArticleListComponent {
       this.alertService.success(this.t('article_deleted_successfully'));
       this.articlesChanged.emit();
       this.closeDeleteDialog();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting article:', error);
-      this.alertService.error(this.t('error_deleting_article'));
+      this.alertService.error(handleApiError(error, this.t('error_deleting_article')));
     } finally {
       this.isDeleting = false;
     }
@@ -358,8 +376,12 @@ export class ArticleListComponent {
   }
 
   formatPrice(price: number | null): string {
-    if (!price || price === 0) return '-';
-    return price.toFixed(2);
+    if (price == null || (typeof price === 'number' && isNaN(price))) return '-';
+    const num = Number(price);
+    if (num === 0) return '-';
+    const [intPart, decPart] = num.toFixed(2).split('.');
+    const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return decPart != null ? `${formattedInt}.${decPart}` : formattedInt;
   }
 
   readonly Math = Math;

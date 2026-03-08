@@ -5,6 +5,7 @@ import { BarcodeItem, BarcodeOptions, DEFAULT_BARCODE_OPTIONS, CodeType } from '
 import { BarcodeService } from '@app/services/barcode.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { AlertService } from '@app/services/extras/alert.service';
+import { handleApiError } from '@app/utils';
 import { BarcodeDisplayComponent } from '../barcode-display/barcode-display.component';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
@@ -124,9 +125,9 @@ export class BarcodeGeneratorDialogComponent implements OnInit {
       );
       
       this.close.emit(true);
-    } catch (error) {
+    } catch (error: any) {
       this.alertService.error(
-        this.t('BARCODE.PDF_GENERATION_ERROR') + ': ' + (error instanceof Error ? error.message : 'Error desconocido'),
+        handleApiError(error, this.t('BARCODE.PDF_GENERATION_ERROR')),
         this.t('COMMON.ERROR')
       );
     } finally {
@@ -158,9 +159,9 @@ export class BarcodeGeneratorDialogComponent implements OnInit {
         this.t('BARCODE.PRINT_SENT'),
         this.t('COMMON.SUCCESS')
       );
-    } catch (error) {
+    } catch (error: any) {
       this.alertService.error(
-        this.t('BARCODE.PRINT_ERROR') + ': ' + (error instanceof Error ? error.message : 'Error desconocido'),
+        handleApiError(error, this.t('BARCODE.PRINT_ERROR')),
         this.t('COMMON.ERROR')
       );
     } finally {

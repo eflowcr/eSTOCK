@@ -188,12 +188,8 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
       });
       item.zSize.set(this.zSize());
       i++;
-
-      if (hostWidth <= COMPACT_MODE_WIDTH_THRESHOLD) {
-        this.isCompact.set(true);
-        item.zMode.set('compact');
-      }
     }
+    this.syncItemModes(hostWidth);
   }
 
   ngOnDestroy() {
@@ -347,6 +343,7 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
     }
 
     const hostWidth = this.elementRef.nativeElement.offsetWidth || 0;
+    this.syncItemModes(hostWidth);
 
     if (this.overlayRef.hasAttached()) {
       this.overlayRef.detach();
@@ -360,6 +357,19 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
     this.updateFocusWhenNormalMode();
 
     this.determinePortalWidthOnOpen(hostWidth);
+  }
+
+  /**
+   * Compact mode is intended for very small trigger widths.
+   * When components are initialized while hidden (e.g. in a closed drawer),
+   * offsetWidth can be 0 and must not force compact mode.
+   */
+  private syncItemModes(hostWidth: number): void {
+    const useCompact = hostWidth > 0 && hostWidth <= COMPACT_MODE_WIDTH_THRESHOLD;
+    this.isCompact.set(useCompact);
+    for (const item of this.selectItems()) {
+      item.zMode.set(useCompact ? 'compact' : 'normal');
+    }
   }
 
   private setFocusOnOpen(): void {

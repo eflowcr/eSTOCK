@@ -10,6 +10,7 @@ import { InventoryService } from '../../../services/inventory.service';
 import { LocationService } from '../../../services/location.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
+import { handleApiError } from '@app/utils';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 import { SearchSelectComponent, SearchSelectOption } from '../../shared/search-select/search-select.component';
@@ -107,8 +108,8 @@ export class AdjustmentFormComponent implements OnInit {
       
       this.filteredInventoryItems = [...this.inventoryItems];
       this.filteredLocations = [...this.locations];
-    } catch (error) {
-      this.alertService.error(this.t('error_loading_data'));
+    } catch (error: any) {
+      this.alertService.error(handleApiError(error, this.t('error_loading_data')));
     }
   }
 
@@ -474,7 +475,7 @@ export class AdjustmentFormComponent implements OnInit {
       this.success.emit();
     } catch (error: any) {
       console.error('Error creating adjustment:', error);
-      this.alertService.error(this.t('failed_to_create_stock_adjustment'));
+      this.alertService.error(handleApiError(error, this.t('failed_to_create_stock_adjustment')));
     } finally {
       this.isLoading = false;
     }

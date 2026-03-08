@@ -4,7 +4,7 @@ import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { FetchService } from '../../../services/extras/fetch.service';
 import { ApiResponse } from '../../../models';
-import { returnCustomURI } from '@app/utils';
+import { handleApiError, returnCustomURI } from '@app/utils';
 import { environment } from '@environment';
 
 export interface ImportResult {
@@ -286,9 +286,9 @@ export class FileImportComponent {
 
     } catch (error: any) {
       console.error('Import error:', error);
-      this.alertService.error(
-        error.message || this.t('import_failed'), this.t('import_error'));
-      this.error.emit(error.message || this.t('import_failed'));
+      const msg = handleApiError(error, this.t('import_failed'));
+      this.alertService.error(msg, this.t('import_error'));
+      this.error.emit(msg);
     } finally {
       this.isImporting = false;
     }

@@ -5,6 +5,7 @@ import { ArticleService } from '../../../services/article.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
+import { handleApiError } from '@app/utils';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
 import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
@@ -70,9 +71,9 @@ export class ArticleManagementComponent implements OnInit {
       this.isLoading = true;
       const response = await this.articleService.getAll();
       this.articles = response.data || [];
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading articles:', error);
-      this.alertService.error(this.t('error_loading_articles'));
+      this.alertService.error(handleApiError(error, this.t('error_loading_articles')));
     } finally {
       this.isLoading = false;
     }

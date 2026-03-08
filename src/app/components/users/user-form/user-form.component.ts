@@ -5,6 +5,7 @@ import { User } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
+import { getApiErrorMessage, handleApiError } from '@app/utils';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
@@ -170,21 +171,12 @@ export class UserFormComponent implements OnInit, OnChanges {
         throw new Error(response.result.message || this.t('operation_failed'));
       }
     } catch (error: any) {
-      let errorMessage = this.isEditing ? 
-        this.t('user_management.failed_update') : 
+      const fallback = this.isEditing ?
+        this.t('user_management.failed_update') :
         this.t('user_management.failed_create');
-      
-      // Parse specific error messages
-      if (error.message?.includes('email')) {
-        errorMessage = this.t('user_management.email_registered');
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      this.alertService.error(
-        this.t('user_management.error'),
-        errorMessage
-      );
+      const msg = getApiErrorMessage(error) || (error?.message ?? '');
+      const errorMessage = msg.toLowerCase().includes('email') ? this.t('user_management.email_registered') : handleApiError(error, fallback);
+      this.alertService.error(this.t('user_management.error'), errorMessage);
     } finally {
       this.isSubmitting = false;
     }

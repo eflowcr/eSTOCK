@@ -11,6 +11,7 @@ export interface Result {
   endpoint_code: string;
 }
 
+/** Matches backend APIResponse: all responses use this envelope (success and error). */
 export interface ApiResponse<T = any> {
   envelope: Envelope;
   result: Result;
@@ -18,6 +19,9 @@ export interface ApiResponse<T = any> {
 }
 
 export interface ActionResponse<T = any> extends ApiResponse<T> {}
+
+/** Error payload received in catch blocks: backend body (envelope + result + data) + HTTP status from handleError. */
+export type ApiErrorPayload = ApiResponse & { status?: number };
 
 // Fetch Models
 export interface Fetch {
