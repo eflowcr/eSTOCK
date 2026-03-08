@@ -57,27 +57,34 @@ export const selectItemVariants = cva(
   },
 );
 
-export const selectItemIconVariants = cva('absolute flex size-3.5 shrink-0 items-center justify-center overflow-hidden', {
-  variants: {
-    // zSize variants are placeholders for compound variant matching
-    zSize: {
-      sm: '',
-      default: '',
-      lg: '',
+export const selectItemIconVariants = cva(
+  'absolute flex size-3.5 shrink-0 items-center justify-center overflow-hidden',
+  {
+    variants: {
+      // zSize variants are placeholders for compound variant matching
+      zSize: {
+        sm: '',
+        default: '',
+        lg: '',
+      },
+      zMode: {
+        normal: 'right-2',
+        compact: 'left-2',
+      },
     },
-    zMode: {
-      normal: 'right-2',
-      compact: 'left-2',
-    },
+    compoundVariants: [
+      {
+        zMode: 'compact',
+        zSize: 'sm',
+        class: 'left-1',
+      },
+    ],
   },
-  compoundVariants: [
-    {
-      zMode: 'compact',
-      zSize: 'sm',
-      class: 'left-1',
-    },
-  ],
-});
+);
 
-export type ZardSelectSizeVariants = NonNullable<VariantProps<typeof selectTriggerVariants>['zSize']>;
-export type ZardSelectItemModeVariants = NonNullable<VariantProps<typeof selectItemVariants>['zMode']>;
+export type ZardSelectSizeVariants = NonNullable<
+  VariantProps<typeof selectTriggerVariants>['zSize']
+>;
+export type ZardSelectItemModeVariants = NonNullable<
+  VariantProps<typeof selectItemVariants>['zMode']
+>;
