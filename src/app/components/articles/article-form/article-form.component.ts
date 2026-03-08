@@ -305,34 +305,23 @@ export class ArticleFormComponent implements OnInit, OnChanges {
 
     try {
       this.isLoading = true;
-      const formData = this.articleForm.value;
-
-      // Clean up empty values, but always keep 'is_active' field
-      Object.keys(formData).forEach(key => {
-        if ((key !== 'is_active') && (formData[key] === '' || formData[key] === null)) {
-          delete formData[key];
-        }
-      });
-      // Ensure 'is_active' is always boolean
-      formData['is_active'] = !!formData['is_active'];
+      const raw = this.articleForm.getRawValue();
 
       // Enforce dependency at submit time
-      if (!formData['track_by_lot']) {
-        formData['track_expiration'] = false;
-      }
+      const trackByLot = !!raw.track_by_lot;
+      const trackExpiration = trackByLot && !!raw.track_expiration;
+
+      const payload = this.buildArticlePayload(raw, trackExpiration);
 
       if (this.isEditMode && this.initialData) {
-        // Update existing article
         const updateData: UpdateArticleRequest = {
-          ...formData,
-          sku: this.initialData.sku // Always include original SKU for update
+          ...payload,
+          sku: this.initialData.sku,
         };
         await this.articleService.update(this.initialData.id, updateData);
         this.alertService.success(this.t('article_updated_successfully'));
       } else {
-        // Create new article
-        const createData: CreateArticleRequest = formData;
-        await this.articleService.create(createData);
+        await this.articleService.create(payload);
         this.alertService.success(this.t('article_created_successfully'));
       }
 
@@ -345,6 +334,43 @@ export class ArticleFormComponent implements OnInit, OnChanges {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  /**
+   * Build request payload with types the backend expects (numbers, booleans, strings).
+   * Prevents "Datos de solicitud inválidos" from Go's ShouldBindJSON when form values are strings.
+   */
+  private buildArticlePayload(raw: Record<string, unknown>, trackExpiration: boolean): CreateArticleRequest {
+    const num = (v: unknown): number | undefined => {
+      if (v === '' || v === null || v === undefined) return undefined;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : undefined;
+    };
+    const int = (v: unknown): number | undefined => {
+      const n = num(v);
+      return n === undefined ? undefined : Math.floor(n);
+    };
+    const str = (v: unknown): string => (v != null && String(v).trim() !== '' ? String(v).trim() : '');
+
+    const unitPrice = num(raw['unit_price']);
+    const minQ = int(raw['min_quantity']);
+    const maxQ = int(raw['max_quantity']);
+    const description = str(raw['description']);
+
+    const payload: CreateArticleRequest = {
+      sku: str(raw['sku']),
+      name: str(raw['name']),
+      presentation: str(raw['presentation']) || 'unit',
+      track_by_lot: !!raw['track_by_lot'],
+      track_by_serial: !!raw['track_by_serial'],
+      track_expiration: trackExpiration,
+    };
+    if (description !== '') payload.description = description;
+    if (unitPrice !== undefined && unitPrice !== null) payload.unit_price = unitPrice;
+    if (minQ !== undefined && minQ !== null) payload.min_quantity = minQ;
+    if (maxQ !== undefined && maxQ !== null) payload.max_quantity = maxQ;
+    if (this.isEditMode || raw['is_active'] !== undefined) payload.is_active = !!raw['is_active'];
+    return payload;
   }
 
   /**
