@@ -360,10 +360,9 @@ export class TopbarComponent implements OnInit, OnDestroy {
     this.lastName = last;
     const parts = [first, last].filter(Boolean);
     this.fullName = parts.length ? parts.join(' ') : '';
-    const stateUser = this.authService.getCurrentUser() as {
-      role?: string;
-    } | null;
-    const role = stateUser?.role || (stored as { role?: string })?.role || '';
+    const storedRole = (stored as { role?: string })?.role;
+    const stateUser = this.authService.getCurrentUser() as { role?: string } | null;
+    const role = storedRole || stateUser?.role || '';
     this.userRoleLabel = role
       ? role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
       : 'eSTOCK';

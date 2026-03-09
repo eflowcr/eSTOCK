@@ -10,7 +10,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
 } from '@tanstack/angular-table';
-import { User } from '../../../models/user.model';
+import { User, getRoleDisplayName } from '../../../models/user.model';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
@@ -68,14 +68,16 @@ export class UserListComponent {
 
     return rows.filter((user) => {
       if (search) {
+        const roleDisplay = getRoleDisplayName(user);
         const matchesSearch =
           (user.first_name && user.first_name.toLowerCase().includes(search)) ||
           (user.last_name && user.last_name.toLowerCase().includes(search)) ||
           (user.email && user.email.toLowerCase().includes(search)) ||
-          (user.role && user.role.toLowerCase().includes(search));
+          (user.role_id && user.role_id.toLowerCase().includes(search)) ||
+          (roleDisplay && roleDisplay.toLowerCase().includes(search));
         if (!matchesSearch) return false;
       }
-      if (role && user.role !== role) return false;
+      if (role && user.role_id !== role) return false;
       if (status) {
         const isActive = status === 'active';
         if (user.is_active !== isActive) return false;
@@ -87,7 +89,7 @@ export class UserListComponent {
   readonly columns: ColumnDef<User>[] = [
     { id: 'first_name', accessorKey: 'first_name', enableSorting: true },
     { id: 'email', accessorKey: 'email', enableSorting: true },
-    { id: 'role', accessorKey: 'role', enableSorting: true },
+    { id: 'role', accessorFn: (row) => getRoleDisplayName(row) || row.role_id, enableSorting: true },
     { id: 'status', accessorFn: (row) => (row.is_active ? 'active' : 'inactive'), enableSorting: false },
     { id: 'created_at', accessorFn: (row) => new Date(row.created_at || '').getTime(), enableSorting: true },
     { id: 'actions', accessorFn: () => '', enableSorting: false },
@@ -134,13 +136,17 @@ export class UserListComponent {
     return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
   }
 
-  getRoleBadgeClass(role: string): string {
+  getRoleBadgeClass(roleId: string): string {
     const variants: Record<string, string> = {
       admin: 'bg-[#00113f] text-white',
       operator: 'bg-gray-500 text-white',
+      viewer: 'bg-gray-400 text-white',
     };
-    return variants[role] ?? 'bg-gray-500 text-white';
+    return variants[roleId] ?? 'bg-gray-500 text-white';
   }
+
+  /** Expose for template: role display name from user.role or user.role_id */
+  getRoleDisplayName = getRoleDisplayName;
 
   getStatusBadgeClass(isActive: boolean): string {
     return isActive
@@ -272,8 +278,8 @@ export class UserListComponent {
   }
 
   get uniqueRoles(): string[] {
-    const roles = [...new Set(this.usersSignal().map((u) => u.role).filter(Boolean))] as string[];
-    return roles.sort();
+    const ids = [...new Set(this.usersSignal().map((u) => u.role_id).filter(Boolean))] as string[];
+    return ids.sort();
   }
 
   getSortIcon(columnId: string): 'none' | 'asc' | 'desc' {

@@ -145,17 +145,21 @@
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <!-- Role -->
             <div>
-              <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label for="role_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('user_management.role') }}
               </label>
               <z-select
-                id="role"
-                formControlName="role"
+                id="role_id"
+                formControlName="role_id"
                 class="mt-1 block w-full"
               >
-                <z-select-item zValue="admin">Admin</z-select-item>
-                <z-select-item zValue="operator">Operator</z-select-item>
+                @for (r of roles; track r.id) {
+                  <z-select-item [zValue]="r.id">{{ r.name }}</z-select-item>
+                }
               </z-select>
+              @if (isFieldInvalid('role_id')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError('role_id') }}</p>
+              }
             </div>
 
             <!-- Status -->

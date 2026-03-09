@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { MainLayoutComponent } from '../layout/main-layout.component';
 import { User } from '../../models/auth.model';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardStats } from '../../models/dashboard.model';
 import { LanguageService } from '@app/services/extras/language.service';
+import { AlertService } from '@app/services/extras/alert.service';
 import type { DashboardKpi, StackedBarPoint, StackedBarSegment, DonutSlice, DashboardTableRow } from '@app/models/dashboard.model';
 import { ZardSelectComponent } from '../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../shared/components/select/select-item.component';
@@ -33,8 +34,10 @@ export class DashboardComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private dashboardService: DashboardService,
     private languageService: LanguageService,
+    private alertService: AlertService,
   ) {}
 
   ngOnInit(): void {
@@ -42,6 +45,14 @@ export class DashboardComponent implements OnInit {
     if (!this.user) {
       this.router.navigate(['/login']);
       return;
+    }
+    const error = this.route.snapshot.queryParams['error'];
+    if (error === 'access_denied') {
+      this.alertService.error(
+        this.t('user_management.insufficient_permissions') || 'Insufficient permissions',
+        this.t('user_management.access_denied') || 'Access denied'
+      );
+      this.router.navigate([], { relativeTo: this.route, queryParams: {}, queryParamsHandling: '' });
     }
     this.loadStats();
     this.loadCharts();

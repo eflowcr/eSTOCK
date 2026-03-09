@@ -3,16 +3,32 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Location } from '../../../models/location.model';
 import { LocationService } from '../../../services/location.service';
+import { LocationTypesService } from '../../../services/location-types.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { handleApiError } from '@app/utils';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
+import { ZardSwitchComponent } from '../../../shared/components/switch';
+import { DrawerComponent } from '../../../shared/components/drawer';
+import { ZardButtonComponent } from '../../../shared/components/button/button.component';
+import { ZardFormImports } from '../../../shared/components/form/form.imports';
+import { ZardInputDirective } from '../../../shared/components/input/input.directive';
 
 @Component({
   selector: 'app-location-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ZardSelectComponent, ZardSelectItemComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    DrawerComponent,
+    ZardButtonComponent,
+    ZardFormImports,
+    ZardInputDirective,
+    ZardSelectComponent,
+    ZardSelectItemComponent,
+    ZardSwitchComponent
+  ],
   templateUrl: './location-form.component.html',
   styleUrls: ['./location-form.component.css']
 })
@@ -26,23 +42,37 @@ export class LocationFormComponent implements OnInit, OnChanges {
   isEditing = false;
   isSubmitting = false;
 
-  locationTypes = [
-    { value: 'PALLET', label: 'pallet' },
-    { value: 'SHELF', label: 'shelf' },
-    { value: 'BIN', label: 'bin' },
-    { value: 'FLOOR', label: 'floor' },
-    { value: 'BLOCK', label: 'block' }
+  /** Location type options from API (value = code, label = name); fallback to defaults if API fails. */
+  locationTypes: { value: string; label: string }[] = [
+    { value: 'PALLET', label: 'Pallet' },
+    { value: 'SHELF', label: 'Shelf' },
+    { value: 'BIN', label: 'Bin' },
+    { value: 'FLOOR', label: 'Floor' },
+    { value: 'BLOCK', label: 'Block' }
   ];
 
   constructor(
     private fb: FormBuilder,
     private locationService: LocationService,
+    private locationTypesService: LocationTypesService,
     private languageService: LanguageService,
     private alertService: AlertService
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
+    this.loadLocationTypes();
+  }
+
+  private async loadLocationTypes(): Promise<void> {
+    try {
+      const res = await this.locationTypesService.getList();
+      if (res?.result?.success && Array.isArray(res.data) && res.data.length > 0) {
+        this.locationTypes = res.data.map((lt) => ({ value: lt.code, label: lt.name }));
+      }
+    } catch {
+      // Keep default locationTypes
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -71,7 +101,7 @@ export class LocationFormComponent implements OnInit, OnChanges {
       description: ['', [Validators.maxLength(255)]],
       zone: ['', [Validators.maxLength(100)]],
       type: ['SHELF', [Validators.required]],
-      is_active: ['true']
+      is_active: [true]
     });
 
     this.loadLocationData();
@@ -84,7 +114,7 @@ export class LocationFormComponent implements OnInit, OnChanges {
         description: this.initialData.description || '',
         zone: this.initialData.zone || '',
         type: this.initialData.type || 'SHELF',
-        is_active: this.initialData.is_active ? 'true' : 'false'
+        is_active: !!this.initialData.is_active
       });
     }
   }
@@ -99,9 +129,7 @@ export class LocationFormComponent implements OnInit, OnChanges {
       this.isSubmitting = true;
       const formData = {
         ...this.locationForm.value,
-        is_active:
-          this.locationForm.value.is_active === true ||
-          this.locationForm.value.is_active === 'true',
+        is_active: !!this.locationForm.value.is_active,
       };
 
       let response;

@@ -1,60 +1,63 @@
 import { Injectable } from '@angular/core';
-
-export interface AuthData {
-  token: string;
-    id: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    role: string;
-    is_active: boolean;
-}
+import type { AuthData, Permission } from '@app/models/auth.model';
+import { hasPermission as checkPermission } from '@app/utils/permissions';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthorizationService {
-  
   private readonly STORAGE_KEY = 'auth_estock';
 
   private getAuthData(): AuthData | null {
     try {
-      const authData = localStorage.getItem(this.STORAGE_KEY);
-      if (!authData) return null;
-      
-      return JSON.parse(authData);
-    } catch (error) {
+      const raw = localStorage.getItem(this.STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw) as AuthData;
+    } catch {
       return null;
     }
   }
 
-  /**
-   * Obtiene el rol del usuario actual
-   */
+  /** Returns the current user role from stored auth. */
   getCurrentUserRole(): string | null {
     const authData = this.getAuthData();
-    return authData?.role || null;
+    return authData?.role ?? null;
   }
 
-  /**
-   * Obtiene los datos del usuario actual
-   */
-  getCurrentUser() {
+  /** Returns the full stored auth payload. */
+  getCurrentUser(): AuthData | null {
+    return this.getAuthData();
+  }
+
+  /** Returns permissions from stored auth (parsed if backend sent a string). */
+  getPermissions(): Permission | null {
     const authData = this.getAuthData();
-    return authData || null;
+    const raw = authData?.permissions ?? null;
+    if (raw == null) return null;
+    if (typeof raw === 'string') {
+      try {
+        return JSON.parse(raw) as Permission;
+      } catch {
+        return null;
+      }
+    }
+    return raw;
   }
 
-  /**
-   * Verifica si el usuario es administrador
-   */
+  /** True if user has the given resource/action (or admin/all). */
+  hasPermission(resource: string, action: string): boolean {
+    return checkPermission(resource, action, this.getPermissions());
+  }
+
+  /** True if user is admin (role name 'Admin' or permissions.all === true). */
   isAdmin(): boolean {
-    const role = this.getCurrentUserRole();
-    return role != null && role.toLowerCase() === 'admin';
+    const roleName = this.getCurrentUserRole();
+    if (roleName != null && roleName.toLowerCase() === 'admin') return true;
+    const perms = this.getPermissions();
+    return typeof perms === 'object' && perms !== null && 'all' in perms && (perms as { all: boolean }).all === true;
   }
 
-  /**
-   * Verifica si el usuario está autenticado
-   */
+  /** True if token and auth data are present. */
   isAuthenticated(): boolean {
     const authData = this.getAuthData();
     return !!(authData?.token && authData);

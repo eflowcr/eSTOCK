@@ -2,7 +2,9 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { User } from '../../../models/user.model';
+import { Role } from '../../../models/role.model';
 import { UserService } from '../../../services/user.service';
+import { RolesService } from '../../../services/roles.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { getApiErrorMessage, handleApiError } from '@app/utils';
@@ -23,6 +25,7 @@ export class UserFormComponent implements OnInit, OnChanges {
   @Output() closed = new EventEmitter<void>();
 
   userForm!: FormGroup;
+  roles: Role[] = [];
   isEditing = false;
   isSubmitting = false;
   imagePreview: string | null = null;
@@ -30,12 +33,34 @@ export class UserFormComponent implements OnInit, OnChanges {
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
+    private rolesService: RolesService,
     private languageService: LanguageService,
     private alertService: AlertService
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
+    this.loadRoles();
+  }
+
+  private async loadRoles(): Promise<void> {
+    try {
+      const res = await this.rolesService.getList();
+      if (res?.result?.success && Array.isArray(res.data)) {
+        this.roles = res.data;
+        if (!this.isEditing && this.userForm) {
+          const roleId = this.userForm.get('role_id')?.value;
+          if (roleId === 'Operator' || roleId === 'operator') {
+            const operatorRole = this.roles.find((r) => r.name?.toLowerCase() === 'operator');
+            if (operatorRole) {
+              this.userForm.patchValue({ role_id: operatorRole.id });
+            }
+          }
+        }
+      }
+    } catch {
+      this.roles = [];
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -63,7 +88,7 @@ export class UserFormComponent implements OnInit, OnChanges {
       first_name: ['', [Validators.required]],
       last_name: ['', [Validators.required]],
       password: [''],
-      role: ['admin', [Validators.required]],
+      role_id: ['Operator', [Validators.required]],
       is_active: ['true', [Validators.required]]
     });
     
@@ -82,7 +107,7 @@ export class UserFormComponent implements OnInit, OnChanges {
       first_name: this.initialData.first_name,
       last_name: this.initialData.last_name,
       password: '', // Always empty for editing
-      role: this.initialData.role,
+      role_id: this.initialData.role_id ?? this.initialData.role?.id ?? this.initialData.role?.name ?? 'Operator',
       is_active: this.initialData.is_active ? 'true' : 'false'
     });
     
@@ -101,7 +126,7 @@ export class UserFormComponent implements OnInit, OnChanges {
     const field = this.userForm.get(fieldName);
     if (field && field.errors && field.touched) {
       if (field.errors['required']) {
-        return this.t(`user_management.${fieldName}_required`);
+        return this.t(`user_management.${fieldName === 'role_id' ? 'role' : fieldName}_required`);
       }
       if (field.errors['email']) {
         return this.t('user_management.invalid_email');
@@ -138,19 +163,20 @@ export class UserFormComponent implements OnInit, OnChanges {
     this.isSubmitting = true;
 
     try {
-      const formData = { ...this.userForm.value };
-      formData.is_active = formData.is_active === true || formData.is_active === 'true';
+      const formData = { ...this.userForm.value } as Record<string, unknown>;
+      formData['is_active'] = formData['is_active'] === true || formData['is_active'] === 'true';
       
       // Remove empty password for updates
-      if (this.isEditing && !formData.password) {
-        delete formData.password;
+      if (this.isEditing && !formData['password']) {
+        delete formData['password'];
       }
       
-      // Remove id for new users
+      // Remove id for new users; send only role_id (backend expects role_id)
       if (!this.isEditing) {
-        delete formData.id;
-        formData.auth_provider = 'local';
+        delete formData['id'];
+        formData['auth_provider'] = 'local';
       }
+      delete formData['role'];
 
       let response;
       if (this.isEditing && this.initialData) {

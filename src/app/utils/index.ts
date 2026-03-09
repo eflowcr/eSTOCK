@@ -70,3 +70,4 @@ export function isApiResponseSuccessful(response: any): boolean {
 // Re-export utilities
 export * from './get-token';
 export * from './handle-error';
+export * from './permissions';

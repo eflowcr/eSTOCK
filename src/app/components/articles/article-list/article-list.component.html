@@ -43,6 +43,10 @@
           {{ t('clear_filters') }}
         </button>
       </div>
+
+      <div class="flex items-center gap-2 flex-shrink-0 lg:ml-auto">
+        <ng-content select="[toolbarRight]"></ng-content>
+      </div>
     </div>
   </div>
 
@@ -128,7 +132,9 @@
         <tr *ngFor="let headerGroup of table.getHeaderGroups()">
           <th
             *ngFor="let header of headerGroup.headers"
-            class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
+            class="px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
+            [class.text-left]="header.column.id !== 'actions'"
+            [class.text-center]="header.column.id === 'actions'"
           >
             <button
               *ngIf="header.column.getCanSort(); else plainHeader"
@@ -162,7 +168,7 @@
           </td>
         </tr>
         <tr *ngFor="let row of table.getRowModel().rows" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-          <td *ngFor="let cell of row.getVisibleCells()" class="px-3 py-4 text-sm text-gray-900 dark:text-white align-top">
+          <td *ngFor="let cell of row.getVisibleCells()" class="px-3 py-4 text-sm text-gray-900 dark:text-white align-top" [class.text-center]="cell.column.id === 'actions'">
             <ng-container [ngSwitch]="cell.column.id">
               <span *ngSwitchCase="'sku'" class="font-mono text-xs font-medium">{{ row.original.sku }}</span>
               <div *ngSwitchCase="'name'" class="min-w-[180px]">

@@ -168,7 +168,7 @@
                 </div>
               </div>
               <span *ngSwitchCase="'email'">{{ row.original.email }}</span>
-              <span *ngSwitchCase="'role'" [class]="getRoleBadgeClass(row.original.role)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{{ row.original.role }}</span>
+              <span *ngSwitchCase="'role'" [class]="getRoleBadgeClass(row.original.role_id)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{{ getRoleDisplayName(row.original) || row.original.role_id }}</span>
               <span *ngSwitchCase="'status'" [class]="getStatusBadgeClass(row.original.is_active)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                 {{ row.original.is_active ? t('user_management.active') : t('user_management.inactive') }}
               </span>
@@ -289,8 +289,8 @@
             <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('user_management.role') }}</label>
             <p class="text-sm">
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    [class]="getRoleBadgeClass(viewingUser.role)">
-                {{ viewingUser.role }}
+                    [class]="getRoleBadgeClass(viewingUser.role_id)">
+                {{ getRoleDisplayName(viewingUser) || viewingUser.role_id }}
               </span>
             </p>
           </div>

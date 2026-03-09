@@ -78,6 +78,7 @@ export * from './dashboard.model';
 export * from './receiving-task.model';
 export * from './picking-task.model';
 export * from './user.model';
+export * from './role.model';
 export * from './barcode.model';
 export * from './gamification.model';
 

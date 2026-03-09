@@ -1,5 +1,10 @@
 // Authentication related models and interfaces
 
+/** Permission shape from backend: { all: true } for admin or { [resource]: { read, create, update, delete } }. */
+export type Permission =
+  | { all: boolean }
+  | { [resource: string]: { [action: string]: boolean } };
+
 export interface User {
   user_id: string;
   user_name: string;
@@ -19,8 +24,14 @@ export interface RegisterRequest {
   confirmPassword: string;
 }
 
+/** Stored auth payload; matches backend login response (token, role, permissions, etc.). */
 export interface AuthData {
   token: string;
+  name?: string;
+  last_name?: string;
+  email?: string;
+  role?: string;
+  permissions?: Permission;
 }
 
 export interface AuthState {

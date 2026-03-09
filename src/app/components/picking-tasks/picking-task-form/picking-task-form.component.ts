@@ -198,7 +198,9 @@ export class PickingTaskFormComponent implements OnInit {
 
 			if (userResponse.result.success) {
 				// Only operators
-				this.users = (userResponse.data || []).filter((u: User) => u.role === 'operator');
+				this.users = (userResponse.data || []).filter(
+					(u: User) => (u.role?.name ?? u.role_id ?? '').toLowerCase() === 'operator'
+				);
 				this.filteredOperators = [...this.users];
 			}
 

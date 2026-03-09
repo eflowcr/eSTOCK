@@ -5,6 +5,7 @@ import { AuthorizationService } from '../../../services/extras/authorization.ser
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { LocationService } from '../../../services/location.service';
+import { ZardDialogModule } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
 import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
@@ -16,6 +17,7 @@ import { LocationFormComponent } from '../location-form/location-form.component'
   standalone: true,
   imports: [
     CommonModule,
+    ZardDialogModule,
     FileImportComponent,
     DataExportComponent,
     MainLayoutComponent,

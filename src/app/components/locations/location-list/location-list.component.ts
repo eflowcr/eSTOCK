@@ -16,6 +16,7 @@ import { AuthorizationService } from '../../../services/extras/authorization.ser
 import { LanguageService } from '../../../services/extras/language.service';
 import { LocationService } from '../../../services/location.service';
 import { handleApiError } from '@app/utils';
+import { ZardDialogService } from '@app/shared/components/dialog';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardInputDirective } from '../../../shared/components/input/input.directive';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
@@ -124,7 +125,8 @@ export class LocationListComponent {
     private locationService: LocationService,
     private languageService: LanguageService,
     private alertService: AlertService,
-    private authService: AuthorizationService
+    private authService: AuthorizationService,
+    private dialogService: ZardDialogService
   ) {}
 
   get t() {
@@ -186,15 +188,23 @@ export class LocationListComponent {
   }
 
   onDelete(location: Location): void {
-    this.deletingLocationId = location.id.toString();
+    const locationId = location.id.toString();
+    this.dialogService.create({
+      zTitle: this.t('delete_location'),
+      zDescription: this.t('delete_location_confirm'),
+      zOkText: this.t('delete'),
+      zCancelText: this.t('cancel'),
+      zOkDestructive: true,
+      zClosable: false,
+      zOnOk: () => {
+        this.performDeleteAndRefresh(locationId);
+      },
+    });
   }
 
-  async confirmDelete(): Promise<void> {
-    if (!this.deletingLocationId) return;
-
+  private async performDeleteAndRefresh(locationId: string): Promise<void> {
     try {
-      this.isDeleting = true;
-      const response = await this.locationService.delete(this.deletingLocationId);
+      const response = await this.locationService.delete(locationId);
       if (response.result.success) {
         this.alertService.success(this.t('success'), this.t('location_deleted_successfully'));
         this.deleted.emit();
@@ -203,14 +213,7 @@ export class LocationListComponent {
       }
     } catch (error: any) {
       this.alertService.error(this.t('error'), handleApiError(error, this.t('failed_to_delete_location')));
-    } finally {
-      this.isDeleting = false;
-      this.deletingLocationId = null;
     }
-  }
-
-  closeDeleteDialog(): void {
-    this.deletingLocationId = null;
   }
 
   toggleFilters(): void {

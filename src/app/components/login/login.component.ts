@@ -136,7 +136,7 @@ export class LoginComponent implements OnInit {
           email: formData.email,
           first_name: formData.firstName,
           last_name: formData.lastName,
-          role: 'operator', 
+          role_id: 'Operator',
           is_active: true,
           auth_provider: 'local',
           password: formData.password,
