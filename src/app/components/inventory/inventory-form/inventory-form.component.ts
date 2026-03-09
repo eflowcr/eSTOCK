@@ -649,6 +649,14 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     }
   }
 
+  addSerialFromInput(): void {
+    this.handleSerialEnter();
+  }
+
+  addLotFromInput(): void {
+    this.handleLotEnter();
+  }
+
   addManualLot(lotNumber: string): void {
     if (!lotNumber.trim()) return;
     

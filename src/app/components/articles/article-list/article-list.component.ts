@@ -17,6 +17,8 @@ import { AuthorizationService } from '../../../services/extras/authorization.ser
 import { LanguageService } from '../../../services/extras/language.service';
 import { ArticleService } from '../../../services/article.service';
 import { handleApiError } from '@app/utils';
+import { ZardDialogService } from '@app/shared/components/dialog';
+import { ArticleDetailsContentComponent } from '../article-details-content/article-details-content.component';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
@@ -35,10 +37,6 @@ export class ArticleListComponent {
   @Input() isLoading = false;
   @Output() articlesChanged = new EventEmitter<void>();
   @Output() editArticle = new EventEmitter<Article>();
-
-  viewingArticle: Article | null = null;
-  deletingArticleId: number | null = null;
-  isDeleting = false;
 
   // Search and filter state
   searchTerm = '';
@@ -174,7 +172,8 @@ export class ArticleListComponent {
     private articleService: ArticleService,
     private languageService: LanguageService,
     private alertService: AlertService,
-    private authService: AuthorizationService
+    private authService: AuthorizationService,
+    private dialogService: ZardDialogService
   ) {}
 
   get t() {
@@ -316,35 +315,37 @@ export class ArticleListComponent {
   }
 
   viewArticle(article: Article): void {
-    this.viewingArticle = article;
-  }
-
-  closeViewModal(): void {
-    this.viewingArticle = null;
+    this.dialogService.create({
+      zTitle: this.t('article_details'),
+      zContent: ArticleDetailsContentComponent,
+      zData: article,
+      zOkText: this.t('close'),
+      zCancelText: null,
+      zCustomClasses: 'sm:max-w-2xl',
+    });
   }
 
   openDeleteDialog(articleId: number): void {
-    this.deletingArticleId = articleId;
+    this.dialogService.create({
+      zTitle: this.t('delete_article'),
+      zDescription: this.t('delete_article_confirmation'),
+      zOkText: this.t('delete'),
+      zCancelText: this.t('cancel'),
+      zOkDestructive: true,
+      zClosable: false,
+      zOnOk: () => {
+        this.performDeleteAndEmit(articleId);
+      },
+    });
   }
 
-  closeDeleteDialog(): void {
-    this.deletingArticleId = null;
-  }
-
-  async deleteArticle(): Promise<void> {
-    if (!this.deletingArticleId) return;
-
+  private async performDeleteAndEmit(articleId: number): Promise<void> {
     try {
-      this.isDeleting = true;
-      await this.articleService.delete(this.deletingArticleId);
-      this.alertService.success(this.t('article_deleted_successfully'));
+      await this.articleService.delete(articleId);
+      this.alertService.success(this.t('success'), this.t('article_deleted_successfully'));
       this.articlesChanged.emit();
-      this.closeDeleteDialog();
     } catch (error: any) {
-      console.error('Error deleting article:', error);
-      this.alertService.error(handleApiError(error, this.t('error_deleting_article')));
-    } finally {
-      this.isDeleting = false;
+      this.alertService.error(this.t('error'), handleApiError(error, this.t('error_deleting_article')));
     }
   }
 

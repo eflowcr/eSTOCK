@@ -17,6 +17,7 @@ import { LanguageService } from '../../../services/extras/language.service';
 import { LocationService } from '../../../services/location.service';
 import { handleApiError } from '@app/utils';
 import { ZardDialogService } from '@app/shared/components/dialog';
+import { LocationDetailsContentComponent } from '../location-details-content/location-details-content.component';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardInputDirective } from '../../../shared/components/input/input.directive';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
@@ -39,7 +40,6 @@ export class LocationListComponent {
   @Output() updated = new EventEmitter<void>();
   @Output() deleted = new EventEmitter<void>();
 
-  viewingLocation: Location | null = null;
   deletingLocationId: string | null = null;
   isDeleting = false;
 
@@ -180,11 +180,17 @@ export class LocationListComponent {
   }
 
   onView(location: Location): void {
-    this.viewingLocation = location;
-  }
-
-  closeViewDialog(): void {
-    this.viewingLocation = null;
+    this.dialogService.create({
+      zTitle: this.t('location_details'),
+      zContent: LocationDetailsContentComponent,
+      zData: {
+        location,
+        onEdit: (loc: Location) => this.onEdit(loc),
+        isAdmin: this.isAdmin(),
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-lg',
+    });
   }
 
   onDelete(location: Location): void {

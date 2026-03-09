@@ -6,6 +6,7 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { handleApiError } from '@app/utils';
+import { ZardDialogModule } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
 import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
@@ -17,6 +18,7 @@ import { ArticleListComponent } from '../article-list/article-list.component';
   standalone: true,
   imports: [
     CommonModule,
+    ZardDialogModule,
     FileImportComponent,
     DataExportComponent,
     MainLayoutComponent,

@@ -54,7 +54,7 @@ export class ZardDialogService {
     if (isPlatformBrowser(this.platformId)) {
       const overlayConfig = new OverlayConfig({
         hasBackdrop: true,
-        positionStrategy: this.overlay.position().global(),
+        positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
       });
 
       return this.overlay.create(overlayConfig);
@@ -101,7 +101,7 @@ export class ZardDialogService {
           } as T,
         ),
       );
-    } else if (typeof componentOrTemplateRef !== 'string') {
+    } else if (componentOrTemplateRef && typeof componentOrTemplateRef !== 'string') {
       const injector = this.createInjector<T, U>(dialogRef, config);
       const contentRef = dialogContainer.attachComponentPortal<T>(
         new ComponentPortal(componentOrTemplateRef, config.zViewContainerRef, injector),

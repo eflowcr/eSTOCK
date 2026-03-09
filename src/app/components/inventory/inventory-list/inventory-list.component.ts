@@ -17,6 +17,7 @@ import { LanguageService } from '../../../services/extras/language.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { handleApiError } from '@app/utils';
 import { ZardDialogService } from '@app/shared/components/dialog';
+import { InventoryDetailsContentComponent } from '../inventory-details-content/inventory-details-content.component';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardInputDirective } from '../../../shared/components/input/input.directive';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
@@ -225,11 +226,14 @@ export class InventoryListComponent {
   }
 
   viewInventory(inventory: Inventory): void {
-    this.viewingInventory = inventory;
-  }
-
-  closeViewModal(): void {
-    this.viewingInventory = null;
+    this.dialogService.create({
+      zTitle: this.t('inventory_details'),
+      zContent: InventoryDetailsContentComponent,
+      zData: inventory,
+      zOkText: this.t('close'),
+      zCancelText: null,
+      zCustomClasses: 'sm:max-w-5xl',
+    });
   }
 
   editInventoryItem(inventory: Inventory): void {
@@ -313,12 +317,6 @@ export class InventoryListComponent {
   private setPageIndex(pageIndex: number): void {
     const current = this.pagination();
     this.pagination.set({ ...current, pageIndex });
-  }
-
-  onBackdropClick(event: Event): void {
-    if (event.target === event.currentTarget) {
-      this.closeViewModal();
-    }
   }
 
   readonly Math = Math;

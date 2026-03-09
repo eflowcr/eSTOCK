@@ -26,20 +26,20 @@ export class ZardDialogRef<T = any, R = any, U = any> {
     this.containerInstance.cancelTriggered.subscribe(() => this.trigger(eTriggerAction.CANCEL));
     this.containerInstance.okTriggered.subscribe(() => this.trigger(eTriggerAction.OK));
 
-    if ((this.config.zMaskClosable ?? true) && isPlatformBrowser(this.platformId)) {
+    if ((this.config.zMaskClosable ?? true) && isPlatformBrowser(this.platformId) && this.overlayRef) {
       this.overlayRef
         .outsidePointerEvents()
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => this.close());
     }
 
+    // Close on Escape: use overlay keydown when available, else document keydown
     if (isPlatformBrowser(this.platformId)) {
-      fromEvent<KeyboardEvent>(document, 'keydown')
-        .pipe(
-          filter(event => event.key === 'Escape'),
-          takeUntil(this.destroy$),
-        )
-        .subscribe(() => this.close());
+      const escape$ = this.overlayRef
+        ? this.overlayRef.keydownEvents().pipe(filter((e: KeyboardEvent) => e.key === 'Escape'))
+        : fromEvent<KeyboardEvent>(document, 'keydown').pipe(filter(e => e.key === 'Escape'));
+
+      escape$.pipe(takeUntil(this.destroy$)).subscribe(() => this.close());
     }
   }
 
@@ -51,9 +51,9 @@ export class ZardDialogRef<T = any, R = any, U = any> {
     this.isClosing = true;
     this.result = result;
 
-    if (isPlatformBrowser(this.platformId)) {
+    if (isPlatformBrowser(this.platformId) && this.containerInstance) {
       const hostElement = this.containerInstance.getNativeElement();
-      hostElement.classList.add('dialog-leave');
+      if (hostElement) hostElement.classList.add('dialog-leave');
     }
 
     setTimeout(() => {

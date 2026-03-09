@@ -32,7 +32,8 @@
               <div class="mt-1 relative">
                 <input type="text"
                   [disabled]="isEditing"
-                  (focus)="!isEditing && (showSkuDropdown = true)"
+                  [readonly]="hasValidSkuSelection()"
+                  (focus)="!isEditing && !hasValidSkuSelection() && (showSkuDropdown = true)"
                   (blur)="onSkuBlur()"
                   [(ngModel)]="skuSearchTerm"
                   (input)="filterArticles()"
@@ -41,6 +42,7 @@
                   placeholder="{{ t('select_sku') }}"
                   [class.bg-gray-100]="isEditing"
                   [class.cursor-not-allowed]="isEditing"
+                  [class.cursor-default]="hasValidSkuSelection() && !isEditing"
                   [class.dark:bg-gray-600]="isEditing"
                   class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-[#00113f] dark:bg-gray-700 dark:text-white"
                   [class.border-red-500]="isFieldInvalid('sku') || (skuSearchTerm && !isSkuValid())"
@@ -109,7 +111,8 @@
               <div class="mt-1 relative">
                 <input type="text"
                   [disabled]="isEditing"
-                  (focus)="!isEditing && (showLocationDropdown = true)"
+                  [readonly]="hasValidLocationSelection()"
+                  (focus)="!isEditing && !hasValidLocationSelection() && (showLocationDropdown = true)"
                   (blur)="onLocationBlur()"
                   [(ngModel)]="locationSearchTerm"
                   (input)="filterLocations()"
@@ -118,6 +121,7 @@
                   placeholder="{{ t('select_location') }}"
                   [class.bg-gray-100]="isEditing"
                   [class.cursor-not-allowed]="isEditing"
+                  [class.cursor-default]="hasValidLocationSelection() && !isEditing"
                   [class.dark:bg-gray-600]="isEditing"
                   class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-[#00113f] dark:bg-gray-700 dark:text-white"
                   [class.border-red-500]="isFieldInvalid('location') || (locationSearchTerm && !isLocationValid())"
@@ -306,33 +310,59 @@
             <!-- Campos de seguimiento (Lotes y Series) en 2 columnas -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               
-              <!-- Lot Numbers Column -->
-              <div *ngIf="inventoryForm.get('trackByLot')?.value" class="form-group">
+              <!-- Lot Numbers Column - same layout as Serial Numbers -->
+              <div *ngIf="inventoryForm.get('trackByLot')?.value" class="form-group md:col-span-2">
                 <div class="flex items-center justify-between mb-2">
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ t('lot_numbers') }} 
-                    <span class="ml-1 text-xs" 
-                          [class.text-green-600]="isLotSelectionComplete()"
-                          [class.text-orange-600]="!isLotSelectionComplete() && getSelectedLotCount() > 0"
-                          [class.text-gray-500]="getSelectedLotCount() === 0">
-                      ({{ getSelectedLotCount() }}/{{ getExpectedQuantity() }})
+                    {{ t('lot_numbers') }}
+                    <span
+                      class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
+                      [class.bg-green-100]="isLotSelectionComplete()"
+                      [class.text-green-800]="isLotSelectionComplete()"
+                      [class.bg-orange-100]="!isLotSelectionComplete() && getSelectedLotCount() > 0"
+                      [class.text-orange-800]="!isLotSelectionComplete() && getSelectedLotCount() > 0"
+                      [class.bg-gray-100]="getSelectedLotCount() === 0"
+                      [class.text-gray-700]="getSelectedLotCount() === 0"
+                      [class.dark:bg-green-900]="isLotSelectionComplete()"
+                      [class.dark:text-green-200]="isLotSelectionComplete()"
+                      [class.dark:bg-orange-900]="!isLotSelectionComplete() && getSelectedLotCount() > 0"
+                      [class.dark:text-orange-200]="!isLotSelectionComplete() && getSelectedLotCount() > 0"
+                      [class.dark:bg-gray-700]="getSelectedLotCount() === 0"
+                      [class.dark:text-gray-200]="getSelectedLotCount() === 0"
+                    >
+                      {{ getSelectedLotCount() }}/{{ getExpectedQuantity() }}
                     </span>
                   </label>
                 </div>
+
+                <p *ngIf="!isEditing" class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  {{ t('lots_help_add') }}
+                </p>
+                <p *ngIf="isEditing" class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  {{ t('tracking_readonly_edit') }}
+                </p>
                 
                 <div class="relative" *ngIf="!isLotSelectionComplete() && !isEditing">
-                  <input type="text"
-                    [(ngModel)]="lotSearchTerm"
-                    (keydown.enter)="$event.preventDefault(); handleLotEnter()"
-                    [ngModelOptions]="{standalone: true}"
-                    placeholder="Escribir número de lote y presionar Enter"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                  <div class="flex gap-2">
+                    <input
+                      type="text"
+                      [(ngModel)]="lotSearchTerm"
+                      (keydown.enter)="$event.preventDefault(); handleLotEnter()"
+                      [ngModelOptions]="{ standalone: true }"
+                      [placeholder]="t('lots_placeholder')"
+                      class="flex-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+
+                    <button
+                      type="button"
+                      (click)="addLotFromInput()"
+                      [disabled]="!lotSearchTerm.trim()"
+                      class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {{ t('add') }}
+                    </button>
+                  </div>
                   <input type="hidden" formControlName="lot_numbers" />
-                </div>
-                
-                <!-- Read-only message for edit mode -->
-                <div *ngIf="isEditing && getSelectedLots().length > 0" class="text-sm text-gray-600 dark:text-gray-400 italic">
-                  {{ t('lots_readonly_edit_mode') || 'Lotes cargados desde inventario existente (solo lectura)' }}
                 </div>
                 
                 <!-- Mensaje cuando está completo -->
@@ -340,9 +370,17 @@
                   {{ t('lot_selection_complete') }}
                 </div>
                 
-                
                 <!-- Selected lots display -->
                 <div *ngIf="getSelectedLots().length > 0" class="mt-2">
+                  <div class="flex items-center justify-between mb-2">
+                    <p class="text-xs font-medium text-gray-600 dark:text-gray-300">
+                      {{ t('lots_added') }}
+                    </p>
+                    <p *ngIf="!isLotSelectionComplete()" class="text-xs text-gray-500 dark:text-gray-400">
+                      {{ t('serials_remaining_prefix') }} {{ (getExpectedQuantity() - getSelectedLotCount()) }}
+                    </p>
+                  </div>
+
                   <div class="flex flex-wrap gap-1">
                     <span *ngFor="let lot of getSelectedLots()" 
                       class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
@@ -358,32 +396,58 @@
               </div>
 
               <!-- Serial Numbers Column -->
-              <div *ngIf="inventoryForm.get('trackBySerial')?.value" class="form-group">
+              <div *ngIf="inventoryForm.get('trackBySerial')?.value" class="form-group md:col-span-2">
                 <div class="flex items-center justify-between mb-2">
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     {{ t('serial_numbers') }}
-                    <span class="ml-1 text-xs" 
-                          [class.text-green-600]="isSerialSelectionComplete()"
-                          [class.text-orange-600]="!isSerialSelectionComplete() && getSelectedSerialCount() > 0"
-                          [class.text-gray-500]="getSelectedSerialCount() === 0">
-                      ({{ getSelectedSerialCount() }}/{{ getExpectedQuantity() }})
+                    <span
+                      class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
+                      [class.bg-green-100]="isSerialSelectionComplete()"
+                      [class.text-green-800]="isSerialSelectionComplete()"
+                      [class.bg-orange-100]="!isSerialSelectionComplete() && getSelectedSerialCount() > 0"
+                      [class.text-orange-800]="!isSerialSelectionComplete() && getSelectedSerialCount() > 0"
+                      [class.bg-gray-100]="getSelectedSerialCount() === 0"
+                      [class.text-gray-700]="getSelectedSerialCount() === 0"
+                      [class.dark:bg-green-900]="isSerialSelectionComplete()"
+                      [class.dark:text-green-200]="isSerialSelectionComplete()"
+                      [class.dark:bg-orange-900]="!isSerialSelectionComplete() && getSelectedSerialCount() > 0"
+                      [class.dark:text-orange-200]="!isSerialSelectionComplete() && getSelectedSerialCount() > 0"
+                      [class.dark:bg-gray-700]="getSelectedSerialCount() === 0"
+                      [class.dark:text-gray-200]="getSelectedSerialCount() === 0"
+                    >
+                      {{ getSelectedSerialCount() }}/{{ getExpectedQuantity() }}
                     </span>
                   </label>
                 </div>
+
+                <p *ngIf="!isEditing" class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  {{ t('serials_help_add') }}
+                </p>
+                <p *ngIf="isEditing" class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  {{ t('tracking_readonly_edit') }}
+                </p>
                 
                 <div class="relative" *ngIf="!isSerialSelectionComplete() && !isEditing">
-                  <input type="text"
-                    [(ngModel)]="serialSearchTerm"
-                    (keydown.enter)="$event.preventDefault(); handleSerialEnter()"
-                    [ngModelOptions]="{standalone: true}"
-                    placeholder="Escribir número de serie y presionar Enter"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                  <div class="flex gap-2">
+                    <input
+                      type="text"
+                      [(ngModel)]="serialSearchTerm"
+                      (keydown.enter)="$event.preventDefault(); handleSerialEnter()"
+                      [ngModelOptions]="{ standalone: true }"
+                      [placeholder]="t('serials_placeholder')"
+                      class="flex-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+
+                    <button
+                      type="button"
+                      (click)="addSerialFromInput()"
+                      [disabled]="!serialSearchTerm.trim()"
+                      class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {{ t('add') }}
+                    </button>
+                  </div>
                   <input type="hidden" formControlName="serial_numbers" />
-                </div>
-                
-                <!-- Read-only message for edit mode -->
-                <div *ngIf="isEditing && getSelectedSerials().length > 0" class="text-sm text-gray-600 dark:text-gray-400 italic">
-                  {{ t('serials_readonly_edit_mode') || 'Series cargadas desde inventario existente (solo lectura)' }}
                 </div>
                 
                 <!-- Mensaje cuando está completo -->
@@ -394,6 +458,15 @@
                 
                 <!-- Selected serials display -->
                 <div *ngIf="getSelectedSerials().length > 0" class="mt-2">
+                  <div class="flex items-center justify-between mb-2">
+                    <p class="text-xs font-medium text-gray-600 dark:text-gray-300">
+                      {{ t('serials_added') }}
+                    </p>
+                    <p *ngIf="!isSerialSelectionComplete()" class="text-xs text-gray-500 dark:text-gray-400">
+                      {{ t('serials_remaining_prefix') }} {{ (getExpectedQuantity() - getSelectedSerialCount()) }}
+                    </p>
+                  </div>
+
                   <div class="flex flex-wrap gap-1">
                     <span *ngFor="let serial of getSelectedSerials()" 
                       class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">

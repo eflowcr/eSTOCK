@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   EventEmitter,
+  HostListener,
   Input,
   Output,
 } from '@angular/core';
@@ -87,6 +88,13 @@ export class DrawerComponent {
   /** Keep drawer in DOM until leave animation finishes. */
   get isVisible(): boolean {
     return this.isOpen || this._closing;
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.isOpen && !this._closing) {
+      this.close();
+    }
   }
 
   onBackdropClick(): void {
