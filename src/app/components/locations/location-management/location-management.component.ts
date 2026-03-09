@@ -5,10 +5,12 @@ import { AuthorizationService } from '../../../services/extras/authorization.ser
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { LocationService } from '../../../services/location.service';
-import { ZardDialogModule } from '@app/shared/components/dialog';
+import { ZardDialogService } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
-import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
-import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
+import { DataExportConfig } from '../../shared/data-export/data-export.component';
+import { FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
+import { DataExportContentComponent } from '../../shared/data-export/data-export-content.component';
+import { FileImportContentComponent } from '../../shared/file-import/file-import-content.component';
 import { LocationListComponent } from '../location-list/location-list.component';
 import { LocationFormComponent } from '../location-form/location-form.component';
 
@@ -17,13 +19,10 @@ import { LocationFormComponent } from '../location-form/location-form.component'
   standalone: true,
   imports: [
     CommonModule,
-    ZardDialogModule,
-    FileImportComponent,
-    DataExportComponent,
     MainLayoutComponent,
     LocationListComponent,
     LocationFormComponent
-],
+  ],
   templateUrl: './location-management.component.html',
   styleUrls: ['./location-management.component.css']
 })
@@ -31,8 +30,6 @@ export class LocationManagementComponent implements OnInit {
   locations: Location[] = [];
   isLoading = false;
   isCreateDialogOpen = false;
-  isImportDialogOpen = false;
-  isExportDialogOpen = false;
   selectedLocation: Location | null = null;
 
   // Export configuration
@@ -57,7 +54,8 @@ export class LocationManagementComponent implements OnInit {
     private locationService: LocationService,
     private languageService: LanguageService,
     private alertService: AlertService,
-    private authService: AuthorizationService
+    private authService: AuthorizationService,
+    private dialogService: ZardDialogService
   ) {}
 
   ngOnInit(): void {
@@ -95,24 +93,37 @@ export class LocationManagementComponent implements OnInit {
   }
 
   openImportDialog(): void {
-    this.isImportDialogOpen = true;
+    this.dialogService.create({
+      zTitle: this.t('import_data'),
+      zContent: FileImportContentComponent,
+      zData: {
+        config: this.importConfig,
+        onSuccess: (res: ImportResult) => this.onImportSuccess(res),
+        onError: (err: string) => this.onImportError(err),
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-2xl',
+    });
   }
 
   openExportDialog(): void {
-    this.isExportDialogOpen = true;
+    this.exportConfig.data = this.locations;
+    this.dialogService.create({
+      zTitle: this.t('export_data'),
+      zDescription: this.t('export_description'),
+      zContent: DataExportContentComponent,
+      zData: {
+        config: this.exportConfig,
+        onExported: () => {},
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-md',
+    });
   }
 
   closeCreateDialog(): void {
     this.isCreateDialogOpen = false;
     this.selectedLocation = null;
-  }
-
-  closeImportDialog(): void {
-    this.isImportDialogOpen = false;
-  }
-
-  closeExportDialog(): void {
-    this.isExportDialogOpen = false;
   }
 
   onLocationCreated(): void {
@@ -128,13 +139,9 @@ export class LocationManagementComponent implements OnInit {
     this.loadLocations();
   }
 
-  onImportSuccess(result: ImportResult): void {
-    this.alertService.success(
-      this.t('success'),
-      this.t('locations_imported_successfully')
-    );
+  onImportSuccess(_result: ImportResult): void {
+    this.alertService.success(this.t('success'), this.t('locations_imported_successfully'));
     this.loadLocations();
-    this.closeImportDialog();
   }
 
   onImportError(error: string): void {

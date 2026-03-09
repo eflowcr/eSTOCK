@@ -5,11 +5,14 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { InventoryService } from '../../../services/inventory.service';
+import { ZardDialogService } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { InventoryListComponent } from '../inventory-list/inventory-list.component';
 import { InventoryFormComponent } from '../inventory-form/inventory-form.component';
-import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
-import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
+import { FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
+import { DataExportConfig } from '../../shared/data-export/data-export.component';
+import { DataExportContentComponent } from '../../shared/data-export/data-export-content.component';
+import { FileImportContentComponent } from '../../shared/file-import/file-import-content.component';
 
 @Component({
   selector: 'app-inventory-management',
@@ -19,8 +22,6 @@ import { DataExportComponent, DataExportConfig } from '../../shared/data-export/
     MainLayoutComponent,
     InventoryListComponent,
     InventoryFormComponent,
-    FileImportComponent,
-    DataExportComponent
   ],
   templateUrl: './inventory-management.component.html',
   styleUrls: ['./inventory-management.component.css']
@@ -30,8 +31,6 @@ export class InventoryManagementComponent implements OnInit {
   isLoading = false;
   isCreateDialogOpen = false;
   selectedInventory: Inventory | null = null;
-  isImportDialogOpen = false;
-  isExportDialogOpen = false;
 
   // Export configuration
   exportConfig: DataExportConfig = {
@@ -55,7 +54,8 @@ export class InventoryManagementComponent implements OnInit {
     private inventoryService: InventoryService,
     private authService: AuthorizationService,
     private alertService: AlertService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private dialogService: ZardDialogService
   ) {}
 
   ngOnInit(): void {
@@ -141,26 +141,36 @@ export class InventoryManagementComponent implements OnInit {
   }
 
   openImportDialog(): void {
-    this.isImportDialogOpen = true;
-  }
-
-  closeImportDialog(): void {
-    this.isImportDialogOpen = false;
+    this.dialogService.create({
+      zTitle: this.t('import_data'),
+      zContent: FileImportContentComponent,
+      zData: {
+        config: this.importConfig,
+        onSuccess: (res: ImportResult) => this.onImportSuccess(res),
+        onError: (err: string) => this.onImportError(err),
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-2xl',
+    });
   }
 
   openExportDialog(): void {
-    this.isExportDialogOpen = true;
+    this.exportConfig.data = this.inventory;
+    this.dialogService.create({
+      zTitle: this.t('export_data'),
+      zDescription: this.t('export_description'),
+      zContent: DataExportContentComponent,
+      zData: {
+        config: this.exportConfig,
+        onExported: () => this.onExportSuccess(),
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-md',
+    });
   }
 
-  closeExportDialog(): void {
-    this.isExportDialogOpen = false;
-  }
-
-  onImportSuccess(result: ImportResult): void {
-    this.alertService.success(
-      this.t('import_successful')
-    );
-    this.closeImportDialog();
+  onImportSuccess(_result: ImportResult): void {
+    this.alertService.success(this.t('import_successful'));
     this.loadInventory();
   }
 
@@ -170,7 +180,6 @@ export class InventoryManagementComponent implements OnInit {
 
   onExportSuccess(): void {
     this.alertService.success(this.t('export_successful'));
-    this.closeExportDialog();
   }
 
 

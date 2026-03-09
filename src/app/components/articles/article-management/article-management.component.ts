@@ -6,10 +6,12 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { handleApiError } from '@app/utils';
-import { ZardDialogModule } from '@app/shared/components/dialog';
+import { ZardDialogService } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
-import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
-import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
+import { DataExportConfig } from '../../shared/data-export/data-export.component';
+import { FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
+import { DataExportContentComponent } from '../../shared/data-export/data-export-content.component';
+import { FileImportContentComponent } from '../../shared/file-import/file-import-content.component';
 import { ArticleFormComponent } from '../article-form/article-form.component';
 import { ArticleListComponent } from '../article-list/article-list.component';
 
@@ -18,21 +20,16 @@ import { ArticleListComponent } from '../article-list/article-list.component';
   standalone: true,
   imports: [
     CommonModule,
-    ZardDialogModule,
-    FileImportComponent,
-    DataExportComponent,
     MainLayoutComponent,
     ArticleListComponent,
     ArticleFormComponent
-],
+  ],
   templateUrl: './article-management.component.html',
   styleUrls: ['./article-management.component.css']
 })
 export class ArticleManagementComponent implements OnInit {
   articles: Article[] = [];
   isLoading = false;
-  isImportDialogOpen = false;
-  isExportDialogOpen = false;
   isCreateDialogOpen = false;
   selectedArticle: Article | null = null;
 
@@ -58,7 +55,8 @@ export class ArticleManagementComponent implements OnInit {
     private articleService: ArticleService,
     private authorizationService: AuthorizationService,
     private alertService: AlertService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private dialogService: ZardDialogService
   ) {}
 
   ngOnInit(): void {
@@ -109,46 +107,45 @@ export class ArticleManagementComponent implements OnInit {
   }
 
   openImportDialog(): void {
-    this.isImportDialogOpen = true;
+    this.dialogService.create({
+      zTitle: this.t('import_data'),
+      zContent: FileImportContentComponent,
+      zData: {
+        config: this.importConfig,
+        onSuccess: (res: ImportResult) => this.onImportSuccess(res),
+        onError: (err: string) => this.onImportError(err),
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-2xl',
+    });
   }
 
-  closeImportDialog(): void {
-    this.isImportDialogOpen = false;
-  }
-
-  /**
-   * Handle import success
-   */
-  onImportSuccess(result: ImportResult): void {
-    this.alertService.success(
-      this.t('import_successful')
-    );
-    this.closeImportDialog();
+  onImportSuccess(_result: ImportResult): void {
+    this.alertService.success(this.t('import_successful'));
     this.loadArticles();
   }
 
-  /**
-   * Handle import error
-   */
   onImportError(error: string): void {
     this.alertService.error(error);
   }
 
   openExportDialog(): void {
     this.exportConfig.data = this.articles;
-    this.isExportDialogOpen = true;
+    this.dialogService.create({
+      zTitle: this.t('export_data'),
+      zDescription: this.t('export_description'),
+      zContent: DataExportContentComponent,
+      zData: {
+        config: this.exportConfig,
+        onExported: () => this.onExportSuccess(),
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-md',
+    });
   }
 
-  closeExportDialog(): void {
-    this.isExportDialogOpen = false;
-  }
-
-  /**
-   * Handle export success
-   */
   onExportSuccess(): void {
     this.alertService.success(this.t('export_successful'));
-    this.closeExportDialog();
   }
 
 

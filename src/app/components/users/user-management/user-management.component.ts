@@ -6,9 +6,12 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { UserService } from '../../../services/user.service';
 import { handleApiError } from '@app/utils';
+import { ZardDialogService } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
-import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
-import { FileImportComponent, FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
+import { DataExportConfig } from '../../shared/data-export/data-export.component';
+import { FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
+import { DataExportContentComponent } from '../../shared/data-export/data-export-content.component';
+import { FileImportContentComponent } from '../../shared/file-import/file-import-content.component';
 import { UserFormComponent } from '../user-form/user-form.component';
 import { UserListComponent } from '../user-list/user-list.component';
 
@@ -16,11 +19,9 @@ import { UserListComponent } from '../user-list/user-list.component';
   selector: 'app-user-management',
   standalone: true,
   imports: [
-    CommonModule, 
-    UserListComponent, 
-    UserFormComponent, 
-    FileImportComponent, 
-    DataExportComponent,
+    CommonModule,
+    UserListComponent,
+    UserFormComponent,
     MainLayoutComponent
   ],
   templateUrl: './user-management.component.html',
@@ -30,8 +31,6 @@ export class UserManagementComponent implements OnInit {
   users: User[] = [];
   isLoading = false;
   isCreateDialogOpen = false;
-  isImportDialogOpen = false;
-  isExportDialogOpen = false;
   selectedUser: User | null = null;
 
   // Export configuration
@@ -56,7 +55,8 @@ export class UserManagementComponent implements OnInit {
     private userService: UserService,
     private languageService: LanguageService,
     private alertService: AlertService,
-    private authService: AuthorizationService
+    private authService: AuthorizationService,
+    private dialogService: ZardDialogService
   ) {}
 
   ngOnInit(): void {
@@ -108,25 +108,35 @@ export class UserManagementComponent implements OnInit {
   }
 
   openImportDialog(): void {
-    this.isImportDialogOpen = true;
-  }
-
-  closeImportDialog(): void {
-    this.isImportDialogOpen = false;
+    this.dialogService.create({
+      zTitle: this.t('import_data'),
+      zContent: FileImportContentComponent,
+      zData: {
+        config: this.importConfig,
+        onSuccess: (res: ImportResult) => this.onImportSuccess(res),
+        onError: (err: string) => this.onImportError(err),
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-2xl',
+    });
   }
 
   openExportDialog(): void {
     this.exportConfig.data = this.users;
-    this.isExportDialogOpen = true;
+    this.dialogService.create({
+      zTitle: this.t('export_data'),
+      zDescription: this.t('export_description'),
+      zContent: DataExportContentComponent,
+      zData: {
+        config: this.exportConfig,
+        onExported: () => this.onExportSuccess(),
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-md',
+    });
   }
 
-  closeExportDialog(): void {
-    this.isExportDialogOpen = false;
-  }
-
-  onExportSuccess(): void {
-    this.closeExportDialog();
-  }
+  onExportSuccess(): void {}
 
   onCreateSuccess(): void {
     this.closeCreateDialog();
@@ -134,10 +144,7 @@ export class UserManagementComponent implements OnInit {
   }
 
   onImportSuccess(result: ImportResult): void {
-    this.closeImportDialog();
-    this.loadUsers(); // Refresh the list
-    
-    // Show detailed import results
+    this.loadUsers();
     if (result.failed > 0) {
       this.alertService.warning(
         `${this.t('import_completed_with_errors')} - ${this.t('successful')}: ${result.successful}, ${this.t('failed')}: ${result.failed}`,

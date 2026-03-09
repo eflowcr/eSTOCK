@@ -4,8 +4,10 @@ import { AuthorizationService } from '../../../services/extras/authorization.ser
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { GamificationService } from '../../../services/gamification.service';
+import { ZardDialogService } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
-import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
+import { DataExportConfig } from '../../shared/data-export/data-export.component';
+import { DataExportContentComponent } from '../../shared/data-export/data-export-content.component';
 import { GamificationPanelComponent } from '../gamification-panel/gamification-panel.component';
 import { UserStat, Badge } from '../../../models/gamification.model';
 
@@ -13,9 +15,8 @@ import { UserStat, Badge } from '../../../models/gamification.model';
   selector: 'app-gamification-management',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     GamificationPanelComponent,
-    DataExportComponent,
     MainLayoutComponent
   ],
   templateUrl: './gamification-management.component.html',
@@ -25,7 +26,6 @@ export class GamificationManagementComponent implements OnInit {
   @ViewChild(GamificationPanelComponent) gamificationPanel!: GamificationPanelComponent;
   
   isLoading = false;
-  isExportDialogOpen = false;
 
   // Export configuration
   exportConfig: DataExportConfig = {
@@ -39,7 +39,8 @@ export class GamificationManagementComponent implements OnInit {
     private gamificationService: GamificationService,
     private languageService: LanguageService,
     private alertService: AlertService,
-    private authService: AuthorizationService
+    private authService: AuthorizationService,
+    private dialogService: ZardDialogService
   ) {}
 
   ngOnInit(): void {
@@ -115,7 +116,7 @@ export class GamificationManagementComponent implements OnInit {
 
   async openExportDialog(): Promise<void> {
     const exportData = await this.prepareExportData();
-    
+
     if (exportData.length === 0) {
       this.alertService.warning(
         this.t('gamification.export_warning'),
@@ -125,16 +126,20 @@ export class GamificationManagementComponent implements OnInit {
     }
 
     this.exportConfig.data = exportData;
-    this.isExportDialogOpen = true;
+    this.dialogService.create({
+      zTitle: this.t('export_data'),
+      zDescription: this.t('export_description'),
+      zContent: DataExportContentComponent,
+      zData: {
+        config: this.exportConfig,
+        onExported: () => this.onExportSuccess(),
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-md',
+    });
   }
 
-  closeExportDialog(): void {
-    this.isExportDialogOpen = false;
-  }
-
-  onExportSuccess(): void {
-    this.closeExportDialog();
-  }
+  onExportSuccess(): void {}
 
   onRefresh(): void {
     if (this.gamificationPanel) {

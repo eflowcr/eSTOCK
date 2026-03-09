@@ -5,8 +5,10 @@ import { Badge, OperatorStats, UserBadge } from '../../models/gamification.model
 import { AlertService } from '../../services/extras/alert.service';
 import { LanguageService } from '../../services/extras/language.service';
 import { GamificationService } from '../../services/gamification.service';
+import { ZardDialogService } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from "../layout/main-layout.component";
-import { DataExportComponent, DataExportConfig } from '../shared/data-export/data-export.component';
+import { DataExportConfig } from '../shared/data-export/data-export.component';
+import { DataExportContentComponent } from '../shared/data-export/data-export-content.component';
 
 // Extended interface to match API response
 interface ExtendedOperatorStats extends OperatorStats {
@@ -18,7 +20,7 @@ interface ExtendedOperatorStats extends OperatorStats {
 @Component({
   selector: 'app-admin-control-center-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, DataExportComponent, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent],
   templateUrl: './admin-control-center-list.component.html',
   styleUrls: ['./admin-control-center-list.component.css']
 })
@@ -26,10 +28,10 @@ export class AdminControlCenterListComponent implements OnInit {
   private gamificationService = inject(GamificationService);
   private alertService = inject(AlertService);
   private languageService = inject(LanguageService);
+  private dialogService = inject(ZardDialogService);
 
   operatorStats = signal<ExtendedOperatorStats[]>([]);
   isLoading = signal<boolean>(false);
-  isExportDialogOpen = signal<boolean>(false);
 
   // Computed values for summary cards - matching React logic
   totalOperators = computed(() => this.operatorStats().length);
@@ -165,11 +167,17 @@ export class AdminControlCenterListComponent implements OnInit {
   }
 
   openExportDialog(): void {
-    this.isExportDialogOpen.set(true);
-  }
-
-  closeExportDialog(): void {
-    this.isExportDialogOpen.set(false);
+    this.dialogService.create({
+      zTitle: this.t('export_data'),
+      zDescription: this.t('export_description'),
+      zContent: DataExportContentComponent,
+      zData: {
+        config: this.exportConfig,
+        onExported: () => {},
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-md',
+    });
   }
 
   // Helper function to get accurate precision display - matching React logic

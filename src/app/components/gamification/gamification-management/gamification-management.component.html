@@ -29,12 +29,4 @@
 
     <!-- Gamification Panel -->
     <app-gamification-panel #gamificationPanel></app-gamification-panel>
-
-  <!-- Export Dialog -->
-  <app-data-export 
-    [config]="exportConfig"
-    [isOpen]="isExportDialogOpen"
-    (exported)="onExportSuccess()"
-    (closed)="closeExportDialog()">
-  </app-data-export>
 </app-main-layout>

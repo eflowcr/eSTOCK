@@ -39,12 +39,6 @@
     <!-- Adjustment History Card -->
     <app-adjustment-list [adjustments]="adjustments" [isLoading]="isLoading"></app-adjustment-list>
 
-    <!-- Export Dialog -->
-    <app-data-export *ngIf="isExportDialogOpen" [config]="exportConfig" [isOpen]="isExportDialogOpen"
-      (success)="onExportSuccess()"
-      (closed)="closeExportDialog()">
-    </app-data-export>
-
     <!-- Create Adjustment Modal -->
     <app-adjustment-form
       [isOpen]="isCreateDialogOpen"

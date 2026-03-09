@@ -63,21 +63,6 @@
 </div>
 
 <!-- Dialog Components -->
-<app-file-import 
-[config]="importConfig"
-[isOpen]="isImportDialogOpen"
-  (success)="onImportSuccess($event)"
-  (error)="onImportError($event)"
-  (closed)="closeImportDialog()">
-</app-file-import>
-
-<app-data-export 
-  [config]="exportConfig"
-  [isOpen]="isExportDialogOpen"
-  (exported)="onExportSuccess()"
-  (closed)="closeExportDialog()">
-</app-data-export>
-
 <app-user-form 
   [isOpen]="isCreateDialogOpen"
   [initialData]="selectedUser"

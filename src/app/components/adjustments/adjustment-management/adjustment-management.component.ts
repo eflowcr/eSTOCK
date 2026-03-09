@@ -6,8 +6,10 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { handleApiError } from '@app/utils';
+import { ZardDialogService } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
-import { DataExportComponent, DataExportConfig } from '../../shared/data-export/data-export.component';
+import { DataExportConfig } from '../../shared/data-export/data-export.component';
+import { DataExportContentComponent } from '../../shared/data-export/data-export-content.component';
 import { AdjustmentFormComponent } from '../adjustment-form/adjustment-form.component';
 import { AdjustmentListComponent } from '../adjustment-list/adjustment-list.component';
 
@@ -16,7 +18,6 @@ import { AdjustmentListComponent } from '../adjustment-list/adjustment-list.comp
   standalone: true,
   imports: [
     CommonModule,
-    DataExportComponent,
     MainLayoutComponent,
     AdjustmentListComponent,
     AdjustmentFormComponent
@@ -27,7 +28,6 @@ import { AdjustmentListComponent } from '../adjustment-list/adjustment-list.comp
 export class AdjustmentManagementComponent implements OnInit {
   adjustments: Adjustment[] = [];
   isLoading = false;
-  isExportDialogOpen = false;
   isCreateDialogOpen = false;
 
   // Export configuration
@@ -42,7 +42,8 @@ export class AdjustmentManagementComponent implements OnInit {
     private adjustmentService: AdjustmentService,
     private authorizationService: AuthorizationService,
     private alertService: AlertService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private dialogService: ZardDialogService
   ) {}
 
   ngOnInit(): void {
@@ -96,19 +97,21 @@ export class AdjustmentManagementComponent implements OnInit {
 
   openExportDialog(): void {
     this.exportConfig.data = this.adjustments;
-    this.isExportDialogOpen = true;
+    this.dialogService.create({
+      zTitle: this.t('export_data'),
+      zDescription: this.t('export_description'),
+      zContent: DataExportContentComponent,
+      zData: {
+        config: this.exportConfig,
+        onExported: () => this.onExportSuccess(),
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-md',
+    });
   }
 
-  closeExportDialog(): void {
-    this.isExportDialogOpen = false;
-  }
-
-  /**
-   * Handle export success
-   */
   onExportSuccess(): void {
     this.alertService.success(this.t('export_successful'));
-    this.closeExportDialog();
   }
 
   /**

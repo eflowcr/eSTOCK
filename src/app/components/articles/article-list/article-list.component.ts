@@ -19,14 +19,14 @@ import { ArticleService } from '../../../services/article.service';
 import { handleApiError } from '@app/utils';
 import { ZardDialogService } from '@app/shared/components/dialog';
 import { ArticleDetailsContentComponent } from '../article-details-content/article-details-content.component';
-import { ZardButtonComponent } from '../../../shared/components/button/button.component';
+import { ArticleFiltersContentComponent } from '../article-filters-content/article-filters-content.component';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-article-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZardButtonComponent, ZardSelectComponent, ZardSelectItemComponent],
+  imports: [CommonModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './article-list.component.html',
   styleUrls: ['./article-list.component.css']
 })
@@ -46,7 +46,6 @@ export class ArticleListComponent {
   sortBy = 'sku';
   sortOrder: 'asc' | 'desc' = 'asc';
   filtersExpanded = false;
-  filtersModalOpen = false;
 
   private readonly articlesSignal = signal<Article[]>([]);
   private readonly searchTermSignal = signal('');
@@ -185,22 +184,24 @@ export class ArticleListComponent {
   }
 
   toggleFilters(): void {
-    this.filtersModalOpen = true;
-  }
-
-  closeFiltersModal(): void {
-    this.filtersModalOpen = false;
-  }
-
-  applyFiltersAndClose(): void {
-    this.onFiltersChanged();
-    this.filtersModalOpen = false;
-  }
-
-  resetFiltersInModal(): void {
-    this.presentationFilter = '';
-    this.trackingFilter = '';
-    this.statusFilter = '';
+    this.dialogService.create({
+      zTitle: this.t('advanced_filters'),
+      zDescription: this.t('advanced_filters_description'),
+      zContent: ArticleFiltersContentComponent,
+      zData: {
+        presentationFilter: this.presentationFilter,
+        trackingFilter: this.trackingFilter,
+        statusFilter: this.statusFilter,
+        onApply: (filters: { presentation: string; tracking: string; status: string }) => {
+          this.presentationFilter = filters.presentation;
+          this.trackingFilter = filters.tracking;
+          this.statusFilter = filters.status;
+          this.onFiltersChanged();
+        },
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-lg',
+    });
   }
 
   hasActiveFilters(): boolean {

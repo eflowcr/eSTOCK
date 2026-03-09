@@ -3,8 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MainLayoutComponent } from '@app/components/layout/main-layout.component';
-import { DataExportComponent, DataExportConfig } from '@app/components/shared/data-export/data-export.component';
-import { FileImportComponent, FileImportConfig } from '@app/components/shared/file-import/file-import.component';
+import { ZardDialogService } from '@app/shared/components/dialog';
+import { DataExportConfig } from '@app/components/shared/data-export/data-export.component';
+import { FileImportConfig } from '@app/components/shared/file-import/file-import.component';
+import { DataExportContentComponent } from '@app/components/shared/data-export/data-export-content.component';
+import { FileImportContentComponent } from '@app/components/shared/file-import/file-import-content.component';
 import { ReceivingTask } from '@app/models/receiving-task.model';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LanguageService } from '@app/services/extras/language.service';
@@ -21,8 +24,6 @@ import { ReceivingTaskListComponent } from '../receiving-task-list/receiving-tas
 		FormsModule,
 		ReactiveFormsModule,
 		RouterModule,
-		DataExportComponent,
-		FileImportComponent,
 		ReceivingTaskListComponent,
 		ReceivingTaskFormComponent,
 		MainLayoutComponent
@@ -34,8 +35,6 @@ export class ReceivingTaskManagementComponent implements OnInit {
 	receivingTasks: ReceivingTask[] = [];
 	isLoading = false;
 	isCreateDialogOpen = false;
-	isImportDialogOpen = false;
-	isExportDialogOpen = false;
 	isEditDialogOpen = false;
 	editingTask: ReceivingTask | null = null;
 	activeTab: 'active' | 'processed' = 'active';
@@ -61,7 +60,8 @@ export class ReceivingTaskManagementComponent implements OnInit {
 	constructor(
 		private receivingTaskService: ReceivingTaskService,
 		private alertService: AlertService,
-		private languageService: LanguageService
+		private languageService: LanguageService,
+		private dialogService: ZardDialogService
 	) {}
 
 	ngOnInit(): void {
@@ -170,31 +170,41 @@ export class ReceivingTaskManagementComponent implements OnInit {
 	}
 
 	openImportDialog(): void {
-		this.isImportDialogOpen = true;
+		this.dialogService.create({
+			zTitle: this.t('import_data'),
+			zContent: FileImportContentComponent,
+			zData: {
+				config: this.importConfig,
+				onSuccess: () => this.onImportSuccess(),
+				onError: () => {},
+			},
+			zHideFooter: true,
+			zCustomClasses: 'sm:max-w-2xl',
+		});
 	}
 
 	onImportSuccess(): void {
-		this.isImportDialogOpen = false;
 		this.loadReceivingTasks();
-		this.alertService.success(
-			this.t('import_completed_successfully'),
-			this.t('success')
-		);
+		this.alertService.success(this.t('import_completed_successfully'), this.t('success'));
 	}
 
 	onExportSuccess(): void {
-		this.alertService.success(
-			this.t('export_completed_successfully'),
-			this.t('success')
-		);
+		this.alertService.success(this.t('export_completed_successfully'), this.t('success'));
 	}
 
 	openExportDialog(): void {
-		this.isExportDialogOpen = true;
-	}
-
-	closeExportDialog(): void {
-		this.isExportDialogOpen = false;
+		this.exportConfig.data = this.receivingTasks;
+		this.dialogService.create({
+			zTitle: this.t('export_data'),
+			zDescription: this.t('export_description'),
+			zContent: DataExportContentComponent,
+			zData: {
+				config: this.exportConfig,
+				onExported: () => this.onExportSuccess(),
+			},
+			zHideFooter: true,
+			zCustomClasses: 'sm:max-w-md',
+		});
 	}
 
     onRefresh(): void {

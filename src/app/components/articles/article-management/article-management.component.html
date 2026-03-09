@@ -51,16 +51,5 @@
     <app-article-form *ngIf="isCreateDialogOpen" [initialData]="selectedArticle" [isOpen]="isCreateDialogOpen"
       (success)="onArticleSaved()" (closed)="closeCreateDialog()"></app-article-form>
 
-    <!-- Import Dialog -->
-    <app-file-import *ngIf="isImportDialogOpen" [config]="importConfig" [isOpen]="isImportDialogOpen"
-      (success)="onImportSuccess($event)" (error)="onImportError($event)"
-      (closed)="closeImportDialog()">
-    </app-file-import>
-
-    <!-- Export Dialog -->
-    <app-data-export *ngIf="isExportDialogOpen" [config]="exportConfig" [isOpen]="isExportDialogOpen"
-      (success)="onExportSuccess()"
-      (closed)="closeExportDialog()">
-    </app-data-export>
   </div>
 </app-main-layout>

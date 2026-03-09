@@ -118,24 +118,6 @@
 		</div>
 	</div>
 
-	<!-- Import Dialog -->
-	<app-file-import 
-		*ngIf="isImportDialogOpen" 
-		[config]="importConfig" 
-		[isOpen]="isImportDialogOpen"
-		(success)="onImportSuccess()" 
-		(closed)="isImportDialogOpen = false">
-	</app-file-import>
-
-	<!-- Export Dialog -->
-	<app-data-export 
-		*ngIf="isExportDialogOpen" 
-		[config]="exportConfig" 
-		[isOpen]="isExportDialogOpen"
-		(success)="onExportSuccess()" 
-		(closed)="closeExportDialog()">
-	</app-data-export>
-
 	<!-- Create Task Dialog (consistent with other modules) -->
 	<app-receiving-task-form 
 		*ngIf="isCreateDialogOpen"

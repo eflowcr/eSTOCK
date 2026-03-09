@@ -8,8 +8,11 @@ import { LoadingService } from '@app/services/extras/loading.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { handleApiError } from '@app/utils';
-import { DataExportComponent, DataExportConfig } from '@app/components/shared/data-export/data-export.component';
-import { FileImportComponent, FileImportConfig } from '@app/components/shared/file-import/file-import.component';
+import { ZardDialogService } from '@app/shared/components/dialog';
+import { DataExportConfig } from '@app/components/shared/data-export/data-export.component';
+import { FileImportConfig } from '@app/components/shared/file-import/file-import.component';
+import { DataExportContentComponent } from '@app/components/shared/data-export/data-export-content.component';
+import { FileImportContentComponent } from '@app/components/shared/file-import/file-import-content.component';
 import { PickingTaskFormComponent } from '../picking-task-form/picking-task-form.component';
 import { PickingTaskListComponent } from '../picking-task-list/picking-task-list.component';
 import { MainLayoutComponent } from '@app/components/layout/main-layout.component';
@@ -22,8 +25,6 @@ import { MainLayoutComponent } from '@app/components/layout/main-layout.componen
 		FormsModule,
 		ReactiveFormsModule,
 		RouterModule,
-		DataExportComponent,
-		FileImportComponent,
 		PickingTaskListComponent,
 		PickingTaskFormComponent,
 		MainLayoutComponent
@@ -35,8 +36,6 @@ export class PickingTaskManagementComponent implements OnInit {
 	pickingTasks: PickingTask[] = [];
 	isLoading = false;
 	isCreateDialogOpen = false;
-	isImportDialogOpen = false;
-	isExportDialogOpen = false;
 	isEditDialogOpen = false;
 	editingTask: PickingTask | null = null;
 	activeTab: 'active' | 'processed' = 'active';
@@ -63,7 +62,8 @@ export class PickingTaskManagementComponent implements OnInit {
 		private pickingTaskService: PickingTaskService,
 		private loadingService: LoadingService,
 		private alertService: AlertService,
-		private languageService: LanguageService
+		private languageService: LanguageService,
+		private dialogService: ZardDialogService
 	) {}
 
 	ngOnInit(): void {
@@ -172,31 +172,41 @@ export class PickingTaskManagementComponent implements OnInit {
 	}
 
 	openImportDialog(): void {
-		this.isImportDialogOpen = true;
+		this.dialogService.create({
+			zTitle: this.t('import_data'),
+			zContent: FileImportContentComponent,
+			zData: {
+				config: this.importConfig,
+				onSuccess: () => this.onImportSuccess(),
+				onError: () => {},
+			},
+			zHideFooter: true,
+			zCustomClasses: 'sm:max-w-2xl',
+		});
 	}
 
 	onImportSuccess(): void {
-		this.isImportDialogOpen = false;
 		this.loadPickingTasks();
-		this.alertService.success(
-			this.t('import_completed_successfully'),
-			this.t('success')
-		);
+		this.alertService.success(this.t('import_completed_successfully'), this.t('success'));
 	}
 
 	onExportSuccess(): void {
-		this.alertService.success(
-			this.t('export_completed_successfully'),
-			this.t('success')
-		);
+		this.alertService.success(this.t('export_completed_successfully'), this.t('success'));
 	}
 
 	openExportDialog(): void {
-		this.isExportDialogOpen = true;
-	}
-
-	closeExportDialog(): void {
-		this.isExportDialogOpen = false;
+		this.exportConfig.data = this.pickingTasks;
+		this.dialogService.create({
+			zTitle: this.t('export_data'),
+			zDescription: this.t('export_description'),
+			zContent: DataExportContentComponent,
+			zData: {
+				config: this.exportConfig,
+				onExported: () => this.onExportSuccess(),
+			},
+			zHideFooter: true,
+			zCustomClasses: 'sm:max-w-md',
+		});
 	}
 
     onRefresh(): void {
