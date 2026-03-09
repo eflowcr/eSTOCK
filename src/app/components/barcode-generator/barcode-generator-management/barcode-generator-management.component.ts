@@ -18,6 +18,9 @@ import { SerialService } from '@app/services/serial.service';
 import { BarcodeGeneratorDialogComponent } from '@app/components/barcode-generator/barcode-generator-dialog/barcode-generator-dialog.component';
 import { MainLayoutComponent } from '@app/components/layout/main-layout.component';
 import { LoadingSpinnerComponent } from '@app/components/shared/extras/loading-spinner/loading-spinner.component';
+import { ZardButtonComponent } from '@app/shared/components/button/button.component';
+import { ZardInputDirective } from '@app/shared/components/input/input.directive';
+import { ZardBadgeComponent } from '@app/shared/components/badge/badge.component';
 
 @Component({
   selector: 'app-barcode-generator-management',
@@ -27,7 +30,10 @@ import { LoadingSpinnerComponent } from '@app/components/shared/extras/loading-s
     FormsModule,
     MainLayoutComponent, 
     LoadingSpinnerComponent,
-    BarcodeGeneratorDialogComponent
+    BarcodeGeneratorDialogComponent,
+    ZardButtonComponent,
+    ZardInputDirective,
+    ZardBadgeComponent
   ],
   templateUrl: './barcode-generator-management.component.html',
   styleUrl: './barcode-generator-management.component.css'

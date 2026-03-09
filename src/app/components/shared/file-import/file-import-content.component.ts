@@ -51,7 +51,7 @@ export interface FileImportContentData {
         </div>
       </div>
 
-      @if (data.config?.templateFields?.length) {
+      @if (data.config.templateFields.length) {
         <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
           <div class="flex items-center justify-between mb-2">
             <h4 class="text-sm font-medium text-blue-900 dark:text-blue-200">{{ t('template_info') }}</h4>
@@ -182,7 +182,7 @@ export class FileImportContentComponent {
   }
 
   downloadTemplate(): void {
-    if (!this.data.config.templateFields?.length) return;
+    if (!this.data.config.templateFields.length) return;
 
     const templateType = this.data.config.templateType;
     const assetMap: Record<string, string> = {

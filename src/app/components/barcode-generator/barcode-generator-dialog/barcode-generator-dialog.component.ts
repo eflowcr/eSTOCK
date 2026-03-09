@@ -9,6 +9,7 @@ import { handleApiError } from '@app/utils';
 import { BarcodeDisplayComponent } from '../barcode-display/barcode-display.component';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
+import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 
 @Component({
   selector: 'app-barcode-generator-dialog',
@@ -18,7 +19,8 @@ import { ZardSelectItemComponent } from '../../../shared/components/select/selec
     FormsModule,
     BarcodeDisplayComponent,
     ZardSelectComponent,
-    ZardSelectItemComponent
+    ZardSelectItemComponent,
+    ZardButtonComponent
   ],
   templateUrl: './barcode-generator-dialog.component.html',
   styleUrl: './barcode-generator-dialog.component.css'

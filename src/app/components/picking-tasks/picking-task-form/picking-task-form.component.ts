@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
@@ -16,20 +16,27 @@ import { AlertService } from '@app/services/extras/alert.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { handleApiError } from '@app/utils';
+import { DrawerComponent } from '@app/shared/components/drawer';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
+import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 
 @Component({
 	selector: 'app-picking-task-form',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent],
+	imports: [CommonModule, ReactiveFormsModule, FormsModule, DrawerComponent, ZardButtonComponent, ZardSelectComponent, ZardSelectItemComponent],
 	templateUrl: './picking-task-form.component.html',
 	styleUrls: ['./picking-task-form.component.css']
 })
 export class PickingTaskFormComponent implements OnInit {
 	@Input() task: PickingTask | null = null;
+	@Input() isOpen = false;
 	@Output() success = new EventEmitter<void>();
 	@Output() cancel = new EventEmitter<void>();
+
+	@ViewChild('drawerRef') drawerRef?: DrawerComponent;
+
+	private _closedBySubmit = false;
 
 	form: FormGroup;
 	locations: Location[] = [];
@@ -96,13 +103,30 @@ export class PickingTaskFormComponent implements OnInit {
 		return this.languageService.t.bind(this.languageService);
 	}
 
-	// Modal helpers
+	// Drawer helpers
 	close(): void {
+		if (this.drawerRef) {
+			this.drawerRef.close();
+		} else {
+			this.emitCancel();
+		}
+	}
+
+	onDrawerClosed(): void {
 		this.resetForm();
-		this.cancel.emit();
+		if (this._closedBySubmit) {
+			this._closedBySubmit = false;
+			this.success.emit();
+		} else {
+			this.cancel.emit();
+		}
 	}
 
 	onCancel(): void {
+		this.close();
+	}
+
+	private emitCancel(): void {
 		this.resetForm();
 		this.cancel.emit();
 	}
@@ -114,11 +138,6 @@ export class PickingTaskFormComponent implements OnInit {
 		this.form.reset();
 	}
 
-	onBackdropClick(event: Event): void {
-		if (event.target === event.currentTarget) {
-			this.close();
-		}
-	}
 
 	// Operator dropdown validation and advanced methods
 	isOperatorValid(): boolean {
@@ -390,7 +409,8 @@ export class PickingTaskFormComponent implements OnInit {
 						this.t('picking_task_updated_successfully'),
 						this.t('success')
 					);
-					this.success.emit();
+					this._closedBySubmit = true;
+					this.close();
 				} else {
 					this.alertService.error(
 						response.result.message || this.t('failed_to_update_picking_task'),
@@ -404,7 +424,8 @@ export class PickingTaskFormComponent implements OnInit {
 						this.t('picking_task_created_successfully'),
 						this.t('success')
 					);
-					this.success.emit();
+					this._closedBySubmit = true;
+					this.close();
 				} else {
 					this.alertService.error(
 						response.result.message || this.t('failed_to_create_picking_task'),
@@ -978,7 +999,9 @@ export class PickingTaskFormComponent implements OnInit {
 		const field = this.form.get(fieldName);
 		if (field && field.errors && field.touched) {
 			if (field.errors['required']) {
-				return this.t(`${fieldName}_required`);
+				const key = `${fieldName}_required`;
+				const msg = this.t(key);
+				return msg !== key ? msg : this.t('field_required');
 			}
 			if (field.errors['min']) {
 				return this.t('quantity_min');

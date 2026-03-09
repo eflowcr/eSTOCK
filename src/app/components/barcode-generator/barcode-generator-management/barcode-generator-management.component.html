@@ -1,37 +1,64 @@
 <app-main-layout>
 
-<div class="space-y-6">
+<div class="w-full space-y-6 barcode-page">
 	<!-- Header Section -->
-	<div class="flex justify-between items-center">
-		<div>
-			<h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
-				{{ t('BARCODE.TITLE') }}
-			</h1>
-			<p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
-				{{ t('BARCODE.DESCRIPTION') }}
-			</p>
-		</div>
-		<div class="flex gap-2">
-			<!-- Badge con contador de seleccionados -->
-			<div *ngIf="selectedItems().length > 0" class="flex items-center gap-2">
-				<button 
+	<section class="barcode-hero rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50 to-slate-100/70 p-5 shadow-sm dark:border-slate-700 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800/80">
+		<div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+			<div class="space-y-2">
+				<div class="flex flex-wrap items-center gap-2">
+					<z-badge zType="secondary">{{ t('BARCODE.TITLE') }}</z-badge>
+					<z-badge zType="outline">{{ t('BARCODE.ITEMS_SELECTED') }}: {{ selectedItems().length }}</z-badge>
+				</div>
+				<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+					{{ t('BARCODE.TITLE') }}
+				</h1>
+				<p class="max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+					{{ t('BARCODE.DESCRIPTION') }}
+				</p>
+			</div>
+
+			<div class="flex flex-wrap items-center gap-2 lg:justify-end">
+				<button
 					type="button"
 					(click)="clearSelection()"
-					class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+					[disabled]="selectedItems().length === 0"
+					z-button zType="outline" zSize="sm">
 					{{ t('BARCODE.CLEAR_SELECTION') }}
 				</button>
+				<button
+					type="button"
+					(click)="generateLabels()"
+					[disabled]="selectedItems().length === 0"
+					z-button zType="default" zSize="default" class="min-w-[190px]">
+					<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h4"></path>
+					</svg>
+					{{ t('BARCODE.GENERATE_LABELS') }}
+				</button>
 			</div>
-			
-			<button 
-				type="button"
-				(click)="generateLabels()"
-				[disabled]="selectedItems().length === 0"
-				class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] disabled:opacity-50 disabled:cursor-not-allowed">
-				<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h4"></path>
-				</svg>
-				{{ t('BARCODE.GENERATE_LABELS') }}	
-			</button>
+		</div>
+	</section>
+
+	<!-- Quick stats -->
+	<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+		<div class="rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+			<p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ t('BARCODE.SKUS') }}</p>
+			<p class="mt-1 text-xl font-semibold text-gray-900 dark:text-white">{{ getSkuCount() }}</p>
+		</div>
+		<div class="rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+			<p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ t('BARCODE.LOCATIONS') }}</p>
+			<p class="mt-1 text-xl font-semibold text-gray-900 dark:text-white">{{ getLocationCount() }}</p>
+		</div>
+		<div class="rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+			<p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ t('BARCODE.TASKS') }}</p>
+			<p class="mt-1 text-xl font-semibold text-gray-900 dark:text-white">{{ getTaskCount() }}</p>
+		</div>
+		<div class="rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 dark:border-primary/35 dark:bg-primary/10">
+			<p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">{{ t('BARCODE.ITEMS_SELECTED') }}</p>
+			<div class="mt-1 flex items-center gap-2">
+				<p class="text-xl font-semibold text-gray-900 dark:text-white">{{ selectedItems().length }}</p>
+				<z-badge zType="secondary">{{ selectedItems().length }}</z-badge>
+			</div>
 		</div>
 	</div>
 
@@ -41,33 +68,33 @@
 	</div>
 
 	<!-- Main Content -->
-	<div *ngIf="!isLoading()" class="bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-hidden">
+	<div *ngIf="!isLoading()" class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 barcode-workspace">
 		<!-- Tabs Navigation -->
-		<div class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-			<nav class="flex" aria-label="Tabs">
+		<div class="border-b border-slate-200 bg-slate-50/80 px-2 pt-2 dark:border-slate-700 dark:bg-slate-950/70">
+			<nav class="grid grid-cols-1 gap-2 pb-2 sm:grid-cols-3" aria-label="Tabs">
 				<button 
 					(click)="setActiveTab('skus')"
 					[class.border-[#3e66ea]]="activeTab() === 'skus'"
 					[class.text-[#3e66ea]]="activeTab() === 'skus'"
 					[class.bg-white]="activeTab() === 'skus'"
-					[class.dark:bg-gray-800]="activeTab() === 'skus'"
-					[class.border-transparent]="activeTab() !== 'skus'"
-					[class.text-gray-500]="activeTab() !== 'skus'"
-					[class.hover:text-gray-700]="activeTab() !== 'skus'"
-					[class.hover:border-gray-300]="activeTab() !== 'skus'"
-					class="py-3 px-4 border-b-2 font-medium text-sm transition-all duration-200 cursor-pointer flex items-center justify-center min-w-0 flex-1">
+					[class.dark:bg-slate-800]="activeTab() === 'skus'"
+					[class.border-slate-200]="activeTab() !== 'skus'"
+					[class.text-slate-500]="activeTab() !== 'skus'"
+					[class.hover:text-slate-700]="activeTab() !== 'skus'"
+					[class.hover:border-slate-300]="activeTab() !== 'skus'"
+					class="cursor-pointer min-w-0 rounded-lg border px-4 py-3 text-sm font-medium flex items-center justify-center barcode-tab">
 					<div class="flex items-center">
 						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
 						</svg>
 						<span class="truncate">{{ t('BARCODE.SKUS') }}</span>
-						<span class="ml-2 text-xs px-2.5 py-1 rounded-full font-medium"
+						<span class="ml-2 rounded-full px-2.5 py-1 text-xs font-medium"
 							[class.bg-[#3e66ea]]="activeTab() === 'skus'"
 							[class.text-white]="activeTab() === 'skus'"
-							[class.bg-gray-100]="activeTab() !== 'skus'"
-							[class.text-gray-600]="activeTab() !== 'skus'"
-							[class.dark:bg-gray-700]="activeTab() !== 'skus'"
-							[class.dark:text-gray-300]="activeTab() !== 'skus'">
+							[class.bg-slate-100]="activeTab() !== 'skus'"
+							[class.text-slate-600]="activeTab() !== 'skus'"
+							[class.dark:bg-slate-700]="activeTab() !== 'skus'"
+							[class.dark:text-slate-300]="activeTab() !== 'skus'">
 							{{ getSkuCount() }}
 						</span>
 					</div>
@@ -77,25 +104,25 @@
 					[class.border-[#3e66ea]]="activeTab() === 'locations'"
 					[class.text-[#3e66ea]]="activeTab() === 'locations'"
 					[class.bg-white]="activeTab() === 'locations'"
-					[class.dark:bg-gray-800]="activeTab() === 'locations'"
-					[class.border-transparent]="activeTab() !== 'locations'"
-					[class.text-gray-500]="activeTab() !== 'locations'"
-					[class.hover:text-gray-700]="activeTab() !== 'locations'"
-					[class.hover:border-gray-300]="activeTab() !== 'locations'"
-					class="py-3 px-4 border-b-2 font-medium text-sm transition-all duration-200 cursor-pointer flex items-center justify-center min-w-0 flex-1">
+					[class.dark:bg-slate-800]="activeTab() === 'locations'"
+					[class.border-slate-200]="activeTab() !== 'locations'"
+					[class.text-slate-500]="activeTab() !== 'locations'"
+					[class.hover:text-slate-700]="activeTab() !== 'locations'"
+					[class.hover:border-slate-300]="activeTab() !== 'locations'"
+					class="cursor-pointer min-w-0 rounded-lg border px-4 py-3 text-sm font-medium flex items-center justify-center barcode-tab">
 					<div class="flex items-center">
 						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
 						</svg>
 						<span class="truncate">{{ t('BARCODE.LOCATIONS') }}</span>
-						<span class="ml-2 text-xs px-2.5 py-1 rounded-full font-medium"
+						<span class="ml-2 rounded-full px-2.5 py-1 text-xs font-medium"
 							[class.bg-[#3e66ea]]="activeTab() === 'locations'"
 							[class.text-white]="activeTab() === 'locations'"
-							[class.bg-gray-100]="activeTab() !== 'locations'"
-							[class.text-gray-600]="activeTab() !== 'locations'"
-							[class.dark:bg-gray-700]="activeTab() !== 'locations'"
-							[class.dark:text-gray-300]="activeTab() !== 'locations'">
+							[class.bg-slate-100]="activeTab() !== 'locations'"
+							[class.text-slate-600]="activeTab() !== 'locations'"
+							[class.dark:bg-slate-700]="activeTab() !== 'locations'"
+							[class.dark:text-slate-300]="activeTab() !== 'locations'">
 							{{ getLocationCount() }}
 						</span>
 					</div>
@@ -105,24 +132,24 @@
 					[class.border-[#3e66ea]]="activeTab() === 'tasks'"
 					[class.text-[#3e66ea]]="activeTab() === 'tasks'"
 					[class.bg-white]="activeTab() === 'tasks'"
-					[class.dark:bg-gray-800]="activeTab() === 'tasks'"
-					[class.border-transparent]="activeTab() !== 'tasks'"
-					[class.text-gray-500]="activeTab() !== 'tasks'"
-					[class.hover:text-gray-700]="activeTab() !== 'tasks'"
-					[class.hover:border-gray-300]="activeTab() !== 'tasks'"
-					class="py-3 px-4 border-b-2 font-medium text-sm transition-all duration-200 cursor-pointer flex items-center justify-center min-w-0 flex-1">
+					[class.dark:bg-slate-800]="activeTab() === 'tasks'"
+					[class.border-slate-200]="activeTab() !== 'tasks'"
+					[class.text-slate-500]="activeTab() !== 'tasks'"
+					[class.hover:text-slate-700]="activeTab() !== 'tasks'"
+					[class.hover:border-slate-300]="activeTab() !== 'tasks'"
+					class="cursor-pointer min-w-0 rounded-lg border px-4 py-3 text-sm font-medium flex items-center justify-center barcode-tab">
 					<div class="flex items-center">
 						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
 						</svg>
 						<span class="truncate">{{ t('BARCODE.TASKS') }}</span>
-						<span class="ml-2 text-xs px-2.5 py-1 rounded-full font-medium"
+						<span class="ml-2 rounded-full px-2.5 py-1 text-xs font-medium"
 							[class.bg-[#3e66ea]]="activeTab() === 'tasks'"
 							[class.text-white]="activeTab() === 'tasks'"
-							[class.bg-gray-100]="activeTab() !== 'tasks'"
-							[class.text-gray-600]="activeTab() !== 'tasks'"
-							[class.dark:bg-gray-700]="activeTab() !== 'tasks'"
-							[class.dark:text-gray-300]="activeTab() !== 'tasks'">
+							[class.bg-slate-100]="activeTab() !== 'tasks'"
+							[class.text-slate-600]="activeTab() !== 'tasks'"
+							[class.dark:bg-slate-700]="activeTab() !== 'tasks'"
+							[class.dark:text-slate-300]="activeTab() !== 'tasks'">
 							{{ getTaskCount() }}
 						</span>
 					</div>
@@ -135,7 +162,7 @@
 			<!-- SKUs Tab -->
 			<div *ngIf="activeTab() === 'skus'" class="space-y-4">
 				<!-- Search and Select All -->
-				<div class="flex gap-4">
+				<div class="flex gap-4 toolbar-row">
 					<div class="relative flex-1">
 						<svg class="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -144,14 +171,15 @@
 							type="text"
 							[value]="skuSearch()"
 							(input)="updateSkuSearch($any($event.target).value)"
+							aria-label="Search SKUs"
 							[placeholder]="t('BARCODE.SEARCH_SKUS_PLACEHOLDER')"
-							class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400" />
+							z-input class="pl-10 h-10 bg-white dark:bg-gray-800" />
 					</div>
 					<button
 						type="button"
 						(click)="handleSelectAll(skuBarcodeItems(), !isAllSelected(skuBarcodeItems()))"
 						[disabled]="filteredArticles().length === 0"
-						class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+						z-button zType="outline" zSize="default" class="h-10 whitespace-nowrap">
 						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 						</svg>
@@ -160,10 +188,10 @@
 				</div>
 
 				<!-- SKUs List -->
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-					<div *ngFor="let item of skuBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg overflow-hidden">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto items-grid">
+					<div *ngFor="let item of skuBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg overflow-hidden selectable-card" [class.selectable-card-selected]="isItemSelected(item)">
 						<!-- Main SKU item -->
-						<div class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" (click)="toggleItemSelection(item, $event)">
+						<div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/70 cursor-pointer" (click)="toggleItemSelection(item, $event)">
 							<div class="flex items-start gap-3">
 								<input
 									type="checkbox"
@@ -301,7 +329,7 @@
 			<!-- Locations Tab -->
 			<div *ngIf="activeTab() === 'locations'" class="space-y-4">
 				<!-- Search and Select All -->
-				<div class="flex gap-4">
+				<div class="flex gap-4 toolbar-row">
 					<div class="relative flex-1">
 						<svg class="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -310,14 +338,15 @@
 							type="text"
 							[value]="locationSearch()"
 							(input)="updateLocationSearch($any($event.target).value)"
+							aria-label="Search locations"
 							[placeholder]="t('BARCODE.SEARCH_LOCATIONS_PLACEHOLDER')"
-							class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400" />
+							z-input class="pl-10 h-10 bg-white dark:bg-gray-800" />
 					</div>
 					<button
 						type="button"
 						(click)="handleSelectAll(locationBarcodeItems(), !isAllSelected(locationBarcodeItems()))"
 						[disabled]="filteredLocations().length === 0"
-						class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+						z-button zType="outline" zSize="default" class="h-10 whitespace-nowrap">
 						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 						</svg>
@@ -326,8 +355,8 @@
 				</div>
 
 				<!-- Locations Grid -->
-				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-					<div *ngFor="let item of locationBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" (click)="toggleItemSelection(item, $event)">
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto items-grid">
+					<div *ngFor="let item of locationBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700/70 cursor-pointer selectable-card" [class.selectable-card-selected]="isItemSelected(item)" (click)="toggleItemSelection(item, $event)">
 						<div class="flex items-start gap-3">
 							<input
 								type="checkbox"
@@ -371,7 +400,7 @@
 			<!-- Tasks Tab -->
 			<div *ngIf="activeTab() === 'tasks'" class="space-y-4">
 				<!-- Search and Select All -->
-				<div class="flex gap-4">
+				<div class="flex gap-4 toolbar-row">
 					<div class="relative flex-1">
 						<svg class="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -380,14 +409,15 @@
 							type="text"
 							[value]="taskSearch()"
 							(input)="updateTaskSearch($any($event.target).value)"
+							aria-label="Search tasks"
 							[placeholder]="t('BARCODE.SEARCH_TASKS_PLACEHOLDER')"
-							class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400" />
+							z-input class="pl-10 h-10 bg-white dark:bg-gray-800" />
 					</div>
 					<button
 						type="button"
 						(click)="handleSelectAll(taskBarcodeItems(), !isAllSelected(taskBarcodeItems()))"
 						[disabled]="filteredTasks().length === 0"
-						class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+						z-button zType="outline" zSize="default" class="h-10 whitespace-nowrap">
 						<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 						</svg>
@@ -396,8 +426,8 @@
 				</div>
 
 				<!-- Tasks Grid -->
-				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-					<div *ngFor="let item of taskBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" (click)="toggleItemSelection(item, $event)">
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto items-grid">
+					<div *ngFor="let item of taskBarcodeItems(); trackBy: trackByItemId" class="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700/70 cursor-pointer selectable-card" [class.selectable-card-selected]="isItemSelected(item)" (click)="toggleItemSelection(item, $event)">
 						<div class="flex items-start gap-3">
 							<input
 								type="checkbox"
@@ -455,11 +485,39 @@
 			</div>
 
 			<!-- No data -->
-			<div *ngIf="getCurrentTabItems().length === 0" class="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
+			<div *ngIf="getCurrentTabItems().length === 0" class="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50/50 py-16 text-muted-foreground dark:border-slate-700 dark:bg-slate-900/40">
 				<svg class="h-10 w-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
 				</svg>
-				<span class="text-sm font-medium">{{ t('no_data') }}</span>
+				<span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ t('no_data') }}</span>
+				<span class="text-xs text-slate-500 dark:text-slate-400">
+					{{ t('BARCODE.DESCRIPTION') }}
+				</span>
+			</div>
+		</div>
+
+		<div class="border-t border-slate-200 bg-white/90 px-6 py-4 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/90">
+			<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+				<div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+					<z-badge zType="outline">{{ t('BARCODE.ITEMS_SELECTED') }}</z-badge>
+					<span class="font-semibold text-slate-900 dark:text-white">{{ selectedItems().length }}</span>
+				</div>
+				<div class="flex items-center gap-2">
+					<button
+						type="button"
+						(click)="clearSelection()"
+						[disabled]="selectedItems().length === 0"
+						z-button zType="ghost" zSize="sm">
+						{{ t('BARCODE.CLEAR_SELECTION') }}
+					</button>
+					<button
+						type="button"
+						(click)="generateLabels()"
+						[disabled]="selectedItems().length === 0"
+						z-button zType="default" zSize="default">
+						{{ t('BARCODE.GENERATE_LABELS') }}
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>

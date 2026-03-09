@@ -58,6 +58,10 @@ export const enTranslations = {
   'inventory': 'Inventory',
   'receiving_tasks': 'Receiving Tasks',
   'picking_tasks': 'Picking Tasks',
+  'items_to_pick_description': 'Add items with SKU, quantity and location for each line.',
+  'remove_item': 'Remove item',
+  'create_picking_task_description': 'Register a new picking task with document, operator, items and locations.',
+  'edit_picking_task_description': 'Update the selected picking task details.',
   'stock_adjustments': 'Stock Adjustments',
   'stock_adjustments_description': 'Manage inventory adjustments to keep stock up to date',
   'new_stock_adjustment': 'New Stock Adjustment',
@@ -377,6 +381,8 @@ export const enTranslations = {
 
   // Reusable validation helpers
   'field_required': 'This field is required',
+  'outbound_number_required': 'Document number is required',
+  'outbound_number_placeholder_short': 'Doc. number',
   'field_too_long': 'This field is too long',
   'field_min_value': 'Value is below the minimum',
 
@@ -495,6 +501,7 @@ export const enTranslations = {
   'sku_code': 'SKU Code',
   'enter_sku_code': 'Enter SKU code',
   'select_location': 'Select a location',
+  'select_location_short': 'Select location',
   'unit_price': 'Unit Price',
   'tracking_options': 'Tracking Options',
   'tracking_options_help': 'Click a card to turn it on (green); click again to turn it off.',
@@ -724,6 +731,7 @@ export const enTranslations = {
   'expected_qty': 'Expected Qty',
   'received_qty': 'Received Qty',
   'select_operator': 'Select operator...',
+  'select_operator_short': 'Operator',
   'select_priority': 'Select priority',
   'select_sku': 'Select SKU...',
   'unassigned': 'Unassigned',

@@ -1,133 +1,127 @@
 <app-main-layout>
 
 <div class="space-y-6">
-	<!-- Header Section -->
-	<div class="flex justify-between items-center">
-		<div>
-			<h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
-				{{ t('picking_tasks') }}
-			</h1>
-			<p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
-				{{ t('picking_tasks_management') }}
-			</p>
-		</div>
-		<div class="flex gap-2">
-			<!-- Export Button -->
-			<button 
-				type="button"
-				(click)="openExportDialog()"
-				class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-[#4465ec] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-[#4465ec]">
-				<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-				</svg>
-				{{ t('export') }}
-			</button>
-			
-			<!-- Import Button -->
-			<button 
-				type="button"
-				(click)="openImportDialog()"
-				class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-[#4465ec] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-[#4465ec]">
-				<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-				</svg>
-				{{ t('import') }}
-			</button>
-			
-			<!-- Create Task Button -->
-			<button 
-				(click)="isCreateDialogOpen = true"
-				class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]">
-				<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-				</svg>
-				{{ t('create_task') }}
-			</button>
-		</div>
-	</div>
+  <!-- Header Section (same as articles/locations) -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
+        {{ t('picking_tasks') }}
+      </h1>
+      <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+        {{ t('picking_tasks_management') }}
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <button z-button zType="default" type="button" (click)="openCreateForm()"
+        class="inline-flex items-center">
+        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        {{ t('create_task') }}
+      </button>
+    </div>
+  </div>
 
-	<!-- Tabs Section -->
-	<div class="bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-hidden">
-		<!-- Tabs Navigation -->
-		<div class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-			<nav class="flex" aria-label="Tabs">
-				<button 
-					(click)="setActiveTab('active')"
-					[class]="getTabClass('active')"
-					class="flex items-center justify-center min-w-0 flex-1">
-					<div class="flex items-center">
-						<span class="truncate">{{ t('active_tasks') }}</span>
-						<span [class]="getTabBadgeClass('active')">
-							{{ activeTasks.length }}
-						</span>
-					</div>
-				</button>
-				<button 
-					(click)="setActiveTab('processed')"
-					[class]="getTabClass('processed')"
-					class="flex items-center justify-center min-w-0 flex-1">
-					<div class="flex items-center">
-						<span class="truncate">{{ t('processed_tasks') }}</span>
-						<span [class]="getTabBadgeClass('processed')">
-							{{ processedTasks.length }}
-						</span>
-					</div>
-				</button>
-			</nav>
-		</div>
+  <!-- Card Container (same structure as article-list / location-list) -->
+  <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-6 min-h-[72vh] flex flex-col">
+    <!-- Toolbar: Tabs + Export/Import -->
+    <div class="p-5 sm:p-6">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200 dark:border-gray-700 -mb-px">
+          <button
+            type="button"
+            (click)="setActiveTab('active')"
+            [class]="getTabClass('active')"
+            class="flex items-center gap-2 py-3 px-4 font-medium text-sm border-b-2 -mb-px transition-colors">
+            <span>{{ t('active_tasks') }}</span>
+            <span [class]="getTabBadgeClass('active')">{{ activeTasks.length }}</span>
+          </button>
+          <button
+            type="button"
+            (click)="setActiveTab('processed')"
+            [class]="getTabClass('processed')"
+            class="flex items-center gap-2 py-3 px-4 font-medium text-sm border-b-2 -mb-px transition-colors">
+            <span>{{ t('processed_tasks') }}</span>
+            <span [class]="getTabBadgeClass('processed')">{{ processedTasks.length }}</span>
+          </button>
+        </div>
 
-		<!-- Tab Content -->
-		<div class="p-6">
-			<!-- Tab Header -->
-			<div class="mb-6">
-				<div class="flex items-center justify-between">
-					<div>
-						<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-							{{ currentTabDescription }}
-						</p>
-					</div>
-					<div class="flex items-center space-x-2">
-						<div class="text-sm text-gray-500 dark:text-gray-400">
-							{{ t('showing') }} {{ currentTabTasks.length }} {{ t('of') }} {{ pickingTasks.length }} {{ t('results') }}
-						</div>
-					</div>
-				</div>
-			</div>
+        <!-- Export/Import (toolbarRight) -->
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button z-button zType="outline" zSize="default" type="button" (click)="openExportDialog()"
+            class="inline-flex items-center">
+            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            {{ t('export') }}
+          </button>
+          <button z-button zType="outline" zSize="default" type="button" (click)="openImportDialog()"
+            class="inline-flex items-center">
+            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            {{ t('import') }}
+          </button>
+        </div>
+      </div>
 
-			<!-- Tasks List -->
-			<div class="max-h-[390px] overflow-y-auto rounded-lg">
-				<app-picking-task-list 
-					[tasks]="currentTabTasks" 
-					[isLoading]="isLoading" 
-					(refresh)="onRefresh()"
-					(edit)="handleEdit($event)">
-				</app-picking-task-list>
-			</div>
+      <!-- Tab description + result count -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-4">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          {{ currentTabDescription }}
+        </p>
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+          {{ t('showing') }} {{ currentTabTasks.length }} {{ t('of') }} {{ pickingTasks.length }} {{ t('results') }}
+        </div>
+      </div>
+    </div>
 
-			<!-- No data -->
-			<div *ngIf="currentTabTasks.length === 0 && !isLoading" class="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
-				<svg class="h-10 w-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-				</svg>
-				<span class="text-sm font-medium">{{ t('no_data') }}</span>
-			</div>
-		</div>
-	</div>
+    <!-- Content Area -->
+    <div class="flex-1 min-h-[340px] overflow-y-auto px-5 sm:px-6">
+      <!-- Task List -->
+      <app-picking-task-list
+        [tasks]="currentTabTasks"
+        [isLoading]="isLoading"
+        (refresh)="onRefresh()"
+        (edit)="handleEdit($event)">
+      </app-picking-task-list>
 
-	<!-- Create Task Dialog -->
-	<app-picking-task-form 
-		*ngIf="isCreateDialogOpen"
-		(success)="onTaskCreated()"
-		(cancel)="isCreateDialogOpen = false">
-	</app-picking-task-form>
+      <!-- Empty State (same pattern as articles/locations) -->
+      @if (!isLoading && currentTabTasks.length === 0) {
+        <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+          <svg class="h-10 w-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+          </svg>
+          <span class="text-sm font-medium mt-2">{{ t('no_data') }}</span>
+        </div>
+      }
+    </div>
 
-	<!-- Edit Task Dialog -->
-	<app-picking-task-form 
-		*ngIf="isEditDialogOpen"
-		[task]="editingTask"
-		(success)="onTaskUpdated()"
-		(cancel)="isEditDialogOpen = false; editingTask = null">
-	</app-picking-task-form>
+    <!-- Footer (same as articles/locations) -->
+    <div class="mt-auto flex flex-col gap-3 border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="text-xs text-gray-500 dark:text-gray-300">
+        {{ t('showing') }} {{ currentTabTasks.length }} {{ t('of') }} {{ pickingTasks.length }} {{ t('results') }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Task Drawer -->
+  <app-picking-task-form
+    [isOpen]="isCreateDialogOpen"
+    (success)="onTaskCreated()"
+    (cancel)="isCreateDialogOpen = false">
+  </app-picking-task-form>
+
+  <!-- Edit Task Drawer (mounted only when editing) -->
+  @if (editingTask) {
+    <app-picking-task-form
+      [isOpen]="isEditDialogOpen"
+      [task]="editingTask"
+      (success)="onTaskUpdated()"
+      (cancel)="isEditDialogOpen = false; editingTask = null">
+    </app-picking-task-form>
+  }
 </div>
 
 </app-main-layout>
