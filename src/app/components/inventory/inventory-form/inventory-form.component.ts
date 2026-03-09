@@ -8,20 +8,23 @@ import { LanguageService } from '../../../services/extras/language.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { LocationService } from '../../../services/location.service';
 import { handleApiError } from '@app/utils';
+import { DrawerComponent } from '../../../shared/components/drawer';
+import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-inventory-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, DrawerComponent, ZardButtonComponent, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './inventory-form.component.html',
   styleUrls: ['./inventory-form.component.css']
 })
 export class InventoryFormComponent implements OnInit, OnChanges {
   @Input() inventory?: Inventory | null;
+  @Input() isOpen = false;
   @Output() success = new EventEmitter<void>();
-  @Output() cancel = new EventEmitter<void>();
+  @Output() closed = new EventEmitter<void>();
 
   inventoryForm!: FormGroup;
   isEditing = false;
@@ -782,17 +785,11 @@ export class InventoryFormComponent implements OnInit, OnChanges {
   }
 
   onCancel(): void {
-    this.cancel.emit();
     this.resetForm();
+    this.closed.emit();
   }
 
   close(): void {
-    this.cancel.emit();
-  }
-
-  onBackdropClick(event: Event): void {
-    if (event.target === event.currentTarget) {
-      this.close();
-    }
+    this.closed.emit();
   }
 }

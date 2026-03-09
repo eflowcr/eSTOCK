@@ -16,6 +16,7 @@ import { AuthorizationService } from '../../../services/extras/authorization.ser
 import { LanguageService } from '../../../services/extras/language.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { handleApiError } from '@app/utils';
+import { ZardDialogService } from '@app/shared/components/dialog';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardInputDirective } from '../../../shared/components/input/input.directive';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
@@ -37,9 +38,6 @@ export class InventoryListComponent {
   @Output() deleteInventory = new EventEmitter<void>();
 
   viewingInventory: Inventory | null = null;
-  deletingInventorySku: string | null = null;
-  deletingLocation: string | null = null;
-  isDeleting = false;
 
   searchTerm = '';
   statusFilter = '';
@@ -126,7 +124,8 @@ export class InventoryListComponent {
     private inventoryService: InventoryService,
     private languageService: LanguageService,
     private alertService: AlertService,
-    private authService: AuthorizationService
+    private authService: AuthorizationService,
+    private dialogService: ZardDialogService
   ) {}
 
   get t() {
@@ -237,32 +236,32 @@ export class InventoryListComponent {
     this.editInventory.emit(inventory);
   }
 
-  confirmDelete(inventory: Inventory): void {
-    this.deletingInventorySku = inventory.sku;
-    this.deletingLocation = inventory.location;
+  onDelete(inventory: Inventory): void {
+    const sku = inventory.sku;
+    const location = inventory.location;
+    this.dialogService.create({
+      zTitle: this.t('confirm_delete_inventory'),
+      zDescription: this.t('delete_inventory_warning'),
+      zOkText: this.t('delete'),
+      zCancelText: this.t('cancel'),
+      zOkDestructive: true,
+      zClosable: false,
+      zOnOk: () => {
+        this.performDeleteAndEmit(sku, location);
+      },
+    });
   }
 
-  closeDeleteDialog(): void {
-    this.deletingInventorySku = null;
-    this.deletingLocation = null;
-  }
-
-  async deleteInventoryItem(): Promise<void> {
-    if (!this.deletingInventorySku || !this.deletingLocation) return;
-
+  private async performDeleteAndEmit(sku: string, location: string): Promise<void> {
     try {
-      this.isDeleting = true;
-      const response = await this.inventoryService.delete(this.deletingInventorySku, this.deletingLocation);
+      const response = await this.inventoryService.delete(sku, location);
       if (response.result.success) {
         this.deleteInventory.emit();
-        this.closeDeleteDialog();
       } else {
-        this.alertService.error(response.result.message || this.t('failed_to_delete_inventory'));
+        this.alertService.error(this.t('error'), response.result.message || this.t('failed_to_delete_inventory'));
       }
     } catch (error: any) {
-      this.alertService.error(handleApiError(error, this.t('failed_to_delete_inventory')));
-    } finally {
-      this.isDeleting = false;
+      this.alertService.error(this.t('error'), handleApiError(error, this.t('failed_to_delete_inventory')));
     }
   }
 
@@ -319,7 +318,6 @@ export class InventoryListComponent {
   onBackdropClick(event: Event): void {
     if (event.target === event.currentTarget) {
       this.closeViewModal();
-      this.closeDeleteDialog();
     }
   }
 
