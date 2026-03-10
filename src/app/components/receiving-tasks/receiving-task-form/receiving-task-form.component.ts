@@ -15,7 +15,7 @@ import { ArticleService } from '@app/services/article.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { LanguageService } from '@app/services/extras/language.service';
-import { handleApiError } from '@app/utils';
+import { getDisplayableApiError, humanizeApiError } from '@app/utils';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
@@ -372,8 +372,9 @@ export class ReceivingTaskFormComponent implements OnInit {
 					);
 					this.success.emit();
 				} else {
+					const msg = response.result.message || '';
 					this.alertService.error(
-						response.result.message || this.t('failed_to_update_receiving_task'),
+						humanizeApiError(msg, this.t, 'failed_to_update_receiving_task'),
 						this.t('error')
 					);
 				}
@@ -386,15 +387,16 @@ export class ReceivingTaskFormComponent implements OnInit {
 					);
 					this.success.emit();
 				} else {
+					const msg = response.result.message || '';
 					this.alertService.error(
-						response.result.message || this.t('failed_to_create_receiving_task'),
+						humanizeApiError(msg, this.t, 'failed_to_create_receiving_task'),
 						this.t('error')
 					);
 				}
 			}
 		} catch (error: any) {
 			this.alertService.error(
-				handleApiError(error, this.t('error_saving_task')),
+				getDisplayableApiError(error, this.t, 'error_saving_task'),
 				this.t('error')
 			);
 		} finally {

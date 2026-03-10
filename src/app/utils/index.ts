@@ -58,6 +58,26 @@ export function handleApiError(error: any, fallback: string = 'An unexpected err
   return msg || fallback;
 }
 
+import { humanizeApiError } from './humanize-api-error';
+export { humanizeApiError, getHumanizedErrorKey } from './humanize-api-error';
+
+/**
+ * Returns a user-friendly error message: humanizes technical backend messages when a
+ * translator is provided, otherwise falls back to handleApiError behavior.
+ * @param error API error (response body with result.message, or Error)
+ * @param translate Translation function (e.g. languageService.t)
+ * @param fallbackKey Translation key for fallback (e.g. 'operation_failed')
+ */
+export function getDisplayableApiError(
+  error: any,
+  translate: (key: string) => string,
+  fallbackKey: string
+): string {
+  const raw = getApiErrorMessage(error);
+  if (!raw) return translate(fallbackKey);
+  return humanizeApiError(raw, translate, fallbackKey);
+}
+
 /**
  * @description Utility function to check if API response is successful
  * @param response API response object

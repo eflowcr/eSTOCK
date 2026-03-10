@@ -15,7 +15,7 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { LocationService } from '../../../services/location.service';
-import { handleApiError } from '@app/utils';
+import { getDisplayableApiError, humanizeApiError } from '@app/utils';
 import { ZardDialogService } from '@app/shared/components/dialog';
 import { LocationDetailsContentComponent } from '../location-details-content/location-details-content.component';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
@@ -215,10 +215,11 @@ export class LocationListComponent {
         this.alertService.success(this.t('success'), this.t('location_deleted_successfully'));
         this.deleted.emit();
       } else {
-        this.alertService.error(this.t('error'), response.result.message || this.t('failed_to_delete_location'));
+        const msg = response.result.message || '';
+        this.alertService.error(this.t('error'), humanizeApiError(msg, this.t, 'failed_to_delete_location'));
       }
     } catch (error: any) {
-      this.alertService.error(this.t('error'), handleApiError(error, this.t('failed_to_delete_location')));
+      this.alertService.error(this.t('error'), getDisplayableApiError(error, this.t, 'failed_to_delete_location'));
     }
   }
 

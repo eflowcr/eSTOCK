@@ -6,7 +6,7 @@ import { LocationService } from '../../../services/location.service';
 import { LocationTypesService } from '../../../services/location-types.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
-import { handleApiError } from '@app/utils';
+import { getDisplayableApiError, humanizeApiError } from '@app/utils';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 import { ZardSwitchComponent } from '../../../shared/components/switch';
@@ -147,15 +147,14 @@ export class LocationFormComponent implements OnInit, OnChanges {
         this.success.emit();
         this.onClose();
       } else {
-        this.alertService.error(
-          this.t('error'),
-          response.result.message || (this.isEditing ? this.t('failed_to_update_location') : this.t('failed_to_create_location'))
-        );
+        const msg = response.result.message || '';
+        const fallbackKey = this.isEditing ? 'failed_to_update_location' : 'failed_to_create_location';
+        this.alertService.error(this.t('error'), humanizeApiError(msg, this.t, fallbackKey));
       }
     } catch (error: any) {
       console.error('Error saving location:', error);
-      const fallback = this.isEditing ? this.t('failed_to_update_location') : this.t('failed_to_create_location');
-      this.alertService.error(this.t('error'), handleApiError(error, fallback));
+      const fallbackKey = this.isEditing ? 'failed_to_update_location' : 'failed_to_create_location';
+      this.alertService.error(this.t('error'), getDisplayableApiError(error, this.t, fallbackKey));
     } finally {
       this.isSubmitting = false;
     }

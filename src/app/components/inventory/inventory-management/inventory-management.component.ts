@@ -13,6 +13,7 @@ import { FileImportConfig, ImportResult } from '../../shared/file-import/file-im
 import { DataExportConfig } from '../../shared/data-export/data-export.component';
 import { DataExportContentComponent } from '../../shared/data-export/data-export-content.component';
 import { FileImportContentComponent } from '../../shared/file-import/file-import-content.component';
+import { humanizeApiError } from '@app/utils';
 
 @Component({
   selector: 'app-inventory-management',
@@ -175,7 +176,7 @@ export class InventoryManagementComponent implements OnInit {
   }
 
   onImportError(error: string): void {
-    this.alertService.error(error || this.t('failed_to_import_inventory'));
+    this.alertService.error(humanizeApiError(error || '', this.t, 'failed_to_import_inventory'));
   }
 
   onExportSuccess(): void {

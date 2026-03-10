@@ -7,7 +7,7 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { LocationService } from '../../../services/location.service';
-import { handleApiError } from '@app/utils';
+import { humanizeApiError, getDisplayableApiError } from '@app/utils';
 import { DrawerComponent } from '../../../shared/components/drawer';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
@@ -767,10 +767,11 @@ export class InventoryFormComponent implements OnInit, OnChanges {
         this.success.emit();
         this.resetForm();
       } else {
-        this.alertService.error(response.result.message || this.t('operation_failed'));
+        const msg = response.result.message || '';
+        this.alertService.error(humanizeApiError(msg, this.t, 'operation_failed'));
       }
     } catch (error: any) {
-      this.alertService.error(handleApiError(error, this.t('operation_failed')));
+      this.alertService.error(getDisplayableApiError(error, this.t, 'operation_failed'));
     } finally {
       this.isSubmitting = false;
     }

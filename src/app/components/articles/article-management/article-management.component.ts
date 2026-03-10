@@ -5,7 +5,7 @@ import { ArticleService } from '../../../services/article.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
-import { handleApiError } from '@app/utils';
+import { handleApiError, humanizeApiError } from '@app/utils';
 import { ZardDialogService } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { DataExportConfig } from '../../shared/data-export/data-export.component';
@@ -126,7 +126,7 @@ export class ArticleManagementComponent implements OnInit {
   }
 
   onImportError(error: string): void {
-    this.alertService.error(error);
+    this.alertService.error(humanizeApiError(error || '', this.t, 'import_failed'));
   }
 
   openExportDialog(): void {

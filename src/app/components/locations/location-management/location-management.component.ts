@@ -13,6 +13,7 @@ import { DataExportContentComponent } from '../../shared/data-export/data-export
 import { FileImportContentComponent } from '../../shared/file-import/file-import-content.component';
 import { LocationListComponent } from '../location-list/location-list.component';
 import { LocationFormComponent } from '../location-form/location-form.component';
+import { humanizeApiError } from '@app/utils';
 
 @Component({
   selector: 'app-location-management',
@@ -145,7 +146,7 @@ export class LocationManagementComponent implements OnInit {
   }
 
   onImportError(error: string): void {
-    this.alertService.error(this.t('error'), error);
+    this.alertService.error(this.t('error'), humanizeApiError(error, this.t, 'import_failed'));
   }
 
   onEditLocation(location: Location): void {

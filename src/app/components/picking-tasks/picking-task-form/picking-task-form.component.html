@@ -140,7 +140,7 @@
               </button>
             </div>
 
-            <div class="space-y-3">
+            <div class="space-y-3" formArrayName="items">
               <div *ngFor="let item of itemsArray.controls; let i = index"
                 class="relative rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-4 shadow-sm hover:shadow transition-shadow"
                 [formGroupName]="i">
@@ -314,59 +314,62 @@
                   </div>
                 </div>
 
-                <!-- Campos de seguimiento (Lotes y Series) en 2 columnas -->
-                <div *ngIf="shouldShowLotNumbers(i) || shouldShowSerialNumbers(i)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Campos de seguimiento (Lotes y Series) -->
+                <div *ngIf="shouldShowLotNumbers(i) || shouldShowSerialNumbers(i)" class="grid grid-cols-1 gap-4 w-full">
                   
                   <!-- Lot Numbers Column -->
-                  <div *ngIf="shouldShowLotNumbers(i)" class="form-group">
-                    <div class="flex items-center justify-between mb-2">
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {{ t('lot_numbers') }} 
-                        <span class="ml-1 text-xs" 
-                              [class.text-green-600]="isLotSelectionComplete(i)"
-                              [class.text-orange-600]="!isLotSelectionComplete(i) && getSelectedLotCount(i) > 0"
-                              [class.text-gray-500]="getSelectedLotCount(i) === 0">
-                          ({{ getSelectedLotCount(i) }}/{{ getRequiredQuantity(i) }})
-                        </span>
-                      </label>
+                  <div *ngIf="shouldShowLotNumbers(i)" class="form-group w-full relative">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      {{ t('lot_numbers') }} 
+                      <span class="ml-1 text-xs" 
+                            [class.text-green-600]="isLotSelectionComplete(i)"
+                            [class.text-orange-600]="!isLotSelectionComplete(i) && getSelectedLotCount(i) > 0"
+                            [class.text-gray-500]="getSelectedLotCount(i) === 0">
+                        ({{ getSelectedLotCount(i) }}/{{ getRequiredQuantity(i) }})
+                      </span>
+                    </label>
+                    <div class="flex w-full gap-3" *ngIf="!isLotSelectionComplete(i)">
+                      <div class="relative flex-[8] min-w-0">
+                        <input type="text"
+                          (focus)="showLotDropdown[i] = true; ensureComboboxState(i)"
+                          (blur)="closeLotDropdownLater(i)"
+                          [(ngModel)]="lotSearchTerms[i]"
+                          (input)="filterLotsForItem(i); onManualLotInput(i)"
+                          (keydown.enter)="$event.preventDefault(); handleLotEnter(i)"
+                          [ngModelOptions]="{standalone: true}"
+                          [placeholder]="t('search_select_or_type_lots')"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <input type="hidden" formControlName="lot_numbers" />
+                        <div *ngIf="showLotDropdown[i]" class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md max-h-48 overflow-auto shadow-xl">
+                          <button type="button" *ngFor="let ln of filteredLotsPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onLotSelected(i, ln)"
+                            class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200"
+                            [class.bg-blue-50]="isLotSelected(i, ln)"
+                            [class.dark:bg-blue-900]="isLotSelected(i, ln)">
+                            {{ ln }}
+                            <span *ngIf="isLotSelected(i, ln)" class="float-right text-blue-600 dark:text-blue-400">✓</span>
+                          </button>
+                          <div *ngIf="(filteredLotsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                            {{ t('no_results') }}
+                          </div>
+                        </div>
+                      </div>
                       <button type="button" (click)="selectRandomLots(i)"
-                        class="inline-flex items-center px-2 py-1 border border-gray-300 rounded text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
-                        <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 110 2h-1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h4zM6 6v12h12V6H6z"></path>
+                        class="flex-[2] flex-shrink-0 inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+                        <svg class="h-4 w-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <rect x="2" y="2" width="20" height="20" rx="3" stroke-width="2" fill="none"/>
+                          <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
+                          <circle cx="16" cy="8" r="1.5" fill="currentColor"/>
+                          <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                          <circle cx="8" cy="16" r="1.5" fill="currentColor"/>
+                          <circle cx="16" cy="16" r="1.5" fill="currentColor"/>
                         </svg>
                         {{ t('random_selection') }}
                       </button>
                     </div>
                     
-                    <div class="relative" *ngIf="!isLotSelectionComplete(i)">
-                      <input type="text"
-                        (focus)="showLotDropdown[i] = true; ensureComboboxState(i)"
-                        (blur)="closeLotDropdownLater(i)"
-                        [(ngModel)]="lotSearchTerms[i]"
-                        (input)="filterLotsForItem(i); onManualLotInput(i)"
-                        (keydown.enter)="$event.preventDefault(); handleLotEnter(i)"
-                        [ngModelOptions]="{standalone: true}"
-                        [placeholder]="t('search_select_or_type_lots')"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                      <input type="hidden" formControlName="lot_numbers" />
-                    </div>
-                    
                     <!-- Mensaje cuando está completo -->
                     <div *ngIf="isLotSelectionComplete(i)" class="text-sm text-green-600 dark:text-green-400 font-medium">
                       {{ t('lot_selection_complete') }}
-                    </div>
-                    
-                    <div *ngIf="showLotDropdown[i]" class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md max-h-48 overflow-auto shadow-xl">
-                      <button type="button" *ngFor="let ln of filteredLotsPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onLotSelected(i, ln)"
-                        class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200"
-                        [class.bg-blue-50]="isLotSelected(i, ln)"
-                        [class.dark:bg-blue-900]="isLotSelected(i, ln)">
-                        {{ ln }}
-                        <span *ngIf="isLotSelected(i, ln)" class="float-right text-blue-600 dark:text-blue-400">✓</span>
-                      </button>
-                      <div *ngIf="(filteredLotsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {{ t('no_results') }}
-                      </div>
                     </div>
                     
                     <!-- Selected lots display -->
@@ -386,55 +389,58 @@
                   </div>
 
                   <!-- Serial Numbers Column -->
-                  <div *ngIf="shouldShowSerialNumbers(i)" class="form-group">
-                    <div class="flex items-center justify-between mb-2">
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {{ t('serial_numbers') }}
-                        <span class="ml-1 text-xs" 
-                              [class.text-green-600]="isSerialSelectionComplete(i)"
-                              [class.text-orange-600]="!isSerialSelectionComplete(i) && getSelectedSerialCount(i) > 0"
-                              [class.text-gray-500]="getSelectedSerialCount(i) === 0">
-                          ({{ getSelectedSerialCount(i) }}/{{ getRequiredQuantity(i) }})
-                        </span>
-                      </label>
+                  <div *ngIf="shouldShowSerialNumbers(i)" class="form-group w-full relative">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      {{ t('serial_numbers') }}
+                      <span class="ml-1 text-xs" 
+                            [class.text-green-600]="isSerialSelectionComplete(i)"
+                            [class.text-orange-600]="!isSerialSelectionComplete(i) && getSelectedSerialCount(i) > 0"
+                            [class.text-gray-500]="getSelectedSerialCount(i) === 0">
+                        ({{ getSelectedSerialCount(i) }}/{{ getRequiredQuantity(i) }})
+                      </span>
+                    </label>
+                    <div class="flex w-full gap-3" *ngIf="!isSerialSelectionComplete(i)">
+                      <div class="relative flex-[8] min-w-0">
+                        <input type="text"
+                          (focus)="showSerialDropdown[i] = true; ensureComboboxState(i)"
+                          (blur)="closeSerialDropdownLater(i)"
+                          [(ngModel)]="serialSearchTerms[i]"
+                          (input)="filterSerialsForItem(i); onManualSerialInput(i)"
+                          (keydown.enter)="$event.preventDefault(); handleSerialEnter(i)"
+                          [ngModelOptions]="{standalone: true}"
+                          [placeholder]="t('search_select_or_type_serials')"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <input type="hidden" formControlName="serial_numbers" />
+                        <div *ngIf="showSerialDropdown[i]" class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md max-h-48 overflow-auto shadow-xl">
+                          <button type="button" *ngFor="let sn of filteredSerialsPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onSerialSelected(i, sn)"
+                            class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200"
+                            [class.bg-blue-50]="isSerialSelected(i, sn)"
+                            [class.dark:bg-blue-900]="isSerialSelected(i, sn)">
+                            {{ sn }}
+                            <span *ngIf="isSerialSelected(i, sn)" class="float-right text-blue-600 dark:text-blue-400">✓</span>
+                          </button>
+                          <div *ngIf="(filteredSerialsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                            {{ t('no_results') }}
+                          </div>
+                        </div>
+                      </div>
                       <button type="button" (click)="selectRandomSerials(i)"
-                        class="inline-flex items-center px-2 py-1 border border-gray-300 rounded text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
-                        <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 110 2h-1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h4zM6 6v12h12V6H6z"></path>
+                        class="flex-[2] flex-shrink-0 inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+                        <svg class="h-4 w-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <rect x="2" y="2" width="20" height="20" rx="3" stroke-width="2" fill="none"/>
+                          <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
+                          <circle cx="16" cy="8" r="1.5" fill="currentColor"/>
+                          <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                          <circle cx="8" cy="16" r="1.5" fill="currentColor"/>
+                          <circle cx="16" cy="16" r="1.5" fill="currentColor"/>
                         </svg>
                         {{ t('random_selection') }}
                       </button>
                     </div>
                     
-                    <div class="relative" *ngIf="!isSerialSelectionComplete(i)">
-                      <input type="text"
-                        (focus)="showSerialDropdown[i] = true; ensureComboboxState(i)"
-                        (blur)="closeSerialDropdownLater(i)"
-                        [(ngModel)]="serialSearchTerms[i]"
-                        (input)="filterSerialsForItem(i); onManualSerialInput(i)"
-                        (keydown.enter)="$event.preventDefault(); handleSerialEnter(i)"
-                        [ngModelOptions]="{standalone: true}"
-                        [placeholder]="t('search_select_or_type_serials')"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                      <input type="hidden" formControlName="serial_numbers" />
-                    </div>
-                    
                     <!-- Mensaje cuando está completo -->
                     <div *ngIf="isSerialSelectionComplete(i)" class="text-sm text-green-600 dark:text-green-400 font-medium">
                       {{ t('serial_selection_complete') }}
-                    </div>
-                    
-                    <div *ngIf="showSerialDropdown[i]" class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md max-h-48 overflow-auto shadow-xl">
-                      <button type="button" *ngFor="let sn of filteredSerialsPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onSerialSelected(i, sn)"
-                        class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200"
-                        [class.bg-blue-50]="isSerialSelected(i, sn)"
-                        [class.dark:bg-blue-900]="isSerialSelected(i, sn)">
-                        {{ sn }}
-                        <span *ngIf="isSerialSelected(i, sn)" class="float-right text-blue-600 dark:text-blue-400">✓</span>
-                      </button>
-                      <div *ngIf="(filteredSerialsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {{ t('no_results') }}
-                      </div>
                     </div>
                     
                     <!-- Selected serials display -->

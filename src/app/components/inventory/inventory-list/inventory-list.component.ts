@@ -15,7 +15,7 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { InventoryService } from '../../../services/inventory.service';
-import { handleApiError } from '@app/utils';
+import { getDisplayableApiError, humanizeApiError } from '@app/utils';
 import { ZardDialogService } from '@app/shared/components/dialog';
 import { InventoryDetailsContentComponent } from '../inventory-details-content/inventory-details-content.component';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
@@ -262,10 +262,11 @@ export class InventoryListComponent {
       if (response.result.success) {
         this.deleteInventory.emit();
       } else {
-        this.alertService.error(this.t('error'), response.result.message || this.t('failed_to_delete_inventory'));
+        const msg = response.result.message || '';
+        this.alertService.error(this.t('error'), humanizeApiError(msg, this.t, 'failed_to_delete_inventory'));
       }
     } catch (error: any) {
-      this.alertService.error(this.t('error'), handleApiError(error, this.t('failed_to_delete_inventory')));
+      this.alertService.error(this.t('error'), getDisplayableApiError(error, this.t, 'failed_to_delete_inventory'));
     }
   }
 

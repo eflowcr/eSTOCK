@@ -7,7 +7,7 @@ import { ApiResponse } from '@app/models';
 import { ZardDialogRef, Z_MODAL_DATA } from '@app/shared/components/dialog';
 import { ZardButtonComponent } from '@app/shared/components/button/button.component';
 import { ZardIconComponent } from '@app/shared/components/icon/icon.component';
-import { handleApiError, returnCustomURI } from '@app/utils';
+import { getDisplayableApiError, returnCustomURI } from '@app/utils';
 import { environment } from '@environment';
 import type { FileImportConfig, ImportResult } from './file-import.component';
 
@@ -267,7 +267,7 @@ export class FileImportContentComponent {
       this.dialogRef.close();
     } catch (error: unknown) {
       console.error('Import error:', error);
-      const msg = handleApiError(error, this.t('import_failed'));
+      const msg = getDisplayableApiError(error, this.t, 'import_failed');
       this.alertService.error(msg, this.t('import_error'));
       this.data.onError?.(msg);
     } finally {
