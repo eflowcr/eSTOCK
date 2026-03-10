@@ -32,7 +32,7 @@ export class PickingTaskService {
 	 * @param id Picking task ID
 	 * @returns Promise<ApiResponse<PickingTask>>
 	 */
-	async getById(id: number): Promise<ApiResponse<PickingTask>> {
+	async getById(id: string): Promise<ApiResponse<PickingTask>> {
 		return await this.fetchService.get<ApiResponse<PickingTask>>({
 			API_Gateway: `${PICKING_TASK_URL}/${id}`,
 		});
@@ -56,10 +56,30 @@ export class PickingTaskService {
 	 * @param data Partial picking task data
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	async update(id: number, data: UpdatePickingTaskRequest): Promise<ApiResponse<any>> {
+	async update(id: string, data: UpdatePickingTaskRequest): Promise<ApiResponse<any>> {
 		return await this.fetchService.put<ApiResponse<any>>({
 			API_Gateway: `${PICKING_TASK_URL}/${id}`,
 			values: data,
+		});
+	}
+
+	/**
+	 * @description Start picking task (open -> in_progress)
+	 */
+	async start(id: string): Promise<ApiResponse<any>> {
+		return await this.fetchService.patch<ApiResponse<any>>({
+			API_Gateway: `${PICKING_TASK_URL}/${id}/start`,
+			values: {},
+		});
+	}
+
+	/**
+	 * @description Cancel picking task (open/in_progress -> cancelled)
+	 */
+	async cancel(id: string): Promise<ApiResponse<any>> {
+		return await this.fetchService.patch<ApiResponse<any>>({
+			API_Gateway: `${PICKING_TASK_URL}/${id}/cancel`,
+			values: {},
 		});
 	}
 

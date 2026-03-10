@@ -36,7 +36,7 @@ export interface PickingTaskDetailsData {
               </div>
               <div class="flex flex-wrap gap-2">
                 @if (d.task.status === 'open') {
-                  <button z-button zType="default" zSize="sm" type="button" (click)="updateStatus('in_progress')" [disabled]="updating">
+                  <button z-button zType="default" zSize="sm" type="button" (click)="startTask()" [disabled]="updating">
                     {{ t('start_task') }}
                   </button>
                 }
@@ -75,7 +75,7 @@ export interface PickingTaskDetailsData {
           </div>
           <div class="rounded-lg border border-gray-200 bg-gray-50/70 p-4 dark:border-gray-700 dark:bg-gray-900/30">
             <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ t('created_by') }}</p>
-            <p class="mt-1 text-base font-semibold text-gray-900 dark:text-white">{{ d.task.created_by }}</p>
+            <p class="mt-1 text-base font-semibold text-gray-900 dark:text-white">{{ d.getUserDisplayName(d.task.created_by) }}</p>
           </div>
         </div>
 
@@ -159,6 +159,26 @@ export class PickingTaskDetailsContentComponent {
 
   protected close(): void {
     this.dialogRef.close();
+  }
+
+  protected async startTask(): Promise<void> {
+    const d = this.data;
+    if (!d?.task) return;
+    this.updating = true;
+    try {
+      const response = await this.pickingTaskService.start(d.task.id);
+      if (response.result.success) {
+        this.alertService.success(this.t('task_status_updated_successfully'), this.t('success'));
+        d.onStatusUpdated?.();
+        this.close();
+      } else {
+        this.alertService.error(response.result.message || this.t('failed_to_update_task_status'), this.t('error'));
+      }
+    } catch (error: unknown) {
+      this.alertService.error(handleApiError(error, this.t('failed_to_update_task_status')), this.t('error'));
+    } finally {
+      this.updating = false;
+    }
   }
 
   protected async updateStatus(status: string): Promise<void> {

@@ -1,5 +1,5 @@
 export interface PickingTask {
-	id: number;
+	id: string;
 	task_id: string;
 	outbound_number?: string; // Para compatibilidad con frontend
 	order_number?: string; // Campo del backend
@@ -44,7 +44,7 @@ export interface CreatePickingTaskItemRequest {
 }
 
 export interface UpdatePickingTaskRequest extends Partial<CreatePickingTaskRequest> {
-	id?: number;
+	id?: string;
 	status?: string;
 }
 
