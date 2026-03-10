@@ -16,9 +16,9 @@ import { AuthorizationService } from '../../../services/extras/authorization.ser
 import { LanguageService } from '../../../services/extras/language.service';
 import { UserService } from '../../../services/user.service';
 import { handleApiError } from '@app/utils';
-import { UserFormComponent } from '../user-form/user-form.component';
+import { ZardDialogService } from '@app/shared/components/dialog';
+import { UserDetailsContentComponent } from '../user-details-content/user-details-content.component';
 import { PasswordChangeComponent } from '../password-change/password-change.component';
-import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardInputDirective } from '../../../shared/components/input/input.directive';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
@@ -26,9 +26,16 @@ import { ZardSelectItemComponent } from '../../../shared/components/select/selec
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, UserFormComponent, PasswordChangeComponent, ZardButtonComponent, ZardInputDirective, ZardSelectComponent, ZardSelectItemComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    PasswordChangeComponent,
+    ZardInputDirective,
+    ZardSelectComponent,
+    ZardSelectItemComponent,
+  ],
   templateUrl: './user-list.component.html',
-  styleUrls: ['./user-list.component.css']
+  styleUrls: ['./user-list.component.css'],
 })
 export class UserListComponent {
   @Input() set users(value: User[]) {
@@ -36,11 +43,8 @@ export class UserListComponent {
   }
   @Input() isLoading = false;
   @Output() refresh = new EventEmitter<void>();
+  @Output() editUser = new EventEmitter<User>();
 
-  editingUser: User | null = null;
-  viewingUser: User | null = null;
-  deletingUserId: string | null = null;
-  isDeleting = false;
   changingPasswordUser: User | null = null;
 
   searchTerm = '';
@@ -124,7 +128,8 @@ export class UserListComponent {
     private userService: UserService,
     private languageService: LanguageService,
     private alertService: AlertService,
-    private authService: AuthorizationService
+    private authService: AuthorizationService,
+    private dialogService: ZardDialogService
   ) {}
 
   get t() {
@@ -138,14 +143,14 @@ export class UserListComponent {
 
   getRoleBadgeClass(roleId: string): string {
     const variants: Record<string, string> = {
-      admin: 'bg-[#00113f] text-white',
-      operator: 'bg-gray-500 text-white',
-      viewer: 'bg-gray-400 text-white',
+      admin: 'bg-indigo-600 text-white dark:bg-indigo-500',
+      operator: 'bg-emerald-600 text-white dark:bg-emerald-500',
+      viewer: 'bg-slate-500 text-white dark:bg-slate-400',
     };
-    return variants[roleId] ?? 'bg-gray-500 text-white';
+    const key = (roleId ?? '').toLowerCase();
+    return variants[key] ?? 'bg-slate-500 text-white dark:bg-slate-400';
   }
 
-  /** Expose for template: role display name from user.role or user.role_id */
   getRoleDisplayName = getRoleDisplayName;
 
   getStatusBadgeClass(isActive: boolean): string {
@@ -174,67 +179,63 @@ export class UserListComponent {
   }
 
   onEdit(user: User): void {
-    this.editingUser = user;
+    this.editUser.emit(user);
   }
 
   onView(user: User): void {
-    this.viewingUser = user;
+    this.dialogService.create({
+      zTitle: this.t('user_management.view_details'),
+      zContent: UserDetailsContentComponent,
+      zData: {
+        user,
+        onEdit: (u: User) => this.onEdit(u),
+        isAdmin: this.isAdmin(),
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-lg',
+    });
   }
 
-  onDelete(userId: string): void {
-    this.deletingUserId = userId;
+  onDelete(user: User): void {
+    this.dialogService.create({
+      zTitle: this.t('user_management.delete_user'),
+      zDescription: `${this.t('user_management.delete_confirm')} ${this.t('user_management.delete_warning')}`,
+      zOkText: this.t('user_management.delete'),
+      zCancelText: this.t('user_management.cancel'),
+      zOkDestructive: true,
+      zClosable: false,
+      zOnOk: () => this.performDelete(user.id),
+    });
+  }
+
+  private async performDelete(userId: string): Promise<void> {
+    try {
+      const response = await this.userService.delete(userId);
+      if (response.result.success) {
+        this.alertService.success(this.t('user_management.success'), this.t('user_management.user_deleted'));
+        this.refresh.emit();
+      } else {
+        throw new Error(response.result.message || this.t('delete_failed'));
+      }
+    } catch (error: unknown) {
+      const fallback = this.t('user_management.failed_delete');
+      const msg = handleApiError(error, fallback);
+      const errorTitle = String(msg).includes('Cannot delete user') ? this.t('user_management.cannot_delete') : this.t('user_management.error');
+      this.alertService.error(errorTitle, msg);
+    }
   }
 
   onChangePassword(user: User): void {
     this.changingPasswordUser = user;
   }
 
-  closeEditDialog(): void {
-    this.editingUser = null;
-  }
-
-  closeViewDialog(): void {
-    this.viewingUser = null;
-  }
-
-  closeDeleteDialog(): void {
-    this.deletingUserId = null;
-  }
-
   closePasswordDialog(): void {
     this.changingPasswordUser = null;
   }
 
-  onEditSuccess(): void {
-    this.closeEditDialog();
-    this.refresh.emit();
-  }
-
   onPasswordChangeSuccess(): void {
     this.closePasswordDialog();
-  }
-
-  async confirmDelete(): Promise<void> {
-    if (!this.deletingUserId) return;
-
-    this.isDeleting = true;
-    try {
-      const response = await this.userService.delete(this.deletingUserId);
-      if (response.result.success) {
-        this.alertService.success(this.t('user_management.success'), this.t('user_management.user_deleted'));
-        this.refresh.emit();
-        this.closeDeleteDialog();
-      } else {
-        throw new Error(response.result.message || this.t('delete_failed'));
-      }
-    } catch (error: any) {
-      const fallback = this.t('user_management.failed_delete');
-      const msg = handleApiError(error, fallback);
-      const errorTitle = msg.includes('Cannot delete user') ? this.t('user_management.cannot_delete') : this.t('user_management.error');
-      this.alertService.error(errorTitle, msg);
-    } finally {
-      this.isDeleting = false;
-    }
+    this.refresh.emit();
   }
 
   sort(columnId: string): void {

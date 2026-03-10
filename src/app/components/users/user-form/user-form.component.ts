@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, Input, OnChanges, OnInit, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { User } from '../../../models/user.model';
 import { Role } from '../../../models/role.model';
@@ -8,15 +8,26 @@ import { RolesService } from '../../../services/roles.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { getApiErrorMessage, handleApiError } from '@app/utils';
-import { ZardSelectComponent } from '../../../shared/components/select/select.component';
-import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
+import { DrawerComponent } from '../../../shared/components/drawer';
+import { ZardButtonComponent } from '../../../shared/components/button/button.component';
+import { ZardFormImports } from '../../../shared/components/form/form.imports';
+import { ZardInputDirective } from '../../../shared/components/input/input.directive';
+import { ZardSelectImports } from '../../../shared/components/select/select.imports';
 
 @Component({
   selector: 'app-user-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ZardSelectComponent, ZardSelectItemComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    DrawerComponent,
+    ZardButtonComponent,
+    ZardFormImports,
+    ZardInputDirective,
+    ZardSelectImports,
+  ],
   templateUrl: './user-form.component.html',
-  styleUrls: ['./user-form.component.css']
+  styleUrls: ['./user-form.component.css'],
 })
 export class UserFormComponent implements OnInit, OnChanges {
   @Input() initialData?: User | null;
@@ -64,14 +75,17 @@ export class UserFormComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['initialData'] && this.userForm) {
+    if (changes['initialData']) {
       this.isEditing = !!this.initialData;
-      this.initializeForm(); // Reinitialize form to handle password validation
+      if (this.userForm) {
+        this.initializeForm();
+        this.loadUserData();
+      }
+    }
+    if (changes['isOpen'] && this.isOpen && this.userForm) {
       this.loadUserData();
     }
-    
     if (changes['isOpen'] && !changes['isOpen'].currentValue) {
-      // Reset form when dialog closes
       this.userForm?.reset();
       this.imagePreview = null;
     }
@@ -89,42 +103,40 @@ export class UserFormComponent implements OnInit, OnChanges {
       last_name: ['', [Validators.required]],
       password: [''],
       role_id: ['Operator', [Validators.required]],
-      is_active: ['true', [Validators.required]]
+      is_active: ['true', [Validators.required]],
     });
-    
-    // Add password validation for new users
+
     if (!this.isEditing) {
       this.userForm.get('password')?.setValidators([Validators.required]);
     }
+    this.loadUserData();
   }
 
   private loadUserData(): void {
-    if (!this.initialData) return;
+    if (!this.initialData || !this.userForm) return;
 
     this.userForm.patchValue({
       id: this.initialData.id,
       email: this.initialData.email,
       first_name: this.initialData.first_name,
       last_name: this.initialData.last_name,
-      password: '', // Always empty for editing
+      password: '',
       role_id: this.initialData.role_id ?? this.initialData.role?.id ?? this.initialData.role?.name ?? 'Operator',
-      is_active: this.initialData.is_active ? 'true' : 'false'
+      is_active: this.initialData.is_active ? 'true' : 'false',
     });
-    
-    // Remove password validation for editing
+
     this.userForm.get('password')?.clearValidators();
     this.userForm.get('password')?.updateValueAndValidity();
   }
 
-  // Field validation helpers
   isFieldInvalid(fieldName: string): boolean {
     const field = this.userForm.get(fieldName);
-    return !!(field && field.invalid && field.touched);
+    return !!(field && field.invalid && (field.dirty || field.touched));
   }
 
   getFieldError(fieldName: string): string {
     const field = this.userForm.get(fieldName);
-    if (field && field.errors && field.touched) {
+    if (field?.errors && (field.dirty || field.touched)) {
       if (field.errors['required']) {
         return this.t(`user_management.${fieldName === 'role_id' ? 'role' : fieldName}_required`);
       }
@@ -135,17 +147,14 @@ export class UserFormComponent implements OnInit, OnChanges {
     return '';
   }
 
-  // Image handling methods
   onImageSelect(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
+    if (input.files?.[0]) {
       const file = input.files[0];
       const reader = new FileReader();
-      
       reader.onload = (e) => {
         this.imagePreview = e.target?.result as string;
       };
-      
       reader.readAsDataURL(file);
     }
   }
@@ -165,43 +174,37 @@ export class UserFormComponent implements OnInit, OnChanges {
     try {
       const formData = { ...this.userForm.value } as Record<string, unknown>;
       formData['is_active'] = formData['is_active'] === true || formData['is_active'] === 'true';
-      
-      // Remove empty password for updates
+
       if (this.isEditing && !formData['password']) {
         delete formData['password'];
       }
-      
-      // Remove id for new users; send only role_id (backend expects role_id)
+
       if (!this.isEditing) {
         delete formData['id'];
         formData['auth_provider'] = 'local';
       }
       delete formData['role'];
 
-      let response;
-      if (this.isEditing && this.initialData) {
-        response = await this.userService.update(this.initialData.id, formData);
-      } else {
-        response = await this.userService.create(formData);
-      }
+      const response = this.isEditing && this.initialData
+        ? await this.userService.update(this.initialData.id, formData)
+        : await this.userService.create(formData);
 
       if (response.result.success) {
         this.alertService.success(
           this.t('user_management.success'),
           this.isEditing ? this.t('user_management.user_updated') : this.t('user_management.user_created')
         );
-        
         this.close();
         this.success.emit();
       } else {
         throw new Error(response.result.message || this.t('operation_failed'));
       }
-    } catch (error: any) {
-      const fallback = this.isEditing ?
-        this.t('user_management.failed_update') :
-        this.t('user_management.failed_create');
-      const msg = getApiErrorMessage(error) || (error?.message ?? '');
-      const errorMessage = msg.toLowerCase().includes('email') ? this.t('user_management.email_registered') : handleApiError(error, fallback);
+    } catch (error: unknown) {
+      const fallback = this.isEditing
+        ? this.t('user_management.failed_update')
+        : this.t('user_management.failed_create');
+      const msg = getApiErrorMessage(error) || (error instanceof Error ? error.message : '');
+      const errorMessage = String(msg).toLowerCase().includes('email') ? this.t('user_management.email_registered') : handleApiError(error, fallback);
       this.alertService.error(this.t('user_management.error'), errorMessage);
     } finally {
       this.isSubmitting = false;

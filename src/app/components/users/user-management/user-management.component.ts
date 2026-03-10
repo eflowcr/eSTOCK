@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { User } from '../../../models/user.model';
+import type { User } from '../../../models/user.model';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
@@ -100,11 +100,18 @@ export class UserManagementComponent implements OnInit {
   }
 
   openCreateDialog(): void {
+    this.selectedUser = null;
+    this.isCreateDialogOpen = true;
+  }
+
+  openEditForm(user: User): void {
+    this.selectedUser = user;
     this.isCreateDialogOpen = true;
   }
 
   closeCreateDialog(): void {
     this.isCreateDialogOpen = false;
+    this.selectedUser = null;
   }
 
   openImportDialog(): void {

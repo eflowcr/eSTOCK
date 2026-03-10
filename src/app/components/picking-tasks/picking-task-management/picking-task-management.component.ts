@@ -160,6 +160,10 @@ export class PickingTaskManagementComponent implements OnInit {
     this.isCreateDialogOpen = true;
   }
 
+  closeCreateDialog(): void {
+    this.isCreateDialogOpen = false;
+  }
+
   handleEdit(task: PickingTask): void {
     this.editingTask = task;
     this.isEditDialogOpen = true;

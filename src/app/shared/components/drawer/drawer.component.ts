@@ -4,7 +4,9 @@ import {
   EventEmitter,
   HostListener,
   Input,
+  OnChanges,
   Output,
+  SimpleChanges,
 } from '@angular/core';
 import { trigger, transition, style, animate, state } from '@angular/animations';
 
@@ -53,7 +55,7 @@ const OVERLAY_LEAVE_MS = 150;
     ]),
   ],
 })
-export class DrawerComponent {
+export class DrawerComponent implements OnChanges {
   @Input() isOpen = false;
   /** Side the drawer slides from: 'left' | 'right' | 'top' | 'bottom'. */
   @Input() direction: DrawerDirection = 'right';
@@ -63,6 +65,12 @@ export class DrawerComponent {
   @Output() closed = new EventEmitter<void>();
 
   _closing = false;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isOpen']) {
+      this._closing = false;
+    }
+  }
 
   /** Current overlay state for animation. */
   get overlayState(): 'open' | 'closed' {
@@ -98,17 +106,20 @@ export class DrawerComponent {
   }
 
   onBackdropClick(): void {
-    this._closing = true;
+    if (!this._closing) {
+      this._closing = true;
+    }
   }
 
   close(): void {
-    this._closing = true;
+    if (!this._closing) {
+      this._closing = true;
+    }
   }
 
   onPanelSlideDone(event: { toState: string }): void {
     if (event.toState === 'closed') {
       this.closed.emit();
-      this._closing = false;
     }
   }
 }

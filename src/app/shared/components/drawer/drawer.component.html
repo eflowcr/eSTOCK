@@ -1,13 +1,14 @@
 @if (isVisible) {
-  <div class="fixed inset-0 z-50">
-    <!-- Backdrop (fade in/out) -->
+  <div class="fixed inset-0 z-[100]">
+    <!-- Backdrop (fade in/out) - ensures clicks reach this overlay -->
     <div
-      class="fixed inset-0 bg-black/50 dark:bg-black/60"
+      class="fixed inset-0 bg-black/50 dark:bg-black/60 cursor-default"
       [@overlay]="overlayState"
       (click)="onBackdropClick()"
       role="button"
       tabindex="-1"
       aria-hidden="true"
+      style="pointer-events: auto;"
     ></div>
 
     <!-- Panel (slide in/out from direction: left | right | top | bottom) -->

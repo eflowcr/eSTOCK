@@ -1,6 +1,6 @@
 .drawer-panel {
   position: fixed;
-  z-index: 51;
+  z-index: 101;
 }
 
 /* Bottom/top: content in a centered column (like frontend_template Create Doctor drawer) */

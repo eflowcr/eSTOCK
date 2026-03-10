@@ -1,10 +1,7 @@
-<div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-6">
-  <!-- Modern Search and Controls Bar -->
-  <div class="p-4 sm:p-6">
-    <!-- Main Controls Row -->
+<div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-6 min-h-[72vh] flex flex-col">
+  <div class="p-5 sm:p-6">
     <div class="flex flex-col lg:flex-row lg:items-center gap-4">
-      <!-- Search Section -->
-      <div class="flex-1">
+      <div class="flex-1 min-w-0 max-w-xl">
         <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -22,90 +19,58 @@
         </div>
       </div>
 
-      <!-- Controls Section -->
-      <div class="flex flex-wrap items-center gap-3 flex-shrink-0">
-        <!-- Sort Dropdown -->
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ t('sort_by') }}</span>
-          <z-select
-            [(ngModel)]="sortBy"
-            (ngModelChange)="sort(sortBy)"
-            class="min-w-40"
-          >
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          (click)="toggleFilters()"
+          [class]="hasActiveFilters() ? 'bg-primary/10 text-primary border-primary/30' : 'bg-gray-50 text-gray-600 border-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'"
+          class="flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-primary/10 hover:text-primary dark:hover:bg-gray-600"
+        >
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+          </svg>
+          {{ t('filters') }}
+        </button>
+
+        <button
+          *ngIf="hasActiveFilters()"
+          type="button"
+          (click)="clearFilters()"
+          class="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+        >
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          {{ t('clear_filters') }}
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 flex-shrink-0 lg:ml-auto">
+        <ng-content select="[toolbarRight]"></ng-content>
+      </div>
+    </div>
+
+    <div *ngIf="filtersExpanded" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <label for="sortBy" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('sort_by') }}</label>
+          <z-select id="sortBy" [(ngModel)]="sortBy" (ngModelChange)="sort(sortBy)" class="block w-full">
             <z-select-item zValue="first_name">{{ t('user_management.name') }}</z-select-item>
             <z-select-item zValue="email">{{ t('user_management.email') }}</z-select-item>
             <z-select-item zValue="role">{{ t('user_management.role') }}</z-select-item>
             <z-select-item zValue="created_at">{{ t('user_management.created') }}</z-select-item>
           </z-select>
         </div>
-
-        <!-- Filters Toggle -->
-        <button
-          z-button
-          zType="outline"
-          type="button"
-          (click)="toggleFilters()"
-          class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 transition-colors dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
-          [class.bg-blue-50]="filtersExpanded"
-          [class.text-blue-600]="filtersExpanded"
-          [class.border-blue-200]="filtersExpanded"
-        >
-          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
-          </svg>
-          {{ t('filters') }}
-          <svg class="h-4 w-4 ml-2 transform transition-transform duration-200" [class.rotate-180]="filtersExpanded" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-          </svg>
-        </button>
-
-        <!-- Clear Filters Button -->
-        <button
-          z-button
-          zType="destructive"
-          *ngIf="hasActiveFilters()"
-          type="button"
-          (click)="clearFilters()"
-          class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/30"
-        >
-          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-          {{ t('clear_filters') }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Expandable Filters Section -->
-    <div *ngIf="filtersExpanded" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Role Filter -->
         <div>
-          <label for="roleFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {{ t('user_management.role') }}
-          </label>
-          <z-select
-            id="roleFilter"
-            [(ngModel)]="roleFilter"
-            (ngModelChange)="onFilterChange()"
-            class="block w-full"
-          >
+          <label for="roleFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('user_management.role') }}</label>
+          <z-select id="roleFilter" [(ngModel)]="roleFilter" (ngModelChange)="onFilterChange()" class="block w-full">
             <z-select-item zValue="">{{ t('all_roles') }}</z-select-item>
             <z-select-item *ngFor="let role of uniqueRoles" [zValue]="role">{{ role }}</z-select-item>
           </z-select>
         </div>
-
-        <!-- Status Filter -->
         <div>
-          <label for="statusFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {{ t('user_management.status') }}
-          </label>
-          <z-select
-            id="statusFilter"
-            [(ngModel)]="statusFilter"
-            (ngModelChange)="onFilterChange()"
-            class="block w-full"
-          >
+          <label for="statusFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('user_management.status') }}</label>
+          <z-select id="statusFilter" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()" class="block w-full">
             <z-select-item zValue="">{{ t('all_statuses') }}</z-select-item>
             <z-select-item zValue="active">{{ t('user_management.active') }}</z-select-item>
             <z-select-item zValue="inactive">{{ t('user_management.inactive') }}</z-select-item>
@@ -115,13 +80,15 @@
     </div>
   </div>
 
-  <div class="overflow-x-auto">
+  <div class="overflow-x-auto flex-1 min-h-[460px]">
     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 users-table-fixed">
       <thead class="bg-gray-50 dark:bg-gray-700">
         <tr *ngFor="let headerGroup of table.getHeaderGroups()">
           <th
             *ngFor="let header of headerGroup.headers"
-            class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
+            class="px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
+            [class.text-left]="header.column.id !== 'actions'"
+            [class.text-center]="header.column.id === 'actions'"
           >
             <button
               *ngIf="header.column.getCanSort(); else plainHeader"
@@ -140,7 +107,7 @@
       </thead>
       <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
         <tr *ngIf="isLoading">
-          <td [attr.colspan]="columns.length" class="px-3 py-6 text-center text-sm text-gray-500 dark:text-gray-300">
+          <td [attr.colspan]="columns.length" class="px-3 py-10 text-center text-sm text-gray-500 dark:text-gray-300">
             {{ t('loading') }}
           </td>
         </tr>
@@ -155,10 +122,10 @@
           </td>
         </tr>
         <tr *ngFor="let row of table.getRowModel().rows" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-          <td *ngFor="let cell of row.getVisibleCells()" class="px-3 py-3 text-sm text-gray-900 dark:text-white align-top">
+          <td *ngFor="let cell of row.getVisibleCells()" class="px-3 py-4 text-sm text-gray-900 dark:text-white align-top" [class.text-center]="cell.column.id === 'actions'">
             <ng-container [ngSwitch]="cell.column.id">
               <div *ngSwitchCase="'first_name'" class="flex items-center">
-                <div class="h-10 w-10 rounded-full bg-[#00113f] flex items-center justify-center flex-shrink-0">
+                <div class="h-10 w-10 rounded-full bg-[#00113f] flex items-center justify-center flex-shrink-0 overflow-hidden">
                   <img *ngIf="row.original.profile_image_url" [src]="row.original.profile_image_url" [alt]="getUserDisplayName(row.original)" class="h-10 w-10 rounded-full object-cover">
                   <span *ngIf="!row.original.profile_image_url" class="text-white text-sm font-medium">{{ getInitials(row.original.first_name, row.original.last_name) }}</span>
                 </div>
@@ -175,31 +142,29 @@
               <span *ngSwitchCase="'created_at'">{{ formatDate(row.original.created_at) }}</span>
               <ng-container *ngSwitchCase="'actions'">
                 <div class="flex items-center justify-center gap-1">
-                  <button *ngIf="isAdmin()" (click)="onEdit(row.original)" class="text-gray-400 hover:text-[#4465ec] p-1 rounded focus:outline-none focus:ring-2 focus:ring-[#3e66ea]" [title]="t('user_management.edit_user')">
+                  <button (click)="onView(row.original)" type="button" class="p-1.5 rounded text-gray-500 hover:text-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/30" [attr.aria-label]="t('user_management.view_details')">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                     </svg>
                   </button>
-                  <button (click)="onView(row.original)" class="text-gray-400 hover:text-[#4465ec] p-1 rounded focus:outline-none focus:ring-2 focus:ring-[#3e66ea]"
-                      [title]="t('user_management.view_details')">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                </svg>
-              </button>
-              
-              <button *ngIf="isAdmin()" (click)="onChangePassword(row.original)" class="text-gray-400 hover:text-orange-600 p-1 rounded focus:outline-none focus:ring-2 focus:ring-orange-500" [title]="t('user_management.change_password')">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2a2 2 0 00-2 2m2-2V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0a2 2 0 002 2h6a2 2 0 002-2m0 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V9z"></path>
-                </svg>
-              </button>
-              <button *ngIf="isAdmin()" (click)="onDelete(row.original.id)"
-                      class="text-gray-400 hover:text-red-600 p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      [title]="t('user_management.delete_user')">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-              </button>
+                  @if (isAdmin()) {
+                    <button (click)="onEdit(row.original)" type="button" class="p-1.5 rounded text-gray-500 hover:text-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/30" [attr.aria-label]="t('user_management.edit_user')">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </button>
+                    <button (click)="onChangePassword(row.original)" type="button" class="p-1.5 rounded text-gray-500 hover:text-orange-600 hover:bg-orange-500/10 focus:outline-none focus:ring-2 focus:ring-orange-500/30" [attr.aria-label]="t('user_management.change_password')">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2a2 2 0 00-2 2m2-2V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0a2 2 0 002 2h6a2 2 0 002-2m0 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V9z"></path>
+                      </svg>
+                    </button>
+                    <button (click)="onDelete(row.original)" type="button" class="p-1.5 rounded text-gray-500 hover:text-red-600 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/30" [attr.aria-label]="t('user_management.delete_user')">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  }
                 </div>
               </ng-container>
               <span *ngSwitchDefault>{{ cell.getValue() }}</span>
@@ -210,7 +175,7 @@
     </table>
   </div>
 
-  <div class="flex flex-col gap-3 border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+  <div class="mt-auto flex flex-col gap-3 border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
     <div class="text-xs text-gray-500 dark:text-gray-300">
       {{ t('showing') }} {{ pageIndex * pageSize + 1 }} {{ t('to') }} {{ Math.min((pageIndex + 1) * pageSize, totalFilteredRows) }} {{ t('of') }} {{ totalFilteredRows }} {{ t('results') }}
     </div>
@@ -224,156 +189,18 @@
         <z-select-item zValue="25">25</z-select-item>
         <z-select-item zValue="50">50</z-select-item>
       </z-select>
-      <button z-button zType="outline" zSize="sm" type="button" (click)="previousPage()" [disabled]="!table.getCanPreviousPage()" class="px-2 py-1 border border-gray-300 rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600">
+      <button type="button" (click)="previousPage()" [disabled]="!table.getCanPreviousPage()" class="px-2 py-1 border border-gray-300 rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600">
         {{ t('previous') }}
       </button>
       <span class="text-xs text-gray-600 dark:text-gray-300">{{ pageIndex + 1 }} / {{ table.getPageCount() || 1 }}</span>
-      <button z-button zType="outline" zSize="sm" type="button" (click)="nextPage()" [disabled]="!table.getCanNextPage()" class="px-2 py-1 border border-gray-300 rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600">
+      <button type="button" (click)="nextPage()" [disabled]="!table.getCanNextPage()" class="px-2 py-1 border border-gray-300 rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600">
         {{ t('next') }}
       </button>
     </div>
   </div>
 </div>
 
-<!-- Edit User Dialog -->
-<app-user-form 
-  [initialData]="editingUser" 
-  [isOpen]="!!editingUser"
-  (success)="onEditSuccess()"
-  (closed)="closeEditDialog()">
-</app-user-form>
-
-<!-- View User Details Dialog -->
-<div *ngIf="viewingUser" class="fixed inset-0 z-50 overflow-y-auto">
-  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <!-- Background overlay -->
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeViewDialog()"></div>
-
-    <!-- Dialog -->
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full dark:bg-gray-800">
-      <!-- Header -->
-      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-          {{ t('user_management.view_details') }}
-        </h3>
-      </div>
-      
-      <!-- Content -->
-      <div class="bg-white px-4 pb-4 sm:p-6 space-y-4 dark:bg-gray-800">
-        <!-- User Avatar and Name -->
-        <div class="flex items-center space-x-4">
-          <div class="h-12 w-12 rounded-full bg-[#00113f] flex items-center justify-center">
-            <img *ngIf="viewingUser.profile_image_url" 
-                 [src]="viewingUser.profile_image_url" 
-                 [alt]="getUserDisplayName(viewingUser)"
-                 class="h-12 w-12 rounded-full object-cover">
-            <span *ngIf="!viewingUser.profile_image_url" class="text-white text-lg font-medium">
-              {{ getInitials(viewingUser.first_name, viewingUser.last_name) }}
-            </span>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ getUserDisplayName(viewingUser) }}
-            </h3>
-            <p class="text-gray-600 dark:text-gray-400">{{ viewingUser.email }}</p>
-          </div>
-        </div>
-        
-        <!-- User Details Grid -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('user_management.user_id') }}</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ viewingUser.id }}</p>
-          </div>
-          <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('user_management.role') }}</label>
-            <p class="text-sm">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    [class]="getRoleBadgeClass(viewingUser.role_id)">
-                {{ getRoleDisplayName(viewingUser) || viewingUser.role_id }}
-              </span>
-            </p>
-          </div>
-          <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('user_management.status') }}</label>
-            <p class="text-sm">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    [class]="getStatusBadgeClass(viewingUser.is_active)">
-                {{ viewingUser.is_active ? t('user_management.active') : t('user_management.inactive') }}
-              </span>
-            </p>
-          </div>
-          <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('user_management.created') }}</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ formatDate(viewingUser.created_at) }}</p>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Footer -->
-      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse dark:bg-gray-700">
-        <button type="button" 
-                (click)="closeViewDialog()"
-                class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-500">
-          {{ t('close') }}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Delete Confirmation Dialog -->
-<div *ngIf="deletingUserId" class="fixed inset-0 z-50 overflow-y-auto">
-  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <!-- Background overlay -->
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeDeleteDialog()"></div>
-
-    <!-- Dialog -->
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full dark:bg-gray-800">
-      <!-- Header -->
-      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
-        <div class="sm:flex sm:items-start">
-          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-            </svg>
-          </div>
-          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-              {{ t('user_management.delete_user') }}
-            </h3>
-            <div class="mt-2">
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                {{ t('user_management.delete_confirm') }}<br/>
-                {{ t('user_management.delete_warning') }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Footer -->
-      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse dark:bg-gray-700">
-        <button type="button"
-                (click)="confirmDelete()"
-                [disabled]="isDeleting"
-                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
-          <span *ngIf="isDeleting" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-          {{ isDeleting ? t('user_management.deleting') : t('user_management.delete') }}
-        </button>
-        <button type="button"
-                (click)="closeDeleteDialog()"
-                [disabled]="isDeleting"
-                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:mr-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-500">
-          {{ t('user_management.cancel') }}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Change Password Dialog -->
-<app-password-change 
+<app-password-change
   [user]="changingPasswordUser"
   [isOpen]="!!changingPasswordUser"
   (success)="onPasswordChangeSuccess()"

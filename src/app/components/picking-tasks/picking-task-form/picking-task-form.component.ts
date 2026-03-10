@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
@@ -33,10 +33,6 @@ export class PickingTaskFormComponent implements OnInit {
 	@Input() isOpen = false;
 	@Output() success = new EventEmitter<void>();
 	@Output() cancel = new EventEmitter<void>();
-
-	@ViewChild('drawerRef') drawerRef?: DrawerComponent;
-
-	private _closedBySubmit = false;
 
 	form: FormGroup;
 	locations: Location[] = [];
@@ -103,39 +99,12 @@ export class PickingTaskFormComponent implements OnInit {
 		return this.languageService.t.bind(this.languageService);
 	}
 
-	// Drawer helpers
 	close(): void {
-		if (this.drawerRef) {
-			this.drawerRef.close();
-		} else {
-			this.emitCancel();
-		}
-	}
-
-	onDrawerClosed(): void {
-		this.resetForm();
-		if (this._closedBySubmit) {
-			this._closedBySubmit = false;
-			this.success.emit();
-		} else {
-			this.cancel.emit();
-		}
-	}
-
-	onCancel(): void {
-		this.close();
-	}
-
-	private emitCancel(): void {
-		this.resetForm();
 		this.cancel.emit();
 	}
 
-	private resetForm(): void {
-		this.operatorSearchTerm = '';
-		this.showOperatorDropdown = false;
-		this.filteredOperators = [...this.users];
-		this.form.reset();
+	onDrawerClosed(): void {
+		this.cancel.emit();
 	}
 
 
@@ -401,38 +370,35 @@ export class PickingTaskFormComponent implements OnInit {
 			}
 			
 
-			if (this.task) {
-				// Update existing task
-				const response = await this.pickingTaskService.update(this.task.id, taskData);
-				if (response.result.success) {
-					this.alertService.success(
-						this.t('picking_task_updated_successfully'),
-						this.t('success')
-					);
-					this._closedBySubmit = true;
-					this.close();
-				} else {
-					this.alertService.error(
-						response.result.message || this.t('failed_to_update_picking_task'),
-						this.t('error')
-					);
-				}
+		if (this.task) {
+			const response = await this.pickingTaskService.update(this.task.id, taskData);
+			if (response.result.success) {
+				this.alertService.success(
+					this.t('picking_task_updated_successfully'),
+					this.t('success')
+				);
+				this.success.emit();
 			} else {
-				const response = await this.pickingTaskService.create(taskData);
-				if (response.result.success) {
-					this.alertService.success(
-						this.t('picking_task_created_successfully'),
-						this.t('success')
-					);
-					this._closedBySubmit = true;
-					this.close();
-				} else {
-					this.alertService.error(
-						response.result.message || this.t('failed_to_create_picking_task'),
-						this.t('error')
-					);
-				}
+				this.alertService.error(
+					response.result.message || this.t('failed_to_update_picking_task'),
+					this.t('error')
+				);
 			}
+		} else {
+			const response = await this.pickingTaskService.create(taskData);
+			if (response.result.success) {
+				this.alertService.success(
+					this.t('picking_task_created_successfully'),
+					this.t('success')
+				);
+				this.success.emit();
+			} else {
+				this.alertService.error(
+					response.result.message || this.t('failed_to_create_picking_task'),
+					this.t('error')
+				);
+			}
+		}
 		} catch (error: any) {
 			this.alertService.error(
 				handleApiError(error, this.t('error_saving_task')),

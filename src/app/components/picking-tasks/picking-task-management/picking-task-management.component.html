@@ -106,12 +106,14 @@
     </div>
   </div>
 
-  <!-- Create Task Drawer -->
-  <app-picking-task-form
-    [isOpen]="isCreateDialogOpen"
-    (success)="onTaskCreated()"
-    (cancel)="isCreateDialogOpen = false">
-  </app-picking-task-form>
+  <!-- Create Task Drawer (mounted only when open, like article-form) -->
+  @if (isCreateDialogOpen) {
+    <app-picking-task-form
+      [isOpen]="true"
+      (success)="onTaskCreated()"
+      (cancel)="closeCreateDialog()">
+    </app-picking-task-form>
+  }
 
   <!-- Edit Task Drawer (mounted only when editing) -->
   @if (editingTask) {
