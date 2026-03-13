@@ -44,6 +44,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard, AdminGuard],
   },
   {
+    path: 'presentation-types',
+    loadComponent: () => import('./components/presentation-types/presentation-types-management/presentation-types-management.component').then((m) => m.PresentationTypesManagementComponent),
+    canActivate: [AuthGuard, AdminGuard],
+  },
+  {
     path: 'roles',
     loadComponent: () => import('./components/roles/role-management/role-management.component').then((m) => m.RoleManagementComponent),
     canActivate: [AuthGuard, AdminGuard],

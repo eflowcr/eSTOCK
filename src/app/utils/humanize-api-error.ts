@@ -51,6 +51,10 @@ const TECHNICAL_TO_HUMAN: Array<{ pattern: string | RegExp; key: string }> = [
   { pattern: /Location type with this code already exists/i, key: 'errors.location_type_code_exists' },
   { pattern: /Location type not found/i, key: 'errors.location_type_not_found' },
 
+  // Presentation types
+  { pattern: /Presentation type with this code already exists/i, key: 'errors.presentation_type_code_exists' },
+  { pattern: /Presentation type not found/i, key: 'errors.presentation_type_not_found' },
+
   // Articles
   { pattern: /Ya existe un artículo con el mismo SKU|SKU.*already exists/i, key: 'errors.sku_already_exists' },
 

@@ -1,0 +1,52 @@
+<app-drawer [isOpen]="isOpen" (closed)="close()" direction="bottom" panelClass="!max-h-[96vh] w-full max-w-full">
+  <div drawerHeader>
+    <div class="flex flex-col gap-0.5 md:gap-1.5 text-center md:text-left">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex-1 min-w-0">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ isEditing ? t('edit_presentation_type') : t('create_presentation_type') }}
+          </h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            {{ isEditing ? t('edit_presentation_type_description') : t('create_presentation_type_description') }}
+          </p>
+        </div>
+        <button type="button" (click)="close()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div drawerContent>
+    <form id="presentationTypeForm" [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6 px-1">
+      <z-form-field>
+        <label z-form-label zRequired for="code">{{ t('presentation_type_code') }}</label>
+        <z-form-control [errorMessage]="(form.get('code')?.invalid && (form.get('code')?.dirty || form.get('code')?.touched) ? t('field_required') : '')">
+          <input z-input type="text" id="code" formControlName="code" [placeholder]="t('enter_presentation_type_code')" />
+        </z-form-control>
+      </z-form-field>
+      <z-form-field>
+        <label z-form-label zRequired for="name">{{ t('presentation_type_name') }}</label>
+        <z-form-control [errorMessage]="(form.get('name')?.invalid && (form.get('name')?.dirty || form.get('name')?.touched) ? t('field_required') : '')">
+          <input z-input type="text" id="name" formControlName="name" [placeholder]="t('enter_presentation_type_name')" />
+        </z-form-control>
+      </z-form-field>
+      <z-form-field>
+        <label z-form-label for="is_active">{{ t('location_status') }}</label>
+        <z-form-control>
+          <z-switch id="is_active" formControlName="is_active">{{ t('active') }}</z-switch>
+        </z-form-control>
+      </z-form-field>
+    </form>
+  </div>
+
+  <div drawerFooter class="flex flex-row gap-2 pb-6">
+    <button z-button zType="outline" zSize="lg" type="button" (click)="close()" class="flex-1">{{ t('cancel') }}</button>
+    <button z-button zType="default" zSize="lg" type="submit" form="presentationTypeForm"
+      [zDisabled]="form.invalid || isSubmitting" [zLoading]="isSubmitting" class="flex-1">
+      {{ isSubmitting ? t('saving') : (isEditing ? t('update') : t('create')) }}
+    </button>
+  </div>
+</app-drawer>

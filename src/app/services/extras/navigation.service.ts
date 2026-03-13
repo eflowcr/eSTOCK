@@ -18,6 +18,7 @@ const ALL_NAV_ITEMS: NavigationItems = [
   { name: 'user_management', href: '/users', icon: 'Users', adminOnly: true },
   { name: 'roles', href: '/roles', icon: 'Shield', adminOnly: true },
   { name: 'location_types', href: '/location-types', icon: 'Layers', adminOnly: true },
+  { name: 'presentation_types', href: '/presentation-types', icon: 'Box', adminOnly: true },
 ];
 
 @Injectable({ providedIn: 'root' })

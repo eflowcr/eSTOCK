@@ -87,7 +87,11 @@
           <label for="presentationFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('presentation') }}</label>
           <z-select id="presentationFilter" [(ngModel)]="presentationFilter" (ngModelChange)="onFilterChange()" class="block w-full">
             <z-select-item zValue="">{{ t('all_presentations') }}</z-select-item>
-            <z-select-item *ngFor="let pres of uniquePresentations" [zValue]="pres">{{ t(pres) }}</z-select-item>
+            @if (presentationOptions.length > 0) {
+              <z-select-item *ngFor="let opt of presentationOptions" [zValue]="opt.value">{{ opt.label }}</z-select-item>
+            } @else {
+              <z-select-item *ngFor="let pres of uniquePresentations" [zValue]="pres">{{ t(pres) }}</z-select-item>
+            }
           </z-select>
         </div>
         <div>

@@ -497,6 +497,8 @@ export const esTranslations = {
   'errors.user_has_relations': 'Este usuario tiene registros vinculados. Elimínalos antes de borrar.',
   'errors.location_type_code_exists': 'Ya existe un tipo de ubicación con este código.',
   'errors.location_type_not_found': 'No encontramos ese tipo de ubicación.',
+  'errors.presentation_type_code_exists': 'Ya existe un tipo de presentación con este código.',
+  'errors.presentation_type_not_found': 'No encontramos ese tipo de presentación.',
   'errors.sku_already_exists': 'Este código de producto ya está en uso. Elige otro.',
   'errors.operation_failed_generic': 'Algo salió mal. Intenta de nuevo.',
 
@@ -597,6 +599,36 @@ export const esTranslations = {
   no_location_types: 'No hay tipos de ubicación',
   search_location_types: 'Buscar tipos de ubicación...',
 
+  // Presentation types (admin)
+  presentation_types: 'Tipos de Presentación',
+  presentation_types_management: 'Tipos de Presentación',
+  presentation_types_management_description:
+    'Administra los tipos de presentación (Unidad, Caja, Pallet, Paquete, etc.) usados en artículos e inventario.',
+  create_presentation_type: 'Crear Tipo de Presentación',
+  edit_presentation_type: 'Editar Tipo de Presentación',
+  create_presentation_type_description: 'Agregar un nuevo tipo de presentación al catálogo.',
+  edit_presentation_type_description: 'Actualizar el tipo de presentación seleccionado.',
+  presentation_type_code: 'Código',
+  enter_presentation_type_code: 'Ingresa el código (ej. UNIDAD)',
+  presentation_type_name: 'Nombre',
+  enter_presentation_type_name: 'Nombre para mostrar (ej. Unidad)',
+  presentation_type_created: 'Tipo de presentación creado correctamente.',
+  presentation_type_updated: 'Tipo de presentación actualizado correctamente.',
+  presentation_type_deleted: 'Tipo de presentación eliminado correctamente.',
+  failed_to_create_presentation_type: 'Error al crear el tipo de presentación',
+  failed_to_update_presentation_type: 'Error al actualizar el tipo de presentación',
+  failed_to_delete_presentation_type: 'Error al eliminar el tipo de presentación',
+  failed_to_load_presentation_types: 'Error al cargar los tipos de presentación',
+  delete_presentation_type_confirm:
+    '¿Estás seguro de que deseas eliminar este tipo de presentación?',
+  set_presentation_type_order: 'Establecer orden',
+  set_presentation_type_order_description:
+    'Usa las flechas para definir el orden de visualización de los tipos de presentación.',
+  presentation_type_order_saved: 'Orden guardado correctamente.',
+  error_saving_presentation_type: 'Error al guardar el tipo de presentación.',
+  no_presentation_types: 'No hay tipos de presentación',
+  search_presentation_types: 'Buscar tipos de presentación...',
+
   // Inventory Management
   inventory_management: 'Gestión de Inventario',
   'inventory_management.description':
@@ -689,6 +721,10 @@ export const esTranslations = {
   box: 'Caja',
   pallet: 'Pallet',
   pack: 'Paquete',
+  UNIDAD: 'Unidad',
+  CAJA: 'Caja',
+  PALLET: 'Pallet',
+  PAQUETE: 'Paquete',
   kilogram: 'Kilogramo',
   gram: 'Gramo',
   pound: 'Libra',

@@ -9,6 +9,7 @@ import { ZardInputDirective } from '../../../shared/components/input/input.direc
 import { ZardSelectImports } from '../../../shared/components/select/select.imports';
 import { Article, CreateArticleRequest, UpdateArticleRequest } from '../../../models/article.model';
 import { ArticleService } from '../../../services/article.service';
+import { PresentationTypesService } from '../../../services/presentation-types.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { getApiErrorMessage } from '@app/utils';
@@ -58,16 +59,20 @@ export class ArticleFormComponent implements OnInit, OnChanges {
   unitPriceDisplay = '';
   /** Real-time SKU availability: idle | checking | available | in_use | error */
   skuCheckStatus: 'idle' | 'checking' | 'available' | 'in_use' | 'error' = 'idle';
+  /** Presentation types for dropdown (code, name). */
+  presentationOptions: { value: string; label: string }[] = [];
 
   constructor(
     private fb: FormBuilder,
     private articleService: ArticleService,
+    private presentationTypesService: PresentationTypesService,
     private alertService: AlertService,
     private languageService: LanguageService
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
+    this.loadPresentationTypes();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -83,9 +88,34 @@ export class ArticleFormComponent implements OnInit, OnChanges {
     if (changes['isOpen'] && !changes['isOpen'].currentValue) {
       // Reset form when dialog closes
       this.articleForm?.reset();
-      this.articleForm?.patchValue({ presentation: 'unit', is_active: true });
+      const defaultPresentation = this.presentationOptions.length > 0 ? this.presentationOptions[0].value : 'UNIDAD';
+      this.articleForm?.patchValue({ presentation: defaultPresentation, is_active: true });
       this.isEditMode = false;
       this.skuCheckStatus = 'idle';
+    }
+  }
+
+  private async loadPresentationTypes(): Promise<void> {
+    try {
+      const res = await this.presentationTypesService.getList();
+      if (res?.result?.success && Array.isArray(res.data)) {
+        this.presentationOptions = res.data.map((pt) => ({ value: pt.code, label: pt.name }));
+      }
+      if (this.presentationOptions.length === 0) {
+        this.presentationOptions = [
+          { value: 'UNIDAD', label: 'Unidad' },
+          { value: 'CAJA', label: 'Caja' },
+          { value: 'PALLET', label: 'Pallet' },
+          { value: 'PAQUETE', label: 'Paquete' },
+        ];
+      }
+    } catch {
+      this.presentationOptions = [
+        { value: 'UNIDAD', label: 'Unidad' },
+        { value: 'CAJA', label: 'Caja' },
+        { value: 'PALLET', label: 'Pallet' },
+        { value: 'PAQUETE', label: 'Paquete' },
+      ];
     }
   }
 
@@ -100,7 +130,7 @@ export class ArticleFormComponent implements OnInit, OnChanges {
         name: ['', [Validators.required, Validators.maxLength(255)]],
         description: ['', Validators.maxLength(500)],
         unit_price: [null, [Validators.min(0)]],
-        presentation: ['unit', Validators.required],
+        presentation: [this.presentationOptions[0]?.value ?? 'UNIDAD', Validators.required],
         track_by_lot: [false],
         track_by_serial: [false],
         track_expiration: [false],
@@ -255,7 +285,8 @@ export class ArticleFormComponent implements OnInit, OnChanges {
       }
     } else if (this.articleForm) {
       this.articleForm.reset();
-      this.articleForm.patchValue({ presentation: 'unit', is_active: true });
+      const defaultPresentation = this.presentationOptions.length > 0 ? this.presentationOptions[0].value : 'UNIDAD';
+      this.articleForm.patchValue({ presentation: defaultPresentation, is_active: true });
       this.articleForm.get('sku')?.enable();
       this.skuCheckStatus = 'idle';
     }
@@ -360,7 +391,7 @@ export class ArticleFormComponent implements OnInit, OnChanges {
     const payload: CreateArticleRequest = {
       sku: str(raw['sku']),
       name: str(raw['name']),
-      presentation: str(raw['presentation']) || 'unit',
+      presentation: str(raw['presentation']) || (this.presentationOptions[0]?.value ?? 'UNIDAD'),
       track_by_lot: !!raw['track_by_lot'],
       track_by_serial: !!raw['track_by_serial'],
       track_expiration: trackExpiration,

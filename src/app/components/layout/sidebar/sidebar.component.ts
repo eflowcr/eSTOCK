@@ -124,6 +124,10 @@ interface SidebarSection {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 12l9.75 4.5 9.75-4.5-9.75-4.5L2.25 12z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 16.5l9.75 4.5 9.75-4.5-9.75-4.5L2.25 16.5z"></path>
               </svg>
+              <!-- Box Icon (presentation types) -->
+              <svg *ngIf="item.icon === 'Box'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8 4-8-4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+              </svg>
               
               {{ t(item.name) }}
               </a>
@@ -196,7 +200,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       },
       {
         titleKey: 'sidebar.section.general_management',
-        hrefs: ['/articles', '/inventory', '/locations', '/location-types', '/barcode-generator'],
+        hrefs: ['/articles', '/inventory', '/locations', '/location-types', '/presentation-types', '/barcode-generator'],
       },
       {
         titleKey: 'sidebar.section.administration',

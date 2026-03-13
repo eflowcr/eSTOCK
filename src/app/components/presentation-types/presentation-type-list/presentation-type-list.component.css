@@ -1,0 +1,11 @@
+.presentation-type-table-fixed thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: rgb(249 250 251);
+  backdrop-filter: blur(8px);
+}
+
+.dark .presentation-type-table-fixed thead th {
+  background-color: rgb(55 65 81);
+}

@@ -399,6 +399,8 @@ export const enTranslations = {
   'errors.user_has_relations': "This user has linked records. Remove them first before deleting.",
   'errors.location_type_code_exists': "A location type with this code already exists.",
   'errors.location_type_not_found': "We couldn't find that location type.",
+  'errors.presentation_type_code_exists': "A presentation type with this code already exists.",
+  'errors.presentation_type_not_found': "We couldn't find that presentation type.",
   'errors.sku_already_exists': "This product code is already in use. Please choose another.",
   'errors.operation_failed_generic': "Something went wrong. Please try again.",
 
@@ -545,6 +547,10 @@ export const enTranslations = {
   box: 'Box',
   pallet: 'Pallet',
   pack: 'Pack',
+  UNIDAD: 'Unit',
+  CAJA: 'Box',
+  PALLET: 'Pallet',
+  PAQUETE: 'Package',
 
   // Form actions (articles)
   update_article: 'Update Article',
@@ -720,6 +726,36 @@ export const enTranslations = {
   error_saving_location_type: 'Error saving location type.',
   no_location_types: 'No location types',
   search_location_types: 'Search location types...',
+
+  // Presentation types (admin)
+  presentation_types: 'Presentation Types',
+  presentation_types_management: 'Presentation Types',
+  presentation_types_management_description:
+    'Manage presentation types (Unidad, Caja, Pallet, Paquete, etc.) used for articles and inventory.',
+  create_presentation_type: 'Create Presentation Type',
+  edit_presentation_type: 'Edit Presentation Type',
+  create_presentation_type_description: 'Add a new presentation type to the catalog.',
+  edit_presentation_type_description: 'Update the selected presentation type.',
+  presentation_type_code: 'Code',
+  enter_presentation_type_code: 'Enter code (e.g. UNIDAD)',
+  presentation_type_name: 'Name',
+  enter_presentation_type_name: 'Display name (e.g. Unidad)',
+  presentation_type_created: 'Presentation type created successfully.',
+  presentation_type_updated: 'Presentation type updated successfully.',
+  presentation_type_deleted: 'Presentation type deleted successfully.',
+  failed_to_create_presentation_type: 'Failed to create presentation type',
+  failed_to_update_presentation_type: 'Failed to update presentation type',
+  failed_to_delete_presentation_type: 'Failed to delete presentation type',
+  failed_to_load_presentation_types: 'Failed to load presentation types',
+  delete_presentation_type_confirm:
+    'Are you sure you want to delete this presentation type?',
+  set_presentation_type_order: 'Set order',
+  set_presentation_type_order_description:
+    'Use the arrows to set the display order of presentation types.',
+  presentation_type_order_saved: 'Order saved successfully.',
+  error_saving_presentation_type: 'Error saving presentation type.',
+  no_presentation_types: 'No presentation types',
+  search_presentation_types: 'Search presentation types...',
 
   // Users additions
   'user_management.invalid_email': 'Invalid email address',

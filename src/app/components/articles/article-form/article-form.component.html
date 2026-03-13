@@ -90,10 +90,7 @@
             [zPlaceholder]="t('select_presentation')"
             class="block w-full"
           >
-            <z-select-item zValue="unit">{{ t('unit') }}</z-select-item>
-            <z-select-item zValue="box">{{ t('box') }}</z-select-item>
-            <z-select-item zValue="pallet">{{ t('pallet') }}</z-select-item>
-            <z-select-item zValue="pack">{{ t('pack') }}</z-select-item>
+            <z-select-item *ngFor="let opt of presentationOptions" [zValue]="opt.value">{{ opt.label }}</z-select-item>
           </z-select>
         </z-form-control>
       </z-form-field>

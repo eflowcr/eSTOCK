@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LanguageService } from '@app/services/extras/language.service';
+import { PresentationTypesService } from '@app/services/presentation-types.service';
 import { ZardDialogRef, Z_MODAL_DATA } from '@app/shared/components/dialog';
 import { ZardButtonComponent } from '@app/shared/components/button/button.component';
 import { ZardSelectComponent } from '@app/shared/components/select/select.component';
@@ -26,10 +27,7 @@ export interface ArticleFiltersData {
             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('presentation') }}</label>
             <z-select [(ngModel)]="presentationFilter" class="block w-full">
               <z-select-item zValue="">{{ t('all_presentations') }}</z-select-item>
-              <z-select-item zValue="unit">{{ t('unit') }}</z-select-item>
-              <z-select-item zValue="box">{{ t('box') }}</z-select-item>
-              <z-select-item zValue="pallet">{{ t('pallet') }}</z-select-item>
-              <z-select-item zValue="pack">{{ t('pack') }}</z-select-item>
+              <z-select-item *ngFor="let opt of presentationOptions" [zValue]="opt.value">{{ opt.label }}</z-select-item>
             </z-select>
           </div>
           <div>
@@ -67,20 +65,50 @@ export interface ArticleFiltersData {
     }
   `,
 })
-export class ArticleFiltersContentComponent {
+export class ArticleFiltersContentComponent implements OnInit {
   protected readonly language = inject(LanguageService);
   protected readonly dialogRef = inject(ZardDialogRef);
   protected readonly data = inject<ArticleFiltersData>(Z_MODAL_DATA);
+  private readonly presentationTypesService = inject(PresentationTypesService);
 
   presentationFilter = '';
   trackingFilter = '';
   statusFilter = '';
+  presentationOptions: { value: string; label: string }[] = [];
 
   constructor() {
     if (this.data) {
       this.presentationFilter = this.data.presentationFilter ?? '';
       this.trackingFilter = this.data.trackingFilter ?? '';
       this.statusFilter = this.data.statusFilter ?? '';
+    }
+  }
+
+  ngOnInit(): void {
+    this.loadPresentationTypes();
+  }
+
+  private async loadPresentationTypes(): Promise<void> {
+    try {
+      const res = await this.presentationTypesService.getList();
+      if (res?.result?.success && Array.isArray(res.data)) {
+        this.presentationOptions = res.data.map((pt) => ({ value: pt.code, label: pt.name }));
+      }
+      if (this.presentationOptions.length === 0) {
+        this.presentationOptions = [
+          { value: 'UNIDAD', label: 'Unidad' },
+          { value: 'CAJA', label: 'Caja' },
+          { value: 'PALLET', label: 'Pallet' },
+          { value: 'PAQUETE', label: 'Paquete' },
+        ];
+      }
+    } catch {
+      this.presentationOptions = [
+        { value: 'UNIDAD', label: 'Unidad' },
+        { value: 'CAJA', label: 'Caja' },
+        { value: 'PALLET', label: 'Pallet' },
+        { value: 'PAQUETE', label: 'Paquete' },
+      ];
     }
   }
 

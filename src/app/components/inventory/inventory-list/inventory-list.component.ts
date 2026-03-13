@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, EventEmitter, Input, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   ColumnDef,
@@ -11,6 +11,7 @@ import {
   getSortedRowModel,
 } from '@tanstack/angular-table';
 import { Inventory } from '../../../models/inventory.model';
+import { PresentationTypesService } from '../../../services/presentation-types.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
 import { LanguageService } from '../../../services/extras/language.service';
@@ -30,7 +31,7 @@ import { ZardSelectItemComponent } from '../../../shared/components/select/selec
   templateUrl: './inventory-list.component.html',
   styleUrls: ['./inventory-list.component.css']
 })
-export class InventoryListComponent {
+export class InventoryListComponent implements OnInit {
   @Input() set inventory(value: Inventory[]) {
     this.inventorySignal.set(value ?? []);
   }
@@ -48,6 +49,8 @@ export class InventoryListComponent {
   sortBy = 'sku';
   sortOrder: 'asc' | 'desc' = 'asc';
   filtersExpanded = false;
+  /** Presentation types for filter dropdown (from API). */
+  presentationOptions: { value: string; label: string }[] = [];
 
   private readonly inventorySignal = signal<Inventory[]>([]);
   private readonly searchTermSignal = signal('');
@@ -123,11 +126,27 @@ export class InventoryListComponent {
 
   constructor(
     private inventoryService: InventoryService,
+    private presentationTypesService: PresentationTypesService,
     private languageService: LanguageService,
     private alertService: AlertService,
     private authService: AuthorizationService,
     private dialogService: ZardDialogService
   ) {}
+
+  ngOnInit(): void {
+    this.loadPresentationTypes();
+  }
+
+  private async loadPresentationTypes(): Promise<void> {
+    try {
+      const res = await this.presentationTypesService.getList();
+      if (res?.result?.success && Array.isArray(res.data)) {
+        this.presentationOptions = res.data.map((pt) => ({ value: pt.code, label: pt.name }));
+      }
+    } catch {
+      this.presentationOptions = [];
+    }
+  }
 
   get t() {
     return this.languageService.t.bind(this.languageService);
