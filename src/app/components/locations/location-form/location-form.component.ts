@@ -9,7 +9,6 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { getDisplayableApiError, humanizeApiError } from '@app/utils';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
-import { ZardSwitchComponent } from '../../../shared/components/switch';
 import { DrawerComponent } from '../../../shared/components/drawer';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardFormImports } from '../../../shared/components/form/form.imports';
@@ -26,8 +25,7 @@ import { ZardInputDirective } from '../../../shared/components/input/input.direc
     ZardFormImports,
     ZardInputDirective,
     ZardSelectComponent,
-    ZardSelectItemComponent,
-    ZardSwitchComponent
+    ZardSelectItemComponent
   ],
   templateUrl: './location-form.component.html',
   styleUrls: ['./location-form.component.css']
@@ -101,7 +99,8 @@ export class LocationFormComponent implements OnInit, OnChanges {
       description: ['', [Validators.maxLength(255)]],
       zone: ['', [Validators.maxLength(100)]],
       type: ['SHELF', [Validators.required]],
-      is_active: [true]
+      is_active: [true],
+      is_way_out: [false],
     });
 
     this.loadLocationData();
@@ -114,7 +113,8 @@ export class LocationFormComponent implements OnInit, OnChanges {
         description: this.initialData.description || '',
         zone: this.initialData.zone || '',
         type: this.initialData.type || 'SHELF',
-        is_active: !!this.initialData.is_active
+        is_active: !!this.initialData.is_active,
+        is_way_out: !!this.initialData.is_way_out,
       });
     }
   }
@@ -130,6 +130,7 @@ export class LocationFormComponent implements OnInit, OnChanges {
       const formData = {
         ...this.locationForm.value,
         is_active: !!this.locationForm.value.is_active,
+        is_way_out: !!this.locationForm.value.is_way_out,
       };
 
       let response;
@@ -203,5 +204,15 @@ export class LocationFormComponent implements OnInit, OnChanges {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.locationForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  toggleIsActive(): void {
+    const current = !!this.locationForm.get('is_active')?.value;
+    this.locationForm.patchValue({ is_active: !current });
+  }
+
+  toggleIsWayOut(): void {
+    const current = !!this.locationForm.get('is_way_out')?.value;
+    this.locationForm.patchValue({ is_way_out: !current });
   }
 }

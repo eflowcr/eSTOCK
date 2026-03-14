@@ -46,6 +46,15 @@
         </z-form-field>
       </div>
 
+      <z-form-field>
+        <label z-form-label for="dock_location">{{ t('stock_transfer_dock_location') }}</label>
+        <z-form-control>
+          <input z-input id="dock_location" type="text" formControlName="dock_location"
+            [placeholder]="t('stock_transfer_dock_location_placeholder')" class="block w-full" />
+        </z-form-control>
+        <span class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('stock_transfer_dock_location_hint') }}</span>
+      </z-form-field>
+
       @if (isEditing) {
         <z-form-field>
           <label z-form-label zRequired for="status">{{ t('stock_transfer_status') }}</label>
@@ -82,35 +91,41 @@
               <div [formGroupName]="i" class="flex flex-wrap items-start gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
                 <div class="flex-1 min-w-[160px] relative">
                   <input type="hidden" formControlName="sku" />
-                  <input
-                    z-input
-                    type="text"
-                    [value]="getLineSearchTerm(i)"
-                    (input)="setLineSearchTerm(i, $any($event.target).value)"
-                    (focus)="onLineSkuFocus(i)"
-                    (blur)="onLineSkuBlur(i)"
-                    (keydown.enter)="$event.preventDefault(); confirmFirstArticleForLine(i)"
-                    [placeholder]="t('select_sku')"
-                    class="w-full pr-8"
-                  />
-                  @if (getLineSearchTerm(i) || line.get('sku')?.value) {
-                    <button type="button" (click)="clearLineSku(i)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-600" [attr.aria-label]="t('clear_selection')">
-                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                  }
-                  @if (lineShowDropdown[i]) {
-                    <div class="absolute z-10 mt-1 left-0 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-48 overflow-auto shadow-lg">
-                      @for (art of getFilteredArticlesForLine(i); track art.sku) {
-                        <button type="button" (mousedown)="$event.preventDefault()" (click)="onLineSkuSelect(i, art)"
-                          class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
-                          {{ art.sku }} - {{ art.name }}
-                        </button>
-                      }
-                      @if (getFilteredArticlesForLine(i).length === 0) {
-                        <div class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">{{ t('no_results') }}</div>
-                      }
-                    </div>
-                  }
+                  <div class="relative">
+                    <input
+                      z-input
+                      type="text"
+                      [value]="getLineSearchTerm(i)"
+                      (input)="setLineSearchTerm(i, $any($event.target).value)"
+                      (focus)="onLineSkuFocus(i)"
+                      (blur)="onLineSkuBlur(i)"
+                      (keydown.enter)="$event.preventDefault(); confirmFirstArticleForLine(i)"
+                      [placeholder]="t('select_sku')"
+                      class="w-full pr-9"
+                    />
+                    @if (getLineSearchTerm(i) || line.get('sku')?.value) {
+                      <button
+                        type="button"
+                        (click)="clearLineSku(i)"
+                        class="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 inline-flex items-center justify-center rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        [attr.aria-label]="t('clear_selection')">
+                        <svg class="h-4 w-4 block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                      </button>
+                    }
+                    @if (lineShowDropdown[i]) {
+                      <div class="absolute z-10 mt-1 left-0 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-48 overflow-auto shadow-lg">
+                        @for (art of getFilteredArticlesForLine(i); track art.sku) {
+                          <button type="button" (mousedown)="$event.preventDefault()" (click)="onLineSkuSelect(i, art)"
+                            class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
+                            {{ art.sku }} - {{ art.name }}
+                          </button>
+                        }
+                        @if (getFilteredArticlesForLine(i).length === 0) {
+                          <div class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">{{ t('no_results') }}</div>
+                        }
+                      </div>
+                    }
+                  </div>
                   @if (line.get('sku')?.value) {
                     @if (isLineAvailabilityLoading(i)) {
                       <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ t('loading') }}...</p>

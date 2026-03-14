@@ -90,6 +90,7 @@ export class StockTransferFormComponent implements OnInit, OnChanges {
     this.form = this.fb.group({
       from_location_id: ['', Validators.required],
       to_location_id: ['', Validators.required],
+      dock_location: [''],
       status: ['draft', Validators.required],
       notes: [''],
       lines: this.fb.array([], Validators.required),
@@ -115,11 +116,12 @@ export class StockTransferFormComponent implements OnInit, OnChanges {
       this.form.patchValue({
         from_location_id: this.initialData.from_location_id,
         to_location_id: this.initialData.to_location_id,
+        dock_location: this.initialData.dock_location ?? '',
         status: this.initialData.status,
         notes: this.initialData.notes ?? '',
       });
     } else {
-      this.form.patchValue({ status: 'draft', notes: '' });
+      this.form.patchValue({ status: 'draft', notes: '', dock_location: '' });
       const arr = this.linesArray;
       arr.clear();
       this.lineSearchTerms = [];
@@ -387,6 +389,7 @@ export class StockTransferFormComponent implements OnInit, OnChanges {
           to_location_id: toId,
           status: this.form.get('status')?.value,
           notes: this.form.get('notes')?.value || undefined,
+          dock_location: this.form.get('dock_location')?.value?.trim() || undefined,
         });
         if (res?.result?.success) {
           this.alertService.success(this.t('success'), this.t('stock_transfer_updated'));
@@ -400,6 +403,7 @@ export class StockTransferFormComponent implements OnInit, OnChanges {
           from_location_id: fromId,
           to_location_id: toId,
           notes: this.form.get('notes')?.value || undefined,
+          dock_location: this.form.get('dock_location')?.value?.trim() || undefined,
           lines: validLines.map((l) => ({
             sku: l.sku.trim(),
             quantity: Number(l.quantity),

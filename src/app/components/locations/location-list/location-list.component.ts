@@ -92,6 +92,7 @@ export class LocationListComponent {
     { id: 'description', accessorKey: 'description', enableSorting: true },
     { id: 'zone', accessorKey: 'zone', enableSorting: true },
     { id: 'type', accessorKey: 'type', enableSorting: true },
+    { id: 'way_out', accessorKey: 'is_way_out', enableSorting: false },
     { id: 'status', accessorFn: (row) => (row.is_active ? 'active' : 'inactive'), enableSorting: false },
     { id: 'actions', accessorFn: () => '', enableSorting: false },
   ];
@@ -267,6 +268,7 @@ export class LocationListComponent {
       description: this.t('location_description'),
       zone: this.t('location_zone'),
       type: this.t('location_type'),
+      way_out: this.t('location_way_out_short'),
       status: this.t('location_status'),
       actions: this.t('user_management.actions'),
     };

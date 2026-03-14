@@ -69,6 +69,21 @@ export interface LocationDetailsData {
             </div>
           </div>
         </div>
+        <div class="flex items-start gap-3 py-3 border-b border-border">
+          <div class="size-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">{{ t('location_is_way_out') }}</p>
+            <p class="mt-0.5">
+              @if (data.location.is_way_out) {
+                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">{{ t('location_way_out_label') }}</span>
+              } @else {
+                <span class="text-muted-foreground">—</span>
+              }
+            </p>
+          </div>
+        </div>
         <div class="flex items-start gap-3 py-3">
           <div class="size-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
             <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>

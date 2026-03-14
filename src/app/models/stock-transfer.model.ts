@@ -10,6 +10,7 @@ export interface StockTransfer {
   created_by: string;
   assigned_to?: string | null;
   notes?: string | null;
+  dock_location?: string | null;
   created_at?: string;
   updated_at?: string;
   completed_at?: string | null;
@@ -36,6 +37,7 @@ export interface CreateStockTransferRequest {
   to_location_id: string;
   assigned_to?: string | null;
   notes?: string | null;
+  dock_location?: string | null;
   lines: StockTransferLineInput[];
 }
 
@@ -45,6 +47,7 @@ export interface UpdateStockTransferRequest {
   status: string;
   assigned_to?: string | null;
   notes?: string | null;
+  dock_location?: string | null;
 }
 
 export interface UpdateStockTransferLineRequest {

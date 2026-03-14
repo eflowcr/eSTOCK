@@ -78,7 +78,7 @@
             <ng-container [ngSwitch]="cell.column.id">
               <span *ngSwitchCase="'transfer_number'" class="font-medium">{{ row.original.transfer_number }}</span>
               <span *ngSwitchCase="'from_location'" class="font-medium">{{ getLocationName(row.original.from_location_id) }}</span>
-              <span *ngSwitchCase="'to_location'" class="font-medium">{{ getLocationName(row.original.to_location_id) }}</span>
+              <span *ngSwitchCase="'to_location'" class="font-medium">{{ getToLocationDisplay(row.original) }}</span>
               <span *ngSwitchCase="'status'" [class]="getStatusBadgeClass(row.original.status)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
                 {{ getStatusLabel(row.original.status) }}
               </span>

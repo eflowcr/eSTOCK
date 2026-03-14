@@ -169,6 +169,13 @@
               <span *ngSwitchCase="'type'" [class]="getTypeBadgeClass(row.original.type)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
                 {{ t(row.original.type.toLowerCase()) }}
               </span>
+              <span *ngSwitchCase="'way_out'">
+                @if (row.original.is_way_out) {
+                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">{{ t('location_way_out_short') }}</span>
+                } @else {
+                  <span class="text-gray-400 dark:text-gray-500">—</span>
+                }
+              </span>
               <span *ngSwitchCase="'status'" [class]="getStatusBadgeClass(row.original.is_active)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
                 {{ row.original.is_active ? t('user_management.active') : t('user_management.inactive') }}
               </span>

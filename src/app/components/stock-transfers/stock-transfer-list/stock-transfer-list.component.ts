@@ -82,6 +82,7 @@ export class StockTransferListComponent {
         (t.transfer_number || '').toLowerCase().includes(search) ||
         fromName.toLowerCase().includes(search) ||
         toName.toLowerCase().includes(search) ||
+        (t.dock_location || '').toLowerCase().includes(search) ||
         (t.status || '').toLowerCase().includes(search)
       );
     });
@@ -124,6 +125,15 @@ export class StockTransferListComponent {
 
   getLocationName(id: string): string {
     return this.locationNameMap()[id] ?? id;
+  }
+
+  getToLocationDisplay(transfer: StockTransfer): string {
+    const name = this.getLocationName(transfer.to_location_id);
+    const dock = transfer.dock_location?.trim();
+    if (dock) {
+      return `${name} (${dock})`;
+    }
+    return name;
   }
 
   onSearch(): void {

@@ -5,6 +5,7 @@ export interface Location {
 	zone?: string;
 	type: string;
 	is_active: boolean;
-	created_at: string; 
-	updated_at: string; 
+	is_way_out?: boolean;
+	created_at: string;
+	updated_at: string;
 }
