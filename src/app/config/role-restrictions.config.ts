@@ -9,6 +9,7 @@ export const ADMIN_ONLY_ROUTES = [
   '/roles',
   '/location-types',
   '/presentation-types',
+  '/presentation-conversions',
   '/admin-control-center',
   '/gamification',
 ];

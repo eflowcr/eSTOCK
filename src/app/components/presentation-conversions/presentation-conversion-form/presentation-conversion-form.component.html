@@ -1,0 +1,79 @@
+<app-drawer [isOpen]="isOpen" (closed)="close()" direction="bottom" panelClass="!max-h-[96vh] w-full max-w-full">
+  <div drawerHeader>
+    <div class="flex flex-col gap-0.5 md:gap-1.5 text-center md:text-left">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex-1 min-w-0">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ isEditing ? t('edit_presentation_conversion') : t('create_presentation_conversion') }}
+          </h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            {{ isEditing ? t('edit_presentation_conversion_description') : t('create_presentation_conversion_description') }}
+          </p>
+        </div>
+        <button type="button" (click)="close()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div drawerContent>
+    <form id="presentationConversionForm" [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6 px-1">
+      <z-form-field>
+        <label z-form-label zRequired for="from_presentation_type_id">{{ t('conversion_from_type') }}</label>
+        <z-form-control [errorMessage]="fromTypeError()">
+          @if (isEditing) {
+            <input z-input type="text" id="from_presentation_type_id" [value]="getTypeName(initialData?.from_presentation_type_id ?? '')" readonly class="bg-gray-100 dark:bg-gray-700" />
+          } @else {
+            <select id="from_presentation_type_id" formControlName="from_presentation_type_id"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option value="">{{ t('select_from_presentation_type') }}</option>
+              @for (pt of presentationTypes; track pt.id) {
+                <option [value]="pt.id">{{ pt.name }} ({{ pt.code }})</option>
+              }
+            </select>
+          }
+        </z-form-control>
+      </z-form-field>
+      <z-form-field>
+        <label z-form-label zRequired for="to_presentation_type_id">{{ t('conversion_to_type') }}</label>
+        <z-form-control [errorMessage]="toTypeError()">
+          @if (isEditing) {
+            <input z-input type="text" id="to_presentation_type_id" [value]="getTypeName(initialData?.to_presentation_type_id ?? '')" readonly class="bg-gray-100 dark:bg-gray-700" />
+          } @else {
+            <select id="to_presentation_type_id" formControlName="to_presentation_type_id"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option value="">{{ t('select_to_presentation_type') }}</option>
+              @for (pt of presentationTypes; track pt.id) {
+                <option [value]="pt.id">{{ pt.name }} ({{ pt.code }})</option>
+              }
+            </select>
+          }
+        </z-form-control>
+      </z-form-field>
+      <z-form-field>
+        <label z-form-label zRequired for="conversion_factor">{{ t('conversion_factor') }}</label>
+        <z-form-control [errorMessage]="factorError()">
+          <input z-input type="number" id="conversion_factor" formControlName="conversion_factor" step="0.000001" min="0.000001" [placeholder]="t('conversion_factor_placeholder')" />
+        </z-form-control>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('conversion_factor_help') }}</p>
+      </z-form-field>
+      <z-form-field>
+        <label z-form-label for="is_active">{{ t('location_status') }}</label>
+        <z-form-control>
+          <z-switch id="is_active" formControlName="is_active">{{ t('active') }}</z-switch>
+        </z-form-control>
+      </z-form-field>
+    </form>
+  </div>
+
+  <div drawerFooter class="flex flex-row gap-2 pb-6">
+    <button z-button zType="outline" zSize="lg" type="button" (click)="close()" class="flex-1">{{ t('cancel') }}</button>
+    <button z-button zType="default" zSize="lg" type="submit" form="presentationConversionForm"
+      [zDisabled]="form.invalid || isSubmitting" [zLoading]="isSubmitting" class="flex-1">
+      {{ isSubmitting ? t('saving') : (isEditing ? t('update') : t('create')) }}
+    </button>
+  </div>
+</app-drawer>

@@ -12,7 +12,7 @@
             type="text"
             [(ngModel)]="searchTerm"
             (ngModelChange)="onSearch()"
-            [placeholder]="t('search_location_types')"
+            [placeholder]="t('search_presentation_conversions')"
             class="pl-9 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           />
         </div>
@@ -21,7 +21,7 @@
   </div>
 
   <div class="overflow-auto flex-1 min-h-0">
-    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 location-type-table-fixed">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
       <thead class="bg-gray-50 dark:bg-gray-700">
         <tr *ngFor="let headerGroup of table.getHeaderGroups()">
           <th
@@ -53,17 +53,18 @@
           <td [attr.colspan]="columns.length" class="px-3 py-10 text-center">
             <div class="flex flex-col items-center justify-center gap-2 text-muted-foreground">
               <svg class="h-10 w-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
               </svg>
-              <span class="text-sm font-medium">{{ searchTerm ? t('no_results') : t('no_location_types') }}</span>
+              <span class="text-sm font-medium">{{ searchTerm ? t('no_results') : t('no_presentation_conversions') }}</span>
             </div>
           </td>
         </tr>
         <tr *ngFor="let row of table.getRowModel().rows" class="hover:bg-gray-50 dark:hover:bg-gray-700">
           <td *ngFor="let cell of row.getVisibleCells()" class="px-3 py-4 text-sm text-gray-900 dark:text-white align-top">
             <ng-container [ngSwitch]="cell.column.id">
-              <span *ngSwitchCase="'code'" class="font-mono text-xs font-medium">{{ row.original.code }}</span>
-              <span *ngSwitchCase="'name'" class="font-medium">{{ row.original.name }}</span>
+              <span *ngSwitchCase="'from_type'" class="font-medium">{{ getTypeName(row.original.from_presentation_type_id) }}</span>
+              <span *ngSwitchCase="'to_type'" class="font-medium">{{ getTypeName(row.original.to_presentation_type_id) }}</span>
+              <span *ngSwitchCase="'factor'" class="font-mono text-xs">{{ row.original.conversion_factor }}</span>
               <span *ngSwitchCase="'status'" [class]="getStatusBadgeClass(row.original.is_active)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
                 {{ row.original.is_active ? t('active') : t('inactive') }}
               </span>

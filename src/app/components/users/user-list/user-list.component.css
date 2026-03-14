@@ -1,5 +1,14 @@
 /* User List Styles - Matching Locations */
 
+/* Host fills the flex parent so the table card stretches to fill the gap */
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
 /* Custom scrollbar for table */
 .overflow-x-auto::-webkit-scrollbar {
   height: 8px;

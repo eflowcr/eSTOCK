@@ -128,6 +128,10 @@ interface SidebarSection {
               <svg *ngIf="item.icon === 'Box'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8 4-8-4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
               </svg>
+              <!-- ArrowRightLeft Icon (presentation conversions) -->
+              <svg *ngIf="item.icon === 'ArrowRightLeft'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18M17 8l4 4m0 0l-4 4m4-4H3"></path>
+              </svg>
               
               {{ t(item.name) }}
               </a>
@@ -200,7 +204,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       },
       {
         titleKey: 'sidebar.section.general_management',
-        hrefs: ['/articles', '/inventory', '/locations', '/location-types', '/presentation-types', '/barcode-generator'],
+        hrefs: ['/articles', '/inventory', '/locations', '/location-types', '/presentation-types', '/presentation-conversions', '/stock-transfers', '/barcode-generator'],
       },
       {
         titleKey: 'sidebar.section.administration',

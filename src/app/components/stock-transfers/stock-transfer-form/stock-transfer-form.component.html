@@ -1,0 +1,114 @@
+<app-drawer [isOpen]="isOpen" (closed)="close()" direction="bottom" panelClass="!max-h-[96vh] w-full max-w-full">
+  <div drawerHeader>
+    <div class="flex flex-col gap-0.5 md:gap-1.5 text-center md:text-left">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex-1 min-w-0">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ isEditing ? t('edit_stock_transfer') : t('create_stock_transfer') }}
+          </h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            {{ isEditing ? t('edit_stock_transfer_description') : t('create_stock_transfer_description') }}
+          </p>
+        </div>
+        <button type="button" (click)="close()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div drawerContent>
+    <form id="stockTransferForm" [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6 px-1">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <z-form-field>
+          <label z-form-label zRequired for="from_location_id">{{ t('stock_transfer_from_location') }}</label>
+          <z-form-control>
+            <select id="from_location_id" formControlName="from_location_id"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option value="">{{ t('select_location') }}</option>
+              @for (loc of locations; track loc.id) {
+                <option [value]="loc.id">{{ getLocationLabel(loc) }}</option>
+              }
+            </select>
+          </z-form-control>
+        </z-form-field>
+        <z-form-field>
+          <label z-form-label zRequired for="to_location_id">{{ t('stock_transfer_to_location') }}</label>
+          <z-form-control>
+            <select id="to_location_id" formControlName="to_location_id"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option value="">{{ t('select_location') }}</option>
+              @for (loc of locations; track loc.id) {
+                <option [value]="loc.id">{{ getLocationLabel(loc) }}</option>
+              }
+            </select>
+          </z-form-control>
+        </z-form-field>
+      </div>
+
+      @if (isEditing) {
+        <z-form-field>
+          <label z-form-label zRequired for="status">{{ t('stock_transfer_status') }}</label>
+          <z-form-control>
+            <select id="status" formControlName="status"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option value="draft">{{ t('stock_transfer_status_draft') }}</option>
+              <option value="in_progress">{{ t('stock_transfer_status_in_progress') }}</option>
+              <option value="completed">{{ t('stock_transfer_status_completed') }}</option>
+              <option value="cancelled">{{ t('stock_transfer_status_cancelled') }}</option>
+            </select>
+          </z-form-control>
+        </z-form-field>
+      }
+
+      <z-form-field>
+        <label z-form-label for="notes">{{ t('stock_transfer_notes') }}</label>
+        <z-form-control>
+          <textarea id="notes" formControlName="notes" rows="2"
+            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            [placeholder]="t('stock_transfer_notes_placeholder')"></textarea>
+        </z-form-control>
+      </z-form-field>
+
+      @if (!isEditing) {
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('stock_transfer_lines') }}</label>
+            <button type="button" (click)="addLine()" class="text-sm text-[#00113f] hover:text-[#3e66ea] dark:text-primary">
+              + {{ t('stock_transfer_add_line') }}
+            </button>
+          </div>
+          <div formArrayName="lines" class="space-y-3">
+            @for (line of linesArray.controls; track $index; let i = $index) {
+              <div [formGroupName]="i" class="flex flex-wrap items-end gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                <div class="flex-1 min-w-[120px]">
+                  <input z-input type="text" formControlName="sku" [placeholder]="t('sku')" class="w-full" />
+                </div>
+                <div class="w-24">
+                  <input z-input type="number" formControlName="quantity" step="0.001" min="0.001" [placeholder]="t('quantity')" class="w-full" />
+                </div>
+                <div class="w-28">
+                  <input z-input type="text" formControlName="presentation" [placeholder]="t('presentation')" class="w-full" />
+                </div>
+                <button type="button" (click)="removeLine(i)" [disabled]="linesArray.length <= 1"
+                  class="p-2 rounded text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50" [attr.aria-label]="t('remove_item')">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </form>
+  </div>
+
+  <div drawerFooter class="flex flex-row gap-2 pb-6">
+    <button z-button zType="outline" zSize="lg" type="button" (click)="close()" class="flex-1">{{ t('cancel') }}</button>
+    <button z-button zType="default" zSize="lg" type="submit" form="stockTransferForm"
+      [zDisabled]="form.invalid || isSubmitting" [zLoading]="isSubmitting" class="flex-1">
+      {{ isSubmitting ? t('saving') : (isEditing ? t('update') : t('create')) }}
+    </button>
+  </div>
+</app-drawer>

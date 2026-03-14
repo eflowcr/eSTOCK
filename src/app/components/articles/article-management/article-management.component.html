@@ -1,8 +1,8 @@
 <app-main-layout>
 
-  <div class="space-y-6">
+  <div class="flex flex-col flex-1 min-h-0 gap-6">
     <!-- Header Section (same margin/padding as /locations) -->
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center flex-shrink-0">
       <div>
         <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
           {{ t('article_management') }}
@@ -25,6 +25,7 @@
     </div>
 
     <!-- Article List Component (Export/Import inside table container, right side) -->
+    <div class="flex flex-col flex-1 min-h-0">
     <app-article-list [articles]="articles" [isLoading]="isLoading" (articlesChanged)="loadArticles()"
       (editArticle)="openEditForm($event)">
       <div toolbarRight class="flex items-center gap-2">
@@ -46,6 +47,7 @@
         </button>
       </div>
     </app-article-list>
+    </div>
 
     <!-- Create/Edit Article Dialog -->
     <app-article-form *ngIf="isCreateDialogOpen" [initialData]="selectedArticle" [isOpen]="isCreateDialogOpen"

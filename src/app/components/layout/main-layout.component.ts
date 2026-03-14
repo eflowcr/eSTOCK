@@ -15,11 +15,11 @@ import { TopbarComponent } from './topbar/topbar.component';
       <app-alert></app-alert>
       <app-sidebar></app-sidebar>
       <div
-        class="flex flex-1 flex-col md:pl-3"
+        class="flex flex-1 flex-col min-h-0 md:pl-3"
         [class.md:ml-64]="!desktopSidebarCollapsed"
       >
         <app-topbar></app-topbar>
-        <main class="flex flex-1 flex-col gap-4 p-4">
+        <main class="flex flex-1 flex-col min-h-0 gap-4 p-4">
           <ng-content></ng-content>
         </main>
       </div>

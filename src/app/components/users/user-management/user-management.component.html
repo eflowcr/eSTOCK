@@ -1,8 +1,8 @@
 <app-main-layout>
 
-  <div class="space-y-6">
+  <div class="flex flex-col flex-1 min-h-0 gap-6">
     <!-- Header Section (same as /articles, /locations) -->
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center flex-shrink-0">
       <div>
         <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
           {{ t('user_management.title') }}
@@ -28,6 +28,7 @@
     </div>
 
     <!-- User List (Export/Import inside table container via toolbarRight) -->
+    <div class="flex flex-col flex-1 min-h-0">
     <app-user-list
       [users]="users"
       [isLoading]="isLoading"
@@ -57,6 +58,7 @@
         </button>
       </div>
     </app-user-list>
+    </div>
 
     <!-- Create/Edit User Drawer -->
     <app-user-form

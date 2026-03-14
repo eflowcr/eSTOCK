@@ -1,7 +1,7 @@
 <app-main-layout>
-  <div class="space-y-6">
+  <div class="flex flex-col flex-1 min-h-0 gap-6">
     <!-- Header Section -->
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center flex-shrink-0">
       <div>
         <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
           {{ t('inventory_management') }}
@@ -24,6 +24,7 @@
     </div>
 
     <!-- Inventory List (Export/Import inside table container, right side) -->
+    <div class="flex flex-col flex-1 min-h-0">
     <app-inventory-list [inventory]="inventory" [isLoading]="isLoading" (editInventory)="openEditDialog($event)"
       (deleteInventory)="onInventoryDeleted()">
       <div toolbarRight class="flex items-center gap-2">
@@ -45,6 +46,7 @@
         </button>
       </div>
     </app-inventory-list>
+    </div>
 
     <!-- Create/Edit Drawer -->
     <app-inventory-form *ngIf="isCreateDialogOpen" [inventory]="selectedInventory" [isOpen]="isCreateDialogOpen"

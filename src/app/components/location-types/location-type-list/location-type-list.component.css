@@ -1,3 +1,12 @@
+/* Host fills the flex parent so the table card stretches to fill the gap */
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .location-type-table-fixed thead th {
   position: sticky;
   top: 0;

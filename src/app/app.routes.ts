@@ -49,6 +49,16 @@ export const routes: Routes = [
     canActivate: [AuthGuard, AdminGuard],
   },
   {
+    path: 'presentation-conversions',
+    loadComponent: () => import('./components/presentation-conversions/presentation-conversions-management/presentation-conversions-management.component').then((m) => m.PresentationConversionsManagementComponent),
+    canActivate: [AuthGuard, AdminGuard],
+  },
+  {
+    path: 'stock-transfers',
+    loadComponent: () => import('./components/stock-transfers/stock-transfers-management/stock-transfers-management.component').then((m) => m.StockTransfersManagementComponent),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
     path: 'roles',
     loadComponent: () => import('./components/roles/role-management/role-management.component').then((m) => m.RoleManagementComponent),
     canActivate: [AuthGuard, AdminGuard],
