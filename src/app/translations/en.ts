@@ -847,6 +847,11 @@ export const enTranslations = {
   stock_transfer_execute: 'Execute transfer',
   stock_transfer_execute_confirm: 'Execute this transfer? Stock will be moved from source to destination and the transfer will be marked completed.',
   stock_transfer_executed: 'Transfer executed successfully.',
+  stock_transfer_source_available: 'Available at source',
+  stock_transfer_line_type: 'Type',
+  stock_transfer_select_source_for_limits: 'Select source location to see limits.',
+  stock_transfer_quantity_limit_reached: 'Max available',
+  stock_transfer_quantity_exceeds_available: 'Quantity exceeds available stock at source for SKU',
   failed_to_execute_stock_transfer: 'Failed to execute transfer',
 
   // Users additions

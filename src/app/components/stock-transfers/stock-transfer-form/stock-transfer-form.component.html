@@ -19,7 +19,7 @@
     </div>
   </div>
 
-  <div drawerContent>
+  <div drawerContent class="pb-56">
     <form id="stockTransferForm" [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6 px-1">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <z-form-field>
@@ -79,12 +79,60 @@
           </div>
           <div formArrayName="lines" class="space-y-3">
             @for (line of linesArray.controls; track $index; let i = $index) {
-              <div [formGroupName]="i" class="flex flex-wrap items-end gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
-                <div class="flex-1 min-w-[120px]">
-                  <input z-input type="text" formControlName="sku" [placeholder]="t('sku')" class="w-full" />
+              <div [formGroupName]="i" class="flex flex-wrap items-start gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                <div class="flex-1 min-w-[160px] relative">
+                  <input type="hidden" formControlName="sku" />
+                  <input
+                    z-input
+                    type="text"
+                    [value]="getLineSearchTerm(i)"
+                    (input)="setLineSearchTerm(i, $any($event.target).value)"
+                    (focus)="onLineSkuFocus(i)"
+                    (blur)="onLineSkuBlur(i)"
+                    (keydown.enter)="$event.preventDefault(); confirmFirstArticleForLine(i)"
+                    [placeholder]="t('select_sku')"
+                    class="w-full pr-8"
+                  />
+                  @if (getLineSearchTerm(i) || line.get('sku')?.value) {
+                    <button type="button" (click)="clearLineSku(i)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-600" [attr.aria-label]="t('clear_selection')">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                  }
+                  @if (lineShowDropdown[i]) {
+                    <div class="absolute z-10 mt-1 left-0 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-48 overflow-auto shadow-lg">
+                      @for (art of getFilteredArticlesForLine(i); track art.sku) {
+                        <button type="button" (mousedown)="$event.preventDefault()" (click)="onLineSkuSelect(i, art)"
+                          class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
+                          {{ art.sku }} - {{ art.name }}
+                        </button>
+                      }
+                      @if (getFilteredArticlesForLine(i).length === 0) {
+                        <div class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">{{ t('no_results') }}</div>
+                      }
+                    </div>
+                  }
+                  @if (line.get('sku')?.value) {
+                    @if (isLineAvailabilityLoading(i)) {
+                      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ t('loading') }}...</p>
+                    } @else if (getLineAvailableQty(i) !== null) {
+                      <p class="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                        {{ t('stock_transfer_source_available') }}: <span class="font-medium">{{ getLineAvailableQty(i) }}</span>
+                        @if (getLineType(i)) {
+                          · {{ t('stock_transfer_line_type') }}: <span class="font-medium">{{ getLineType(i) }}</span>
+                        }
+                      </p>
+                    } @else {
+                      <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">{{ t('stock_transfer_select_source_for_limits') }}</p>
+                    }
+                  }
                 </div>
                 <div class="w-24">
-                  <input z-input type="number" formControlName="quantity" step="0.001" min="0.001" [placeholder]="t('quantity')" class="w-full" />
+                  <input z-input type="number" formControlName="quantity" step="0.001" min="0.001" [max]="getLineQuantityMax(i)" [placeholder]="t('quantity')" class="w-full" />
+                  @if (isLineQuantityExceedsAvailable(i)) {
+                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">
+                      {{ t('stock_transfer_quantity_limit_reached') }}: {{ getLineAvailableQty(i) }}
+                    </p>
+                  }
                 </div>
                 <div class="w-28">
                   <input z-input type="text" formControlName="presentation" [placeholder]="t('presentation')" class="w-full" />

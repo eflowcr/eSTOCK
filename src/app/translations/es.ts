@@ -710,6 +710,11 @@ export const esTranslations = {
   stock_transfer_execute: 'Ejecutar transferencia',
   stock_transfer_execute_confirm: '¿Ejecutar esta transferencia? El stock se moverá de origen a destino y la transferencia quedará completada.',
   stock_transfer_executed: 'Transferencia ejecutada correctamente.',
+  stock_transfer_source_available: 'Disponible en origen',
+  stock_transfer_line_type: 'Tipo',
+  stock_transfer_select_source_for_limits: 'Selecciona ubicación origen para ver límites.',
+  stock_transfer_quantity_limit_reached: 'Máximo disponible',
+  stock_transfer_quantity_exceeds_available: 'La cantidad excede el stock disponible en origen para el SKU',
   failed_to_execute_stock_transfer: 'Error al ejecutar la transferencia',
 
   // Inventory Management

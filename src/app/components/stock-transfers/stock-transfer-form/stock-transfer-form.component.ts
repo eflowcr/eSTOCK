@@ -1,8 +1,12 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { StockTransfer, StockTransferLine, StockTransferLineInput } from '@app/models/stock-transfer.model';
+import { Article } from '@app/models/article.model';
 import { StockTransfersService } from '@app/services/stock-transfers.service';
+import { ArticleService } from '@app/services/article.service';
+import { InventoryService } from '@app/services/inventory.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { handleApiError } from '@app/utils';
@@ -29,6 +33,7 @@ export interface LocationOption {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     DrawerComponent,
     ZardButtonComponent,
     ZardFormFieldComponent,
@@ -53,9 +58,18 @@ export class StockTransferFormComponent implements OnInit, OnChanges {
   isEditing = false;
   isSubmitting = false;
 
+  articles: Article[] = [];
+  lineSearchTerms: string[] = [];
+  lineShowDropdown: boolean[] = [];
+  lineAvailableQty: Array<number | null> = [];
+  lineAvailableType: string[] = [];
+  lineAvailabilityLoading: boolean[] = [];
+
   constructor(
     private fb: FormBuilder,
     private stockTransfersService: StockTransfersService,
+    private articleService: ArticleService,
+    private inventoryService: InventoryService,
     private languageService: LanguageService,
     private alertService: AlertService
   ) {}
@@ -79,6 +93,9 @@ export class StockTransferFormComponent implements OnInit, OnChanges {
       status: ['draft', Validators.required],
       notes: [''],
       lines: this.fb.array([], Validators.required),
+    });
+    this.form.get('from_location_id')?.valueChanges.subscribe(() => {
+      this.refreshAllLineAvailability();
     });
     this.loadData();
   }
@@ -105,7 +122,15 @@ export class StockTransferFormComponent implements OnInit, OnChanges {
       this.form.patchValue({ status: 'draft', notes: '' });
       const arr = this.linesArray;
       arr.clear();
+      this.lineSearchTerms = [];
+      this.lineShowDropdown = [];
+      this.lineAvailableQty = [];
+      this.lineAvailableType = [];
+      this.lineAvailabilityLoading = [];
       this.addLine();
+      if (this.isOpen) {
+        this.loadArticles();
+      }
     }
     if (this.isEditing && this.lines?.length) {
       const arr = this.linesArray;
@@ -132,18 +157,201 @@ export class StockTransferFormComponent implements OnInit, OnChanges {
         presentation: [''],
       })
     );
+    this.lineSearchTerms.push('');
+    this.lineShowDropdown.push(false);
+    this.lineAvailableQty.push(null);
+    this.lineAvailableType.push('');
+    this.lineAvailabilityLoading.push(false);
   }
 
   removeLine(index: number): void {
     if (this.linesArray.length > 1) {
       this.linesArray.removeAt(index);
+      this.lineSearchTerms.splice(index, 1);
+      this.lineShowDropdown.splice(index, 1);
+      this.lineAvailableQty.splice(index, 1);
+      this.lineAvailableType.splice(index, 1);
+      this.lineAvailabilityLoading.splice(index, 1);
     }
   }
 
   close(): void {
     this.form?.reset({ lines: this.fb.array([]) });
+    this.lineSearchTerms = [];
+    this.lineShowDropdown = [];
+    this.lineAvailableQty = [];
+    this.lineAvailableType = [];
+    this.lineAvailabilityLoading = [];
     this.isEditing = false;
     this.closed.emit();
+  }
+
+  getLineSearchTerm(i: number): string {
+    return this.lineSearchTerms[i] ?? '';
+  }
+
+  setLineSearchTerm(i: number, value: string): void {
+    if (i >= 0 && i < this.lineSearchTerms.length) {
+      this.lineSearchTerms[i] = value;
+      this.lineShowDropdown[i] = true;
+    }
+  }
+
+  getFilteredArticlesForLine(i: number): Article[] {
+    const term = (this.lineSearchTerms[i] ?? '').toLowerCase().trim();
+    if (!term) return this.articles.slice(0, 50);
+    return this.articles.filter(
+      (a) =>
+        (a.sku || '').toLowerCase().includes(term) ||
+        (a.name || '').toLowerCase().includes(term)
+    ).slice(0, 50);
+  }
+
+  onLineSkuFocus(i: number): void {
+    this.lineShowDropdown[i] = true;
+  }
+
+  onLineSkuBlur(i: number): void {
+    setTimeout(() => {
+      this.lineShowDropdown[i] = false;
+      this.validateLineSku(i);
+    }, 150);
+  }
+
+  private validateLineSku(i: number): void {
+    const term = (this.lineSearchTerms[i] ?? '').trim();
+    if (!term) return;
+    const match = this.articles.find(
+      (a) =>
+        `${a.sku} - ${a.name}`.toLowerCase() === term.toLowerCase() ||
+        (a.sku || '').toLowerCase() === term.toLowerCase()
+    );
+    if (match) {
+      const line = this.linesArray.at(i);
+      if (line && line.get('sku')?.value !== match.sku) {
+        line.patchValue({ sku: match.sku, presentation: match.presentation || '' });
+        this.lineSearchTerms[i] = `${match.sku} - ${match.name}`;
+        this.loadLineAvailability(i);
+      }
+    }
+  }
+
+  onLineSkuSelect(i: number, article: Article): void {
+    const line = this.linesArray.at(i);
+    if (line) {
+      line.patchValue({
+        sku: article.sku,
+        presentation: article.presentation || '',
+      });
+      this.lineSearchTerms[i] = `${article.sku} - ${article.name}`;
+    }
+    this.lineShowDropdown[i] = false;
+    this.loadLineAvailability(i);
+  }
+
+  confirmFirstArticleForLine(i: number): void {
+    const filtered = this.getFilteredArticlesForLine(i);
+    if (filtered.length > 0) {
+      this.onLineSkuSelect(i, filtered[0]);
+    }
+  }
+
+  clearLineSku(i: number): void {
+    const line = this.linesArray.at(i);
+    if (line) {
+      line.patchValue({ sku: '', presentation: '' });
+    }
+    this.lineSearchTerms[i] = '';
+    this.lineShowDropdown[i] = false;
+    this.lineAvailableQty[i] = null;
+    this.lineAvailableType[i] = '';
+    this.lineAvailabilityLoading[i] = false;
+  }
+
+  isLineSkuValid(i: number): boolean {
+    const sku = this.linesArray.at(i)?.get('sku')?.value as string;
+    return !!sku?.trim() && this.articles.some((a) => (a.sku || '').trim() === (sku || '').trim());
+  }
+
+  private async loadArticles(): Promise<void> {
+    try {
+      const res = await this.articleService.getAll();
+      if (res?.result?.success && Array.isArray(res.data)) {
+        this.articles = res.data.filter((a: Article) => a.is_active !== false);
+      } else {
+        this.articles = [];
+      }
+    } catch {
+      this.articles = [];
+    }
+  }
+
+  private getFromLocationCode(): string {
+    const fromLocationId = this.form?.get('from_location_id')?.value;
+    if (!fromLocationId) return '';
+    const location = this.locations.find((loc) => String(loc.id) === String(fromLocationId));
+    return (location?.location_code || location?.id || '').trim();
+  }
+
+  private async loadLineAvailability(i: number): Promise<void> {
+    const line = this.linesArray.at(i);
+    const sku = String(line?.get('sku')?.value || '').trim();
+    const fromCode = this.getFromLocationCode();
+
+    if (!sku || !fromCode) {
+      this.lineAvailableQty[i] = null;
+      this.lineAvailableType[i] = '';
+      this.lineAvailabilityLoading[i] = false;
+      return;
+    }
+
+    this.lineAvailabilityLoading[i] = true;
+    try {
+      const res = await this.inventoryService.getBySkuAndLocation(sku, fromCode);
+      if (res?.result?.success && res.data) {
+        const qty = Number(res.data.quantity) || 0;
+        this.lineAvailableQty[i] = qty;
+        this.lineAvailableType[i] = String(res.data.presentation || line?.get('presentation')?.value || '').trim();
+      } else {
+        this.lineAvailableQty[i] = 0;
+        this.lineAvailableType[i] = String(line?.get('presentation')?.value || '').trim();
+      }
+    } catch {
+      this.lineAvailableQty[i] = null;
+    } finally {
+      this.lineAvailabilityLoading[i] = false;
+    }
+  }
+
+  private refreshAllLineAvailability(): void {
+    for (let i = 0; i < this.linesArray.length; i += 1) {
+      this.loadLineAvailability(i);
+    }
+  }
+
+  getLineAvailableQty(i: number): number | null {
+    return this.lineAvailableQty[i] ?? null;
+  }
+
+  getLineType(i: number): string {
+    return this.lineAvailableType[i] || String(this.linesArray.at(i)?.get('presentation')?.value || '').trim();
+  }
+
+  isLineAvailabilityLoading(i: number): boolean {
+    return !!this.lineAvailabilityLoading[i];
+  }
+
+  getLineQuantityMax(i: number): number | null {
+    const max = this.getLineAvailableQty(i);
+    if (max === null) return null;
+    return max > 0 ? max : null;
+  }
+
+  isLineQuantityExceedsAvailable(i: number): boolean {
+    const max = this.getLineAvailableQty(i);
+    if (max === null) return false;
+    const quantity = Number(this.linesArray.at(i)?.get('quantity')?.value || 0);
+    return quantity > max;
   }
 
   async onSubmit(): Promise<void> {
@@ -158,6 +366,16 @@ export class StockTransferFormComponent implements OnInit, OnChanges {
     if (validLines.length === 0) {
       this.alertService.error(this.t('error'), this.t('stock_transfer_at_least_one_line'));
       return;
+    }
+    for (let i = 0; i < validLines.length; i += 1) {
+      const max = this.getLineAvailableQty(i);
+      if (max !== null && Number(validLines[i].quantity) > max) {
+        this.alertService.error(
+          this.t('error'),
+          `${this.t('stock_transfer_quantity_exceeds_available')}: ${validLines[i].sku} (max: ${max})`
+        );
+        return;
+      }
     }
     if (this.form.invalid || this.isSubmitting) return;
 
