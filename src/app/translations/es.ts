@@ -1409,4 +1409,9 @@ export const esTranslations = {
   tracking_optional_notice:
     'El seguimiento de lotes y series es opcional para ajustes de inventario.',
   serials_readonly_edit_mode: 'Series cargadas (solo lectura)',
+
+  // Sugerencias de picking salida (FIFO/FEFO + menor cantidad primero)
+  suggested_pick: 'Sugerencia de picking',
+  pick_from_location: 'Picking desde ubicación',
+  lowest_quantity_first: 'Menor cantidad primero',
 };

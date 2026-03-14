@@ -1165,4 +1165,9 @@ export const enTranslations = {
   tracking_optional_notice:
     'Tracking of batches and serials is optional for inventory adjustments.',
   serials_readonly_edit_mode: 'Series loaded (read-only)',
+
+  // Outbound pick suggestions (FIFO/FEFO + lowest quantity first)
+  suggested_pick: 'Suggested pick',
+  pick_from_location: 'Pick from location',
+  lowest_quantity_first: 'Lowest quantity first',
 };

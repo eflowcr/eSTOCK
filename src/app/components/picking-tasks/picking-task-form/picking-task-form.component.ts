@@ -10,12 +10,14 @@ import { PickingTaskService } from '@app/services/picking-task.service';
 import { LotService } from '@app/services/lot.service';
 import { SerialService } from '@app/services/serial.service';
 import { LocationService } from '@app/services/location.service';
+import { InventoryService } from '@app/services/inventory.service';
 import { UserService } from '@app/services/user.service';
 import { ArticleService } from '@app/services/article.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { getDisplayableApiError, humanizeApiError } from '@app/utils';
+import { PickSuggestion } from '@app/models/pick-suggestion.model';
 import { DrawerComponent } from '@app/shared/components/drawer';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
@@ -52,6 +54,8 @@ export class PickingTaskFormComponent implements OnInit {
 	availableSerialsPerItem: string[][] = [];
 	filteredLotsPerItem: string[][] = [];
 	filteredSerialsPerItem: string[][] = [];
+	/** Pick suggestions per item index (rotation + lowest qty first); used to sort location and lot options. */
+	pickSuggestionsPerItem: PickSuggestion[][] = [];
 	lotSearchTerms: string[] = [];
 	serialSearchTerms: string[] = [];
 	showLotDropdown: boolean[] = [];
@@ -71,6 +75,7 @@ export class PickingTaskFormComponent implements OnInit {
 		private articleService: ArticleService,
 		private lotService: LotService,
 		private serialService: SerialService,
+		private inventoryService: InventoryService,
 		private alertService: AlertService,
 		private loadingService: LoadingService,
 		private languageService: LanguageService,
@@ -329,6 +334,7 @@ export class PickingTaskFormComponent implements OnInit {
 			this.availableSerialsPerItem.splice(index, 1);
 			this.filteredLotsPerItem.splice(index, 1);
 			this.filteredSerialsPerItem.splice(index, 1);
+			this.pickSuggestionsPerItem.splice(index, 1);
 			this.lotSearchTerms.splice(index, 1);
 			this.serialSearchTerms.splice(index, 1);
 			this.showLotDropdown.splice(index, 1);
@@ -418,12 +424,13 @@ export class PickingTaskFormComponent implements OnInit {
 		if (this.showLocationDropdown[index] === undefined) this.showLocationDropdown[index] = false;
 		
 		this.filteredArticlesPerItem[index] = [...this.articles];
-		this.filteredLocationsPerItem[index] = [...this.locations];
-		
+		this.filterLocationsForItem(index);
+
 		if (!this.availableLotsPerItem[index]) this.availableLotsPerItem[index] = [];
 		if (!this.availableSerialsPerItem[index]) this.availableSerialsPerItem[index] = [];
 		if (!this.filteredLotsPerItem[index]) this.filteredLotsPerItem[index] = [];
 		if (!this.filteredSerialsPerItem[index]) this.filteredSerialsPerItem[index] = [];
+		if (!this.pickSuggestionsPerItem[index]) this.pickSuggestionsPerItem[index] = [];
 		if (this.lotSearchTerms[index] === undefined) this.lotSearchTerms[index] = '';
 		if (this.serialSearchTerms[index] === undefined) this.serialSearchTerms[index] = '';
 		if (this.showLotDropdown[index] === undefined) this.showLotDropdown[index] = false;
@@ -443,13 +450,25 @@ export class PickingTaskFormComponent implements OnInit {
 
 	filterLocationsForItem(index: number): void {
 		const term = (this.locationSearchTerms[index] || '').toLowerCase();
-		if (!term) {
-			this.filteredLocationsPerItem[index] = [...this.locations];
-			return;
+		let list = term
+			? this.locations.filter(l =>
+					(l.location_code || '').toLowerCase().includes(term) || (l.description || '').toLowerCase().includes(term)
+				)
+			: [...this.locations];
+		// Sort by pick suggestions order (rotation + lowest qty first) when available
+		const suggestions = this.pickSuggestionsPerItem[index] || [];
+		if (suggestions.length > 0) {
+			const order = [...new Set(suggestions.map(s => s.location))];
+			list = list.slice().sort((a, b) => {
+				const ia = order.indexOf(a.location_code);
+				const ib = order.indexOf(b.location_code);
+				if (ia === -1 && ib === -1) return 0;
+				if (ia === -1) return 1;
+				if (ib === -1) return -1;
+				return ia - ib;
+			});
 		}
-		this.filteredLocationsPerItem[index] = this.locations.filter(l =>
-			(l.location_code || '').toLowerCase().includes(term) || (l.description || '').toLowerCase().includes(term)
-		);
+		this.filteredLocationsPerItem[index] = list;
 	}
 
 	// SKU dropdown validation and advanced methods
@@ -502,11 +521,12 @@ export class PickingTaskFormComponent implements OnInit {
 	clearItemTrackingData(index: number): void {
 		this.itemsArray.at(index).get('lot_numbers')?.setValue('');
 		this.itemsArray.at(index).get('serial_numbers')?.setValue('');
-		
+
 		this.availableLotsPerItem[index] = [];
 		this.availableSerialsPerItem[index] = [];
 		this.filteredLotsPerItem[index] = [];
 		this.filteredSerialsPerItem[index] = [];
+		this.pickSuggestionsPerItem[index] = [];
 		this.lotSearchTerms[index] = '';
 		this.serialSearchTerms[index] = '';
 		this.showLotDropdown[index] = false;
@@ -604,6 +624,19 @@ export class PickingTaskFormComponent implements OnInit {
 	private async loadTrackingOptionsForItem(index: number, sku: string): Promise<void> {
 		const article = this.getArticleBySku(sku);
 		if (!article) return;
+		// Load pick suggestions (rotation + lowest quantity first) for location/lot ordering
+		try {
+			const suggestionsResp = await this.inventoryService.getPickSuggestions(sku);
+			if (suggestionsResp.result.success && Array.isArray(suggestionsResp.data)) {
+				this.pickSuggestionsPerItem[index] = suggestionsResp.data;
+			} else {
+				this.pickSuggestionsPerItem[index] = [];
+			}
+		} catch {
+			this.pickSuggestionsPerItem[index] = [];
+		}
+		// Re-apply location filter so dropdown shows suggested order
+		this.filterLocationsForItem(index);
 		if (article.track_by_lot) {
 			try {
 				const lotsResp = await this.lotService.getBySku(sku);

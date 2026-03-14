@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiResponse } from '@app/models';
 import { Inventory, CreateInventoryRequest, UpdateInventoryRequest } from '@app/models/inventory.model';
+import { PickSuggestion } from '@app/models/pick-suggestion.model';
 import { returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { FetchService } from './extras/fetch.service';
@@ -24,6 +25,15 @@ export class InventoryService {
 	async getAll(): Promise<ApiResponse<Inventory[]>> {
 		return await this.fetchService.get<ApiResponse<Inventory[]>>({
 			API_Gateway: `${INVENTORY_URL}/`,
+		});
+	}
+
+	/**
+	 * @description Get pick suggestions for a SKU: locations and lots sorted by rotation (FIFO/FEFO) then lowest quantity first.
+	 */
+	async getPickSuggestions(sku: string): Promise<ApiResponse<PickSuggestion[]>> {
+		return await this.fetchService.get<ApiResponse<PickSuggestion[]>>({
+			API_Gateway: `${INVENTORY_URL}/pick-suggestions/${encodeURIComponent(sku)}`,
 		});
 	}
 
