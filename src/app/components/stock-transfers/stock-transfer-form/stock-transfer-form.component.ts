@@ -14,6 +14,8 @@ import {
   ZardFormLabelComponent,
 } from '@app/shared/components/form/form.component';
 import { ZardInputDirective } from '@app/shared/components/input/input.directive';
+import { ZardSelectComponent } from '@app/shared/components/select/select.component';
+import { ZardSelectItemComponent } from '@app/shared/components/select/select-item.component';
 
 export interface LocationOption {
   id: string;
@@ -33,6 +35,8 @@ export interface LocationOption {
     ZardFormLabelComponent,
     ZardFormControlComponent,
     ZardInputDirective,
+    ZardSelectComponent,
+    ZardSelectItemComponent,
   ],
   templateUrl: './stock-transfer-form.component.html',
   styleUrls: ['./stock-transfer-form.component.css'],

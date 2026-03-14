@@ -25,25 +25,23 @@
         <z-form-field>
           <label z-form-label zRequired for="from_location_id">{{ t('stock_transfer_from_location') }}</label>
           <z-form-control>
-            <select id="from_location_id" formControlName="from_location_id"
-              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-              <option value="">{{ t('select_location') }}</option>
+            <z-select id="from_location_id" formControlName="from_location_id"
+              [zPlaceholder]="t('select_location')" class="block w-full">
               @for (loc of locations; track loc.id) {
-                <option [value]="loc.id">{{ getLocationLabel(loc) }}</option>
+                <z-select-item [zValue]="loc.id">{{ getLocationLabel(loc) }}</z-select-item>
               }
-            </select>
+            </z-select>
           </z-form-control>
         </z-form-field>
         <z-form-field>
           <label z-form-label zRequired for="to_location_id">{{ t('stock_transfer_to_location') }}</label>
           <z-form-control>
-            <select id="to_location_id" formControlName="to_location_id"
-              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-              <option value="">{{ t('select_location') }}</option>
+            <z-select id="to_location_id" formControlName="to_location_id"
+              [zPlaceholder]="t('select_location')" class="block w-full">
               @for (loc of locations; track loc.id) {
-                <option [value]="loc.id">{{ getLocationLabel(loc) }}</option>
+                <z-select-item [zValue]="loc.id">{{ getLocationLabel(loc) }}</z-select-item>
               }
-            </select>
+            </z-select>
           </z-form-control>
         </z-form-field>
       </div>
@@ -52,13 +50,13 @@
         <z-form-field>
           <label z-form-label zRequired for="status">{{ t('stock_transfer_status') }}</label>
           <z-form-control>
-            <select id="status" formControlName="status"
-              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-              <option value="draft">{{ t('stock_transfer_status_draft') }}</option>
-              <option value="in_progress">{{ t('stock_transfer_status_in_progress') }}</option>
-              <option value="completed">{{ t('stock_transfer_status_completed') }}</option>
-              <option value="cancelled">{{ t('stock_transfer_status_cancelled') }}</option>
-            </select>
+            <z-select id="status" formControlName="status"
+              [zPlaceholder]="t('stock_transfer_status')" class="block w-full">
+              <z-select-item zValue="draft">{{ t('stock_transfer_status_draft') }}</z-select-item>
+              <z-select-item zValue="in_progress">{{ t('stock_transfer_status_in_progress') }}</z-select-item>
+              <z-select-item zValue="completed">{{ t('stock_transfer_status_completed') }}</z-select-item>
+              <z-select-item zValue="cancelled">{{ t('stock_transfer_status_cancelled') }}</z-select-item>
+            </z-select>
           </z-form-control>
         </z-form-field>
       }
@@ -66,9 +64,8 @@
       <z-form-field>
         <label z-form-label for="notes">{{ t('stock_transfer_notes') }}</label>
         <z-form-control>
-          <textarea id="notes" formControlName="notes" rows="2"
-            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            [placeholder]="t('stock_transfer_notes_placeholder')"></textarea>
+          <textarea z-input id="notes" formControlName="notes" rows="2"
+            [placeholder]="t('stock_transfer_notes_placeholder')" class="w-full"></textarea>
         </z-form-control>
       </z-form-field>
 

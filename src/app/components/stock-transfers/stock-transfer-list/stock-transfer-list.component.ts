@@ -12,6 +12,7 @@ import {
 } from '@tanstack/angular-table';
 import { StockTransfer } from '@app/models/stock-transfer.model';
 import { LanguageService } from '@app/services/extras/language.service';
+import { ZardInputDirective } from '@app/shared/components/input/input.directive';
 import { ZardSelectComponent } from '@app/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@app/shared/components/select/select-item.component';
 
@@ -25,7 +26,7 @@ export interface LocationOption {
 @Component({
   selector: 'app-stock-transfer-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent],
+  imports: [CommonModule, FormsModule, ZardInputDirective, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './stock-transfer-list.component.html',
   styleUrls: ['./stock-transfer-list.component.css'],
 })
