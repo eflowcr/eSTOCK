@@ -134,6 +134,7 @@ export class ArticleFormComponent implements OnInit, OnChanges {
         track_by_lot: [false],
         track_by_serial: [false],
         track_expiration: [false],
+        rotation_strategy: ['fifo' as const],
         min_quantity: [null, [Validators.min(0)]],
         max_quantity: [null, [Validators.min(0)]],
         is_active: [true]
@@ -151,6 +152,15 @@ export class ArticleFormComponent implements OnInit, OnChanges {
     this.articleForm.get('track_by_lot')?.valueChanges.subscribe((enabled: boolean) => {
       if (!enabled) {
         this.articleForm.patchValue({ track_expiration: false });
+        if (this.articleForm.get('rotation_strategy')?.value === 'fefo') {
+          this.articleForm.patchValue({ rotation_strategy: 'fifo' });
+        }
+      }
+    });
+    // FEFO requires expiration tracking: when expiration is turned off, fall back to FIFO
+    this.articleForm.get('track_expiration')?.valueChanges.subscribe((enabled: boolean) => {
+      if (!enabled && this.articleForm.get('rotation_strategy')?.value === 'fefo') {
+        this.articleForm.patchValue({ rotation_strategy: 'fifo' });
       }
     });
 
@@ -266,6 +276,7 @@ export class ArticleFormComponent implements OnInit, OnChanges {
         track_by_lot: this.initialData.track_by_lot,
         track_by_serial: this.initialData.track_by_serial,
         track_expiration: this.initialData.track_expiration,
+        rotation_strategy: (this.initialData as any).rotation_strategy === 'fefo' ? 'fefo' : 'fifo',
         min_quantity: minQ,
         max_quantity: maxQ,
         is_active: this.initialData.is_active !== false
@@ -286,7 +297,7 @@ export class ArticleFormComponent implements OnInit, OnChanges {
     } else if (this.articleForm) {
       this.articleForm.reset();
       const defaultPresentation = this.presentationOptions.length > 0 ? this.presentationOptions[0].value : 'UNIDAD';
-      this.articleForm.patchValue({ presentation: defaultPresentation, is_active: true });
+      this.articleForm.patchValue({ presentation: defaultPresentation, is_active: true, rotation_strategy: 'fifo' });
       this.articleForm.get('sku')?.enable();
       this.skuCheckStatus = 'idle';
     }
@@ -341,8 +352,12 @@ export class ArticleFormComponent implements OnInit, OnChanges {
       // Enforce dependency at submit time
       const trackByLot = !!raw.track_by_lot;
       const trackExpiration = trackByLot && !!raw.track_expiration;
+      let rotationStrategy = (raw.rotation_strategy === 'fefo' ? 'fefo' : 'fifo') as 'fifo' | 'fefo';
+      if (rotationStrategy === 'fefo' && !trackExpiration) {
+        rotationStrategy = 'fifo';
+      }
 
-      const payload = this.buildArticlePayload(raw, trackExpiration);
+      const payload = this.buildArticlePayload(raw, trackExpiration, rotationStrategy);
 
       if (this.isEditMode && this.initialData) {
         const updateData: UpdateArticleRequest = {
@@ -371,7 +386,7 @@ export class ArticleFormComponent implements OnInit, OnChanges {
    * Build request payload with types the backend expects (numbers, booleans, strings).
    * Prevents "Datos de solicitud inválidos" from Go's ShouldBindJSON when form values are strings.
    */
-  private buildArticlePayload(raw: Record<string, unknown>, trackExpiration: boolean): CreateArticleRequest {
+  private buildArticlePayload(raw: Record<string, unknown>, trackExpiration: boolean, rotationStrategy: 'fifo' | 'fefo' = 'fifo'): CreateArticleRequest {
     const num = (v: unknown): number | undefined => {
       if (v === '' || v === null || v === undefined) return undefined;
       const n = Number(v);
@@ -395,6 +410,7 @@ export class ArticleFormComponent implements OnInit, OnChanges {
       track_by_lot: !!raw['track_by_lot'],
       track_by_serial: !!raw['track_by_serial'],
       track_expiration: trackExpiration,
+      rotation_strategy: rotationStrategy,
     };
     if (description !== '') payload.description = description;
     if (unitPrice !== undefined && unitPrice !== null) payload.unit_price = unitPrice;
@@ -492,5 +508,21 @@ export class ArticleFormComponent implements OnInit, OnChanges {
   toggleIsActive(): void {
     const current = this.articleForm.get('is_active')?.value ?? false;
     this.articleForm.patchValue({ is_active: !current });
+  }
+
+  /** Class for FIFO rotation button (avoids / in template for Angular parser). */
+  get rotationFifoButtonClass(): string {
+    const selected = this.articleForm.get('rotation_strategy')?.value === 'fifo';
+    return selected
+      ? 'border-primary text-primary bg-primary/10'
+      : 'border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700';
+  }
+
+  /** Class for FEFO rotation button (avoids / in template for Angular parser). */
+  get rotationFefoButtonClass(): string {
+    const selected = this.articleForm.get('rotation_strategy')?.value === 'fefo';
+    return selected
+      ? 'border-primary text-primary bg-primary/10'
+      : 'border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700';
   }
 }

@@ -1,8 +1,8 @@
 <app-main-layout>
 
-  <div class="space-y-6">
+  <div class="flex flex-col flex-1 min-h-0 gap-6">
     <!-- Header Section -->
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-shrink-0 justify-between items-center mb-0">
       <div>
         <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
           {{ t('stock_adjustments') }}
@@ -37,7 +37,9 @@
     </div>
 
     <!-- Adjustment History Card -->
-    <app-adjustment-list [adjustments]="adjustments" [isLoading]="isLoading"></app-adjustment-list>
+    <div class="flex flex-col flex-1 min-h-0">
+      <app-adjustment-list [adjustments]="adjustments" [reasonCodes]="reasonCodes" [isLoading]="isLoading"></app-adjustment-list>
+    </div>
 
     <!-- Create Adjustment Modal -->
     <app-adjustment-form

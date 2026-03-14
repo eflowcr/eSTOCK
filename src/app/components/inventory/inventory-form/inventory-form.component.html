@@ -249,8 +249,11 @@
             <!-- Quantity Input -->
             <div>
               <label for="quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {{ t('quantity') }} *
+                {{ existingInventoryAtLocation ? t('quantity_to_add') : t('quantity') }} *
               </label>
+              <p *ngIf="existingInventoryAtLocation && !isEditing" class="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
+                {{ t('existing_quantity_at_location') }}: <strong>{{ existingInventoryAtLocation.quantity }}</strong> {{ selectedArticle?.presentation || t('units') }}
+              </p>
               <div class="mt-1 relative">
                 <input type="number" id="quantity" formControlName="quantity" min="0" 
                   [readonly]="isEditing"

@@ -190,6 +190,29 @@
           </p>
         </div>
 
+        <!-- Rotation strategy (FIFO / FEFO) -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('rotation_strategy') }}</label>
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              (click)="articleForm.patchValue({ rotation_strategy: 'fifo' })"
+              [class]="rotationFifoButtonClass"
+              class="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors">
+              {{ t('rotation_fifo') }}
+            </button>
+            <button
+              type="button"
+              (click)="articleForm.get('track_expiration')?.value && articleForm.patchValue({ rotation_strategy: 'fefo' })"
+              [disabled]="!articleForm.get('track_expiration')?.value"
+              [class]="rotationFefoButtonClass"
+              class="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ t('rotation_fefo') }}
+            </button>
+          </div>
+          <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('rotation_strategy_description') }}</p>
+        </div>
+
         <!-- Active Status -->
         <div
           role="button"

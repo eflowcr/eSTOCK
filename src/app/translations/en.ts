@@ -75,6 +75,8 @@ export const enTranslations = {
   adjustment_details: 'Adjustment Details',
   adjustment_quantity: 'Adjustment Quantity',
   enter_adjustment_quantity: 'Enter adjustment quantity',
+  enter_adjustment_quantity_positive: 'Enter quantity (add or subtract is determined by reason)',
+  adjustment_quantity_positive_hint: 'Enter a positive number; add or subtract is determined by the reason code selected above.',
   current_quantity: 'Current Quantity',
   previous_quantity: 'Previous Quantity',
   previous_qty: 'Prev. Qty',
@@ -99,6 +101,9 @@ export const enTranslations = {
   cycle_count_correction: 'Cycle Count Correction',
   other: 'Other',
   select_reason: 'Select reason',
+  select_reason_before_quantity: 'Select a reason first to enable quantity.',
+  reason_outbound_physical_withdrawal: 'Outbound due to physical withdrawal',
+  reason_inbound_physical_withdrawal: 'Inbound due to physical withdrawal',
   additional_notes_placeholder: 'Additional notes (optional)',
   lot_information: 'Lot Information',
   serial_numbers: 'Serial Numbers',
@@ -521,6 +526,12 @@ export const enTranslations = {
   lot_and_serial: 'Lot and Serial',
   no_tracking: 'No tracking',
 
+  rotation_strategy: 'Rotation Strategy',
+  rotation_fifo: 'FIFO',
+  rotation_fefo: 'FEFO',
+  rotation_strategy_description:
+    'FIFO: oldest stock first. FEFO: earliest expiry first (requires expiration tracking).',
+
   // Status
   active_status: 'Active Status',
   article_active_description:
@@ -617,6 +628,9 @@ export const enTranslations = {
     'This action cannot be undone. The product will be permanently removed from inventory.',
   sku_required: 'SKU code is required',
   location_required: 'Location is required',
+  existing_at_location: 'Inventory already exists at this location',
+  existing_quantity_at_location: 'Current quantity at location',
+  quantity_to_add: 'Quantity to add',
   quantity_required: 'Quantity is required',
   status_required: 'Status is required',
   presentation_required: 'Presentation is required',

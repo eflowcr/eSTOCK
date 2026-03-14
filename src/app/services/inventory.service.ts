@@ -28,6 +28,20 @@ export class InventoryService {
 	}
 
 	/**
+	 * @description Get inventory by SKU and location (for add-quantity flow). Returns null if not found.
+	 */
+	async getBySkuAndLocation(sku: string, location: string): Promise<ApiResponse<Inventory> | null> {
+		try {
+			const res = await this.fetchService.get<ApiResponse<Inventory>>({
+				API_Gateway: `${INVENTORY_URL}/sku/${encodeURIComponent(sku)}/location/${encodeURIComponent(location)}`,
+			});
+			return res;
+		} catch {
+			return null;
+		}
+	}
+
+	/**
 	 * @description Create new inventory item
 	 * @param inventory Inventory data
 	 * @returns Promise<ApiResponse<any>>

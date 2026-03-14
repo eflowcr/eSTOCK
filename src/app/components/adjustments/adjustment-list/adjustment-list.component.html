@@ -1,10 +1,10 @@
-<div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-6">
-  <div *ngIf="isLoading" class="loading-container">
+<div class="flex flex-col flex-1 min-h-0 h-full bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+  <div *ngIf="isLoading" class="loading-container flex-shrink-0">
     <div class="loading-spinner"></div>
   </div>
 
-  <div *ngIf="!isLoading">
-    <div class="p-4 sm:p-6">
+  <div *ngIf="!isLoading" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+    <div class="p-4 sm:p-6 flex-shrink-0">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="sm:col-span-2">
           <input
@@ -23,17 +23,13 @@
             class="block w-full"
           >
             <z-select-item zValue="">{{ t('all_reasons') }}</z-select-item>
-            <z-select-item zValue="damaged">{{ t('damaged') }}</z-select-item>
-            <z-select-item zValue="lost">{{ t('lost') }}</z-select-item>
-            <z-select-item zValue="found">{{ t('found') }}</z-select-item>
-            <z-select-item zValue="cycle_count_correction">{{ t('cycle_count_correction') }}</z-select-item>
-            <z-select-item zValue="other">{{ t('other') }}</z-select-item>
+            <z-select-item *ngFor="let rc of reasonCodes" [zValue]="rc.code">{{ getReasonName(rc.code) }}</z-select-item>
           </z-select>
         </div>
       </div>
     </div>
 
-    <div class="overflow-x-auto">
+    <div class="overflow-auto flex-1 min-h-0 border-t border-gray-200 dark:border-gray-700">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 inventory-table-fixed">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr *ngFor="let headerGroup of table.getHeaderGroups()">
@@ -83,7 +79,7 @@
                   {{ row.original.adjustment_quantity >= 0 ? '+' : '' }}{{ row.original.adjustment_quantity }}
                 </span>
                 <span *ngSwitchCase="'new_quantity'">{{ row.original.new_quantity }}</span>
-                <span *ngSwitchCase="'reason'">{{ t(row.original.reason) }}</span>
+                <span *ngSwitchCase="'reason'">{{ getReasonName(row.original.reason) }}</span>
                 <span *ngSwitchCase="'user_id'">{{ getUserDisplay(row.original.user_id) }}</span>
                 <span *ngSwitchDefault>{{ cell.getValue() }}</span>
               </ng-container>
@@ -93,7 +89,7 @@
       </table>
     </div>
 
-    <div class="flex flex-col gap-3 border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-3 flex-shrink-0 border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       <div class="text-xs text-gray-500 dark:text-gray-300">
         {{ t('showing') }} {{ pageIndex * pageSize + 1 }} {{ t('to') }} {{ Math.min((pageIndex + 1) * pageSize, totalFilteredRows) }} {{ t('of') }} {{ totalFilteredRows }} {{ t('results') }}
       </div>

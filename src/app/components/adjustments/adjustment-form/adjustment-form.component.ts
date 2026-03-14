@@ -1,26 +1,30 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { AdjustmentFormData } from '../../../models/adjustment.model';
+import { AdjustmentReasonCode } from '../../../models/adjustment-reason-code.model';
 import { Inventory } from '../../../models/inventory.model';
 import { Location } from '../../../models/location.model';
+import { AdjustmentReasonCodesService } from '../../../services/adjustment-reason-codes.service';
 import { AdjustmentService } from '../../../services/adjustment.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { LocationService } from '../../../services/location.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { handleApiError } from '@app/utils';
+import { DrawerComponent } from '../../../shared/components/drawer';
+import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
-import { SearchSelectComponent, SearchSelectOption } from '../../shared/search-select/search-select.component';
 
 
 
 @Component({
   selector: 'app-adjustment-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent, SearchSelectComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, DrawerComponent, ZardButtonComponent, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './adjustment-form.component.html',
   styleUrl: './adjustment-form.component.css'
 })
@@ -35,6 +39,7 @@ export class AdjustmentFormComponent implements OnInit {
   // Data for dropdowns
   inventoryItems: Inventory[] = [];
   locations: Location[] = [];
+  reasonCodes: AdjustmentReasonCode[] = [];
   
   // Filtered lists and search state for comboboxes
   filteredInventoryItems: Inventory[] = [];
@@ -53,13 +58,7 @@ export class AdjustmentFormComponent implements OnInit {
   serialSearchTerm = '';
   selectedLots: string[] = [];
   selectedSerials: string[] = [];
-
-  get inventorySearchOptions(): SearchSelectOption[] {
-    return this.inventoryItems.map((item) => ({
-      id: `${item.sku}::${item.location}`,
-      name: `${item.sku} - ${item.name} (${item.location})`,
-    }));
-  }
+  private readonly destroyRef = inject(DestroyRef);
 
   get selectedSkuOptionId(): string | null {
     const sku = this.adjustmentForm.get('sku')?.value;
@@ -71,6 +70,7 @@ export class AdjustmentFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private adjustmentService: AdjustmentService,
+    private adjustmentReasonCodesService: AdjustmentReasonCodesService,
     private inventoryService: InventoryService,
     private locationService: LocationService,
     private alertService: AlertService,
@@ -90,21 +90,45 @@ export class AdjustmentFormComponent implements OnInit {
     this.adjustmentForm = this.fb.group({
       sku: ['', Validators.required],
       location: ['', Validators.required],
-      adjustmentQuantity: ['', [Validators.required]],
+      adjustmentQuantity: [{ value: '', disabled: true }, [Validators.required, Validators.min(0)]],
       reason: ['', Validators.required],
       notes: ['']
     });
+
+    this.adjustmentForm
+      .get('reason')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((reasonCode: string) => {
+        const qtyControl = this.adjustmentForm.get('adjustmentQuantity');
+        if (!qtyControl) return;
+        if (reasonCode) {
+          qtyControl.enable({ emitEvent: false });
+        } else {
+          qtyControl.reset('', { emitEvent: false });
+          qtyControl.disable({ emitEvent: false });
+        }
+      });
+  }
+
+  getReasonDisplayName(code: string, fallbackName?: string): string {
+    const fixedReasonMap: Record<string, string> = {
+      outbound_physical_withdrawal: this.t('reason_outbound_physical_withdrawal'),
+      inbound_physical_withdrawal: this.t('reason_inbound_physical_withdrawal'),
+    };
+    return fixedReasonMap[code] || fallbackName || code;
   }
 
   private async loadData(): Promise<void> {
     try {
-      const [inventoryResponse, locationsResponse] = await Promise.all([
+      const [inventoryResponse, locationsResponse, reasonCodesResponse] = await Promise.all([
         this.inventoryService.getAll(),
-        this.locationService.getAll()
+        this.locationService.getAll(),
+        this.adjustmentReasonCodesService.getList()
       ]);
       
       this.inventoryItems = inventoryResponse.data || [];
       this.locations = locationsResponse.data || [];
+      this.reasonCodes = reasonCodesResponse.data || [];
       
       this.filteredInventoryItems = [...this.inventoryItems];
       this.filteredLocations = [...this.locations];
@@ -180,13 +204,11 @@ export class AdjustmentFormComponent implements OnInit {
     this.showSkuDropdown = false;
   }
 
-  onSkuOptionChange(option: SearchSelectOption | null): void {
-    if (!option) {
-      this.clearSkuManually();
+  onSkuValueChange(value: string | string[]): void {
+    if (!value || Array.isArray(value)) {
       return;
     }
-
-    const [sku, location] = option.id.split('::');
+    const [sku, location] = value.split('::');
     const match = this.inventoryItems.find(
       (item) => item.sku === sku && item.location === location,
     );
@@ -268,7 +290,9 @@ export class AdjustmentFormComponent implements OnInit {
     const inventoryItem = this.inventoryItems.find(item => 
       item.sku === skuValue && item.location === locationValue
     );
-    return inventoryItem ? `${inventoryItem.sku} - ${inventoryItem.name} (${inventoryItem.location})` : '';
+    return inventoryItem
+      ? `${inventoryItem.sku} - ${inventoryItem.name} (${inventoryItem.location}) - ${this.t('quantity')}: ${Number(inventoryItem.quantity || 0).toLocaleString('es-CR')}`
+      : '';
   }
 
   onSkuBlur(): void {
@@ -516,16 +540,7 @@ export class AdjustmentFormComponent implements OnInit {
   }
 
   /**
-   * Handle backdrop click to close modal
-   */
-  onBackdropClick(event: Event): void {
-    if (event.target === event.currentTarget) {
-      this.closeModal();
-    }
-  }
-
-  /**
-   * Close modal
+   * Close drawer (reset form and emit close).
    */
   closeModal(): void {
     this.resetForm();

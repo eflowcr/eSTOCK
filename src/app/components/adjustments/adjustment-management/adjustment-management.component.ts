@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Adjustment } from '../../../models/adjustment.model';
+import { AdjustmentReasonCode } from '../../../models/adjustment-reason-code.model';
+import { AdjustmentReasonCodesService } from '../../../services/adjustment-reason-codes.service';
 import { AdjustmentService } from '../../../services/adjustment.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
@@ -27,6 +29,7 @@ import { AdjustmentListComponent } from '../adjustment-list/adjustment-list.comp
 })
 export class AdjustmentManagementComponent implements OnInit {
   adjustments: Adjustment[] = [];
+  reasonCodes: AdjustmentReasonCode[] = [];
   isLoading = false;
   isCreateDialogOpen = false;
 
@@ -40,6 +43,7 @@ export class AdjustmentManagementComponent implements OnInit {
 
   constructor(
     private adjustmentService: AdjustmentService,
+    private adjustmentReasonCodesService: AdjustmentReasonCodesService,
     private authorizationService: AuthorizationService,
     private alertService: AlertService,
     private languageService: LanguageService,
@@ -47,7 +51,17 @@ export class AdjustmentManagementComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadReasonCodes();
     this.loadAdjustments();
+  }
+
+  async loadReasonCodes(): Promise<void> {
+    try {
+      const response = await this.adjustmentReasonCodesService.getList();
+      this.reasonCodes = response.data || [];
+    } catch (error) {
+      console.error('Error loading reason codes:', error);
+    }
   }
 
   /**

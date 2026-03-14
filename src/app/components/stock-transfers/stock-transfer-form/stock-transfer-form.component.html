@@ -10,7 +10,7 @@
             {{ isEditing ? t('edit_stock_transfer_description') : t('create_stock_transfer_description') }}
           </p>
         </div>
-        <button type="button" (click)="close()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
+        <button z-button zType="ghost" zSize="icon" type="button" (click)="close()" class="flex-shrink-0" aria-label="Close">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -76,7 +76,7 @@
         <div>
           <div class="flex items-center justify-between mb-2">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('stock_transfer_lines') }}</label>
-            <button type="button" (click)="addLine()" class="text-sm text-[#00113f] hover:text-[#3e66ea] dark:text-primary">
+            <button z-button zType="ghost" zSize="sm" type="button" (click)="addLine()">
               + {{ t('stock_transfer_add_line') }}
             </button>
           </div>
@@ -92,8 +92,7 @@
                 <div class="w-28">
                   <input z-input type="text" formControlName="presentation" [placeholder]="t('presentation')" class="w-full" />
                 </div>
-                <button type="button" (click)="removeLine(i)" [disabled]="linesArray.length <= 1"
-                  class="p-2 rounded text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50" [attr.aria-label]="t('remove_item')">
+                <button z-button zType="ghost" zSize="icon" type="button" (click)="removeLine(i)" [zDisabled]="linesArray.length <= 1" [attr.aria-label]="t('remove_item')" class="text-destructive hover:bg-destructive/10">
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
               </div>

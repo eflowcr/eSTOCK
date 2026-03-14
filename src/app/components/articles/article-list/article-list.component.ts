@@ -326,7 +326,7 @@ export class ArticleListComponent {
     });
   }
 
-  openDeleteDialog(articleId: number): void {
+  openDeleteDialog(articleId: string | number): void {
     this.dialogService.create({
       zTitle: this.t('delete_article'),
       zDescription: this.t('delete_article_confirmation'),
@@ -340,7 +340,7 @@ export class ArticleListComponent {
     });
   }
 
-  private async performDeleteAndEmit(articleId: number): Promise<void> {
+  private async performDeleteAndEmit(articleId: string | number): Promise<void> {
     try {
       await this.articleService.delete(articleId);
       this.alertService.success(this.t('success'), this.t('article_deleted_successfully'));

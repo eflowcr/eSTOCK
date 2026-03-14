@@ -44,6 +44,9 @@ export class InventoryFormComponent implements OnInit, OnChanges {
   
   // Selected article data
   selectedArticle: any = null;
+
+  /** When adding (not editing): existing inventory at selected SKU+location, so we add quantity to it. */
+  existingInventoryAtLocation: { id: number; quantity: number } | null = null;
   
   // Tracking data for lots and serials input
   lotSearchTerm = '';
@@ -193,6 +196,12 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     this.lotsArray.clear();
     this.serialsArray.clear();
 
+    // When SKU changes, clear location so it stays in sync (smart dependency)
+    this.clearLocationSelection();
+    this.locationSearchTerm = '';
+    this.existingInventoryAtLocation = null;
+    this.filteredLocations = this.locations.length ? [...this.locations] : [];
+
     await this.loadTrackingOptionsForInventory(article.sku);
   }
 
@@ -232,10 +241,29 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     this.validateLocationSelection();
   }
 
-  onLocationSelected(location: any): void {
+  async onLocationSelected(location: any): Promise<void> {
     this.inventoryForm.patchValue({ location: location.location_code });
     this.locationSearchTerm = `${location.location_code} - ${location.description}`;
     this.showLocationDropdown = false;
+    this.existingInventoryAtLocation = null;
+
+    // When adding (not editing) and we have a SKU, check if inventory already exists at this location
+    if (!this.isEditing && this.selectedArticle?.sku) {
+      const res = await this.inventoryService.getBySkuAndLocation(
+        this.selectedArticle.sku,
+        location.location_code
+      );
+      if (res?.result?.success && res?.data) {
+        const qty = Number(res.data.quantity) || 0;
+        const existingId = Number(res.data.id);
+        if (!Number.isNaN(existingId)) {
+          this.existingInventoryAtLocation = { id: existingId, quantity: qty };
+          this.inventoryForm.patchValue({ quantity: 0 });
+        } else {
+          this.existingInventoryAtLocation = null;
+        }
+      }
+    }
   }
 
   confirmFirstArticleIfAny(): void {
@@ -331,6 +359,7 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     this.clearLocationSelection();
     this.showLocationDropdown = false;
     this.filteredLocations = [...this.locations];
+    this.existingInventoryAtLocation = null;
   }
 
   private clearLocationSelection(): void {
@@ -759,6 +788,10 @@ export class InventoryFormComponent implements OnInit, OnChanges {
       let response;
       if (this.isEditing && this.inventory) {
         response = await this.inventoryService.update(this.inventory.id, formData);
+      } else if (this.existingInventoryAtLocation) {
+        const totalQuantity = this.existingInventoryAtLocation.quantity + (Number(formData.quantity) || 0);
+        const updatePayload = { ...formData, quantity: totalQuantity };
+        response = await this.inventoryService.update(this.existingInventoryAtLocation.id, updatePayload);
       } else {
         response = await this.inventoryService.create(formData);
       }
@@ -791,6 +824,7 @@ export class InventoryFormComponent implements OnInit, OnChanges {
     this.isEditing = false;
     this.inventory = null;
     this.selectedArticle = null;
+    this.existingInventoryAtLocation = null;
   }
 
   onCancel(): void {

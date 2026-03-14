@@ -1,5 +1,7 @@
+export type RotationStrategy = 'fifo' | 'fefo';
+
 export interface Article {
-	id: number;
+	id: number | string;
 	sku: string;
 	name: string;
 	description?: string | null;
@@ -8,6 +10,7 @@ export interface Article {
 	track_by_lot: boolean;
 	track_by_serial: boolean;
 	track_expiration: boolean;
+	rotation_strategy?: RotationStrategy | string;
 	min_quantity?: number | null;
 	max_quantity?: number | null;
 	image_url?: string | null;
@@ -25,6 +28,7 @@ export interface CreateArticleRequest {
 	track_by_lot: boolean;
 	track_by_serial: boolean;
 	track_expiration: boolean;
+	rotation_strategy?: RotationStrategy;
 	min_quantity?: number;
 	max_quantity?: number;
 	image_url?: string;
@@ -43,6 +47,7 @@ export interface ArticleSearchParams {
 	track_by_lot?: boolean;
 	track_by_serial?: boolean;
 	track_expiration?: boolean;
+	rotation_strategy?: RotationStrategy;
 	is_active?: boolean;
 	page?: number;
 	limit?: number;

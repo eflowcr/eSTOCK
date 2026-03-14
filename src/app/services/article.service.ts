@@ -88,7 +88,7 @@ export class ArticleService {
 	 * @param data Partial article data
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	async update(id: number, data: UpdateArticleRequest): Promise<ApiResponse<any>> {
+	async update(id: string | number, data: UpdateArticleRequest): Promise<ApiResponse<any>> {
 		return await this.fetchService.put<ApiResponse<any>>({
 			API_Gateway: `${ARTICLE_URL}/${id}`,
 			values: data,
@@ -100,7 +100,7 @@ export class ArticleService {
 	 * @param id Article ID
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	async delete(id: number): Promise<ApiResponse<any>> {
+	async delete(id: string | number): Promise<ApiResponse<any>> {
 		return await this.fetchService.delete<ApiResponse<any>>({
 			API_Gateway: `${ARTICLE_URL}/${id}`,
 		});

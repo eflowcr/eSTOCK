@@ -65,10 +65,13 @@ export class StockTransfersManagementComponent implements OnInit {
     try {
       this.isLoading = true;
       const res = await this.stockTransfersService.getList();
-      if (res?.result?.success && Array.isArray(res.data)) {
-        this.transfers = res.data;
+      if (res?.result?.success) {
+        this.transfers = Array.isArray(res.data) ? res.data : [];
+      } else {
+        this.transfers = [];
       }
     } catch (err: unknown) {
+      this.transfers = [];
       this.alertService.error(this.t('error'), handleApiError(err, this.t('failed_to_load_stock_transfers')));
     } finally {
       this.isLoading = false;

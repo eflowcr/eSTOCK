@@ -46,7 +46,7 @@ export class ArticleManagementComponent implements OnInit {
     title: 'import_articles',
     endpoint: '/api/articles/import',
     acceptedFormats: ['.csv', '.xlsx', '.xls'],
-    templateFields: ['sku', 'name', 'description', 'unit_price', 'presentation', 'track_by_lot', 'track_by_serial', 'track_expiration', 'min_quantity', 'max_quantity', 'image_url', 'is_active'],
+    templateFields: ['sku', 'name', 'description', 'unit_price', 'presentation', 'track_by_lot', 'track_by_serial', 'track_expiration', 'rotation_strategy', 'min_quantity', 'max_quantity', 'image_url', 'is_active'],
     maxFileSize: 10,
     templateType: 'articles'
   };

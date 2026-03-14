@@ -11,6 +11,7 @@ import {
   getSortedRowModel,
 } from '@tanstack/angular-table';
 import { Adjustment } from '../../../models/adjustment.model';
+import { AdjustmentReasonCode } from '../../../models/adjustment-reason-code.model';
 import { User } from '../../../models/user.model';
 import { LanguageService } from '../../../services/extras/language.service';
 import { UserService } from '../../../services/user.service';
@@ -31,6 +32,7 @@ export class AdjustmentListComponent implements OnInit {
     this.adjustmentsSignal.set(value ?? []);
   }
   @Input() isLoading = false;
+  @Input() reasonCodes: AdjustmentReasonCode[] = [];
 
   users: User[] = [];
   searchTerm = '';
@@ -60,7 +62,7 @@ export class AdjustmentListComponent implements OnInit {
           (adj.notes && adj.notes.toLowerCase().includes(search));
         if (!matchesSearch) return false;
       }
-      if (reason && reason !== 'all' && adj.reason !== reason) return false;
+      if (reason && adj.reason !== reason) return false;
       return true;
     });
   });
@@ -129,6 +131,19 @@ export class AdjustmentListComponent implements OnInit {
     return user.first_name && user.last_name
       ? `${user.first_name} ${user.last_name}`
       : user.email;
+  }
+
+  getReasonName(code: string): string {
+    if (!code) return '';
+    const fixedReasonMap: Record<string, string> = {
+      outbound_physical_withdrawal: this.t('reason_outbound_physical_withdrawal'),
+      inbound_physical_withdrawal: this.t('reason_inbound_physical_withdrawal'),
+    };
+    if (fixedReasonMap[code]) {
+      return fixedReasonMap[code];
+    }
+    const rc = this.reasonCodes.find((r) => r.code === code);
+    return rc ? rc.name : code;
   }
 
   onSearch(): void {

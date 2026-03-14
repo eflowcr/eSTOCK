@@ -11,6 +11,7 @@ import {
   contentChildren,
   DestroyRef,
   ElementRef,
+  effect,
   forwardRef,
   inject,
   Injector,
@@ -176,19 +177,30 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
     ),
   );
 
-  ngAfterContentInit() {
-    const hostWidth = this.elementRef.nativeElement.offsetWidth || 0;
-    // Setup select host reference for each item
-    let i = 0;
-    for (const item of this.selectItems()) {
+  /**
+   * Keep projected select items wired even when options are rendered asynchronously
+   * (e.g. items from API via *ngFor after initial component init).
+   */
+  private readonly syncProjectedItemsEffect = effect(() => {
+    const items = this.selectItems();
+    const size = this.zSize();
+    let index = 0;
+    for (const item of items) {
+      const itemIndex = index;
       item.setSelectHost({
         selectedValue: () => (this.zMultiple() ? (this.zValue() as string[]) : [this.zValue() as string]),
         selectItem: (value: string, label: string) => this.selectItem(value, label),
-        navigateTo: () => this.navigateTo(item, i),
+        navigateTo: () => this.navigateTo(item, itemIndex),
       });
-      item.zSize.set(this.zSize());
-      i++;
+      item.zSize.set(size);
+      index++;
     }
+    const hostWidth = this.elementRef.nativeElement.offsetWidth || 0;
+    this.syncItemModes(hostWidth);
+  });
+
+  ngAfterContentInit() {
+    const hostWidth = this.elementRef.nativeElement.offsetWidth || 0;
     this.syncItemModes(hostWidth);
   }
 
@@ -256,7 +268,7 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
   }
 
   selectItem(value: string, label: string) {
-    if (value === undefined || value === null || value === '') {
+    if (value === undefined || value === null) {
       console.warn('Attempted to select item with invalid value:', { value, label });
       return;
     }
@@ -485,7 +497,11 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
         this.overlayRef
           .outsidePointerEvents()
           .pipe(
-            filter(event => !this.elementRef.nativeElement.contains(event.target)),
+            filter(
+              event =>
+                !this.elementRef.nativeElement.contains(event.target as Node) &&
+                !this.overlayRef?.overlayElement.contains(event.target as Node),
+            ),
             takeUntilDestroyed(this.destroyRef),
           )
           .subscribe(() => {

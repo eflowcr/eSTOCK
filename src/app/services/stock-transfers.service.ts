@@ -23,9 +23,9 @@ export class StockTransfersService {
   constructor(private fetchService: FetchService) {}
 
   getList(status?: string): Promise<ApiResponse<StockTransfer[]>> {
-    const query = status ? `?status=${encodeURIComponent(status)}` : '';
+    const path = status ? `${BASE_URL}/?status=${encodeURIComponent(status)}` : `${BASE_URL}/`;
     return this.fetchService.get<ApiResponse<StockTransfer[]>>({
-      API_Gateway: `${BASE_URL}${query}`,
+      API_Gateway: path,
     });
   }
 

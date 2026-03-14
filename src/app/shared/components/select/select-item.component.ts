@@ -48,7 +48,7 @@ interface SelectHost {
     '[attr.data-disabled]': 'zDisabled() ? "" : null',
     '[attr.data-selected]': 'isSelected() ? "" : null',
     '[attr.aria-selected]': 'isSelected()',
-    '(click)': 'onClick()',
+    '(mousedown)': 'onMouseDown($event)',
     '(mouseenter)': 'onMouseEnter()',
     '(keydown.{tab}.prevent)': 'noopFn',
   },
@@ -94,10 +94,14 @@ export class ZardSelectItemComponent {
     this.select()?.navigateTo();
   }
 
-  onClick() {
+  /** Select on mousedown so value is committed before any blur/outside-click closes the overlay. */
+  onMouseDown(event: MouseEvent) {
     if (this.zDisabled()) {
       return;
     }
+    event.preventDefault();
+    event.stopPropagation();
     this.select()?.selectItem(this.zValue(), this.label());
   }
+
 }
