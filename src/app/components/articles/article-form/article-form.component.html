@@ -124,7 +124,7 @@
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('tracking_options') }}</h3>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ t('tracking_options_help') }}</p>
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
         <!-- Lot Tracking: click card = on, click again = off (no switch) -->
         <div
           role="button"
@@ -132,7 +132,7 @@
           (click)="toggleTrackByLot()"
           (keydown.enter)="toggleTrackByLot()"
           (keydown.space)="$event.preventDefault(); toggleTrackByLot()"
-          class="p-4 border rounded-lg cursor-pointer transition-colors duration-200 select-none"
+          class="p-4 border rounded-lg cursor-pointer transition-colors duration-200 select-none min-h-[4.5rem]"
           [ngClass]="articleForm.get('track_by_lot')?.value
             ? 'bg-green-50 dark:bg-green-900/25 border-green-500 dark:border-green-600 shadow-sm'
             : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600'">
@@ -152,7 +152,7 @@
           (click)="toggleTrackBySerial()"
           (keydown.enter)="toggleTrackBySerial()"
           (keydown.space)="$event.preventDefault(); toggleTrackBySerial()"
-          class="p-4 border rounded-lg cursor-pointer transition-colors duration-200 select-none"
+          class="p-4 border rounded-lg cursor-pointer transition-colors duration-200 select-none min-h-[4.5rem]"
           [ngClass]="articleForm.get('track_by_serial')?.value
             ? 'bg-green-50 dark:bg-green-900/25 border-green-500 dark:border-green-600 shadow-sm'
             : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600'">
@@ -165,62 +165,64 @@
           </p>
         </div>
 
-        <!-- Expiration Tracking (only when lot tracking is on) -->
+        <!-- Expiration tracking + rotation strategy (unified: rotation is part of expiration tracking) -->
         <div
-          role="button"
-          tabindex="0"
-          (click)="articleForm.get('track_by_lot')?.value && toggleTrackExpiration()"
-          (keydown.enter)="articleForm.get('track_by_lot')?.value && toggleTrackExpiration()"
-          (keydown.space)="$event.preventDefault(); articleForm.get('track_by_lot')?.value && toggleTrackExpiration()"
-          class="p-4 border rounded-lg transition-colors duration-200 select-none"
-          [class.cursor-pointer]="articleForm.get('track_by_lot')?.value"
-          [class.cursor-not-allowed]="!articleForm.get('track_by_lot')?.value"
+          class="border rounded-lg transition-colors duration-200 select-none overflow-hidden"
           [ngClass]="articleForm.get('track_expiration')?.value
-            ? 'bg-green-50 dark:bg-green-900/25 border-green-500 dark:border-green-600 shadow-sm'
-            : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-700'"
-          [class.opacity-60]="!articleForm.get('track_by_lot')?.value"
-          [class.hover:bg-gray-100]="articleForm.get('track_by_lot')?.value"
-          [class.dark:hover:bg-gray-600]="articleForm.get('track_by_lot')?.value">
-          <input type="checkbox" id="track_expiration" formControlName="track_expiration" [disabled]="!articleForm.get('track_by_lot')?.value" class="sr-only" />
-          <span class="block text-sm font-medium" [class]="articleForm.get('track_expiration')?.value ? 'text-green-800 dark:text-green-200' : 'text-gray-700 dark:text-gray-300'">
-            {{ t('enable_expiration_tracking') }}
-          </span>
-          <p class="text-sm mt-1" [class]="articleForm.get('track_expiration')?.value ? 'text-green-700 dark:text-green-300' : 'text-gray-600 dark:text-gray-400'">
-            {{ t('expiration_tracking_description') }}
-          </p>
-        </div>
-
-        <!-- Rotation strategy (FIFO / FEFO) -->
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('rotation_strategy') }}</label>
-          <div class="flex flex-wrap gap-2">
-            <button
-              type="button"
-              (click)="articleForm.patchValue({ rotation_strategy: 'fifo' })"
-              [class]="rotationFifoButtonClass"
-              class="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors">
-              {{ t('rotation_fifo') }}
-            </button>
-            <button
-              type="button"
-              (click)="articleForm.get('track_expiration')?.value && articleForm.patchValue({ rotation_strategy: 'fefo' })"
-              [disabled]="!articleForm.get('track_expiration')?.value"
-              [class]="rotationFefoButtonClass"
-              class="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-              {{ t('rotation_fefo') }}
-            </button>
+            ? 'bg-green-50 dark:bg-green-900/25 border-green-500 dark:border-green-600'
+            : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-700'">
+          <div
+            role="button"
+            tabindex="0"
+            (click)="articleForm.get('track_by_lot')?.value && toggleTrackExpiration()"
+            (keydown.enter)="articleForm.get('track_by_lot')?.value && toggleTrackExpiration()"
+            (keydown.space)="$event.preventDefault(); articleForm.get('track_by_lot')?.value && toggleTrackExpiration()"
+            class="p-4"
+            [class.cursor-pointer]="articleForm.get('track_by_lot')?.value"
+            [class.cursor-not-allowed]="!articleForm.get('track_by_lot')?.value"
+            [class.opacity-60]="!articleForm.get('track_by_lot')?.value"
+            [class.hover:bg-gray-100]="articleForm.get('track_by_lot')?.value"
+            [class.dark:hover:bg-gray-600]="articleForm.get('track_by_lot')?.value">
+            <input type="checkbox" id="track_expiration" formControlName="track_expiration" [disabled]="!articleForm.get('track_by_lot')?.value" class="sr-only" />
+            <span class="block text-sm font-medium" [class]="articleForm.get('track_expiration')?.value ? 'text-green-800 dark:text-green-200' : 'text-gray-700 dark:text-gray-300'">
+              {{ t('enable_expiration_tracking') }}
+            </span>
+            <p class="text-sm mt-1" [class]="articleForm.get('track_expiration')?.value ? 'text-green-700 dark:text-green-300' : 'text-gray-600 dark:text-gray-400'">
+              {{ t('expiration_tracking_description') }}
+            </p>
           </div>
-          <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('rotation_strategy_description') }}</p>
+          @if (articleForm.get('track_expiration')?.value) {
+            <div class="border-t border-green-200 dark:border-green-800 pt-4 px-4 pb-4 space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('rotation_strategy') }}</label>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  (click)="articleForm.patchValue({ rotation_strategy: 'fifo' })"
+                  [class]="rotationFifoButtonClass"
+                  class="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors">
+                  {{ t('rotation_fifo') }}
+                </button>
+                <button
+                  type="button"
+                  (click)="articleForm.patchValue({ rotation_strategy: 'fefo' })"
+                  [class]="rotationFefoButtonClass"
+                  class="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors">
+                  {{ t('rotation_fefo') }}
+                </button>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('rotation_strategy_description') }}</p>
+            </div>
+          }
         </div>
 
-        <!-- Active Status -->
+        <!-- Active Status: compact card, no stretch (items-start keeps it from filling row) -->
         <div
           role="button"
           tabindex="0"
           (click)="toggleIsActive()"
           (keydown.enter)="toggleIsActive()"
           (keydown.space)="$event.preventDefault(); toggleIsActive()"
-          class="p-4 border rounded-lg cursor-pointer transition-colors duration-200 select-none"
+          class="p-4 border rounded-lg cursor-pointer transition-colors duration-200 select-none min-h-[4.5rem]"
           [ngClass]="articleForm.get('is_active')?.value
             ? 'bg-green-50 dark:bg-green-900/25 border-green-500 dark:border-green-600 shadow-sm'
             : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600'">
