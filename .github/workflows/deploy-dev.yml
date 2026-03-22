@@ -50,8 +50,3 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev-latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
-
-      - name: Verify push
-        run: |
-          echo "✅ Pushed ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev-latest"
-          echo "SHA tag: dev-${{ github.sha }}"
