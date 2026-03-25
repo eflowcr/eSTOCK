@@ -42,7 +42,7 @@ export class ReceivingTaskManagementComponent implements OnInit {
 	// Export configuration
 	exportConfig: DataExportConfig = {
 		title: 'Export Receiving Tasks',
-		endpoint: '/api/export/receiving-tasks',
+		endpoint: '/api/receiving-tasks/export',
 		data: [],
 		filename: 'receiving_tasks_export'
 	};
@@ -50,7 +50,7 @@ export class ReceivingTaskManagementComponent implements OnInit {
 	// Import configuration
 	importConfig: FileImportConfig = {
 		title: 'import_receiving_tasks',
-		endpoint: '/api/import/receiving-tasks',
+		endpoint: '/api/receiving-tasks/import',
 		acceptedFormats: ['.csv', '.xlsx', '.xls'],
 		templateFields: ['inboundNumber', 'assignedTo', 'priority', 'notes', 'items'],
 		maxFileSize: 10,

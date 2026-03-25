@@ -45,7 +45,7 @@ export class PickingTaskManagementComponent implements OnInit {
   // Export configuration
   exportConfig: DataExportConfig = {
     title: 'Export Picking Tasks',
-    endpoint: '/api/export/picking-tasks',
+    endpoint: '/api/picking-tasks/export',
     data: [],
     filename: 'picking_tasks_export',
   };
@@ -53,7 +53,7 @@ export class PickingTaskManagementComponent implements OnInit {
   // Import configuration
   importConfig: FileImportConfig = {
     title: 'import_picking_tasks',
-    endpoint: '/api/import/picking-tasks',
+    endpoint: '/api/picking-tasks/import',
     acceptedFormats: ['.csv', '.xlsx', '.xls'],
     templateFields: [
       'outboundNumber',
