@@ -197,7 +197,7 @@ export class FileImportComponent {
     const headers: Record<string, string> = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    fetch(`${environment.API.BASE}/api/articles/import/template`, { headers })
+    fetch(`${environment.API.BASE}/articles/import/template`, { headers })
       .then(res => res.blob())
       .then(blob => {
         const url = window.URL.createObjectURL(blob);
