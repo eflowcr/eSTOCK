@@ -5,6 +5,7 @@ import { AlertService } from '../../../services/extras/alert.service';
 import { FetchService } from '../../../services/extras/fetch.service';
 import { ApiResponse } from '../../../models';
 import { getDisplayableApiError, returnCustomURI } from '@app/utils';
+import { getBearerToken } from '@app/utils/get-token';
 import { environment } from '@environment';
 
 export interface ImportResult {
@@ -192,13 +193,31 @@ export class FileImportComponent {
   }
 
   private downloadArticlesExcelTemplate(): void {
-    const link = document.createElement('a');
-    link.href = '/assets/files/ImportArticles.xlsx';
-    link.download = 'ImportArticles.xlsx';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const token = getBearerToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    fetch(`${environment.API.BASE}/api/articles/import/template`, { headers })
+      .then(res => res.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'ImportArticles.xlsx';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(() => {
+        // fallback to static file if backend is unreachable
+        const link = document.createElement('a');
+        link.href = '/assets/files/ImportArticles.xlsx';
+        link.download = 'ImportArticles.xlsx';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
   }
 
   private downloadInventoryExcelTemplate(): void {
