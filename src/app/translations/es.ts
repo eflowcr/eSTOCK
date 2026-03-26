@@ -1436,6 +1436,10 @@ export const esTranslations = {
   similar_found: 'Artículo similar encontrado',
   import_anyway: 'Importar de todas formas',
   articles_label: 'artículos',
+  step_upload: 'Subir',
+  step_verify: 'Verificar',
+  step_review: 'Revisar',
+  template_includes_validations: 'La plantilla incluye listas desplegables y validaciones de datos.',
   import_parse_error: 'Error al leer el archivo',
   import_articles_error: 'Error al importar artículos',
 };

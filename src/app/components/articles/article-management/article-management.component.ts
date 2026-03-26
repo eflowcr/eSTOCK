@@ -12,6 +12,7 @@ import { DataExportConfig } from '../../shared/data-export/data-export.component
 import { FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
 import { DataExportContentComponent } from '../../shared/data-export/data-export-content.component';
 import { FileImportContentComponent } from '../../shared/file-import/file-import-content.component';
+import { ArticleImportDialogComponent } from '../article-import-dialog/article-import-dialog.component';
 import { ArticleFormComponent } from '../article-form/article-form.component';
 import { ArticleListComponent } from '../article-list/article-list.component';
 
@@ -109,11 +110,9 @@ export class ArticleManagementComponent implements OnInit {
   openImportDialog(): void {
     this.dialogService.create({
       zTitle: this.t('import_data'),
-      zContent: FileImportContentComponent,
+      zContent: ArticleImportDialogComponent,
       zData: {
-        config: this.importConfig,
-        onSuccess: (res: ImportResult) => this.onImportSuccess(res),
-        onError: (err: string) => this.onImportError(err),
+        onSuccess: () => this.onImportSuccess({ successful: 0, failed: 0, errors: [] }),
       },
       zHideFooter: true,
       zCustomClasses: 'sm:max-w-2xl',

@@ -1192,6 +1192,10 @@ export const enTranslations = {
   similar_found: 'Similar article found',
   import_anyway: 'Import anyway',
   articles_label: 'articles',
+  step_upload: 'Upload',
+  step_verify: 'Verify',
+  step_review: 'Review',
+  template_includes_validations: 'The template includes dropdown lists and data validations.',
   import_parse_error: 'Error reading the file',
   import_articles_error: 'Error importing articles',
 };
