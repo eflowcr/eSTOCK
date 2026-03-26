@@ -129,7 +129,7 @@ export class ArticleManagementComponent implements OnInit {
   }
 
   openExportDialog(): void {
-    this.exportConfig.data = this.articles;
+    this.exportConfig.data = this.localizeArticleExport(this.articles);
     this.dialogService.create({
       zTitle: this.t('export_data'),
       zDescription: this.t('export_description'),
@@ -147,6 +147,64 @@ export class ArticleManagementComponent implements OnInit {
     this.alertService.success(this.t('export_successful'));
   }
 
+
+  private localizeArticleExport(articles: Article[]): Record<string, any>[] {
+    const isEs = this.languageService.getCurrentLanguage() !== 'en';
+    const h = isEs ? {
+      id:               'ID',
+      sku:              'SKU',
+      name:             'Nombre',
+      description:      'Descripción',
+      unit_price:       'Precio Unitario',
+      presentation:     'Presentación',
+      track_by_lot:     'Rastrear por Lote',
+      track_by_serial:  'Rastrear por Serie',
+      track_expiration: 'Rastrear Expiración',
+      rotation_strategy:'Estrategia de Rotación',
+      min_quantity:     'Cantidad Mínima',
+      max_quantity:     'Cantidad Máxima',
+      image_url:        'URL de Imagen',
+      is_active:        'Activo',
+      created_at:       'Creado el',
+      updated_at:       'Actualizado el',
+    } : {
+      id:               'ID',
+      sku:              'SKU',
+      name:             'Name',
+      description:      'Description',
+      unit_price:       'Unit Price',
+      presentation:     'Presentation',
+      track_by_lot:     'Track by Lot',
+      track_by_serial:  'Track by Serial',
+      track_expiration: 'Track Expiration',
+      rotation_strategy:'Rotation Strategy',
+      min_quantity:     'Min Quantity',
+      max_quantity:     'Max Quantity',
+      image_url:        'Image URL',
+      is_active:        'Active',
+      created_at:       'Created At',
+      updated_at:       'Updated At',
+    };
+
+    return articles.map(a => ({
+      [h.id]:               a.id,
+      [h.sku]:              a.sku,
+      [h.name]:             a.name,
+      [h.description]:      a.description ?? '',
+      [h.unit_price]:       a.unit_price ?? '',
+      [h.presentation]:     a.presentation,
+      [h.track_by_lot]:     a.track_by_lot,
+      [h.track_by_serial]:  a.track_by_serial,
+      [h.track_expiration]: a.track_expiration,
+      [h.rotation_strategy]:a.rotation_strategy ?? '',
+      [h.min_quantity]:     a.min_quantity ?? '',
+      [h.max_quantity]:     a.max_quantity ?? '',
+      [h.image_url]:        a.image_url ?? '',
+      [h.is_active]:        a.is_active,
+      [h.created_at]:       a.created_at,
+      [h.updated_at]:       a.updated_at,
+    }));
+  }
 
   /**
    * Get translation
