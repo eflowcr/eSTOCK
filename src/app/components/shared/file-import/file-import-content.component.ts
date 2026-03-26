@@ -8,6 +8,7 @@ import { ZardDialogRef, Z_MODAL_DATA } from '@app/shared/components/dialog';
 import { ZardButtonComponent } from '@app/shared/components/button/button.component';
 import { ZardIconComponent } from '@app/shared/components/icon/icon.component';
 import { getDisplayableApiError, returnCustomURI } from '@app/utils';
+import { getBearerToken } from '@app/utils/get-token';
 import { environment } from '@environment';
 import type { FileImportConfig, ImportResult } from './file-import.component';
 
@@ -185,10 +186,37 @@ export class FileImportContentComponent {
     if (!this.data.config.templateFields.length) return;
 
     const templateType = this.data.config.templateType;
+
+    if (templateType === 'articles') {
+      const token = getBearerToken();
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      fetch(`${environment.API.BASE}/articles/import/template`, { headers })
+        .then(res => res.blob())
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'ImportArticles.xlsx';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(() => {
+          const link = document.createElement('a');
+          link.href = '/assets/files/ImportArticles.xlsx';
+          link.download = 'ImportArticles.xlsx';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      return;
+    }
+
     const assetMap: Record<string, string> = {
       users: '/assets/files/ImportUsers.xlsx',
       locations: '/assets/files/ImportLocations.xlsx',
-      articles: '/assets/files/ImportArticles.xlsx',
       receiving_tasks: '/assets/files/ImportReceivingTasks.xlsx',
       picking_tasks: '/assets/files/ImportPickingTasks.xlsx',
       inventory: '/assets/files/ImportInventory.xlsx',
