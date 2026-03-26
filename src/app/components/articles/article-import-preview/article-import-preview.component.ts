@@ -13,6 +13,7 @@ import { getBearerToken } from '@app/utils/get-token';
 export interface ArticleImportPreviewData {
   file: File;
   onSuccess?: (result: { successful: number; skipped: number; failed: number }) => void;
+  onClose?: () => void;
 }
 
 type RowStatus = 'new' | 'exists' | 'similar' | 'error' | 'duplicate';
@@ -459,6 +460,8 @@ export class ArticleImportPreviewComponent implements OnInit {
       clearInterval(anim!);
       this.validateProgress = 100;
       this.cdr.detectChanges();
+      // Let user see 100% for 350ms before showing the table
+      await new Promise(r => setTimeout(r, 350));
 
       // Map backend results back to rows (skipping example rows)
       const results: any[] = json.data?.results ?? [];
@@ -545,7 +548,10 @@ export class ArticleImportPreviewComponent implements OnInit {
       const msg = `${result.successful} ${this.t('imported')}${result.skipped ? ', ' + result.skipped + ' ' + this.t('skipped') : ''}`;
       this.alertService.success(msg, this.t('import_complete'));
       if (this.data.onSuccess) this.data.onSuccess(result);
-      setTimeout(() => this.dialogRef.close(), 1500);
+      setTimeout(() => {
+        this.dialogRef.close();
+        this.data.onClose?.();
+      }, 1500);
     } catch (e) {
       if (anim) clearInterval(anim);
       this.alertService.error(this.t('import_articles_error'));
@@ -557,5 +563,8 @@ export class ArticleImportPreviewComponent implements OnInit {
 
   asAny(val: any): any { return val; }
 
-  cancel(): void { this.dialogRef.close(); }
+  cancel(): void {
+    this.dialogRef.close();
+    this.data.onClose?.();
+  }
 }

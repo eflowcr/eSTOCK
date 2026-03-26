@@ -189,8 +189,8 @@ export class FileImportContentComponent {
           file,
           onSuccess: (result: any) => {
             this.data.onSuccess?.({ successful: result.successful, failed: result.failed, errors: [] });
-            this.dialogRef.close();
           },
+          onClose: () => this.dialogRef.close(),
         },
         zHideFooter: true,
         zCustomClasses: 'sm:max-w-[95vw] max-h-[90vh]',
