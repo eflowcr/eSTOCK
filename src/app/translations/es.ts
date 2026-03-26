@@ -1426,6 +1426,7 @@ export const esTranslations = {
   exp: 'Exp.',
   skip: 'Omit.',
   example_row: 'Ejemplo',
+  rows: 'filas',
   import_parse_error: 'Error al leer el archivo',
   import_articles_error: 'Error al importar artículos',
 };

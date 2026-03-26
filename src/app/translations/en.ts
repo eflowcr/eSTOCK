@@ -1182,6 +1182,7 @@ export const enTranslations = {
   exp: 'Exp.',
   skip: 'Skip',
   example_row: 'Example',
+  rows: 'rows',
   import_parse_error: 'Error reading the file',
   import_articles_error: 'Error importing articles',
 };

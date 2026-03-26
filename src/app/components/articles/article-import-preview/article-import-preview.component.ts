@@ -64,9 +64,19 @@ interface PreviewRow {
       <!-- Table -->
       <div class="flex-1 overflow-auto px-4 py-3">
         @if (isLoading) {
-          <div class="flex items-center justify-center h-32">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span class="ml-3 text-sm text-gray-500">{{ t('parsing_file') || 'Procesando archivo...' }}</span>
+          <div class="flex flex-col items-center justify-center h-40 gap-4 px-8">
+            <div class="flex items-center gap-3 w-full">
+              <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 shrink-0"></div>
+              <span class="text-sm text-gray-600 dark:text-gray-400">{{ t('parsing_file') }}</span>
+              <span class="ml-auto text-sm font-semibold text-blue-600">{{ parseProgress }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+              <div class="h-2.5 rounded-full bg-blue-600 transition-all duration-150"
+                [style.width.%]="parseProgress"></div>
+            </div>
+            @if (totalRows > 0) {
+              <p class="text-xs text-gray-400">{{ parsedCount }} / {{ totalRows }} {{ t('rows') || 'filas' }}</p>
+            }
           </div>
         } @else if (rows.length === 0) {
           <div class="text-center py-12 text-gray-500">
@@ -223,13 +233,29 @@ interface PreviewRow {
         }
       </div>
 
+      <!-- Import progress bar (shows while importing) -->
+      @if (isImporting) {
+        <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/20">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs text-blue-700 dark:text-blue-300 font-medium">
+              {{ t('importing') || 'Importando...' }} {{ importedCount }} / {{ validRows.length }}
+            </span>
+            <span class="text-xs font-bold text-blue-700 dark:text-blue-300">{{ importProgress }}%</span>
+          </div>
+          <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2 overflow-hidden">
+            <div class="h-2 rounded-full bg-blue-600 transition-all duration-200"
+              [style.width.%]="importProgress"></div>
+          </div>
+        </div>
+      }
+
       <!-- Footer -->
       <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
         <div class="text-sm text-gray-500">
           @if (importResult) {
-            <span class="text-green-600 font-medium">✓ {{ importResult.successful }} {{ t('imported') || 'importados' }}</span>
-            @if (importResult.skipped > 0) { · <span class="text-yellow-600">{{ importResult.skipped }} {{ t('skipped') || 'omitidos' }}</span> }
-            @if (importResult.failed > 0) { · <span class="text-red-600">{{ importResult.failed }} {{ t('failed') || 'fallidos' }}</span> }
+            <span class="text-green-600 font-medium">✓ {{ importResult.successful }} {{ t('imported') }}</span>
+            @if (importResult.skipped > 0) { · <span class="text-yellow-600">{{ importResult.skipped }} {{ t('skipped') }}</span> }
+            @if (importResult.failed > 0) { · <span class="text-red-600">{{ importResult.failed }} {{ t('failed') }}</span> }
           }
         </div>
         <div class="flex gap-3">
@@ -261,6 +287,15 @@ export class ArticleImportPreviewComponent implements OnInit {
   isImporting = false;
   importResult: { successful: number; skipped: number; failed: number } | null = null;
 
+  // Parsing progress
+  parseProgress = 0;      // 0-100
+  parsedCount = 0;
+  totalRows = 0;
+
+  // Import progress
+  importProgress = 0;     // 0-100
+  importedCount = 0;
+
   get t() { return this.languageService.t.bind(this.languageService); }
 
   get validRows(): PreviewRow[] {
@@ -286,13 +321,23 @@ export class ArticleImportPreviewComponent implements OnInit {
 
   private async parseFile(): Promise<void> {
     try {
+      this.parseProgress = 5;
       const XLSX = await import('xlsx');
+      this.parseProgress = 15;
+
       const buf = await this.data.file.arrayBuffer();
+      this.parseProgress = 30;
+
       const wb = XLSX.read(buf, { type: 'array' });
       const ws = wb.Sheets[wb.SheetNames[0]];
       const raw: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      this.parseProgress = 45;
 
-      // Skip rows 1-8 (index 0-7): header, instructions, col headers, example
+      // Count data rows first for progress calculation
+      const dataRows = raw.slice(8).filter(r => r && !r.every((c: any) => c === '' || c == null));
+      this.totalRows = dataRows.length;
+      this.parsedCount = 0;
+
       for (let i = 8; i < raw.length; i++) {
         const row = raw[i];
         if (!row || row.every((c: any) => c === '' || c == null)) continue;
@@ -323,7 +368,11 @@ export class ArticleImportPreviewComponent implements OnInit {
         };
         this.validateRow(previewRow);
         this.rows.push(previewRow);
+
+        this.parsedCount++;
+        this.parseProgress = 45 + Math.round((this.parsedCount / Math.max(this.totalRows, 1)) * 50);
       }
+      this.parseProgress = 100;
     } catch (e) {
       this.alertService.error(this.t('import_parse_error'));
     }
@@ -349,26 +398,42 @@ export class ArticleImportPreviewComponent implements OnInit {
   async startImport(): Promise<void> {
     if (this.validRows.length === 0) return;
     this.isImporting = true;
+    this.importProgress = 0;
+    this.importedCount = 0;
+
+    const payload = this.validRows.map(r => r.data);
+    const total = payload.length;
+    const BATCH_SIZE = 20;
+    const token = getBearerToken();
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    let successful = 0, skipped = 0, failed = 0;
+
     try {
-      const payload = this.validRows.map(r => r.data);
-      const token = getBearerToken();
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+      for (let i = 0; i < total; i += BATCH_SIZE) {
+        const batch = payload.slice(i, i + BATCH_SIZE);
 
-      const res = await fetch(`${environment.API.BASE}/articles/import/json`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
+        const res = await fetch(`${environment.API.BASE}/articles/import/json`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(batch),
+        });
+        const json = await res.json();
 
-      const result = {
-        successful: json.data?.successful ?? 0,
-        skipped: json.data?.skipped ?? 0,
-        failed: json.data?.failed ?? 0,
-      };
+        successful += json.data?.successful ?? 0;
+        skipped    += json.data?.skipped    ?? 0;
+        failed     += json.data?.failed     ?? 0;
+
+        this.importedCount = Math.min(i + BATCH_SIZE, total);
+        this.importProgress = Math.round((this.importedCount / total) * 100);
+      }
+
+      const result = { successful, skipped, failed };
       this.importResult = result;
-      const msg = `${result.successful} ${this.t('imported')}${result.skipped ? ', ' + result.skipped + ' ' + this.t('skipped') : ''}`;
+      this.importProgress = 100;
+
+      const msg = `${successful} ${this.t('imported')}${skipped ? ', ' + skipped + ' ' + this.t('skipped') : ''}`;
       this.alertService.success(msg, this.t('import_complete'));
       if (this.data.onSuccess) this.data.onSuccess(result);
     } catch (e) {
