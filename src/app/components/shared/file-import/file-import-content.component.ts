@@ -4,13 +4,14 @@ import { LanguageService } from '@app/services/extras/language.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { FetchService } from '@app/services/extras/fetch.service';
 import { ApiResponse } from '@app/models';
-import { ZardDialogRef, Z_MODAL_DATA } from '@app/shared/components/dialog';
+import { ZardDialogRef, Z_MODAL_DATA, ZardDialogService } from '@app/shared/components/dialog';
 import { ZardButtonComponent } from '@app/shared/components/button/button.component';
 import { ZardIconComponent } from '@app/shared/components/icon/icon.component';
 import { getDisplayableApiError, returnCustomURI } from '@app/utils';
 import { getBearerToken } from '@app/utils/get-token';
 import { environment } from '@environment';
 import type { FileImportConfig, ImportResult } from './file-import.component';
+import { ArticleImportPreviewComponent } from '@app/components/articles/article-import-preview/article-import-preview.component';
 
 export interface FileImportContentData {
   config: FileImportConfig;
@@ -124,6 +125,7 @@ export class FileImportContentComponent {
   private readonly alertService = inject(AlertService);
   private readonly fetchService = inject(FetchService);
   private readonly dialogRef = inject(ZardDialogRef);
+  private readonly dialogService = inject(ZardDialogService);
   readonly data = inject<FileImportContentData>(Z_MODAL_DATA);
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
@@ -178,6 +180,26 @@ export class FileImportContentComponent {
       return;
     }
 
+    // For articles: open interactive preview instead of direct upload
+    if (this.data.config.templateType === 'articles') {
+      this.dialogService.create({
+        zTitle: 'Vista Previa de Importación',
+        zContent: ArticleImportPreviewComponent,
+        zData: {
+          file,
+          onSuccess: (result: any) => {
+            this.data.onSuccess?.({ successful: result.successful, failed: result.failed, errors: [] });
+            this.dialogRef.close();
+          },
+        },
+        zHideFooter: true,
+        zCustomClasses: 'sm:max-w-[95vw] max-h-[90vh]',
+      });
+      // Reset input so user can re-select the same file if needed
+      if (this.fileInput?.nativeElement) this.fileInput.nativeElement.value = '';
+      return;
+    }
+
     this.selectedFile = file;
     this.importResult = null;
   }
@@ -191,7 +213,8 @@ export class FileImportContentComponent {
       const token = getBearerToken();
       const headers: Record<string, string> = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      fetch(`${environment.API.BASE}/articles/import/template`, { headers })
+      const lang = localStorage.getItem('estock-language') || 'es';
+      fetch(`${environment.API.BASE}/articles/import/template?lang=${lang}`, { headers })
         .then(res => res.blob())
         .then(blob => {
           const url = window.URL.createObjectURL(blob);
@@ -214,22 +237,40 @@ export class FileImportContentComponent {
       return;
     }
 
-    const assetMap: Record<string, string> = {
-      users: '/assets/files/ImportUsers.xlsx',
-      locations: '/assets/files/ImportLocations.xlsx',
-      receiving_tasks: '/assets/files/ImportReceivingTasks.xlsx',
-      picking_tasks: '/assets/files/ImportPickingTasks.xlsx',
-      inventory: '/assets/files/ImportInventory.xlsx',
+    const endpointMap: Record<string, { endpoint: string; filename: string; fallback: string }> = {
+      users:           { endpoint: 'users/import/template',           filename: 'ImportUsers.xlsx',          fallback: '/assets/files/ImportUsers.xlsx' },
+      locations:       { endpoint: 'locations/import/template',       filename: 'ImportLocations.xlsx',      fallback: '/assets/files/ImportLocations.xlsx' },
+      receiving_tasks: { endpoint: 'receiving-tasks/import/template', filename: 'ImportReceivingTasks.xlsx', fallback: '/assets/files/ImportReceivingTasks.xlsx' },
+      picking_tasks:   { endpoint: 'picking-tasks/import/template',   filename: 'ImportPickingTasks.xlsx',   fallback: '/assets/files/ImportPickingTasks.xlsx' },
+      inventory:       { endpoint: 'inventory/import/template',       filename: 'ImportInventory.xlsx',      fallback: '/assets/files/ImportInventory.xlsx' },
     };
 
-    if (templateType && assetMap[templateType]) {
-      const link = document.createElement('a');
-      link.href = assetMap[templateType];
-      link.download = assetMap[templateType].split('/').pop()!;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    if (templateType && endpointMap[templateType]) {
+      const { endpoint, filename, fallback } = endpointMap[templateType];
+      const token = getBearerToken();
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const lang = localStorage.getItem('estock-language') || 'es';
+      fetch(`${environment.API.BASE}/${endpoint}?lang=${lang}`, { headers })
+        .then(res => res.blob())
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(() => {
+          const link = document.createElement('a');
+          link.href = fallback;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
       return;
     }
 
