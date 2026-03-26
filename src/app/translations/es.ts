@@ -1422,11 +1422,7 @@ export const esTranslations = {
   parsing_file: 'Procesando archivo...',
   no_data_rows: 'No se encontraron filas de datos en el archivo.',
   imported: 'importados',
-  failed: 'fallidos',
   rotation: 'Rotación',
-  lot: 'Lote',
-  serial: 'Serie',
   exp: 'Exp.',
-  price: 'Precio',
   skip: 'Omit.',
 };

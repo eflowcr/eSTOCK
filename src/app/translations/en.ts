@@ -1178,11 +1178,7 @@ export const enTranslations = {
   parsing_file: 'Processing file...',
   no_data_rows: 'No data rows found in the file.',
   imported: 'imported',
-  failed: 'failed',
   rotation: 'Rotation',
-  lot: 'Lot',
-  serial: 'Serial',
   exp: 'Exp.',
-  price: 'Price',
   skip: 'Skip',
 };
