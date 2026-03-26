@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ZardDialogRef, Z_MODAL_DATA } from '@app/shared/components/dialog';
@@ -275,6 +275,7 @@ interface PreviewRow {
 })
 export class ArticleImportPreviewComponent implements OnInit {
   private readonly dialogRef = inject(ZardDialogRef);
+  private readonly cdr = inject(ChangeDetectorRef);
   readonly data = inject<ArticleImportPreviewData>(Z_MODAL_DATA);
   private readonly alertService = inject(AlertService);
   private readonly languageService = inject(LanguageService);
@@ -297,6 +298,22 @@ export class ArticleImportPreviewComponent implements OnInit {
   importedCount = 0;
 
   get t() { return this.languageService.t.bind(this.languageService); }
+
+  private setParseProgress(val: number): void {
+    this.parseProgress = val;
+    this.cdr.detectChanges();
+  }
+
+  private setImportProgress(val: number, count: number): void {
+    this.importProgress = val;
+    this.importedCount = count;
+    this.cdr.detectChanges();
+  }
+
+  // Yields to the event loop so Angular can render the updated progress
+  private tick(): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, 0));
+  }
 
   get validRows(): PreviewRow[] {
     return this.rows.filter(r => !r.skip && r.status !== 'error');
@@ -321,23 +338,29 @@ export class ArticleImportPreviewComponent implements OnInit {
 
   private async parseFile(): Promise<void> {
     try {
-      this.parseProgress = 5;
+      this.setParseProgress(5);
+      await this.tick();
+
       const XLSX = await import('xlsx');
-      this.parseProgress = 15;
+      this.setParseProgress(15);
 
       const buf = await this.data.file.arrayBuffer();
-      this.parseProgress = 30;
+      this.setParseProgress(30);
+      await this.tick();
 
       const wb = XLSX.read(buf, { type: 'array' });
       const ws = wb.Sheets[wb.SheetNames[0]];
       const raw: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-      this.parseProgress = 45;
+      this.setParseProgress(45);
+      await this.tick();
 
       // Count data rows first for progress calculation
       const dataRows = raw.slice(8).filter(r => r && !r.every((c: any) => c === '' || c == null));
       this.totalRows = dataRows.length;
       this.parsedCount = 0;
 
+      // Process rows in small chunks to keep UI responsive
+      const CHUNK = 10;
       for (let i = 8; i < raw.length; i++) {
         const row = raw[i];
         if (!row || row.every((c: any) => c === '' || c == null)) continue;
@@ -370,9 +393,14 @@ export class ArticleImportPreviewComponent implements OnInit {
         this.rows.push(previewRow);
 
         this.parsedCount++;
-        this.parseProgress = 45 + Math.round((this.parsedCount / Math.max(this.totalRows, 1)) * 50);
+        const pct = 45 + Math.round((this.parsedCount / Math.max(this.totalRows, 1)) * 50);
+        this.setParseProgress(pct);
+
+        // Yield every CHUNK rows so Angular can render progress
+        if (this.parsedCount % CHUNK === 0) await this.tick();
       }
-      this.parseProgress = 100;
+      this.setParseProgress(100);
+      await this.tick();
     } catch (e) {
       this.alertService.error(this.t('import_parse_error'));
     }
@@ -425,8 +453,8 @@ export class ArticleImportPreviewComponent implements OnInit {
         skipped    += json.data?.skipped    ?? 0;
         failed     += json.data?.failed     ?? 0;
 
-        this.importedCount = Math.min(i + BATCH_SIZE, total);
-        this.importProgress = Math.round((this.importedCount / total) * 100);
+        const count = Math.min(i + BATCH_SIZE, total);
+        this.setImportProgress(Math.round((count / total) * 100), count);
       }
 
       const result = { successful, skipped, failed };
