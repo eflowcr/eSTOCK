@@ -238,7 +238,7 @@ interface PreviewRow {
         <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/20">
           <div class="flex items-center justify-between mb-1.5">
             <span class="text-xs text-blue-700 dark:text-blue-300 font-medium">
-              {{ t('importing') || 'Importando...' }} {{ importedCount }} / {{ validRows.length }}
+              {{ t('importing') || 'Importando...' }} {{ validRows.length }} {{ t('articles_label') || 'artículos' }}
             </span>
             <span class="text-xs font-bold text-blue-700 dark:text-blue-300">{{ importProgress }}%</span>
           </div>
@@ -431,43 +431,51 @@ export class ArticleImportPreviewComponent implements OnInit {
 
     const payload = this.validRows.map(r => r.data);
     const total = payload.length;
-    const BATCH_SIZE = 20;
     const token = getBearerToken();
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    let successful = 0, skipped = 0, failed = 0;
+    // Animate progress smoothly while the single request is in-flight.
+    // Ramps 0→90% over ~3s, then snaps to 100% when the response arrives.
+    let animFrame: ReturnType<typeof setInterval> | null = null;
+    const startAnim = () => {
+      animFrame = setInterval(() => {
+        if (this.importProgress < 90) {
+          this.setImportProgress(this.importProgress + 1, Math.round((this.importProgress / 90) * total));
+        }
+      }, 35); // ~35ms per tick → reaches 90% in ~3.15s
+    };
 
     try {
-      for (let i = 0; i < total; i += BATCH_SIZE) {
-        const batch = payload.slice(i, i + BATCH_SIZE);
+      startAnim();
 
-        const res = await fetch(`${environment.API.BASE}/articles/import/json`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(batch),
-        });
-        const json = await res.json();
+      // Single request — no batching, no N+1 calls
+      const res = await fetch(`${environment.API.BASE}/articles/import/json`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
 
-        successful += json.data?.successful ?? 0;
-        skipped    += json.data?.skipped    ?? 0;
-        failed     += json.data?.failed     ?? 0;
+      if (animFrame) clearInterval(animFrame);
 
-        const count = Math.min(i + BATCH_SIZE, total);
-        this.setImportProgress(Math.round((count / total) * 100), count);
-      }
-
-      const result = { successful, skipped, failed };
+      const result = {
+        successful: json.data?.successful ?? 0,
+        skipped:    json.data?.skipped    ?? 0,
+        failed:     json.data?.failed     ?? 0,
+      };
       this.importResult = result;
-      this.importProgress = 100;
+      this.setImportProgress(100, total);
 
-      const msg = `${successful} ${this.t('imported')}${skipped ? ', ' + skipped + ' ' + this.t('skipped') : ''}`;
+      const msg = `${result.successful} ${this.t('imported')}${result.skipped ? ', ' + result.skipped + ' ' + this.t('skipped') : ''}`;
       this.alertService.success(msg, this.t('import_complete'));
       if (this.data.onSuccess) this.data.onSuccess(result);
     } catch (e) {
+      if (animFrame) clearInterval(animFrame);
       this.alertService.error(this.t('import_articles_error'));
     } finally {
       this.isImporting = false;
+      this.cdr.detectChanges();
     }
   }
 
