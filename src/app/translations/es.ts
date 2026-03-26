@@ -1414,4 +1414,19 @@ export const esTranslations = {
   suggested_pick: 'Sugerencia de picking',
   pick_from_location: 'Picking desde ubicación',
   lowest_quantity_first: 'Menor cantidad primero',
+
+  // Article import preview
+  preview_import: 'Vista Previa — Importar Artículos',
+  ready: 'listos',
+  skipped: 'omitidos',
+  parsing_file: 'Procesando archivo...',
+  no_data_rows: 'No se encontraron filas de datos en el archivo.',
+  imported: 'importados',
+  failed: 'fallidos',
+  rotation: 'Rotación',
+  lot: 'Lote',
+  serial: 'Serie',
+  exp: 'Exp.',
+  price: 'Precio',
+  skip: 'Omit.',
 };
