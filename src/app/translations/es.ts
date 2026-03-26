@@ -1425,4 +1425,7 @@ export const esTranslations = {
   rotation: 'Rotación',
   exp: 'Exp.',
   skip: 'Omit.',
+  example_row: 'Ejemplo',
+  import_parse_error: 'Error al leer el archivo',
+  import_articles_error: 'Error al importar artículos',
 };

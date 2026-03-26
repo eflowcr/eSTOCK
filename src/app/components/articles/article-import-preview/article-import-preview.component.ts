@@ -109,7 +109,7 @@ interface PreviewRow {
                   <!-- Status -->
                   <td class="px-2 py-1.5 text-center">
                     @if (row.isExample && !row.skip) {
-                      <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-yellow-100 text-yellow-700">Ejemplo</span>
+                      <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-yellow-100 text-yellow-700">{{ t('example_row') }}</span>
                     } @else if (row.skip) {
                       <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-500">–</span>
                     } @else if (row.status === 'error') {
@@ -325,7 +325,7 @@ export class ArticleImportPreviewComponent implements OnInit {
         this.rows.push(previewRow);
       }
     } catch (e) {
-      this.alertService.error('Error al parsear el archivo');
+      this.alertService.error(this.t('import_parse_error'));
     }
   }
 
@@ -368,13 +368,11 @@ export class ArticleImportPreviewComponent implements OnInit {
         failed: json.data?.failed ?? 0,
       };
       this.importResult = result;
-      this.alertService.success(
-        `${result.successful} artículos importados${result.skipped ? ', ' + result.skipped + ' omitidos' : ''}`,
-        'Importación completa'
-      );
+      const msg = `${result.successful} ${this.t('imported')}${result.skipped ? ', ' + result.skipped + ' ' + this.t('skipped') : ''}`;
+      this.alertService.success(msg, this.t('import_complete'));
       if (this.data.onSuccess) this.data.onSuccess(result);
     } catch (e) {
-      this.alertService.error('Error al importar artículos');
+      this.alertService.error(this.t('import_articles_error'));
     } finally {
       this.isImporting = false;
     }
