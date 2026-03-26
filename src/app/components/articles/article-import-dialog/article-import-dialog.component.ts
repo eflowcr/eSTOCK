@@ -513,7 +513,10 @@ export class ArticleImportDialogComponent {
       const json = await res.json();
       clearInterval(anim!);
       this.set(p => p.validateProgress = 100);
-      await new Promise(r => setTimeout(r, 350));
+      // Pause scales with row count so the user can read the result
+      // ~400ms base + 0.4ms per row, capped at 2.5s
+      const pauseMs = Math.min(400 + Math.round(this.rows.length * 0.4), 2500);
+      await new Promise(r => setTimeout(r, pauseMs));
       const results: any[] = json.data?.results ?? [];
       let ri = 0;
       for (const row of this.rows) {
