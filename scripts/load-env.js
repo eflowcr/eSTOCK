@@ -19,7 +19,7 @@ function parseEnv(content) {
   return out;
 }
 
-let apiBase = 'http://localhost:8080/api';
+let apiBase = 'http://localhost:8081/api';
 let version = 'v4.20.0.0';
 let versionBD = '4.20.0.0';
 let testing = true;
