@@ -63,9 +63,6 @@ interface PreviewRow {
             </p>
           }
         </div>
-        <button type="button" class="text-gray-400 hover:text-gray-500" (click)="cancel()">
-          <z-icon zType="x" class="h-5 w-5" />
-        </button>
       </div>
 
       <!-- Body: loading / validating / table -->
