@@ -545,6 +545,7 @@ export class ArticleImportPreviewComponent implements OnInit {
       const msg = `${result.successful} ${this.t('imported')}${result.skipped ? ', ' + result.skipped + ' ' + this.t('skipped') : ''}`;
       this.alertService.success(msg, this.t('import_complete'));
       if (this.data.onSuccess) this.data.onSuccess(result);
+      setTimeout(() => this.dialogRef.close(), 1500);
     } catch (e) {
       if (anim) clearInterval(anim);
       this.alertService.error(this.t('import_articles_error'));
