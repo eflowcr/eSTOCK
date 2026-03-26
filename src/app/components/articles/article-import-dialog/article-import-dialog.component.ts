@@ -73,7 +73,7 @@ interface PreviewRow {
 
         <!-- ── STEP 1: Upload ── -->
         @if (step === 1) {
-          <div class="px-6 py-6 max-w-lg mx-auto space-y-5">
+          <div class="px-6 py-6 max-w-xl mx-auto space-y-5">
 
             <!-- Drop zone -->
             <div>
@@ -114,7 +114,7 @@ interface PreviewRow {
 
         <!-- ── STEP 2: Reading & Validating ── -->
         @if (step === 2) {
-          <div class="px-6 py-8 max-w-lg mx-auto space-y-6">
+          <div class="px-6 py-8 max-w-xl mx-auto space-y-6">
 
             <!-- Parse progress -->
             <div class="space-y-2">

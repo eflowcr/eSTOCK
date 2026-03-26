@@ -115,7 +115,7 @@ export class ArticleManagementComponent implements OnInit {
         onSuccess: () => this.onImportSuccess({ successful: 0, failed: 0, errors: [] }),
       },
       zHideFooter: true,
-      zCustomClasses: 'sm:max-w-2xl',
+      zCustomClasses: 'sm:max-w-[95vw]',
     });
   }
 
