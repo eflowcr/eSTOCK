@@ -18,6 +18,7 @@ import { LocationService } from '../../../services/location.service';
 import { getDisplayableApiError, humanizeApiError } from '@app/utils';
 import { ZardDialogService } from '@app/shared/components/dialog';
 import { LocationDetailsContentComponent } from '../location-details-content/location-details-content.component';
+import { LocationFiltersContentComponent } from '../location-filters-content/location-filters-content.component';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardInputDirective } from '../../../shared/components/input/input.directive';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
@@ -225,7 +226,23 @@ export class LocationListComponent {
   }
 
   toggleFilters(): void {
-    this.filtersExpanded = !this.filtersExpanded;
+    this.dialogService.create({
+      zTitle: this.t('filters'),
+      zContent: LocationFiltersContentComponent,
+      zData: {
+        typeFilter: this.typeFilter,
+        zoneFilter: this.zoneFilter,
+        statusFilter: this.statusFilter,
+        onApply: (filters: { typeFilter: string; zoneFilter: string; statusFilter: string }) => {
+          this.typeFilter = filters.typeFilter;
+          this.zoneFilter = filters.zoneFilter;
+          this.statusFilter = filters.statusFilter;
+          this.onFilterChange();
+        },
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-md',
+    });
   }
 
   hasActiveFilters(): boolean {

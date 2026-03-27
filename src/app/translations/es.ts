@@ -1436,6 +1436,8 @@ export const esTranslations = {
   similar_found: 'Artículo similar encontrado',
   import_anyway: 'Importar de todas formas',
   articles_label: 'artículos',
+  locations_label: 'ubicaciones',
+  filter_by_zone: 'Filtrar por zona...',
   step_upload: 'Subir',
   step_verify: 'Verificar',
   step_review: 'Revisar',

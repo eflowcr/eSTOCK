@@ -8,11 +8,10 @@ import { LocationService } from '../../../services/location.service';
 import { ZardDialogService } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { DataExportConfig } from '../../shared/data-export/data-export.component';
-import { FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
 import { DataExportContentComponent } from '../../shared/data-export/data-export-content.component';
-import { FileImportContentComponent } from '../../shared/file-import/file-import-content.component';
 import { LocationListComponent } from '../location-list/location-list.component';
 import { LocationFormComponent } from '../location-form/location-form.component';
+import { LocationImportDialogComponent } from '../location-import-dialog/location-import-dialog.component';
 import { humanizeApiError } from '@app/utils';
 
 @Component({
@@ -33,22 +32,11 @@ export class LocationManagementComponent implements OnInit {
   isCreateDialogOpen = false;
   selectedLocation: Location | null = null;
 
-  // Export configuration
   exportConfig: DataExportConfig = {
     title: 'Export Locations',
     endpoint: '/api/locations/export',
     data: [],
     filename: 'locations_export'
-  };
-
-  // Import configuration
-  importConfig: FileImportConfig = {
-    title: 'import_locations',
-    endpoint: '/api/locations/import',
-    acceptedFormats: ['.csv', '.xlsx', '.xls'],
-    templateFields: ['id', 'descripcion', 'zona', 'tipo'],
-    maxFileSize: 10,
-    templateType: 'locations'
   };
 
   constructor(
@@ -96,30 +84,47 @@ export class LocationManagementComponent implements OnInit {
   openImportDialog(): void {
     this.dialogService.create({
       zTitle: this.t('import_data'),
-      zContent: FileImportContentComponent,
-      zData: {
-        config: this.importConfig,
-        onSuccess: (res: ImportResult) => this.onImportSuccess(res),
-        onError: (err: string) => this.onImportError(err),
-      },
+      zContent: LocationImportDialogComponent,
+      zData: { onSuccess: () => this.loadLocations() },
       zHideFooter: true,
-      zCustomClasses: 'sm:max-w-2xl',
+      zCustomClasses: 'sm:max-w-[95vw]',
     });
   }
 
   openExportDialog(): void {
-    this.exportConfig.data = this.locations;
+    this.exportConfig.data = this.localizeLocationExport(this.locations);
     this.dialogService.create({
       zTitle: this.t('export_data'),
       zDescription: this.t('export_description'),
       zContent: DataExportContentComponent,
-      zData: {
-        config: this.exportConfig,
-        onExported: () => {},
-      },
+      zData: { config: this.exportConfig, onExported: () => {} },
       zHideFooter: true,
       zCustomClasses: 'sm:max-w-md',
     });
+  }
+
+  private localizeLocationExport(locations: Location[]): Record<string, any>[] {
+    const isEs = this.languageService.getCurrentLanguage() !== 'en';
+    const h = isEs ? {
+      id: 'ID', location_code: 'Código', description: 'Descripción',
+      zone: 'Zona', type: 'Tipo', is_active: 'Activo',
+      is_way_out: 'Salida', created_at: 'Creado el', updated_at: 'Actualizado el',
+    } : {
+      id: 'ID', location_code: 'Code', description: 'Description',
+      zone: 'Zone', type: 'Type', is_active: 'Active',
+      is_way_out: 'Way Out', created_at: 'Created At', updated_at: 'Updated At',
+    };
+    return locations.map(l => ({
+      [h.id]: (l as any).id ?? '',
+      [h.location_code]: (l as any).location_code,
+      [h.description]: (l as any).description ?? '',
+      [h.zone]: (l as any).zone ?? '',
+      [h.type]: (l as any).type,
+      [h.is_active]: (l as any).is_active,
+      [h.is_way_out]: (l as any).is_way_out ?? false,
+      [h.created_at]: (l as any).created_at,
+      [h.updated_at]: (l as any).updated_at,
+    }));
   }
 
   closeCreateDialog(): void {
@@ -138,15 +143,6 @@ export class LocationManagementComponent implements OnInit {
 
   onLocationDeleted(): void {
     this.loadLocations();
-  }
-
-  onImportSuccess(_result: ImportResult): void {
-    this.alertService.success(this.t('success'), this.t('locations_imported_successfully'));
-    this.loadLocations();
-  }
-
-  onImportError(error: string): void {
-    this.alertService.error(this.t('error'), humanizeApiError(error, this.t, 'import_failed'));
   }
 
   onEditLocation(location: Location): void {
