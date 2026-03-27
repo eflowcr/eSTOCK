@@ -19,6 +19,7 @@ import { InventoryService } from '../../../services/inventory.service';
 import { getDisplayableApiError, humanizeApiError } from '@app/utils';
 import { ZardDialogService } from '@app/shared/components/dialog';
 import { InventoryDetailsContentComponent } from '../inventory-details-content/inventory-details-content.component';
+import { InventoryFiltersContentComponent } from '../inventory-filters-content/inventory-filters-content.component';
 import { ZardButtonComponent } from '../../../shared/components/button/button.component';
 import { ZardInputDirective } from '../../../shared/components/input/input.directive';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
@@ -61,7 +62,7 @@ export class InventoryListComponent implements OnInit {
   private readonly sorting = signal<SortingState>([{ id: 'sku', desc: false }]);
   private readonly pagination = signal<PaginationState>({
     pageIndex: 0,
-    pageSize: 25,
+    pageSize: 10,
   });
 
   readonly filteredInventory = computed(() => {
@@ -157,7 +158,30 @@ export class InventoryListComponent implements OnInit {
   }
 
   toggleFilters(): void {
-    this.filtersExpanded = !this.filtersExpanded;
+    const items = this.inventorySignal();
+    const locations = [...new Set(items.map(i => i.location).filter(Boolean))].sort() as string[];
+    const presentations = [...new Set(items.map((i: any) => i.presentation).filter(Boolean))].sort() as string[];
+    this.dialogService.create({
+      zTitle: this.t('filters'),
+      zContent: InventoryFiltersContentComponent,
+      zData: {
+        statusFilter: this.statusFilter,
+        locationFilter: this.locationFilter,
+        presentationFilter: this.presentationFilter,
+        trackingFilter: this.trackingFilter,
+        locations,
+        presentations,
+        onApply: (filters: { statusFilter: string; locationFilter: string; presentationFilter: string; trackingFilter: string }) => {
+          this.statusFilter = filters.statusFilter;
+          this.locationFilter = filters.locationFilter;
+          this.presentationFilter = filters.presentationFilter;
+          this.trackingFilter = filters.trackingFilter;
+          this.onFilterChange();
+        },
+      },
+      zHideFooter: true,
+      zCustomClasses: 'sm:max-w-md',
+    });
   }
 
   hasActiveFilters(): boolean {

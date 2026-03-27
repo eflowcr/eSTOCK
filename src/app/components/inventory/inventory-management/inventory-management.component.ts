@@ -9,11 +9,9 @@ import { ZardDialogService } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { InventoryListComponent } from '../inventory-list/inventory-list.component';
 import { InventoryFormComponent } from '../inventory-form/inventory-form.component';
-import { FileImportConfig, ImportResult } from '../../shared/file-import/file-import.component';
 import { DataExportConfig } from '../../shared/data-export/data-export.component';
 import { DataExportContentComponent } from '../../shared/data-export/data-export-content.component';
-import { FileImportContentComponent } from '../../shared/file-import/file-import-content.component';
-import { humanizeApiError } from '@app/utils';
+import { InventoryImportDialogComponent } from '../inventory-import-dialog/inventory-import-dialog.component';
 
 @Component({
   selector: 'app-inventory-management',
@@ -33,22 +31,11 @@ export class InventoryManagementComponent implements OnInit {
   isCreateDialogOpen = false;
   selectedInventory: Inventory | null = null;
 
-  // Export configuration
   exportConfig: DataExportConfig = {
     title: 'Export Inventory',
     endpoint: '/api/inventory/export',
     data: [],
     filename: 'inventory_export'
-  };
-
-  // Import configuration
-  importConfig: FileImportConfig = {
-    title: 'import_inventory',
-    endpoint: '/api/inventory/import',
-    acceptedFormats: ['.csv', '.xlsx', '.xls'],
-    templateFields: ['sku', 'name', 'description', 'location', 'quantity', 'status', 'presentation', 'unit_price', 'track_by_lot', 'track_by_serial', 'track_expiration', 'min_quantity', 'max_quantity', 'image_url'],
-    maxFileSize: 10,
-    templateType: 'inventory'
   };
 
   constructor(
@@ -144,43 +131,51 @@ export class InventoryManagementComponent implements OnInit {
   openImportDialog(): void {
     this.dialogService.create({
       zTitle: this.t('import_data'),
-      zContent: FileImportContentComponent,
-      zData: {
-        config: this.importConfig,
-        onSuccess: (res: ImportResult) => this.onImportSuccess(res),
-        onError: (err: string) => this.onImportError(err),
-      },
+      zContent: InventoryImportDialogComponent,
+      zData: { onSuccess: () => this.loadInventory() },
       zHideFooter: true,
-      zCustomClasses: 'sm:max-w-2xl',
+      zCustomClasses: 'sm:max-w-[95vw]',
     });
   }
 
   openExportDialog(): void {
-    this.exportConfig.data = this.inventory;
+    this.exportConfig.data = this.localizeInventoryExport(this.inventory);
     this.dialogService.create({
       zTitle: this.t('export_data'),
       zDescription: this.t('export_description'),
       zContent: DataExportContentComponent,
-      zData: {
-        config: this.exportConfig,
-        onExported: () => this.onExportSuccess(),
-      },
+      zData: { config: this.exportConfig, onExported: () => this.alertService.success(this.t('export_successful')) },
       zHideFooter: true,
       zCustomClasses: 'sm:max-w-md',
     });
   }
 
-  onImportSuccess(_result: ImportResult): void {
-    this.alertService.success(this.t('import_successful'));
-    this.loadInventory();
-  }
-
-  onImportError(error: string): void {
-    this.alertService.error(humanizeApiError(error || '', this.t, 'failed_to_import_inventory'));
-  }
-
-  onExportSuccess(): void {
-    this.alertService.success(this.t('export_successful'));
+  private localizeInventoryExport(items: Inventory[]): Record<string, any>[] {
+    const isEs = this.languageService.getCurrentLanguage() !== 'en';
+    const h = isEs ? {
+      sku: 'SKU', name: 'Nombre', description: 'Descripción', location: 'Ubicación',
+      quantity: 'Cantidad', unit_price: 'Precio Unitario', status: 'Estado',
+      presentation: 'Presentación', track_by_lot: 'Rastrear Lote',
+      track_by_serial: 'Rastrear Serie', track_expiration: 'Rastrear Expiración',
+      min_quantity: 'Cantidad Mínima', max_quantity: 'Cantidad Máxima',
+      created_at: 'Creado el', updated_at: 'Actualizado el',
+    } : {
+      sku: 'SKU', name: 'Name', description: 'Description', location: 'Location',
+      quantity: 'Quantity', unit_price: 'Unit Price', status: 'Status',
+      presentation: 'Presentation', track_by_lot: 'Track by Lot',
+      track_by_serial: 'Track by Serial', track_expiration: 'Track Expiration',
+      min_quantity: 'Min Quantity', max_quantity: 'Max Quantity',
+      created_at: 'Created At', updated_at: 'Updated At',
+    };
+    return items.map((i: any) => ({
+      [h.sku]: i.sku, [h.name]: i.name, [h.description]: i.description ?? '',
+      [h.location]: i.location, [h.quantity]: i.quantity, [h.unit_price]: i.unit_price ?? '',
+      [h.status]: i.status, [h.presentation]: i.presentation,
+      [h.track_by_lot]: i.track_by_lot, [h.track_by_serial]: i.track_by_serial,
+      [h.track_expiration]: i.track_expiration,
+      [h.min_quantity]: i.min_quantity ?? '', [h.max_quantity]: i.max_quantity ?? '',
+      [h.created_at]: i.created_at, [h.updated_at]: i.updated_at,
+    }));
   }
 
 

@@ -1192,6 +1192,7 @@ export const enTranslations = {
   similar_found: 'Similar article found',
   import_anyway: 'Import anyway',
   articles_label: 'articles',
+  inventory_label: 'items',
   locations_label: 'locations',
   filter_by_zone: 'Filter by zone...',
   step_upload: 'Upload',
