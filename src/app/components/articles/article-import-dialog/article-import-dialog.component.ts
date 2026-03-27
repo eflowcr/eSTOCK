@@ -423,11 +423,7 @@ export class ArticleImportDialogComponent {
         a.href = url; a.download = 'ImportArticles.xlsx';
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-      }).catch(() => {
-        const a = document.createElement('a');
-        a.href = '/assets/files/ImportArticles.xlsx'; a.download = 'ImportArticles.xlsx';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      });
+      }).catch(() => { /* backend unavailable */ });
   }
 
   async goToStep2(): Promise<void> {

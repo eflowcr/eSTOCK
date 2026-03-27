@@ -226,27 +226,20 @@ export class FileImportContentComponent {
           document.body.removeChild(link);
           window.URL.revokeObjectURL(url);
         })
-        .catch(() => {
-          const link = document.createElement('a');
-          link.href = '/assets/files/ImportArticles.xlsx';
-          link.download = 'ImportArticles.xlsx';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        });
+        .catch(() => { /* backend unavailable */ });
       return;
     }
 
-    const endpointMap: Record<string, { endpoint: string; filename: string; fallback: string }> = {
-      users:           { endpoint: 'users/import/template',           filename: 'ImportUsers.xlsx',          fallback: '/assets/files/ImportUsers.xlsx' },
-      locations:       { endpoint: 'locations/import/template',       filename: 'ImportLocations.xlsx',      fallback: '/assets/files/ImportLocations.xlsx' },
-      receiving_tasks: { endpoint: 'receiving-tasks/import/template', filename: 'ImportReceivingTasks.xlsx', fallback: '/assets/files/ImportReceivingTasks.xlsx' },
-      picking_tasks:   { endpoint: 'picking-tasks/import/template',   filename: 'ImportPickingTasks.xlsx',   fallback: '/assets/files/ImportPickingTasks.xlsx' },
-      inventory:       { endpoint: 'inventory/import/template',       filename: 'ImportInventory.xlsx',      fallback: '/assets/files/ImportInventory.xlsx' },
+    const endpointMap: Record<string, { endpoint: string; filename: string }> = {
+      users:           { endpoint: 'users/import/template',           filename: 'ImportUsers.xlsx' },
+      locations:       { endpoint: 'locations/import/template',       filename: 'ImportLocations.xlsx' },
+      receiving_tasks: { endpoint: 'receiving-tasks/import/template', filename: 'ImportReceivingTasks.xlsx' },
+      picking_tasks:   { endpoint: 'picking-tasks/import/template',   filename: 'ImportPickingTasks.xlsx' },
+      inventory:       { endpoint: 'inventory/import/template',       filename: 'ImportInventory.xlsx' },
     };
 
     if (templateType && endpointMap[templateType]) {
-      const { endpoint, filename, fallback } = endpointMap[templateType];
+      const { endpoint, filename } = endpointMap[templateType];
       const token = getBearerToken();
       const headers: Record<string, string> = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -263,14 +256,7 @@ export class FileImportContentComponent {
           document.body.removeChild(link);
           window.URL.revokeObjectURL(url);
         })
-        .catch(() => {
-          const link = document.createElement('a');
-          link.href = fallback;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        });
+        .catch(() => { /* backend unavailable */ });
       return;
     }
 

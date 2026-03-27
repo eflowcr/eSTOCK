@@ -310,10 +310,7 @@ export class LocationImportDialogComponent {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = url; a.download = 'ImportLocations.xlsx';
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-      }).catch(() => {
-        const a = document.createElement('a'); a.href = '/assets/files/ImportLocations.xlsx'; a.download = 'ImportLocations.xlsx';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      });
+      }).catch(() => { /* backend unavailable */ });
   }
 
   async goToStep2(): Promise<void> {

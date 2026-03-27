@@ -172,82 +172,45 @@ export class FileImportComponent {
     window.URL.revokeObjectURL(url);
   }
 
-  private downloadUsersExcelTemplate(): void {
-    const link = document.createElement('a');
-    link.href = '/assets/files/ImportUsers.xlsx';
-    link.download = 'ImportUsers.xlsx';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  private downloadLocationsExcelTemplate(): void {
-    const link = document.createElement('a');
-    link.href = '/assets/files/ImportLocations.xlsx';
-    link.download = 'ImportLocations.xlsx';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  private downloadArticlesExcelTemplate(): void {
+  private fetchTemplate(endpoint: string, filename: string): void {
     const token = getBearerToken();
     const headers: Record<string, string> = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    fetch(`${environment.API.BASE}/articles/import/template`, { headers })
-      .then(res => res.blob())
+    const lang = localStorage.getItem('estock-language') || 'es';
+    fetch(`${environment.API.BASE}/${endpoint}?lang=${lang}`, { headers })
+      .then(r => r.blob())
       .then(blob => {
         const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'ImportArticles.xlsx';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       })
-      .catch(() => {
-        // fallback to static file if backend is unreachable
-        const link = document.createElement('a');
-        link.href = '/assets/files/ImportArticles.xlsx';
-        link.download = 'ImportArticles.xlsx';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
+      .catch(() => { /* backend unavailable */ });
+  }
+
+  private downloadUsersExcelTemplate(): void {
+    this.fetchTemplate('users/import/template', 'ImportUsers.xlsx');
+  }
+
+  private downloadLocationsExcelTemplate(): void {
+    this.fetchTemplate('locations/import/template', 'ImportLocations.xlsx');
+  }
+
+  private downloadArticlesExcelTemplate(): void {
+    this.fetchTemplate('articles/import/template', 'ImportArticles.xlsx');
   }
 
   private downloadInventoryExcelTemplate(): void {
-    const link = document.createElement('a');
-    link.href = '/assets/files/ImportInventory.xlsx';
-    link.download = 'ImportInventory.xlsx';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    this.fetchTemplate('inventory/import/template', 'ImportInventory.xlsx');
   }
 
   private downloadReceivingTasksExcelTemplate(): void {
-    const link = document.createElement('a');
-    link.href = '/assets/files/ImportReceivingTasks.xlsx';
-    link.download = 'ImportReceivingTasks.xlsx';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    this.fetchTemplate('receiving-tasks/import/template', 'ImportReceivingTasks.xlsx');
   }
 
   private downloadPickingTasksExcelTemplate(): void {
-    const link = document.createElement('a');
-    link.href = '/assets/files/ImportPickingTasks.xlsx';
-    link.download = 'ImportPickingTasks.xlsx';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    this.fetchTemplate('picking-tasks/import/template', 'ImportPickingTasks.xlsx');
   }
 
   async startImport(): Promise<void> {
