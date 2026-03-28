@@ -78,20 +78,12 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 	}
 
 	private initializeData(): void {
-		// Auto-analyze on component initialization
 		if (!this.hasAutoAnalyzed()) {
 			this.analyzeStock();
 			this.hasAutoAnalyzed.set(true);
 		} else {
 			this.loadAlerts();
 		}
-		
-		// If no alerts are loaded after a short delay, load mock data for demo
-		setTimeout(() => {
-			if (this.alerts().length === 0) {
-				this.loadMockAlerts();
-			}
-		}, 2000);
 	}
 
 	private setupAutoRefresh(): void {
@@ -138,125 +130,6 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 			.finally(() => {
 				this.isLoading.set(false);
 			});
-	}
-
-	private loadMockAlerts(): void {
-		const mockAlerts: StockAlert[] = [
-			{
-				id: 1,
-				sku: 'test',
-				alert_type: 'low_stock',
-				current_stock: 3,
-				recommended_stock: 50,
-				alert_level: 'critical',
-				predicted_stock_out_days: 2,
-				message: 'CRITICAL: SKU test has only 3 units remaining. Immediate restocking required.',
-				is_resolved: false,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date().toISOString(),
-				resolved_at: null
-			},
-			{
-				id: 2,
-				sku: 'HDMI-001',
-				alert_type: 'low_stock',
-				current_stock: 4,
-				recommended_stock: 50,
-				alert_level: 'critical',
-				predicted_stock_out_days: 3,
-				message: 'CRITICAL: SKU HDMI-001 has only 4 units remaining. Immediate restocking required.',
-				is_resolved: false,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date(Date.now() - 3600000).toISOString(),
-				resolved_at: null
-			},
-			{
-				id: 3,
-				sku: 'ABC123',
-				alert_type: 'low_stock',
-				current_stock: 5,
-				recommended_stock: 50,
-				alert_level: 'critical',
-				predicted_stock_out_days: 4,
-				message: 'CRITICAL: SKU ABC123 has only 5 units remaining. Immediate restocking required.',
-				is_resolved: false,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date(Date.now() - 7200000).toISOString(),
-				resolved_at: null
-			},
-			{
-				id: 4,
-				sku: 'DEF789',
-				alert_type: 'low_stock',
-				current_stock: 8,
-				recommended_stock: 25,
-				alert_level: 'high',
-				predicted_stock_out_days: 7,
-				message: 'HIGH: SKU DEF789 has only 8 units remaining. Restocking recommended.',
-				is_resolved: false,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date(Date.now() - 10800000).toISOString(),
-				resolved_at: null
-			},
-			{
-				id: 5,
-				sku: 'GHI456',
-				alert_type: 'trend_based',
-				current_stock: 15,
-				recommended_stock: 30,
-				alert_level: 'medium',
-				predicted_stock_out_days: 10,
-				message: 'MEDIUM: SKU GHI456 showing declining trend. Monitor closely.',
-				is_resolved: false,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date(Date.now() - 14400000).toISOString(),
-				resolved_at: null
-			},
-			{
-				id: 6,
-				sku: 'JKL123',
-				alert_type: 'low_stock',
-				current_stock: 12,
-				recommended_stock: 20,
-				alert_level: 'high',
-				predicted_stock_out_days: 6,
-				message: 'HIGH: SKU JKL123 has only 12 units remaining. Consider restocking.',
-				is_resolved: false,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date(Date.now() - 18000000).toISOString(),
-				resolved_at: null
-			},
-			{
-				id: 7,
-				sku: 'RESOLVED-001',
-				alert_type: 'low_stock',
-				current_stock: 25,
-				recommended_stock: 30,
-				alert_level: 'medium',
-				predicted_stock_out_days: null,
-				message: 'This alert was resolved by restocking.',
-				is_resolved: true,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date(Date.now() - 86400000).toISOString(),
-				resolved_at: new Date(Date.now() - 3600000).toISOString()
-			}
-		];
-
-		this.alerts.set(mockAlerts);
 	}
 
 	analyzeStock(): void {

@@ -1,31 +1,8 @@
-/* Dashboard specific styles */
-
-.dashboard-card {
-  @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6;
-  transition: all 0.2s ease-in-out;
-}
-
-.dashboard-card:hover {
-  @apply shadow-md transform scale-105;
-}
-
-.stat-card {
-  @apply bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-4;
-}
-
-.feature-card {
-  @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow duration-200;
-}
-
-.feature-icon {
-  @apply w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0;
-}
-
-/* Animation for dashboard elements */
-@keyframes fadeInUp {
+/* KPI card entry animation */
+@keyframes kpiEnter {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -33,25 +10,16 @@
   }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out;
+.kpi-card {
+  animation: kpiEnter 280ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
-/* Custom button styles */
-.logout-button {
-  @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md transition-colors duration-200;
+/* Button press feedback */
+button:active {
+  transition: transform 100ms ease-out;
 }
 
-.logout-button:hover {
-  @apply transform scale-105;
-}
-
-/* Header styles */
-.dashboard-header {
-  @apply bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700;
-}
-
-/* User avatar styles */
+/* User avatar */
 .user-avatar {
   @apply w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium;
   background: linear-gradient(135deg, #00113f 0%, #3e66ea 100%);

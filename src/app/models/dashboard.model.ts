@@ -3,6 +3,10 @@ export interface DashboardStats {
   inventoryValue: number;
   lowStockCount: number;
   activeTasks: number;
+  tasksThisWeek: { day: string; count: number }[];
+  movementLast7Days: { date: string; inbound: number; outbound: number }[];
+  tasksChangePercent: number;
+  movChangePercent: number;
 }
 
 export type AlertLevel = 'critical' | 'high' | 'medium' | 'low';

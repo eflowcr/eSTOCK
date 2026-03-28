@@ -12,7 +12,7 @@ import { CardContainerComponent } from '../card-container/card-container.compone
   templateUrl: './activity-feed.component.html'
 })
 export class ActivityFeedComponent implements OnInit {
-  activities: { id: number; type: string; message: string; time: string }[] = [];
+  activities: { id: string; type: string; message: string; time: string }[] = [];
 
   constructor(private dashboardService: DashboardService, private languageService: LanguageService, private sanitizer: DomSanitizer) {}
 

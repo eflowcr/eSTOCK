@@ -112,11 +112,8 @@
 					<span *ngIf="totalActiveAlerts() > 3">
 						{{ t('STOCK_ALERTS.SHOWING_RECENT') }} {{ recentAlerts().length }} {{ t('COMMON.OF') }} {{ totalActiveAlerts() }}
 					</span>
-					<span *ngIf="totalActiveAlerts() <= 3 && !usingMockData()">
+					<span *ngIf="totalActiveAlerts() <= 3">
 						{{ t('STOCK_ALERTS.ALL_ALERTS_SHOWN') }}
-					</span>
-					<span *ngIf="usingMockData()" class="text-orange-500 text-xs">
-						{{ t('STOCK_ALERTS.DEMO_DATA') }}
 					</span>
 					<span class="flex items-center">
 						<svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

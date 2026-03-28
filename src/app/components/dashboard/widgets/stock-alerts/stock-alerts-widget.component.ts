@@ -88,123 +88,21 @@ export class StockAlertsWidgetComponent implements OnInit, OnDestroy {
 			.then(response => {
 				if (response.result.success && response.data) {
 					this.alerts.set(response.data.alerts);
-					this.hasError.set(false);
-					this.usingMockData.set(false);
 				} else {
-					this.alerts.set(this.getMockAlerts());
-					this.hasError.set(false);
-					this.usingMockData.set(true);
+					this.alerts.set([]);
+					this.hasError.set(true);
+					this.errorMessage.set(response.result?.message ?? '');
 				}
+				this.usingMockData.set(false);
 			})
-			.catch(error => {
-				this.alerts.set(this.getMockAlerts());
-				this.hasError.set(false);
-				this.usingMockData.set(true);
+			.catch(() => {
+				this.alerts.set([]);
+				this.hasError.set(true);
+				this.usingMockData.set(false);
 			})
 			.finally(() => {
 				this.isLoading.set(false);
 			});
-	}
-
-	private getMockAlerts(): StockAlert[] {
-		return [
-			{
-				id: 1,
-				sku: 'SKU-12453',
-				alert_type: 'low_stock',
-				current_stock: 3,
-				recommended_stock: 50,
-				alert_level: 'critical',
-				predicted_stock_out_days: 2,
-				message: 'CRITICAL: SKU SKU-12453 has only 3 units remaining. Immediate restocking required.',
-				is_resolved: false,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date().toISOString(),
-				resolved_at: null
-			},
-			{
-				id: 2,
-				sku: 'SKU-98765',
-				alert_type: 'low_stock',
-				current_stock: 8,
-				recommended_stock: 40,
-				alert_level: 'high',
-				predicted_stock_out_days: 5,
-				message: 'HIGH: SKU SKU-98765 has only 8 units remaining. Restocking recommended.',
-				is_resolved: false,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date().toISOString(),
-				resolved_at: null
-			},
-			{
-				id: 3,
-				sku: 'SKU-55555',
-				alert_type: 'trend_based',
-				current_stock: 15,
-				recommended_stock: 30,
-				alert_level: 'medium',
-				predicted_stock_out_days: 10,
-				message: 'MEDIUM: SKU SKU-55555 showing declining trend. Monitor closely.',
-				is_resolved: false,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date().toISOString(),
-				resolved_at: null
-			},
-			{
-				id: 4,
-				sku: 'ABC123',
-				alert_type: 'low_stock',
-				current_stock: 12,
-				recommended_stock: 25,
-				alert_level: 'high',
-				predicted_stock_out_days: 7,
-				message: 'HIGH: SKU ABC123 is running low with 12 units. Consider restocking soon.',
-				is_resolved: false,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-				resolved_at: null
-			},
-			{
-				id: 5,
-				sku: 'DEF789',
-				alert_type: 'trend_based',
-				current_stock: 22,
-				recommended_stock: 35,
-				alert_level: 'medium',
-				predicted_stock_out_days: 14,
-				message: 'MEDIUM: SKU DEF789 showing declining trend. Monitor closely.',
-				is_resolved: false,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
-				resolved_at: null
-			},
-			{
-				id: 6,
-				sku: 'GHI456',
-				alert_type: 'seasonal',
-				current_stock: 18,
-				recommended_stock: 40,
-				alert_level: 'high',
-				predicted_stock_out_days: 6,
-				message: 'HIGH: SKU GHI456 seasonal demand increasing. Restock recommended.',
-				is_resolved: false,
-				lot_number: null,
-				expiration_date: null,
-				days_to_expiration: null,
-				created_at: new Date(Date.now() - 10800000).toISOString(), // 3 hours ago
-				resolved_at: null
-			}
-		];
 	}
 
 	getAlertLevelClass(level: AlertLevel): string {

@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { ApiResponse } from '@app/models';
 import {
   DashboardStats,
-  StockAlert,
   DashboardKpi,
   StackedBarPoint,
   DonutSlice,
@@ -24,13 +23,13 @@ export const DASHBOARD_URL = returnCompleteURI({
 export class DashboardService {
   constructor(private fetchService: FetchService) {}
 
-  async getStats(): Promise<ApiResponse<DashboardStats>> {
+  async getStats(tasksPeriod = 'weekly', lowStockThreshold = 20): Promise<ApiResponse<DashboardStats>> {
     return await this.fetchService.get<ApiResponse<DashboardStats>>({
-      API_Gateway: `${DASHBOARD_URL}/stats`,
+      API_Gateway: `${DASHBOARD_URL}/stats?tasksPeriod=${tasksPeriod}&lowStockThreshold=${lowStockThreshold}`,
     });
   }
 
-  /** KPI cards with trend (from stats + mock trend until backend supports it) */
+  /** KPI cards with trend (tasksChangePercent and movChangePercent from real DB comparisons) */
   buildKpis(stats: DashboardStats | null): DashboardKpi[] {
     if (!stats) {
       return [
@@ -43,115 +42,127 @@ export class DashboardService {
       {
         title: 'total_skus',
         value: stats.totalSkus.toLocaleString(),
-        changePercent: 15.8,
+        changePercent: stats.movChangePercent ?? 0,
         changeLabel: 'dashboard.vs_last_month',
         icon: 'package',
       },
       {
         title: 'inventory_value',
         value: `$${stats.inventoryValue.toLocaleString()}`,
-        changePercent: -34,
+        changePercent: stats.movChangePercent ?? 0,
         changeLabel: 'dashboard.vs_last_month',
         icon: 'trend',
       },
       {
         title: 'low_stock_count',
         value: stats.lowStockCount.toLocaleString(),
-        changePercent: 24.2,
+        changePercent: stats.tasksChangePercent ?? 0,
         changeLabel: 'dashboard.alerts_trend',
         icon: 'alert',
       },
     ];
   }
 
-  /** Stacked bar: movements overview by month (Inbound / Outbound / Adjusted) */
-  async getStackedBarData(): Promise<StackedBarPoint[]> {
-    return [
-      {
-        period: 'Oct',
-        total: 2988.2,
-        segments: [
-          { label: 'Inbound', key: 'inbound', value: 1200, color: 'var(--chart-1)' },
-          { label: 'Outbound', key: 'outbound', value: 1000, color: 'var(--chart-2)' },
-          { label: 'Adjusted', key: 'adjusted', value: 788.2, color: 'var(--chart-3)' },
-        ],
-      },
-      {
-        period: 'Nov',
-        total: 1765.09,
-        segments: [
-          { label: 'Inbound', key: 'inbound', value: 800, color: 'var(--chart-1)' },
-          { label: 'Outbound', key: 'outbound', value: 650, color: 'var(--chart-2)' },
-          { label: 'Adjusted', key: 'adjusted', value: 315.09, color: 'var(--chart-3)' },
-        ],
-      },
-      {
-        period: 'Dec',
-        total: 4005.65,
-        segments: [
-          { label: 'Inbound', key: 'inbound', value: 1800, color: 'var(--chart-1)' },
-          { label: 'Outbound', key: 'outbound', value: 1500, color: 'var(--chart-2)' },
-          { label: 'Adjusted', key: 'adjusted', value: 705.65, color: 'var(--chart-3)' },
-        ],
-      },
-    ];
-  }
+  /** Stacked bar: movements by period — from /api/dashboard/movements-monthly?period= */
+  async getStackedBarData(period = 'monthly'): Promise<StackedBarPoint[]> {
+    const response = await this.fetchService.get<ApiResponse<{
+      months: { period: string; total: number; inbound: number; outbound: number; adjusted: number }[];
+    }>>({ API_Gateway: `${DASHBOARD_URL}/movements-monthly?period=${period}` });
 
-  /** Tasks (receiving + picking) by day for current week */
-  async getTasksByDay(): Promise<{ day: string; count: number }[]> {
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    return days.map((day, i) => ({
-      day,
-      count: [2100, 2800, 3874, 3200, 2900, 3100, 2650][i],
+    if (!response?.result?.success || !response.data?.months?.length) {
+      return [];
+    }
+
+    return response.data.months.map((m) => ({
+      period: m.period,
+      total: m.total,
+      segments: [
+        { label: 'Inbound',  key: 'inbound',  value: m.inbound,  color: 'var(--chart-1)' },
+        { label: 'Outbound', key: 'outbound', value: m.outbound, color: 'var(--chart-2)' },
+        { label: 'Adjusted', key: 'adjusted', value: m.adjusted, color: 'var(--chart-3)' },
+      ],
     }));
   }
 
-  /** Donut: inventory distribution by location or type */
+  /** Tasks (receiving + picking) by day for current week — from stats.tasksThisWeek */
+  getTasksByDay(stats: DashboardStats | null): { day: string; count: number }[] {
+    if (stats?.tasksThisWeek?.length) {
+      return stats.tasksThisWeek;
+    }
+    return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => ({ day, count: 0 }));
+  }
+
+  async getInventorySummary(period = 'monthly'): Promise<{ topArticles: DashboardTableRow[]; locationDistribution: DonutSlice[] }> {
+    const response = await this.fetchService.get<ApiResponse<{
+      topArticles: { id: string; name: string; type: string; ratePercent: number; amount: number }[];
+      locationDistribution: { label: string; value: number; amount: number; color: string }[];
+    }>>({ API_Gateway: `${DASHBOARD_URL}/inventory-summary?period=${period}` });
+
+    if (!response?.result?.success || !response.data) {
+      return { topArticles: [], locationDistribution: [] };
+    }
+
+    const topArticles: DashboardTableRow[] = response.data.topArticles.map((a) => ({
+      id: a.id,
+      name: a.name,
+      type: a.type,
+      ratePercent: Math.round(a.ratePercent),
+      amount: `$${a.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    }));
+
+    const locationDistribution: DonutSlice[] = response.data.locationDistribution.map((l) => ({
+      label: l.label,
+      value: l.value,
+      amount: `$${l.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      color: l.color,
+    }));
+
+    return { topArticles, locationDistribution };
+  }
+
+  /** Donut: inventory distribution by location — from getInventorySummary() */
   async getDonutData(): Promise<DonutSlice[]> {
-    return [
-      { label: 'Location A', value: 45, amount: '$374.82', color: 'var(--chart-1)' },
-      { label: 'Location B', value: 30, amount: '$241.60', color: 'var(--chart-2)' },
-      { label: 'Other', value: 25, amount: '$213.42', color: 'var(--chart-3)' },
-    ];
+    const { locationDistribution } = await this.getInventorySummary();
+    return locationDistribution;
   }
 
-  /** Table: top articles or integrations */
+  /** Table: top 5 articles by inventory value — from getInventorySummary() */
   async getTopArticlesTable(): Promise<DashboardTableRow[]> {
-    return [
-      { id: '1', name: 'Article Alpha', type: 'SKU', ratePercent: 40, amount: '$650.00' },
-      { id: '2', name: 'Article Beta', type: 'Lot', ratePercent: 80, amount: '$720.50' },
-      { id: '3', name: 'Article Gamma', type: 'SKU', ratePercent: 20, amount: '$432.25' },
-    ];
+    const { topArticles } = await this.getInventorySummary();
+    return topArticles;
   }
 
-  async getRecentActivity(): Promise<{ id: number; type: string; message: string; time: string }[]> {
-    return [
-      { id: 1, type: 'completed', message: 'Tarea de recepción completada RCV-001', time: '2h' },
-      { id: 2, type: 'created', message: 'Nuevo SKU agregado SKU-12453', time: '4h' },
-      { id: 3, type: 'adjustment', message: 'Ajuste de stock para SKU-98765', time: '6h' },
-    ];
+  /** Recent activity — last 10 from audit_logs (falls back to inventory_movements) */
+  async getRecentActivity(): Promise<{ id: string; type: string; message: string; time: string }[]> {
+    const response = await this.fetchService.get<ApiResponse<{
+      activities: { id: string; type: string; message: string; user: string; time: string }[];
+    }>>({ API_Gateway: `${DASHBOARD_URL}/activity` });
+
+    if (!response?.result?.success || !response.data?.activities) {
+      return [];
+    }
+
+    return response.data.activities.map((a) => ({
+      id: a.id,
+      type: a.type,
+      message: a.message,
+      time: a.time,
+    }));
   }
 
-  async getMovementChartData(): Promise<{ date: string; inbound: number; outbound: number }[]> {
+  /** Last 7 days inbound/outbound movements — from stats.movementLast7Days */
+  getMovementChartData(stats: DashboardStats | null): { date: string; inbound: number; outbound: number }[] {
+    if (stats?.movementLast7Days?.length) {
+      return stats.movementLast7Days;
+    }
     const today = new Date();
     return Array.from({ length: 7 }).map((_, idx) => {
       const d = new Date(today);
       d.setDate(today.getDate() - (6 - idx));
-      return {
-        date: d.toISOString().slice(0, 10),
-        inbound: Math.floor(20 + Math.random() * 40),
-        outbound: Math.floor(15 + Math.random() * 35),
-      };
+      return { date: d.toISOString().slice(0, 10), inbound: 0, outbound: 0 };
     });
   }
 
-  async getStockAlerts(): Promise<StockAlert[]> {
-    return [
-      { id: '1', sku: 'SKU-12453', currentStock: 3, alertLevel: 'critical' },
-      { id: '2', sku: 'SKU-98765', currentStock: 8, alertLevel: 'high' },
-      { id: '3', sku: 'SKU-55555', currentStock: 15, alertLevel: 'medium' },
-    ];
-  }
 }
 
 

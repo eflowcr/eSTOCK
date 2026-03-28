@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { GamificationService } from '../../../services/gamification.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
-import { handleApiError } from '@app/utils';
-import { UserStat, Badge, UserBadge, CompleteTasks } from '../../../models/gamification.model';
+import { UserStat, Badge, UserBadge } from '../../../models/gamification.model';
 import { Subject } from 'rxjs';
 
 interface UserBadgeWithBadge extends UserBadge {
@@ -29,7 +28,6 @@ export class GamificationPanelComponent implements OnInit, OnDestroy {
   userBadges = signal<UserBadgeWithBadge[]>([]);
   allBadges = signal<Badge[]>([]);
   isLoading = signal(false);
-  isCompletingTask = signal(false);
 
   // Computed values
   level = computed(() => {
@@ -114,57 +112,6 @@ export class GamificationPanelComponent implements OnInit, OnDestroy {
     if (!currentStats) return 0;
     
     return this.gamificationService.getBadgeProgress(badge.rule_type, currentStats, badge);
-  }
-
-  async completeTask(taskType: 'picking' | 'receiving'): Promise<void> {
-    this.isCompletingTask.set(true);
-    
-    try {
-      const taskData: CompleteTasks = {
-        task_type: taskType,
-        completion_time: Math.floor(Math.random() * 120) + 30, // 30-150 seconds
-      };
-
-      if (taskType === 'picking') {
-        taskData.accuracy = Math.random() > 0.2 ? 100 : Math.floor(Math.random() * 20) + 80; // 80-100% accuracy
-      }
-
-      const response = await this.gamificationService.completeTasks(taskData);
-      
-      if (response.result.success) {
-        // Show success message
-        this.alertService.success(
-          this.t('gamification.taskCompleted'),
-          this.t('gamification.statsUpdated')
-        );
-
-        // Check for new badges
-        if (response.data && response.data.length > 0) {
-          response.data.forEach((userBadge) => {
-            const badgeInfo = this.allBadges().find(b => b.id === userBadge.badge_id);
-            if (badgeInfo) {
-              this.alertService.success(
-                `${badgeInfo.emoji} ${badgeInfo.name}`,
-                this.t('gamification.badgeEarned')
-              );
-            }
-          });
-        }
-
-        // Reload data to reflect changes
-        await this.loadGamificationData();
-      } else {
-        throw new Error(response.result.message || 'Task completion failed');
-      }
-    } catch (error: any) {
-      console.error('Error completing task:', error);
-      this.alertService.error(
-        this.t('gamification.taskError'),
-        handleApiError(error, this.t('common.error.title'))
-      );
-    } finally {
-      this.isCompletingTask.set(false);
-    }
   }
 
   formatDate(dateString: string): string {
