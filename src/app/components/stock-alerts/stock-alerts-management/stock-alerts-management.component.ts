@@ -8,13 +8,12 @@ import { AlertLevel } from '@app/models';
 import { LanguageService } from '@app/services/extras/language.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { handleApiError } from '@app/utils';
-import { LoadingSpinnerComponent } from '@app/components/shared/extras/loading-spinner/loading-spinner.component';
 import { MainLayoutComponent } from "@app/components/layout/main-layout.component";
 
 @Component({
 	selector: 'app-stock-alerts-management',
 	standalone: true,
-	imports: [CommonModule, LoadingSpinnerComponent, MainLayoutComponent],
+	imports: [CommonModule, MainLayoutComponent],
 	templateUrl: './stock-alerts-management.component.html',
 	styleUrl: './stock-alerts-management.component.css'
 })
@@ -24,40 +23,49 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 	// Signals for reactive state management
 	alerts = signal<StockAlert[]>([]);
 	isLoading = signal(false);
-	activeTab = signal<'all' | 'critical' | 'high' | 'resolved'>('all');
+	activeTab = signal<'all' | 'critical' | 'high' | 'medium' | 'resolved'>('all');
 	hasAutoAnalyzed = signal(false);
+	searchQuery = signal('');
 
 	// Computed values for filtered alerts
-	activeAlerts = computed(() => 
+	activeAlerts = computed(() =>
 		this.alerts().filter(alert => !alert.is_resolved)
 	);
 
-	resolvedAlerts = computed(() => 
+	resolvedAlerts = computed(() =>
 		this.alerts().filter(alert => alert.is_resolved)
 	);
 
-	criticalAlerts = computed(() => 
+	criticalAlerts = computed(() =>
 		this.activeAlerts().filter(alert => alert.alert_level === 'critical')
 	);
 
-	highAlerts = computed(() => 
+	highAlerts = computed(() =>
 		this.activeAlerts().filter(alert => alert.alert_level === 'high')
 	);
 
-	// Get current tab alerts
+	mediumAlerts = computed(() =>
+		this.activeAlerts().filter(alert => alert.alert_level === 'medium')
+	);
+
+	// Current tab alerts (unfiltered by search)
 	currentTabAlerts = computed(() => {
 		switch (this.activeTab()) {
-			case 'all':
-				return this.activeAlerts();
-			case 'critical':
-				return this.criticalAlerts();
-			case 'high':
-				return this.highAlerts();
-			case 'resolved':
-				return this.resolvedAlerts();
-			default:
-				return this.activeAlerts();
+			case 'all':      return this.activeAlerts();
+			case 'critical': return this.criticalAlerts();
+			case 'high':     return this.highAlerts();
+			case 'medium':   return this.mediumAlerts();
+			case 'resolved': return this.resolvedAlerts();
+			default:         return this.activeAlerts();
 		}
+	});
+
+	// Filtered by search query
+	filteredTabAlerts = computed(() => {
+		const q = this.searchQuery().toLowerCase().trim();
+		const alerts = this.currentTabAlerts();
+		if (!q) return alerts;
+		return alerts.filter(a => a.sku.toLowerCase().includes(q) || a.message.toLowerCase().includes(q));
 	});
 
 	constructor(
@@ -87,10 +95,9 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 	}
 
 	private setupAutoRefresh(): void {
-		// Refresh alerts every 30 seconds using analyze endpoint
+		// Refresh every 30 seconds — no startWith(0) to avoid double-firing with initializeData
 		interval(30000)
 			.pipe(
-				startWith(0),
 				switchMap(() => this.stockAlertService.analyze()),
 				takeUntil(this.destroy$)
 			)
@@ -100,9 +107,7 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 						this.alerts.set(response.data.alerts);
 					}
 				},
-				error: (error) => {
-					// Silently handle errors for auto-refresh
-				}
+				error: () => { /* silently handle auto-refresh errors */ }
 			});
 	}
 
@@ -171,7 +176,7 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 			});
 	}
 
-	resolveAlert(alertId: number): void {
+	resolveAlert(alertId: string): void {
 		this.loadingService.show();
 		
 		this.stockAlertService.resolve(alertId)
@@ -210,28 +215,19 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 
 	exportAlerts(): void {
 		this.loadingService.show();
-		
+
 		this.stockAlertService.export()
-			.then(response => {
-				if (response.result.success && response.data) {
-					// Create and download the file
-					const blob = new Blob([response.data], { 
-						type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
-					});
-					const url = window.URL.createObjectURL(blob);
-					const link = document.createElement('a');
-					link.href = url;
-					link.download = `stock-alerts-${new Date().toISOString().split('T')[0]}.xlsx`;
-					link.click();
-					window.URL.revokeObjectURL(url);
-					
-					this.alertService.success(
-						this.languageService.translate('STOCK_ALERTS.EXPORT_SUCCESS'),
-						this.languageService.translate('COMMON.SUCCESS')
-					);
-				} else {
-					throw new Error(response.result.message || 'Export failed');
-				}
+			.then(blob => {
+				const url = window.URL.createObjectURL(blob);
+				const link = document.createElement('a');
+				link.href = url;
+				link.download = `stock-alerts-${new Date().toISOString().split('T')[0]}.xlsx`;
+				link.click();
+				window.URL.revokeObjectURL(url);
+				this.alertService.success(
+					this.languageService.translate('STOCK_ALERTS.EXPORT_SUCCESS'),
+					this.languageService.translate('COMMON.SUCCESS')
+				);
 			})
 			.catch((error: any) => {
 				this.alertService.error(
@@ -244,8 +240,19 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 			});
 	}
 
-	setActiveTab(tab: 'all' | 'critical' | 'high' | 'resolved'): void {
+	setActiveTab(tab: 'all' | 'critical' | 'high' | 'medium' | 'resolved'): void {
 		this.activeTab.set(tab);
+		this.searchQuery.set('');
+	}
+
+	alertLevelAccent(level: string): string {
+		const map: Record<string, string> = {
+			critical: 'bg-red-500',
+			high:     'bg-orange-400',
+			medium:   'bg-yellow-400',
+			low:      'bg-blue-400',
+		};
+		return map[level] ?? 'bg-border';
 	}
 
 	getAlertLevelClass(level: AlertLevel): string {
@@ -316,7 +323,7 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 	}
 
 	// Tab management methods
-	getTabClass(tab: 'all' | 'critical' | 'high' | 'resolved'): string {
+	getTabClass(tab: 'all' | 'critical' | 'high' | 'medium' | 'resolved'): string {
 		const isActive = this.activeTab() === tab;
 		const baseClasses = 'py-3 px-4 border-b-2 font-medium text-sm transition-all duration-200 cursor-pointer';
 		
@@ -327,7 +334,7 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	getTabBadgeClass(tab: 'all' | 'critical' | 'high' | 'resolved'): string {
+	getTabBadgeClass(tab: 'all' | 'critical' | 'high' | 'medium' | 'resolved'): string {
 		const isActive = this.activeTab() === tab;
 		const baseClasses = 'ml-2 text-xs px-2.5 py-1 rounded-full font-medium';
 		
@@ -340,31 +347,23 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 
 	currentTabDescription(): string {
 		switch (this.activeTab()) {
-			case 'all':
-				return this.t('STOCK_ALERTS.ALL_ALERTS_DESCRIPTION');
-			case 'critical':
-				return this.t('STOCK_ALERTS.CRITICAL_ALERTS_DESCRIPTION');
-			case 'high':
-				return this.t('STOCK_ALERTS.HIGH_ALERTS_DESCRIPTION');
-			case 'resolved':
-				return this.t('STOCK_ALERTS.RESOLVED_ALERTS_DESCRIPTION');
-			default:
-				return '';
+			case 'all':      return this.t('STOCK_ALERTS.ALL_ALERTS_DESCRIPTION');
+			case 'critical': return this.t('STOCK_ALERTS.CRITICAL_ALERTS_DESCRIPTION');
+			case 'high':     return this.t('STOCK_ALERTS.HIGH_ALERTS_DESCRIPTION');
+			case 'medium':   return this.t('STOCK_ALERTS.MEDIUM_ALERTS_DESCRIPTION');
+			case 'resolved': return this.t('STOCK_ALERTS.RESOLVED_ALERTS_DESCRIPTION');
+			default:         return '';
 		}
 	}
 
 	getEmptyStateMessage(): string {
 		switch (this.activeTab()) {
-			case 'all':
-				return this.t('STOCK_ALERTS.NO_ALERTS_ALL');
-			case 'critical':
-				return this.t('STOCK_ALERTS.NO_ALERTS_CRITICAL');
-			case 'high':
-				return this.t('STOCK_ALERTS.NO_ALERTS_HIGH');
-			case 'resolved':
-				return this.t('STOCK_ALERTS.NO_ALERTS_RESOLVED');
-			default:
-				return '';
+			case 'all':      return this.t('STOCK_ALERTS.NO_ALERTS_ALL');
+			case 'critical': return this.t('STOCK_ALERTS.NO_ALERTS_CRITICAL');
+			case 'high':     return this.t('STOCK_ALERTS.NO_ALERTS_HIGH');
+			case 'medium':   return this.t('STOCK_ALERTS.NO_ALERTS_MEDIUM');
+			case 'resolved': return this.t('STOCK_ALERTS.NO_ALERTS_RESOLVED');
+			default:         return '';
 		}
 	}
 

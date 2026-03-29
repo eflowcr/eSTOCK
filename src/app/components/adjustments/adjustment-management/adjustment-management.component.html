@@ -1,51 +1,82 @@
 <app-main-layout>
 
-  <div class="flex flex-col flex-1 min-h-0 gap-6">
-    <!-- Header Section -->
-    <div class="flex flex-shrink-0 justify-between items-center mb-0">
+  <div class="space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
-          {{ t('stock_adjustments') }}
-        </h1>
-        <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
-          {{ t('stock_adjustments_description') }}
+        <h1 class="text-2xl font-semibold text-foreground">{{ t('stock_adjustments') }}</h1>
+        <p class="mt-0.5 text-sm text-muted-foreground">
+          {{ adjustments.length }} {{ t('total_records') }}
+          <ng-container *ngIf="todayAdjustmentsCount > 0">
+            · <span class="font-medium text-foreground">{{ todayAdjustmentsCount }} {{ t('today') }}</span>
+          </ng-container>
         </p>
       </div>
-
-      <!-- Action Buttons -->
-      <div class="flex gap-2">
-        <!-- Export Button - Available for all users -->
+      <div class="flex flex-wrap gap-2">
         <button type="button" (click)="openExportDialog()"
-          class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-[#4465ec] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-[#4465ec]">
-          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-            </path>
+          class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.97]">
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
           {{ t('export') }}
         </button>
-
-        <!-- Create Button -->
         <button type="button" (click)="openCreateDialog()"
-          class="flex items-center px-4 py-2 bg-[#00113f] text-white rounded-md shadow-sm text-sm font-medium hover:bg-[#4465ec] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-[#00113f] dark:hover:bg-[#4465ec]">
-          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          class="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary active:scale-[0.97]">
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
           {{ t('new_stock_adjustment') }}
         </button>
       </div>
     </div>
 
-    <!-- Adjustment History Card -->
-    <div class="flex flex-col flex-1 min-h-0">
-      <app-adjustment-list [adjustments]="adjustments" [reasonCodes]="reasonCodes" [isLoading]="isLoading"></app-adjustment-list>
+    <!-- Stats strip -->
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div class="flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3">
+        <span class="h-2.5 w-2.5 rounded-full bg-primary/70 shrink-0"></span>
+        <div class="min-w-0">
+          <p class="text-xs text-muted-foreground truncate">{{ t('total') }}</p>
+          <p class="text-lg font-semibold text-foreground leading-tight">{{ adjustments.length }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3">
+        <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+        <div class="min-w-0">
+          <p class="text-xs text-muted-foreground truncate">{{ t('positive') }}</p>
+          <p class="text-lg font-semibold text-emerald-600 leading-tight">+{{ positiveAdjustmentsCount }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3">
+        <span class="h-2.5 w-2.5 rounded-full bg-red-500 shrink-0"></span>
+        <div class="min-w-0">
+          <p class="text-xs text-muted-foreground truncate">{{ t('negative') }}</p>
+          <p class="text-lg font-semibold text-red-600 leading-tight">{{ negativeAdjustmentsCount }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3">
+        <span class="h-2.5 w-2.5 rounded-full bg-amber-400 shrink-0"></span>
+        <div class="min-w-0">
+          <p class="text-xs text-muted-foreground truncate">{{ t('today') }}</p>
+          <p class="text-lg font-semibold text-foreground leading-tight">{{ todayAdjustmentsCount }}</p>
+        </div>
+      </div>
     </div>
 
-    <!-- Create Adjustment Modal -->
-    <app-adjustment-form
-      [isOpen]="isCreateDialogOpen"
-      (success)="onAdjustmentSaved()"
-      (close)="closeCreateDialog()">
-    </app-adjustment-form>
+    <!-- List -->
+    <app-adjustment-list
+      [adjustments]="adjustments"
+      [reasonCodes]="reasonCodes"
+      [isLoading]="isLoading">
+    </app-adjustment-list>
+
   </div>
+
+  <!-- Create Adjustment Modal -->
+  <app-adjustment-form
+    [isOpen]="isCreateDialogOpen"
+    (success)="onAdjustmentSaved()"
+    (close)="closeCreateDialog()">
+  </app-adjustment-form>
+
 </app-main-layout>

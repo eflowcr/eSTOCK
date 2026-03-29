@@ -51,7 +51,7 @@ interface SidebarSection {
                 (click)="onNavigationClick()"
                 routerLinkActive="bg-sidebar-accent font-medium text-sidebar-accent-foreground"
                 [routerLinkActiveOptions]="{ exact: item.href === '/' }"
-                class="flex items-center gap-2.5 overflow-hidden rounded-lg px-2.5 py-2 text-[15px] outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                class="flex min-h-8 items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               >
               <svg *ngIf="item.icon === 'LayoutDashboard'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
@@ -132,17 +132,45 @@ interface SidebarSection {
               <svg *ngIf="item.icon === 'ArrowRightLeft'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18M17 8l4 4m0 0l-4 4m4-4H3"></path>
               </svg>
-              
+              <!-- ClipboardCheck Icon (picking tasks) -->
+              <svg *ngIf="item.icon === 'ClipboardCheck'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+              </svg>
+              <!-- Tag Icon (articles) -->
+              <svg *ngIf="item.icon === 'Tag'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M17.707 9.293a1 1 0 000-1.414l-5.586-5.586A1 1 0 0011.414 2H4a2 2 0 00-2 2v7.414a1 1 0 00.293.707l5.586 5.586a1 1 0 001.414 0l8.414-8.414z"></path>
+              </svg>
+              <!-- Archive Icon (inventory) -->
+              <svg *ngIf="item.icon === 'Archive'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+              </svg>
+              <!-- Barcode Icon (barcode generator) -->
+              <svg *ngIf="item.icon === 'Barcode'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h1v12H4V6zm2 0h1v8H6V6zm3 0h1v12H9V6zm2 0h1v8h-1V6zm3 0h1v12h-1V6zm2 0h1v8h-1V6zm3 0h1v12h-1V6z"></path>
+              </svg>
+              <!-- UserCircle Icon (user management) -->
+              <svg *ngIf="item.icon === 'UserCircle'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <!-- Truck Icon (stock transfers) -->
+              <svg *ngIf="item.icon === 'Truck'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+              </svg>
+              <!-- Settings Icon -->
+              <svg *ngIf="item.icon === 'Settings'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+
               {{ t(item.name) }}
               </a>
             </section>
           </nav>
         </div>
-        <div class="flex flex-col gap-2 border-t border-sidebar-border p-2" data-sidebar="footer">
-          <div class="flex flex-col items-center gap-1 pt-2">
-            <img src="assets/ePRAC-Blanco.png" alt="ePRAC" class="h-10 w-auto opacity-90 dark:invert-0 invert" style="background: transparent; object-fit: contain;" />
-            <span class="text-xs text-muted-foreground">{{ appVersion }}</span>
-          </div>
+        <div class="flex flex-col items-center gap-1.5 border-t border-sidebar-border px-2 py-4" data-sidebar="footer">
+          <span class="text-[9px] uppercase tracking-widest text-sidebar-foreground/20">Powered by</span>
+          <img src="assets/ePRAC-Blanco.png" alt="ePRAC" class="h-12 w-auto opacity-90 dark:invert-0 invert" style="background: transparent; object-fit: contain;" />
+          <span class="text-[9px] text-sidebar-foreground/15">{{ appVersion }}</span>
         </div>
       </div>
     </div>
@@ -199,16 +227,18 @@ export class SidebarComponent implements OnInit, OnDestroy {
     const sectionConfig: Array<{ titleKey: string; hrefs: string[] }> = [
       { titleKey: 'sidebar.section.overview', hrefs: ['/'] },
       {
-        titleKey: 'sidebar.section.quick_actions',
-        hrefs: ['/receiving-tasks', '/picking-tasks', '/stock-adjustments', '/stock-alerts'],
+        // Daily warehouse operations — includes Stock Transfers (moved from catalog)
+        titleKey: 'sidebar.section.operations',
+        hrefs: ['/receiving-tasks', '/picking-tasks', '/stock-adjustments', '/stock-alerts', '/stock-transfers'],
       },
       {
-        titleKey: 'sidebar.section.general_management',
-        hrefs: ['/articles', '/inventory', '/locations', '/location-types', '/presentation-types', '/presentation-conversions', '/stock-transfers', '/barcode-generator'],
+        // Core inventory catalog — trimmed to 4 high-frequency pages
+        titleKey: 'sidebar.section.inventory',
+        hrefs: ['/articles', '/inventory', '/locations', '/presentation-conversions', '/barcode-generator'],
       },
       {
         titleKey: 'sidebar.section.administration',
-        hrefs: ['/gamification', '/admin-control-center', '/users', '/roles'],
+        hrefs: ['/gamification', '/admin-control-center', '/users', '/settings'],
       },
     ];
 

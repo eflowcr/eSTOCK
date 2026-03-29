@@ -3,14 +3,14 @@
     <div class="flex flex-col gap-0.5 md:gap-1.5 text-center md:text-left">
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1 min-w-0">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 class="text-lg font-semibold text-gray-900">
             {{ isEditing ? t('user_management.edit_user') : t('user_management.create_user') }}
           </h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p class="text-sm text-gray-500 mt-1">
             {{ isEditing ? t('user_management.edit_user_description') : t('user_management.create_user_description') }}
           </p>
         </div>
-        <button type="button" (click)="close()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
+        <button type="button" (click)="close()" class="text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -25,7 +25,7 @@
         <!-- Profile image (optional) -->
         <div class="flex flex-col items-center space-y-3">
           <div class="relative">
-            <div class="h-20 w-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden border-2 border-gray-300 dark:border-gray-600">
+            <div class="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2 border-gray-300">
               <img *ngIf="imagePreview" [src]="imagePreview" alt="Profile preview" class="h-full w-full object-cover">
               <svg *ngIf="!imagePreview" class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -36,7 +36,7 @@
             </button>
           </div>
           <input #imageInput type="file" accept="image/*" (change)="onImageSelect($event)" class="hidden">
-          <button type="button" (click)="imageInput.click()" class="text-sm font-medium text-[#00113f] dark:text-gray-300 hover:underline">
+          <button type="button" (click)="imageInput.click()" class="text-sm font-medium text-foreground hover:underline">
             {{ t('user_management.select_image') }}
           </button>
         </div>

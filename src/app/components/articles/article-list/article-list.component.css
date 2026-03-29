@@ -45,13 +45,10 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: rgb(249 250 251);
+  background-color: var(--muted);
   backdrop-filter: blur(8px);
 }
 
-.dark .articles-table-fixed thead th {
-  background-color: rgb(55 65 81);
-}
 
 .table-header {
   @apply bg-gray-50 dark:bg-gray-700;

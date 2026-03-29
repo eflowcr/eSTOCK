@@ -17,23 +17,14 @@ import { SerialService } from '@app/services/serial.service';
 
 import { BarcodeGeneratorDialogComponent } from '@app/components/barcode-generator/barcode-generator-dialog/barcode-generator-dialog.component';
 import { MainLayoutComponent } from '@app/components/layout/main-layout.component';
-import { LoadingSpinnerComponent } from '@app/components/shared/extras/loading-spinner/loading-spinner.component';
-import { ZardButtonComponent } from '@app/shared/components/button/button.component';
-import { ZardInputDirective } from '@app/shared/components/input/input.directive';
-import { ZardBadgeComponent } from '@app/shared/components/badge/badge.component';
-
 @Component({
   selector: 'app-barcode-generator-management',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     FormsModule,
-    MainLayoutComponent, 
-    LoadingSpinnerComponent,
-    BarcodeGeneratorDialogComponent,
-    ZardButtonComponent,
-    ZardInputDirective,
-    ZardBadgeComponent
+    MainLayoutComponent,
+    BarcodeGeneratorDialogComponent
   ],
   templateUrl: './barcode-generator-management.component.html',
   styleUrl: './barcode-generator-management.component.css'
@@ -47,6 +38,9 @@ export class BarcodeGeneratorManagementComponent implements OnInit, OnDestroy {
   selectedItems = signal<BarcodeItem[]>([]);
   expandedSkus = signal<Set<string>>(new Set());
   showDialog = signal(false);
+
+  // View mode: grid (cards) or table (rows)
+  viewMode = signal<'grid' | 'table'>('grid');
 
   // Search filters
   skuSearch = signal('');
@@ -347,6 +341,13 @@ export class BarcodeGeneratorManagementComponent implements OnInit, OnDestroy {
    */
   t(key: string, params?: any): string {
     return this.languageService.translate(key);
+  }
+
+  tabClass(tab: 'skus' | 'locations' | 'tasks'): string {
+    const base = 'flex flex-1 items-center justify-center gap-2 py-3 px-4 text-sm font-medium border-b-2 transition-colors duration-150 whitespace-nowrap';
+    return this.activeTab() === tab
+      ? `${base} border-primary text-primary`
+      : `${base} border-transparent text-muted-foreground hover:text-foreground`;
   }
 
   // Get current tab items

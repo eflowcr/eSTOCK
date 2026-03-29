@@ -66,7 +66,7 @@ export const esTranslations = {
   'admin.not_available': 'No disponible',
 
   // Navigation items
-  dashboard: 'Panel de Control',
+  dashboard: 'Dashboard',
   articles: 'Artículos',
   inventory: 'Inventario',
   receiving_tasks: 'Tareas de Recepción',
@@ -211,9 +211,48 @@ export const esTranslations = {
   'nav.account': 'Cuenta',
   'sidebar.section.overview': 'Resumen',
   'sidebar.section.quick_actions': 'Acciones rápidas',
+  'sidebar.section.operations': 'Operaciones',
   'sidebar.section.general_management': 'Gestión general',
+  'sidebar.section.inventory': 'Inventario',
   'sidebar.section.administration': 'Administración',
   'sidebar.section.more': 'Más',
+  settings: 'Configuración',
+  settings_description: 'Personaliza tu experiencia y configura el sistema.',
+  'settings.tab_profile': 'Perfil',
+  'settings.tab_appearance': 'Apariencia',
+  'settings.tab_notifications': 'Notificaciones',
+  'settings.tab_system': 'Sistema',
+  'settings.account_status': 'Estado de la cuenta',
+  'settings.account_active_desc': 'Tu cuenta está activa y verificada.',
+  'settings.active': 'Activo',
+  'settings.email': 'Correo',
+  'settings.verified': 'Verificado',
+  'settings.role': 'Rol',
+  'settings.role_desc': 'Tu nivel de acceso dentro del sistema.',
+  'settings.appearance': 'Apariencia',
+  'settings.theme': 'Tema',
+  'settings.theme_hint': 'Elige cómo se ve la interfaz. Sistema sigue la configuración de tu OS.',
+  'settings.theme_light': 'Claro',
+  'settings.theme_dark': 'Oscuro',
+  'settings.theme_system': 'Sistema',
+  'settings.language': 'Idioma',
+  'settings.language_hint': 'Selecciona el idioma de la interfaz.',
+  'settings.notifications': 'Notificaciones',
+  'settings.notif_email': 'Notificaciones por email',
+  'settings.notif_email_hint': 'Recibe alertas de stock y actualizaciones de tareas por email.',
+  'settings.notif_push': 'Notificaciones push',
+  'settings.notif_push_hint': 'Notificaciones en el navegador para alertas en tiempo real.',
+  'settings.notif_marketing': 'Noticias y actualizaciones',
+  'settings.notif_marketing_hint': 'Novedades del producto y anuncios de nuevas funciones.',
+  'settings.save': 'Guardar cambios',
+  'settings.saving': 'Guardando…',
+  'settings.saved': 'Guardado',
+  'settings.save_error': 'No se pudieron guardar las preferencias.',
+  'settings.system': 'Configuración del sistema',
+  'settings.location_types_desc': 'Define y administra las categorías de ubicaciones del almacén.',
+  'settings.presentation_types_desc': 'Administra unidades de medida y formatos de presentación.',
+  'settings.presentation_conversions_desc': 'Define los factores de conversión entre tipos de presentación.',
+  'settings.roles_desc': 'Configura roles y permisos granulares de acceso.',
 
   // User Management
   'user_management.description':
@@ -438,6 +477,10 @@ export const esTranslations = {
   data: 'Datos',
   export_description: 'Selecciona el formato y exporta los datos',
   total_records: 'Total de registros',
+  positive: 'Positivos',
+  negative: 'Negativos',
+  today: 'Hoy',
+  clear: 'Limpiar',
   csv_description: 'Valores separados por comas',
   xlsx_description: 'Hoja de cálculo de Excel',
   confirm: 'Confirmar',
@@ -951,6 +994,9 @@ export const esTranslations = {
   tasks_open_or_in_progress: 'Tareas que están abiertas o en progreso',
   tasks_completed_or_cancelled: 'Tareas completadas o canceladas',
   no_tasks_found: 'No se encontraron tareas',
+  search_tasks_placeholder: 'Buscar por ID de tarea u orden de entrada…',
+  no_results_for_search: 'Ninguna tarea coincide con la búsqueda',
+  completed_today: 'Completadas hoy',
   inbound_number: 'Número de Entrada',
   inbound_number_required: 'El número de entrada es requerido',
   inbound_number_placeholder: 'INB-12345',
@@ -1173,6 +1219,8 @@ export const esTranslations = {
     'Alertas que requieren acción inmediata',
   'STOCK_ALERTS.HIGH_ALERTS_DESCRIPTION':
     'Alertas de alta prioridad que necesitan atención',
+  'STOCK_ALERTS.MEDIUM_ALERTS_DESCRIPTION':
+    'Alertas de prioridad media para monitorear',
   'STOCK_ALERTS.RESOLVED_ALERTS_DESCRIPTION':
     'Alertas que han sido marcadas como resueltas',
 
@@ -1180,7 +1228,10 @@ export const esTranslations = {
   'STOCK_ALERTS.NO_ALERTS_ALL': 'No hay alertas en esta categoría',
   'STOCK_ALERTS.NO_ALERTS_CRITICAL': 'No hay alertas críticas en este momento',
   'STOCK_ALERTS.NO_ALERTS_HIGH': 'No hay alertas de alta prioridad',
+  'STOCK_ALERTS.NO_ALERTS_MEDIUM': 'No hay alertas de prioridad media',
   'STOCK_ALERTS.NO_ALERTS_RESOLVED': 'No hay alertas resueltas todavía',
+  'STOCK_ALERTS.RESOLVE': 'Resolver',
+  'STOCK_ALERTS.RUN_ANALYSIS': 'Ejecuta un análisis para detectar problemas de stock.',
 
   // Common
   'COMMON.UNITS': 'unidades',
@@ -1317,6 +1368,8 @@ export const esTranslations = {
   'BARCODE.LOAD_DATA_ERROR': 'Error al cargar los datos',
 
   // Gamification translations
+  'gamification.totalTasks': 'tareas totales',
+  'gamification.noBadgesYet': 'Completa tareas para ganar tu primera insignia.',
   'gamification.badges': 'Insignias',
   'gamification.badges_description':
     'Visualiza tu progreso y logros en el sistema',

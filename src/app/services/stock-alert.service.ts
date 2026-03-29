@@ -53,7 +53,7 @@ export class StockAlertService {
 	 * @param id Alert ID
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	async resolve(id: number): Promise<ApiResponse<any>> {
+	async resolve(id: string): Promise<ApiResponse<any>> {
 		return await this.fetchService.patch<ApiResponse<any>>({
 			API_Gateway: `${STOCK_ALERT_URL}/${id}/resolve`,
 			values: {},
@@ -61,11 +61,10 @@ export class StockAlertService {
 	}
 
 	/**
-	 * @description Export alerts to Excel
-	 * @returns Promise<ApiResponse<any>>
+	 * @description Export alerts to Excel — returns raw Blob (backend sends binary, not JSON)
 	 */
-	async export(): Promise<ApiResponse<any>> {
-		return await this.fetchService.get<ApiResponse<any>>({
+	async export(): Promise<Blob> {
+		return await this.fetchService.download({
 			API_Gateway: `${STOCK_ALERT_URL}/export`,
 		});
 	}

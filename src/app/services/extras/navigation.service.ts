@@ -5,22 +5,25 @@ import { AuthorizationService } from './authorization.service';
 
 const ALL_NAV_ITEMS: NavigationItems = [
   { name: 'dashboard', href: '/', icon: 'LayoutDashboard' },
-  { name: 'articles', href: '/articles', icon: 'PackageOpen', permission: { resource: 'articles', action: 'read' } },
-  { name: 'inventory', href: '/inventory', icon: 'Package', permission: { resource: 'inventory', action: 'read' } },
+  // Operations
   { name: 'receiving_tasks', href: '/receiving-tasks', icon: 'Download', permission: { resource: 'inventory', action: 'read' } },
-  { name: 'picking_tasks', href: '/picking-tasks', icon: 'Upload', permission: { resource: 'inventory', action: 'read' } },
+  { name: 'picking_tasks', href: '/picking-tasks', icon: 'ClipboardCheck', permission: { resource: 'inventory', action: 'read' } },
   { name: 'stock_adjustments', href: '/stock-adjustments', icon: 'Edit', permission: { resource: 'inventory', action: 'update' } },
   { name: 'stock_alerts', href: '/stock-alerts', icon: 'AlertTriangle', permission: { resource: 'inventory', action: 'read' } },
-  { name: 'barcode_generator', href: '/barcode-generator', icon: 'QrCode', permission: { resource: 'articles', action: 'read' } },
+  { name: 'stock_transfers', href: '/stock-transfers', icon: 'Truck', permission: { resource: 'inventory', action: 'read' } },
+  // Inventory
+  { name: 'articles', href: '/articles', icon: 'Tag', permission: { resource: 'articles', action: 'read' } },
+  { name: 'inventory', href: '/inventory', icon: 'Archive', permission: { resource: 'inventory', action: 'read' } },
+  { name: 'locations', href: '/locations', icon: 'MapPin', permission: { resource: 'locations', action: 'read' } },
+  { name: 'presentation_conversions', href: '/presentation-conversions', icon: 'ArrowRightLeft', adminOnly: true },
+  { name: 'barcode_generator', href: '/barcode-generator', icon: 'Barcode', permission: { resource: 'articles', action: 'read' } },
+  // Administration
   { name: 'performance', href: '/gamification', icon: 'Trophy', adminOnly: true },
   { name: 'control_center', href: '/admin-control-center', icon: 'Monitor', adminOnly: true },
-  { name: 'locations', href: '/locations', icon: 'MapPin', permission: { resource: 'locations', action: 'read' } },
-  { name: 'user_management', href: '/users', icon: 'Users', adminOnly: true },
-  { name: 'roles', href: '/roles', icon: 'Shield', adminOnly: true },
-  { name: 'location_types', href: '/location-types', icon: 'Layers', adminOnly: true },
-  { name: 'presentation_types', href: '/presentation-types', icon: 'Box', adminOnly: true },
-  { name: 'presentation_conversions', href: '/presentation-conversions', icon: 'ArrowRightLeft', adminOnly: true },
-  { name: 'stock_transfers', href: '/stock-transfers', icon: 'Truck', permission: { resource: 'inventory', action: 'read' } },
+  { name: 'user_management', href: '/users', icon: 'UserCircle', adminOnly: true },
+  // Settings hub — replaces the 4 config pages in the sidebar.
+  // Roles, Location Types, Presentation Types, Conversions are reachable via /settings only.
+  { name: 'settings', href: '/settings', icon: 'Settings', adminOnly: true },
 ];
 
 @Injectable({ providedIn: 'root' })

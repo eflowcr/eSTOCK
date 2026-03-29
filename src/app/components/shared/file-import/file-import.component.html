@@ -4,7 +4,7 @@
   
   <!-- Dialog -->
   <div class="flex min-h-full items-center justify-center p-4">
-    <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full mx-auto transform transition-all" 
+    <div class="relative bg-background rounded-lg shadow-xl max-w-2xl w-full mx-auto transform transition-all" 
          (click)="$event.stopPropagation()">
       
       <!-- Header -->
@@ -12,7 +12,7 @@
         <h3 class="text-lg font-semibold text-gray-900">{{ t('import_data') }}</h3>
         <button 
           type="button" 
-          class="text-gray-400 hover:text-gray-600 transition-colors"
+          class="text-gray-400 hover:text-muted-foreground transition-colors"
           (click)="close()">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -24,7 +24,7 @@
       <div class="p-6">
         <!-- File Input Section -->
         <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label class="block text-sm font-medium text-muted-foreground mb-2">
             {{ t('select_file') }}
           </label>
           <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
@@ -39,7 +39,7 @@
               <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                 <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-              <p class="mt-2 text-sm text-gray-600">{{ t('click_to_upload') }}</p>
+              <p class="mt-2 text-sm text-muted-foreground">{{ t('click_to_upload') }}</p>
               <p class="text-xs text-gray-500">{{ config.acceptedFormats.join(', ') || 'CSV, XLSX' }}</p>
             </div>
             
@@ -47,7 +47,7 @@
               <svg class="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              <span class="text-sm text-gray-700">{{ selectedFile.name }}</span>
+              <span class="text-sm text-muted-foreground">{{ selectedFile.name }}</span>
               <button 
                 type="button" 
                 class="text-red-500 hover:text-red-700"
@@ -83,11 +83,11 @@
         <!-- Progress Bar -->
         <div *ngIf="isImporting" class="mb-4">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-sm text-gray-700">{{ t('importing') }}...</span>
+            <span class="text-sm text-muted-foreground">{{ t('importing') }}...</span>
             <span class="text-sm text-gray-500">{{ importProgress }}%</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-[#00113f] h-2 rounded-full transition-all duration-300" 
+            <div class="bg-primary h-2 rounded-full transition-all duration-300" 
                  [style.width.%]="importProgress"></div>
           </div>
         </div>
@@ -117,13 +117,13 @@
       <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
         <button 
           type="button"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+          class="px-4 py-2 text-sm font-medium text-muted-foreground bg-background border border-border rounded-md hover:bg-gray-50 transition-colors"
           (click)="close()">
           {{ t('cancel') }}
         </button>
         <button 
           type="button"
-          class="px-4 py-2 text-sm font-medium text-white bg-[#00113f] border border-transparent rounded-md hover:bg-[#3e66ea] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           [disabled]="!selectedFile || isImporting"
           (click)="startImport()">
           <span *ngIf="!isImporting">{{ t('import') }}</span>

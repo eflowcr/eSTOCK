@@ -1,7 +1,7 @@
 import { AlertLevel } from './dashboard.model';
 
 export interface StockAlert {
-	id: number;
+	id: string;
 	sku: string;
 	alert_type: string;
 	current_stock: number;

@@ -4,10 +4,10 @@
     <!-- Header Section -->
     <div class="flex justify-between items-center flex-shrink-0">
       <div>
-        <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
+        <h1 class="text-2xl font-semibold text-foreground">
           {{ t('location_management') }}
         </h1>
-        <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+        <p class="mt-2 text-sm text-muted-foreground">
           {{ t('location_management.description') }}
         </p>
       </div>
@@ -15,7 +15,7 @@
       <!-- Create button only in header; Export/Import are inside the table container -->
       <div class="flex gap-2">
         <button type="button" (click)="openCreateDialog()"
-          class="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]">
+          class="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary active:scale-[0.97]">
           <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
           </svg>
@@ -31,7 +31,7 @@
       (deleted)="onLocationDeleted()">
       <div toolbarRight class="flex items-center gap-2">
         <button type="button" (click)="openExportDialog()"
-          class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-[#4465ec] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-[#4465ec]">
+          class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.97]">
           <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -39,7 +39,7 @@
           {{ t('export') }}
         </button>
         <button *ngIf="isAdmin()" type="button" (click)="openImportDialog()"
-          class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-[#4465ec] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-[#4465ec]">
+          class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.97]">
           <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>

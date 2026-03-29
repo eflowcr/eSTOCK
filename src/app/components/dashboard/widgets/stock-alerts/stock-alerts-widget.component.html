@@ -3,7 +3,7 @@
 		<button 
 			(click)="refreshAlerts()"
 			[disabled]="isLoading()"
-			class="inline-flex items-center p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
+			class="inline-flex items-center p-1 text-gray-400 hover:text-muted-foreground dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
 			<svg class="h-3 w-3" [class.animate-spin]="isLoading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
 			</svg>
@@ -29,7 +29,7 @@
 					<div class="text-lg font-bold" [class]="getAlertLevelClass('critical')">
 						{{ criticalAlerts().length }}
 					</div>
-					<div class="text-xs text-gray-500 dark:text-gray-400">
+					<div class="text-xs text-gray-500">
 						{{ t('STOCK_ALERTS.CRITICAL') }}
 					</div>
 				</div>
@@ -37,7 +37,7 @@
 					<div class="text-lg font-bold" [class]="getAlertLevelClass('high')">
 						{{ highAlerts().length }}
 					</div>
-					<div class="text-xs text-gray-500 dark:text-gray-400">
+					<div class="text-xs text-gray-500">
 						{{ t('STOCK_ALERTS.HIGH') }}
 					</div>
 				</div>
@@ -45,7 +45,7 @@
 					<div class="text-lg font-bold" [class]="getAlertLevelClass('medium')">
 						{{ mediumAlerts().length }}
 					</div>
-					<div class="text-xs text-gray-500 dark:text-gray-400">
+					<div class="text-xs text-gray-500">
 						{{ t('STOCK_ALERTS.MEDIUM') }}
 					</div>
 				</div>
@@ -64,7 +64,7 @@
 				<!-- Recent Alerts List -->
 				<div *ngIf="totalActiveAlerts() > 0" class="max-h-64 overflow-y-auto space-y-3 pr-2 recent-alerts-scroll">
 					<div *ngFor="let alert of recentAlerts()" 
-						class="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+						class="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
 						
 						<div class="flex items-center space-x-3 flex-1 min-w-0">
 							<svg class="h-4 w-4" [class]="getAlertLevelClass(alert.alert_level)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +72,7 @@
 							</svg>
 						<div class="flex-1 min-w-0">
 								<div class="flex items-center space-x-2">
-									<span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+									<span class="text-sm font-medium text-gray-900 truncate">
 									{{ alert.sku }}
 								</span>
 									<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border"
@@ -81,10 +81,10 @@
 								</span>
 							</div>
 								<div class="flex items-center space-x-4 mt-1">
-									<span class="text-xs text-gray-500 dark:text-gray-400">
+									<span class="text-xs text-gray-500">
 										{{ alert.current_stock }} {{ t('COMMON.UNITS') }} {{ t('STOCK_ALERTS.REMAINING') }}
 									</span>
-									<span class="text-xs text-gray-400 dark:text-gray-500">
+									<span class="text-xs text-gray-400">
 										{{ formatTimeAgo(alert.created_at) }}
 									</span>
 								</div>
@@ -107,8 +107,8 @@
 			</div>
 
 			<!-- Quick Stats Footer -->
-			<div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-				<div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+			<div class="mt-4 pt-4 border-t border-gray-200">
+				<div class="flex items-center justify-between text-xs text-gray-500">
 					<span *ngIf="totalActiveAlerts() > 3">
 						{{ t('STOCK_ALERTS.SHOWING_RECENT') }} {{ recentAlerts().length }} {{ t('COMMON.OF') }} {{ totalActiveAlerts() }}
 					</span>

@@ -1,4 +1,4 @@
-<div class="border border-gray-200 dark:border-gray-600 rounded-lg p-3 bg-white dark:bg-gray-800 text-center">
+<div class="border border-gray-200 rounded-lg p-3 bg-background text-center">
   <!-- Error State -->
   <div *ngIf="error()" class="text-red-600 dark:text-red-400">
     <div class="text-xs mb-2">{{ error() }}</div>
@@ -7,7 +7,7 @@
   </div>
   
   <!-- Loading State -->
-  <div *ngIf="isLoading()" class="text-gray-500 dark:text-gray-400">
+  <div *ngIf="isLoading()" class="text-gray-500">
     <div class="flex items-center justify-center mb-2">
       <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
     </div>
@@ -36,23 +36,23 @@
     
     <!-- Fallback representation when no barcode is available -->
     <div *ngIf="!showCanvas() && !barcodeDataUrl()" class="mx-auto">
-      <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
-        <div class="text-sm font-mono font-bold text-gray-900 dark:text-white mb-2">
+      <div class="bg-gray-100 p-4 rounded-lg">
+        <div class="text-sm font-mono font-bold text-gray-900 mb-2">
           {{ displayCode() }}
         </div>
-        <div class="text-xs text-gray-600 dark:text-gray-400">
+        <div class="text-xs text-muted-foreground">
           {{ type.toUpperCase() }}
         </div>
       </div>
     </div>
     
     <!-- Item name -->
-    <div *ngIf="name" class="text-xs mt-2 font-medium text-gray-900 dark:text-white">{{ name }}</div>
+    <div *ngIf="name" class="text-xs mt-2 font-medium text-gray-900">{{ name }}</div>
     
     <!-- Display code -->
-    <div class="text-xs mt-1 font-mono text-gray-500 dark:text-gray-400">{{ displayCode() }}</div>
+    <div class="text-xs mt-1 font-mono text-gray-500">{{ displayCode() }}</div>
     
     <!-- Type display text (QR: ABC123, CODE128: ABC123, etc.) -->
-    <div class="text-xs mt-1 font-mono text-gray-400 dark:text-gray-500">{{ getTypeDisplayText() }}</div>
+    <div class="text-xs mt-1 font-mono text-gray-400">{{ getTypeDisplayText() }}</div>
   </div>
 </div>

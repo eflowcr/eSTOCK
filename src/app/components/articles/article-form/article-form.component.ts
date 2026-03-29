@@ -514,7 +514,7 @@ export class ArticleFormComponent implements OnInit, OnChanges {
   get rotationFifoButtonClass(): string {
     const selected = this.articleForm.get('rotation_strategy')?.value === 'fifo';
     return selected
-      ? 'border-primary text-primary bg-primary/10'
+      ? 'border-primary text-primary bg-accent'
       : 'border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700';
   }
 
@@ -522,7 +522,7 @@ export class ArticleFormComponent implements OnInit, OnChanges {
   get rotationFefoButtonClass(): string {
     const selected = this.articleForm.get('rotation_strategy')?.value === 'fefo';
     return selected
-      ? 'border-primary text-primary bg-primary/10'
+      ? 'border-primary text-primary bg-accent'
       : 'border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700';
   }
 }

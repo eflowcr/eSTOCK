@@ -1,14 +1,14 @@
 <div class="space-y-6">
   @if (isLoading) {
     <div class="flex items-center justify-center py-16">
-      <span class="text-sm text-gray-500">{{ t('loading') }}</span>
+      <span class="text-sm text-muted-foreground">{{ t('loading') }}</span>
     </div>
   } @else if (role) {
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <button
         type="button"
         (click)="back()"
-        class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+        class="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-gray-900 dark:text-muted-foreground dark:hover:text-white"
       >
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -18,19 +18,19 @@
     </div>
 
     <!-- Información del rol -->
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-gray-800">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ t('roles.role_info') }}</h2>
+    <div class="rounded-lg border border-gray-200 bg-background p-6 shadow">
+      <h2 class="text-lg font-semibold text-foreground mb-4">{{ t('roles.role_info') }}</h2>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('roles.name') }}</label>
-          <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ role.name }}</p>
+          <label class="block text-sm font-medium text-muted-foreground">{{ t('roles.name') }}</label>
+          <p class="mt-1 text-sm text-foreground">{{ role.name }}</p>
         </div>
         <div class="sm:col-span-2">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('roles.description') }}</label>
-          <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{{ role.description || '—' }}</p>
+          <label class="block text-sm font-medium text-muted-foreground">{{ t('roles.description') }}</label>
+          <p class="mt-1 text-sm text-muted-foreground">{{ role.description || '—' }}</p>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('roles.active') }}</label>
+          <label class="block text-sm font-medium text-muted-foreground mb-1">{{ t('roles.active') }}</label>
           <z-switch [zChecked]="role.is_active" [zDisabled]="true" zSize="sm">
             <span class="sr-only">{{ role.is_active ? t('roles.active_yes') : t('roles.active_no') }}</span>
           </z-switch>
@@ -39,11 +39,11 @@
     </div>
 
     <!-- Permissions -->
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-gray-800">
+    <div class="rounded-lg border border-gray-200 bg-background p-6 shadow">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('roles.permissions_title') }}</h2>
+        <h2 class="text-lg font-semibold text-foreground">{{ t('roles.permissions_title') }}</h2>
         <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('roles.full_access') }}</span>
+          <span class="text-sm font-medium text-muted-foreground">{{ t('roles.full_access') }}</span>
           <z-switch [(zChecked)]="fullAccess" (zCheckedChange)="onFullAccessChange($event)" zSize="default" />
         </div>
       </div>
@@ -51,22 +51,22 @@
       @if (!fullAccess) {
         @for (group of groups; track group.titleKey) {
           <div class="mb-8">
-            <h3 class="text-sm font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">{{ t(group.titleKey) }}</h3>
+            <h3 class="text-sm font-medium uppercase tracking-wider text-muted-foreground mb-3">{{ t(group.titleKey) }}</h3>
             <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-900">
+              <table class="min-w-full divide-y divide-border">
+                <thead class="bg-muted">
                   <tr>
-                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-400">{{ t('roles.permissions.resource') }}</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">{{ t('roles.permissions.resource') }}</th>
                     @for (action of actions; track action.key) {
-                      <th scope="col" class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-400">{{ t(action.labelKey) }}</th>
+                      <th scope="col" class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">{{ t(action.labelKey) }}</th>
                     }
-                    <th scope="col" class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-400">{{ t('roles.permissions.all') }}</th>
+                    <th scope="col" class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">{{ t('roles.permissions.all') }}</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                <tbody class="divide-y divide-border">
                   @for (res of group.resources; track res.key) {
-                    <tr class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                      <td class="px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">{{ t(res.labelKey) }}</td>
+                    <tr class="bg-card hover:bg-accent">
+                      <td class="px-4 py-2 text-sm font-medium text-foreground">{{ t(res.labelKey) }}</td>
                       @for (action of actions; track action.key) {
                         <td class="px-4 py-2 text-center">
                           <z-switch
@@ -84,7 +84,7 @@
                           <button
                             type="button"
                             (click)="setAllForResource(res.key, true)"
-                            class="text-xs text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary"
+                            class="text-xs text-muted-foreground hover:text-primary dark:text-muted-foreground dark:hover:text-primary"
                           >
                             {{ t('roles.permissions.enable_all') }}
                           </button>
@@ -98,7 +98,7 @@
           </div>
         }
       } @else {
-        <p class="text-sm text-gray-600 dark:text-gray-400">{{ t('roles.full_access_message') }}</p>
+        <p class="text-sm text-muted-foreground dark:text-muted-foreground">{{ t('roles.full_access_message') }}</p>
       }
 
       <div class="mt-6 flex justify-end">
@@ -118,8 +118,8 @@
       </div>
     </div>
   } @else {
-    <div class="rounded-lg border border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-800">
-      <p class="text-sm text-gray-500">{{ t('roles.not_found') }}</p>
+    <div class="rounded-lg border border-gray-200 bg-background p-8 text-center">
+      <p class="text-sm text-muted-foreground">{{ t('roles.not_found') }}</p>
       <button type="button" (click)="back()" class="mt-4 text-sm font-medium text-primary hover:underline">
         {{ t('roles.back_to_list') }}
       </button>

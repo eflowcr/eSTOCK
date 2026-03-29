@@ -128,6 +128,19 @@ export class AdjustmentManagementComponent implements OnInit {
     this.alertService.success(this.t('export_successful'));
   }
 
+  get positiveAdjustmentsCount(): number {
+    return this.adjustments.filter(a => a.adjustment_quantity > 0).length;
+  }
+
+  get negativeAdjustmentsCount(): number {
+    return this.adjustments.filter(a => a.adjustment_quantity < 0).length;
+  }
+
+  get todayAdjustmentsCount(): number {
+    const today = new Date().toDateString();
+    return this.adjustments.filter(a => new Date(a.created_at).toDateString() === today).length;
+  }
+
   /**
    * Get translation
    */

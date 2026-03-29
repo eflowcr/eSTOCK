@@ -7,13 +7,12 @@ import { AlertService } from '@app/services/extras/alert.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { ZardDialogService } from '@app/shared/components/dialog';
-import { ZardButtonComponent } from '@app/shared/components/button/button.component';
 import { PickingTaskDetailsContentComponent } from '../picking-task-details-content/picking-task-details-content.component';
 
 @Component({
   selector: 'app-picking-task-list',
   standalone: true,
-  imports: [CommonModule, ZardButtonComponent],
+  imports: [CommonModule],
   templateUrl: './picking-task-list.component.html',
   styleUrls: ['./picking-task-list.component.css']
 })

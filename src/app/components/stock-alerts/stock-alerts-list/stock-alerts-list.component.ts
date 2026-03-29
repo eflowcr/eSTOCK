@@ -34,7 +34,7 @@ export class StockAlertsListComponent implements OnInit {
   };
 
   // Set to track alerts being resolved
-  resolvingAlerts = new Set<number>();
+  resolvingAlerts = new Set<string>();
 
   constructor(
     private stockAlertService: StockAlertService,
@@ -120,7 +120,7 @@ export class StockAlertsListComponent implements OnInit {
   }
 
   // Alert actions
-  async resolveAlert(alertId: number): Promise<void> {
+  async resolveAlert(alertId: string): Promise<void> {
     if (this.resolvingAlerts.has(alertId)) return;
 
     this.resolvingAlerts.add(alertId);

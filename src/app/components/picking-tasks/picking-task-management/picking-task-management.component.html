@@ -1,85 +1,114 @@
 <app-main-layout>
 
 <div class="space-y-6">
-  <!-- Header Section (same as articles/locations) -->
-  <div class="flex justify-between items-center">
+
+  <!-- Header -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
     <div>
-      <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
-        {{ t('picking_tasks') }}
-      </h1>
-      <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
-        {{ t('picking_tasks_management') }}
+      <h1 class="text-2xl font-semibold text-foreground">{{ t('picking_tasks') }}</h1>
+      <p class="mt-0.5 text-sm text-muted-foreground">
+        {{ activeTasks.length }} {{ t('active_tasks') }}
+        @if (urgentCount > 0) {
+          · <span class="text-red-500 font-medium">{{ urgentCount }} {{ t('urgent') }}</span>
+        }
       </p>
     </div>
-    <div class="flex gap-2">
-      <button z-button zType="default" type="button" (click)="openCreateForm()"
-        class="inline-flex items-center">
-        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" (click)="openExportDialog()"
+        class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.97]">
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        {{ t('export') }}
+      </button>
+      <button type="button" (click)="openImportDialog()"
+        class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.97]">
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        {{ t('import') }}
+      </button>
+      <button type="button" (click)="openCreateForm()"
+        class="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary active:scale-[0.97]">
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
         </svg>
         {{ t('create_task') }}
       </button>
     </div>
   </div>
 
-  <!-- Card Container (same structure as article-list / location-list) -->
-  <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-6 min-h-[72vh] flex flex-col">
-    <!-- Toolbar: Tabs + Export/Import -->
-    <div class="p-5 sm:p-6">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <!-- Tabs -->
-        <div class="flex border-b border-gray-200 dark:border-gray-700 -mb-px">
-          <button
-            type="button"
-            (click)="setActiveTab('active')"
-            [class]="getTabClass('active')"
-            class="flex items-center gap-2 py-3 px-4 font-medium text-sm border-b-2 -mb-px transition-colors">
-            <span>{{ t('active_tasks') }}</span>
-            <span [class]="getTabBadgeClass('active')">{{ activeTasks.length }}</span>
-          </button>
-          <button
-            type="button"
-            (click)="setActiveTab('processed')"
-            [class]="getTabClass('processed')"
-            class="flex items-center gap-2 py-3 px-4 font-medium text-sm border-b-2 -mb-px transition-colors">
-            <span>{{ t('processed_tasks') }}</span>
-            <span [class]="getTabBadgeClass('processed')">{{ processedTasks.length }}</span>
-          </button>
-        </div>
-
-        <!-- Export/Import (toolbarRight) -->
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <button z-button zType="outline" zSize="default" type="button" (click)="openExportDialog()"
-            class="inline-flex items-center">
-            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-            {{ t('export') }}
-          </button>
-          <button z-button zType="outline" zSize="default" type="button" (click)="openImportDialog()"
-            class="inline-flex items-center">
-            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-            </svg>
-            {{ t('import') }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Tab description + result count -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-4">
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          {{ currentTabDescription }}
-        </p>
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-          {{ t('showing') }} {{ currentTabTasks.length }} {{ t('of') }} {{ pickingTasks.length }} {{ t('results') }}
-        </div>
+  <!-- Stats strip -->
+  <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div class="flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3">
+      <span class="h-2.5 w-2.5 rounded-full bg-blue-500 shrink-0"></span>
+      <div class="min-w-0">
+        <p class="text-xs text-muted-foreground truncate">{{ t('open') }}</p>
+        <p class="text-lg font-semibold text-foreground leading-tight">{{ openTasksCount }}</p>
       </div>
     </div>
+    <div class="flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3">
+      <span class="h-2.5 w-2.5 rounded-full bg-amber-400 shrink-0"></span>
+      <div class="min-w-0">
+        <p class="text-xs text-muted-foreground truncate">{{ t('in_progress') }}</p>
+        <p class="text-lg font-semibold text-foreground leading-tight">{{ inProgressCount }}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3">
+      <span class="h-2.5 w-2.5 rounded-full bg-red-500 shrink-0"></span>
+      <div class="min-w-0">
+        <p class="text-xs text-muted-foreground truncate">{{ t('urgent') }}</p>
+        <p class="text-lg font-semibold text-foreground leading-tight">{{ urgentCount }}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3">
+      <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+      <div class="min-w-0">
+        <p class="text-xs text-muted-foreground truncate">{{ t('completed_today') }}</p>
+        <p class="text-lg font-semibold text-foreground leading-tight">{{ completedTodayCount }}</p>
+      </div>
+    </div>
+  </div>
 
-    <!-- Content Area -->
-    <div class="flex-1 min-h-[340px] overflow-y-auto px-5 sm:px-6">
-      <!-- Task List -->
+  <!-- Tabs card -->
+  <div class="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+
+    <!-- Tab nav -->
+    <div class="border-b border-border">
+      <nav class="flex">
+        <button (click)="setActiveTab('active')" [class]="getTabClass('active')"
+          class="flex flex-1 items-center justify-center min-w-0">
+          <span class="truncate">{{ t('active_tasks') }}</span>
+          <span [class]="getTabBadgeClass('active')">{{ activeTasks.length }}</span>
+        </button>
+        <button (click)="setActiveTab('processed')" [class]="getTabClass('processed')"
+          class="flex flex-1 items-center justify-center min-w-0">
+          <span class="truncate">{{ t('processed_tasks') }}</span>
+          <span [class]="getTabBadgeClass('processed')">{{ processedTasks.length }}</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Search + count bar -->
+    <div class="flex items-center gap-3 border-b border-border px-5 py-3">
+      <div class="relative flex-1">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+        </svg>
+        <input
+          type="search"
+          [(ngModel)]="searchQuery"
+          [placeholder]="t('search_tasks_placeholder')"
+          class="w-full rounded-md border border-border bg-background py-1.5 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+      <span class="shrink-0 text-xs text-muted-foreground tabular-nums">
+        {{ currentTabTasks.length }} {{ t('of') }} {{ (activeTab === 'active' ? activeTasks : processedTasks).length }} {{ t('results') }}
+      </span>
+    </div>
+
+    <!-- Task list -->
+    <div class="max-h-[440px] overflow-y-auto p-5">
       <app-picking-task-list
         [tasks]="currentTabTasks"
         [isLoading]="isLoading"
@@ -87,43 +116,53 @@
         (edit)="handleEdit($event)">
       </app-picking-task-list>
 
-      <!-- Empty State (same pattern as articles/locations) -->
+      <!-- Empty state -->
       @if (!isLoading && currentTabTasks.length === 0) {
-        <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
-          <svg class="h-10 w-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+        <div class="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border py-14">
+          <svg class="h-10 w-10 text-muted-foreground/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
           </svg>
-          <span class="text-sm font-medium mt-2">{{ t('no_data') }}</span>
+          <div class="text-center">
+            <p class="text-sm font-medium text-foreground">
+              {{ searchQuery ? t('no_results_for_search') : t('no_data') }}
+            </p>
+            @if (!searchQuery) {
+              <p class="mt-0.5 text-xs text-muted-foreground">{{ currentTabDescription }}</p>
+            }
+          </div>
+          @if (activeTab === 'active' && !searchQuery) {
+            <button type="button" (click)="openCreateForm()"
+              class="mt-1 inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary active:scale-[0.97]">
+              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              {{ t('create_task') }}
+            </button>
+          }
         </div>
       }
     </div>
-
-    <!-- Footer (same as articles/locations) -->
-    <div class="mt-auto flex flex-col gap-3 border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <div class="text-xs text-gray-500 dark:text-gray-300">
-        {{ t('showing') }} {{ currentTabTasks.length }} {{ t('of') }} {{ pickingTasks.length }} {{ t('results') }}
-      </div>
-    </div>
   </div>
 
-  <!-- Create Task Drawer (mounted only when open, like article-form) -->
-  @if (isCreateDialogOpen) {
-    <app-picking-task-form
-      [isOpen]="true"
-      (success)="onTaskCreated()"
-      (cancel)="closeCreateDialog()">
-    </app-picking-task-form>
-  }
-
-  <!-- Edit Task Drawer (mounted only when editing) -->
-  @if (editingTask) {
-    <app-picking-task-form
-      [isOpen]="isEditDialogOpen"
-      [task]="editingTask"
-      (success)="onTaskUpdated()"
-      (cancel)="isEditDialogOpen = false; editingTask = null">
-    </app-picking-task-form>
-  }
 </div>
+
+<!-- Create Task Form -->
+@if (isCreateDialogOpen) {
+  <app-picking-task-form
+    [isOpen]="true"
+    (success)="onTaskCreated()"
+    (cancel)="closeCreateDialog()">
+  </app-picking-task-form>
+}
+
+<!-- Edit Task Form -->
+@if (editingTask) {
+  <app-picking-task-form
+    [isOpen]="isEditDialogOpen"
+    [task]="editingTask"
+    (success)="onTaskUpdated()"
+    (cancel)="isEditDialogOpen = false; editingTask = null">
+  </app-picking-task-form>
+}
 
 </app-main-layout>

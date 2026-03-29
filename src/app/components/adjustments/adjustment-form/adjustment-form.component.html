@@ -3,11 +3,11 @@
     <div class="flex flex-col gap-0.5 md:gap-1.5 text-center md:text-left">
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1 min-w-0">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 class="text-lg font-semibold text-gray-900">
             {{ t('new_stock_adjustment') }}
           </h3>
         </div>
-        <button type="button" (click)="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
+        <button type="button" (click)="closeModal()" class="text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -23,7 +23,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- SKU Combobox -->
             <div class="relative">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label class="block text-sm font-medium text-muted-foreground">
                 {{ t('sku_code') }} *
               </label>
               <div class="mt-1">
@@ -55,7 +55,7 @@
 
             <!-- Location (Auto-filled from inventory selection) -->
             <div class="relative">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label class="block text-sm font-medium text-muted-foreground">
                 {{ t('location') }} *
               </label>
               <div class="mt-1 relative">
@@ -64,7 +64,7 @@
                   [ngModelOptions]="{standalone: true}"
                   placeholder="{{ t('location_auto_filled') }}"
                   readonly
-                  class="block w-full px-3 py-2 border rounded-md shadow-sm bg-gray-50 dark:bg-gray-600 text-[#00113f] dark:text-white cursor-not-allowed"
+                  class="block w-full px-3 py-2 border rounded-md shadow-sm bg-gray-50 text-foreground cursor-not-allowed"
                   [class.border-red-500]="isFieldInvalid('location')"
                   [class.border-green-500]="hasValidLocationSelection()"
                 />
@@ -93,7 +93,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Reason Selection (determines add vs subtract) -->
             <div>
-              <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label for="reason" class="block text-sm font-medium text-muted-foreground">
                 {{ t('reason') }} *
               </label>
               <z-select
@@ -112,15 +112,15 @@
 
             <!-- Adjustment Quantity (enabled after reason selection) -->
             <div>
-              <label for="adjustmentQuantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label for="adjustmentQuantity" class="block text-sm font-medium text-muted-foreground">
                 {{ t('adjustment_quantity') }} *
               </label>
               <input type="number" formControlName="adjustmentQuantity" id="adjustmentQuantity"
                 min="0" step="1"
                 [placeholder]="t('enter_adjustment_quantity')"
-                class="mt-1 block w-full h-9 px-3 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 disabled:opacity-60 disabled:cursor-not-allowed"
+                class="mt-1 block w-full h-9 px-3 py-1.5 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground disabled:opacity-60 disabled:cursor-not-allowed"
                 [class.border-red-500]="isFieldInvalid('adjustmentQuantity')">
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ t('adjustment_quantity_positive_hint') }}</p>
+              <p class="mt-1 text-xs text-gray-500">{{ t('adjustment_quantity_positive_hint') }}</p>
               <p *ngIf="!adjustmentForm.get('reason')?.value" class="mt-1 text-xs text-amber-600 dark:text-amber-400">
                 {{ t('select_reason_before_quantity') }}
               </p>
@@ -131,8 +131,8 @@
           </div>
 
           <!-- Tracking Information Section - Only show if article supports it -->
-          <div *ngIf="shouldShowTrackingSection()" class="border-t border-gray-200 dark:border-gray-700 pt-6">
-            <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+          <div *ngIf="shouldShowTrackingSection()" class="border-t border-gray-200 pt-6">
+            <h4 class="text-lg font-medium text-gray-900 mb-4">
               {{ t('tracking_information') }}
             </h4>
 
@@ -152,7 +152,7 @@
               <!-- Lot Numbers Column -->
               <div *ngIf="selectedInventoryItem?.track_by_lot" class="form-group">
                 <div class="flex items-center justify-between mb-2">
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label class="block text-sm font-medium text-muted-foreground">
                     {{ t('lot_numbers') }} 
                     <span class="ml-1 text-xs" 
                           [class.text-green-600]="isLotSelectionComplete()"
@@ -169,7 +169,7 @@
                     (keydown.enter)="$event.preventDefault(); handleLotEnter()"
                     [ngModelOptions]="{standalone: true}"
                     placeholder="Escribir número de lote y presionar Enter"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    class="w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground" />
                 </div>
                 
                 <!-- Mensaje cuando está completo -->
@@ -196,7 +196,7 @@
               <!-- Serial Numbers Column -->
               <div *ngIf="selectedInventoryItem?.track_by_serial" class="form-group">
                 <div class="flex items-center justify-between mb-2">
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label class="block text-sm font-medium text-muted-foreground">
                     {{ t('serial_numbers') }}
                     <span class="ml-1 text-xs" 
                           [class.text-green-600]="isSerialSelectionComplete()"
@@ -213,7 +213,7 @@
                     (keydown.enter)="$event.preventDefault(); handleSerialEnter()"
                     [ngModelOptions]="{standalone: true}"
                     placeholder="Escribir número de serie y presionar Enter"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    class="w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground" />
                 </div>
                 
                 <!-- Mensaje cuando está completo -->
@@ -241,11 +241,11 @@
 
           <!-- Notes -->
           <div>
-            <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label for="notes" class="block text-sm font-medium text-muted-foreground">
               {{ t('notes') }}
             </label>
             <textarea formControlName="notes" id="notes" rows="3" placeholder="{{ t('additional_notes_placeholder') }}"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"></textarea>
+              class="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground"></textarea>
           </div>
         </form>
   </div>

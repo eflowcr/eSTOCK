@@ -18,7 +18,7 @@ import { RoleListComponent } from '../role-list/role-list.component';
           <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
             {{ t('roles.title') }}
           </h1>
-          <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+          <p class="mt-2 text-sm text-muted-foreground">
             {{ t('roles.description') }}
           </p>
         </div>

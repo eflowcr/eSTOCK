@@ -20,7 +20,7 @@
             style="background: transparent; object-fit: contain; border-radius: 0.5rem"
           />
         </div>
-        <h1 class="text-3xl font-bold text-[#00113f] dark:text-white">{{ t('auth.welcome') }}</h1>
+        <h1 class="text-3xl font-bold text-foreground">{{ t('auth.welcome') }}</h1>
       </div>
 
 
@@ -28,11 +28,11 @@
       <!-- Tabs -->
       <div class="w-full">
         <!-- Tab List -->
-        <div class="grid w-full grid-cols-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-6">
+        <div class="grid w-full grid-cols-2 bg-gray-100 rounded-lg p-1 mb-6">
           <button
             (click)="setActiveTab('login')"
             [class]="'flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ' + 
-                     (activeTab === 'login' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white')"
+                     (activeTab === 'login' ? 'bg-background text-gray-900 shadow-sm' : 'text-muted-foreground hover:text-gray-900 dark:hover:text-white')"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
@@ -42,7 +42,7 @@
           <button
             (click)="setActiveTab('register')"
             [class]="'flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ' + 
-                     (activeTab === 'register' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white')"
+                     (activeTab === 'register' ? 'bg-background text-gray-900 shadow-sm' : 'text-muted-foreground hover:text-gray-900 dark:hover:text-white')"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
@@ -53,16 +53,16 @@
 
         <!-- Login Tab Content -->
         <div *ngIf="activeTab === 'login'">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+          <div class="bg-background rounded-lg shadow-lg border border-gray-200">
             <div class="p-6 pb-4 text-center">
-              <h2 class="text-xl font-semibold text-gray-900 dark:text-white text-center">{{ t('auth.signin') }}</h2>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 text-center">{{ t('auth.enter_credentials') }}</p>
+              <h2 class="text-xl font-semibold text-gray-900 text-center">{{ t('auth.signin') }}</h2>
+              <p class="text-sm text-muted-foreground mt-1 text-center">{{ t('auth.enter_credentials') }}</p>
             </div>
             <div class="p-4 space-y-4">
               <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-4">
                 <!-- Email Field -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label class="block text-sm font-medium text-muted-foreground mb-1">
                     {{ t('auth.email') }}
                   </label>
                   <div class="relative">
@@ -73,7 +73,7 @@
                       type="email"
                       formControlName="email"
                       [placeholder]="t('auth.email_placeholder')"
-                      class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent dark:bg-gray-700 text-[#00113f] dark:text-white placeholder-gray-400 transition-colors duration-200"
+                      class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors duration-200"
                     />
                   </div>
                   <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -84,7 +84,7 @@
 
                 <!-- Password Field -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label class="block text-sm font-medium text-muted-foreground mb-1">
                     {{ t('auth.password') }}
                   </label>
                   <div class="relative">
@@ -95,12 +95,12 @@
                       [type]="showPassword ? 'text' : 'password'"
                       formControlName="password"
                       [placeholder]="t('auth.password_placeholder')"
-                      class="w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent dark:bg-gray-700 text-[#00113f] dark:text-white placeholder-gray-400 transition-colors duration-200"
+                      class="w-full pl-10 pr-10 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors duration-200"
                     />
                     <button
                       type="button"
                       (click)="togglePasswordVisibility()"
-                      class="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      class="absolute right-3 top-3 text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300"
                     >
                       <svg *ngIf="!showPassword" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -120,7 +120,7 @@
                 <button
                   type="submit"
                   [disabled]="loginForm.invalid || isLoginLoading"
-                  class="w-full bg-[#00113f] hover:bg-[#3e66ea] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-full bg-primary hover:bg-primary text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg *ngIf="isLoginLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -138,17 +138,17 @@
 
         <!-- Register Tab Content -->
         <div *ngIf="activeTab === 'register'">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+          <div class="bg-background rounded-lg shadow-lg border border-gray-200">
             <div class="p-6 pb-4 text-center">
-              <h2 class="text-xl font-semibold text-gray-900 dark:text-white text-center">{{ t('auth.signup') }}</h2>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 text-center">{{ t('auth.create_account_desc') }}</p>
+              <h2 class="text-xl font-semibold text-gray-900 text-center">{{ t('auth.signup') }}</h2>
+              <p class="text-sm text-muted-foreground mt-1 text-center">{{ t('auth.create_account_desc') }}</p>
             </div>
             <div class="p-4 space-y-4">
               <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="space-y-4">
                 <!-- Name Fields -->
                 <div class="grid grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label class="block text-sm font-medium text-muted-foreground mb-1">
                       {{ t('auth.first_name') }}
                     </label>
                     <div class="relative">
@@ -158,7 +158,7 @@
                       <input
                         formControlName="firstName"
                         [placeholder]="t('auth.first_name_placeholder')"
-                        class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent dark:bg-gray-700 text-[#00113f] dark:text-white placeholder-gray-400 transition-colors duration-200"
+                        class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors duration-200"
                       />
                     </div>
                     <div *ngIf="registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched" class="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -167,7 +167,7 @@
                   </div>
 
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label class="block text-sm font-medium text-muted-foreground mb-1">
                       {{ t('auth.last_name') }}
                     </label>
                     <div class="relative">
@@ -177,7 +177,7 @@
                       <input
                         formControlName="lastName"
                         [placeholder]="t('auth.last_name_placeholder')"
-                        class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent dark:bg-gray-700 text-[#00113f] dark:text-white placeholder-gray-400 transition-colors duration-200"
+                        class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors duration-200"
                       />
                     </div>
                     <div *ngIf="registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched" class="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -188,7 +188,7 @@
 
                 <!-- Email Field -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label class="block text-sm font-medium text-muted-foreground mb-1">
                     {{ t('auth.email') }}
                   </label>
                   <div class="relative">
@@ -199,7 +199,7 @@
                       formControlName="email"
                       type="email"
                       [placeholder]="t('auth.email_placeholder')"
-                      class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent dark:bg-gray-700 text-[#00113f] dark:text-white placeholder-gray-400 transition-colors duration-200"
+                      class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors duration-200"
                     />
                   </div>
                   <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -210,7 +210,7 @@
 
                 <!-- Password Field -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label class="block text-sm font-medium text-muted-foreground mb-1">
                     {{ t('auth.password') }}
                   </label>
                   <div class="relative">
@@ -221,12 +221,12 @@
                       formControlName="password"
                       [type]="showRegisterPassword ? 'text' : 'password'"
                       [placeholder]="t('auth.password_create_placeholder')"
-                      class="w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent dark:bg-gray-700 text-[#00113f] dark:text-white placeholder-gray-400 transition-colors duration-200"
+                      class="w-full pl-10 pr-10 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors duration-200"
                     />
                     <button
                       type="button"
                       (click)="toggleRegisterPasswordVisibility()"
-                      class="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      class="absolute right-3 top-3 text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300"
                     >
                       <svg *ngIf="!showRegisterPassword" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -246,7 +246,7 @@
                 <button
                   type="submit"
                   [disabled]="registerForm.invalid || isRegisterLoading"
-                  class="w-full bg-[#00113f] hover:bg-[#3e66ea] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-full bg-primary hover:bg-primary text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg *ngIf="isRegisterLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -266,7 +266,7 @@
   </div>
 
   <!-- Right Side - Hero Section -->
-  <div class="hidden lg:flex w-[55%] bg-[#00113f] dark:bg-gray-900 items-center justify-center p-12">
+  <div class="hidden lg:flex w-[55%] bg-primary items-center justify-center p-12">
     <div class="max-w-xl text-center space-y-6">
       <div class="space-y-4 pb-3">
         <h2 class="text-4xl font-bold text-white">

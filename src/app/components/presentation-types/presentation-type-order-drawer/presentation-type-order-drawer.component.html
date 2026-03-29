@@ -3,14 +3,14 @@
     <div class="flex flex-col gap-0.5 md:gap-1.5 text-center md:text-left">
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1 min-w-0">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 class="text-lg font-semibold text-gray-900">
             {{ t('set_presentation_type_order') }}
           </h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p class="text-sm text-gray-500 mt-1">
             {{ t('set_presentation_type_order_description') }}
           </p>
         </div>
-        <button type="button" (click)="close()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
+        <button type="button" (click)="close()" class="text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -22,20 +22,20 @@
   <div drawerContent class="px-1">
     <ul class="space-y-2">
       @for (type of orderedTypes; track type.id; let i = $index) {
-        <li class="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
-          <span class="text-sm font-medium text-gray-500 dark:text-gray-400 w-6">{{ i + 1 }}.</span>
-          <span class="flex-1 font-medium text-gray-900 dark:text-white">{{ type.name }}</span>
-          <span class="text-xs font-mono text-gray-500 dark:text-gray-400">{{ type.code }}</span>
+        <li class="flex items-center gap-3 rounded-lg border border-gray-200 bg-background px-4 py-3">
+          <span class="text-sm font-medium text-gray-500 w-6">{{ i + 1 }}.</span>
+          <span class="flex-1 font-medium text-gray-900">{{ type.name }}</span>
+          <span class="text-xs font-mono text-gray-500">{{ type.code }}</span>
           <div class="flex items-center gap-1">
             <button type="button" (click)="moveUp(i)" [disabled]="i === 0"
-              class="p-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed dark:hover:bg-gray-700 dark:hover:text-gray-200"
+              class="p-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed dark:hover:text-gray-200"
               [attr.aria-label]="t('move_up')">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
               </svg>
             </button>
             <button type="button" (click)="moveDown(i)" [disabled]="i === orderedTypes.length - 1"
-              class="p-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed dark:hover:bg-gray-700 dark:hover:text-gray-200"
+              class="p-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed dark:hover:text-gray-200"
               [attr.aria-label]="t('move_down')">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -44,7 +44,7 @@
           </div>
         </li>
       } @empty {
-        <p class="text-sm text-gray-500 dark:text-gray-400 py-4">{{ t('no_presentation_types') }}</p>
+        <p class="text-sm text-gray-500 py-4">{{ t('no_presentation_types') }}</p>
       }
     </ul>
   </div>

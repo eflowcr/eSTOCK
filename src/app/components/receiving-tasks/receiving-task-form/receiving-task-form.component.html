@@ -9,16 +9,16 @@
 
     <!-- Modal content -->
     <div
-      class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
+      class="inline-block align-bottom bg-background rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
       (click)="$event.stopPropagation()">
       <!-- Header -->
-      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div class="bg-background px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
             {{ isEditing ? (t('edit') + ' ' + t('receiving_task')) : (t('create') + ' ' + t('receiving_task')) }}
           </h3>
           <button type="button" (click)="close()"
-            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 rounded">
+            class="text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
@@ -27,17 +27,17 @@
       </div>
 
       <!-- Form Content -->
-      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 max-h-[80vh] overflow-y-auto">
+      <div class="bg-background px-4 pt-5 pb-4 sm:p-6 max-h-[80vh] overflow-y-auto">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
           <!-- Task Header Information -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Inbound Number -->
             <div class="form-group">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label class="block text-sm font-medium text-muted-foreground mb-2">
                 {{ t('inbound_number') }}
               </label>
               <input type="text" formControlName="inbound_number" [placeholder]="t('inbound_number_placeholder')"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                class="w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground"
                 [class.border-red-500]="isFieldInvalid('inbound_number')"
                 [class.focus:ring-red-500]="isFieldInvalid('inbound_number')"
                 [class.focus:border-red-500]="isFieldInvalid('inbound_number')" />
@@ -48,7 +48,7 @@
 
             <!-- Assigned To -->
             <div class="form-group relative">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label class="block text-sm font-medium text-muted-foreground mb-2">
                 {{ t('assign_to_operator') }} *
               </label>
               <div class="mt-1 relative">
@@ -60,17 +60,14 @@
                   (keydown.enter)="$event.preventDefault(); confirmFirstOperatorIfAny()" 
                   [ngModelOptions]="{standalone: true}"
                   placeholder="{{ t('select_operator') }}"
-                  class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-[#00113f] dark:bg-gray-700 dark:text-white"
+                  class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-foreground"
                   [class.border-red-500]="isFieldInvalid('assigned_to') || (operatorSearchTerm && !isOperatorValid())"
                   [class.border-green-500]="operatorSearchTerm && isOperatorValid() && !isFieldInvalid('assigned_to')"
                   [class.focus:ring-red-500]="isFieldInvalid('assigned_to') || (operatorSearchTerm && !isOperatorValid())"
                   [class.focus:border-red-500]="isFieldInvalid('assigned_to') || (operatorSearchTerm && !isOperatorValid())"
                   [class.focus:ring-green-500]="operatorSearchTerm && isOperatorValid() && !isFieldInvalid('assigned_to')"
                   [class.focus:border-green-500]="operatorSearchTerm && isOperatorValid() && !isFieldInvalid('assigned_to')"
-                  [class.focus:ring-[#3e66ea]]="!isFieldInvalid('assigned_to') && (!operatorSearchTerm || isOperatorValid())"
-                  [class.focus:border-[#3e66ea]]="!isFieldInvalid('assigned_to') && (!operatorSearchTerm || isOperatorValid())"
                   [class.border-gray-300]="!isFieldInvalid('assigned_to') && (!operatorSearchTerm || isOperatorValid())"
-                  [class.dark:border-gray-600]="!isFieldInvalid('assigned_to') && (!operatorSearchTerm || isOperatorValid())"
                 />
                 <input type="hidden" formControlName="assigned_to" />
                 
@@ -99,12 +96,12 @@
                   </button>
                 </div>
               </div>
-              <div *ngIf="showOperatorDropdown" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-56 overflow-auto shadow-lg">
+              <div *ngIf="showOperatorDropdown" class="absolute z-10 mt-1 w-full bg-background border border-gray-200 rounded-md max-h-56 overflow-auto shadow-lg">
                 <button type="button" *ngFor="let user of filteredOperators" (mousedown)="$event.preventDefault()" (click)="onOperatorSelected(user)"
-                  class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
+                  class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground">
                   {{ getUserDisplayName(user.id) }}
                 </button>
-                <div *ngIf="filteredOperators.length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                <div *ngIf="filteredOperators.length === 0" class="px-3 py-2 text-sm text-gray-500">
                   {{ t('no_results') }}
                 </div>
               </div>
@@ -121,7 +118,7 @@
 
             <!-- Priority -->
             <div class="form-group">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label class="block text-sm font-medium text-muted-foreground mb-2">
                 {{ t('priority') }}
               </label>
               <z-select formControlName="priority" class="w-full">
@@ -135,11 +132,11 @@
           </div>
 
           <!-- Items Section -->
-          <div class="bg-white rounded-lg">
+          <div class="bg-background rounded-lg">
             <div class="flex items-center justify-between">
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ t('items_to_receive') }}</h3>
+              <h3 class="text-lg font-medium text-gray-900">{{ t('items_to_receive') }}</h3>
               <button type="button" (click)="addItem()" [disabled]="!canAddItem()"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                class="inline-flex items-center px-3 py-2 border border-border rounded-md shadow-sm text-sm font-medium text-muted-foreground bg-background hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed">
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
@@ -148,11 +145,11 @@
             </div>
 
             <div class="space-y-4">
-              <div *ngFor="let item of itemsArray.controls; let i = index" class="bg-gray-50 border dark:bg-gray-700 p-4 rounded-lg space-y-2" [formGroupName]="i">
+              <div *ngFor="let item of itemsArray.controls; let i = index" class="bg-gray-50 border p-4 rounded-lg space-y-2" [formGroupName]="i">
                 <div class="flex items-center justify-between">
-                  <h4 class="font-medium text-gray-900 dark:text-white">{{ t('item') }} {{ i + 1 }}</h4>
+                  <h4 class="font-medium text-gray-900">{{ t('item') }} {{ i + 1 }}</h4>
                   <button *ngIf="itemsArray.length > 1" type="button" (click)="removeItem(i)"
-                    class="inline-flex items-center p-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-500">
+                    class="inline-flex items-center p-2 text-sm font-medium text-gray-500 bg-background border border-border rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
@@ -163,7 +160,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <!-- SKU Combobox -->
                   <div class="form-group relative">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('sku') }} *</label>
+                    <label class="block text-sm font-medium text-muted-foreground mb-2">{{ t('sku') }} *</label>
                     <div class="mt-1 relative">
                       <input type="text" 
                         (focus)="showSkuDropdown[i] = true; ensureComboboxState(i)" 
@@ -173,17 +170,14 @@
                         (keydown.enter)="$event.preventDefault(); confirmFirstArticleIfAny(i)" 
                         [ngModelOptions]="{standalone: true}"
                         placeholder="{{ t('select_sku') }}"
-                        class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-[#00113f] dark:bg-gray-700 dark:text-white"
+                        class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-foreground"
                         [class.border-red-500]="isItemFieldInvalid(i, 'sku') || (skuSearchTerms[i] && !isSkuValid(i))"
                         [class.border-green-500]="skuSearchTerms[i] && isSkuValid(i) && !isItemFieldInvalid(i, 'sku')"
                         [class.focus:ring-red-500]="isItemFieldInvalid(i, 'sku') || (skuSearchTerms[i] && !isSkuValid(i))"
                         [class.focus:border-red-500]="isItemFieldInvalid(i, 'sku') || (skuSearchTerms[i] && !isSkuValid(i))"
                         [class.focus:ring-green-500]="skuSearchTerms[i] && isSkuValid(i) && !isItemFieldInvalid(i, 'sku')"
                         [class.focus:border-green-500]="skuSearchTerms[i] && isSkuValid(i) && !isItemFieldInvalid(i, 'sku')"
-                        [class.focus:ring-[#3e66ea]]="!isItemFieldInvalid(i, 'sku') && (!skuSearchTerms[i] || isSkuValid(i))"
-                        [class.focus:border-[#3e66ea]]="!isItemFieldInvalid(i, 'sku') && (!skuSearchTerms[i] || isSkuValid(i))"
                         [class.border-gray-300]="!isItemFieldInvalid(i, 'sku') && (!skuSearchTerms[i] || isSkuValid(i))"
-                        [class.dark:border-gray-600]="!isItemFieldInvalid(i, 'sku') && (!skuSearchTerms[i] || isSkuValid(i))"
                       />
                       <input type="hidden" formControlName="sku" />
                       
@@ -212,12 +206,12 @@
                         </button>
                       </div>
                     </div>
-                    <div *ngIf="showSkuDropdown[i]" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-56 overflow-auto shadow-lg">
+                    <div *ngIf="showSkuDropdown[i]" class="absolute z-10 mt-1 w-full bg-background border border-gray-200 rounded-md max-h-56 overflow-auto shadow-lg">
                       <button type="button" *ngFor="let article of filteredArticlesPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onSkuSelected(i, article)"
-                        class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
+                        class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground">
                         {{ article.sku }} - {{ article.name }}
                       </button>
-                      <div *ngIf="(filteredArticlesPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                      <div *ngIf="(filteredArticlesPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500">
                         {{ t('no_results') }}
                       </div>
                     </div>
@@ -234,9 +228,9 @@
 
                   <!-- Expected Quantity -->
                   <div class="form-group">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('expected_quantity') }}</label>
+                    <label class="block text-sm font-medium text-muted-foreground mb-2">{{ t('expected_quantity') }}</label>
                     <input type="number" [(ngModel)]="expectedQuantities[i]" [ngModelOptions]="{standalone: true}" min="1" (input)="onExpectedQuantityChange(i)"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      class="w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground"
                       [class.border-red-500]="isItemFieldInvalid(i, 'expected_qty')"
                       [class.focus:ring-red-500]="isItemFieldInvalid(i, 'expected_qty')"
                       [class.focus:border-red-500]="isItemFieldInvalid(i, 'expected_qty')" />
@@ -247,7 +241,7 @@
 
                   <!-- Location Combobox -->
                   <div class="form-group relative">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('location') }} *</label>
+                    <label class="block text-sm font-medium text-muted-foreground mb-2">{{ t('location') }} *</label>
                     <div class="mt-1 relative">
                       <input type="text" 
                         (focus)="showLocationDropdown[i] = true; ensureComboboxState(i)" 
@@ -257,17 +251,14 @@
                         (keydown.enter)="$event.preventDefault(); confirmFirstLocationIfAny(i)" 
                         [ngModelOptions]="{standalone: true}"
                         placeholder="{{ t('select_location') }}"
-                        class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-[#00113f] dark:bg-gray-700 dark:text-white"
+                        class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-foreground"
                         [class.border-red-500]="isItemFieldInvalid(i, 'location') || (locationSearchTerms[i] && !isLocationValid(i))"
                         [class.border-green-500]="locationSearchTerms[i] && isLocationValid(i) && !isItemFieldInvalid(i, 'location')"
                         [class.focus:ring-red-500]="isItemFieldInvalid(i, 'location') || (locationSearchTerms[i] && !isLocationValid(i))"
                         [class.focus:border-red-500]="isItemFieldInvalid(i, 'location') || (locationSearchTerms[i] && !isLocationValid(i))"
                         [class.focus:ring-green-500]="locationSearchTerms[i] && isLocationValid(i) && !isItemFieldInvalid(i, 'location')"
                         [class.focus:border-green-500]="locationSearchTerms[i] && isLocationValid(i) && !isItemFieldInvalid(i, 'location')"
-                        [class.focus:ring-[#3e66ea]]="!isItemFieldInvalid(i, 'location') && (!locationSearchTerms[i] || isLocationValid(i))"
-                        [class.focus:border-[#3e66ea]]="!isItemFieldInvalid(i, 'location') && (!locationSearchTerms[i] || isLocationValid(i))"
                         [class.border-gray-300]="!isItemFieldInvalid(i, 'location') && (!locationSearchTerms[i] || isLocationValid(i))"
-                        [class.dark:border-gray-600]="!isItemFieldInvalid(i, 'location') && (!locationSearchTerms[i] || isLocationValid(i))"
                       />
                       <input type="hidden" formControlName="location" />
                       
@@ -296,12 +287,12 @@
                         </button>
                       </div>
                     </div>
-                    <div *ngIf="showLocationDropdown[i]" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-56 overflow-auto shadow-lg">
+                    <div *ngIf="showLocationDropdown[i]" class="absolute z-10 mt-1 w-full bg-background border border-gray-200 rounded-md max-h-56 overflow-auto shadow-lg">
                       <button type="button" *ngFor="let loc of filteredLocationsPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onLocationSelected(i, loc)"
-                        class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
+                        class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground">
                         {{ loc.location_code }} - {{ loc.description }}
                       </button>
-                      <div *ngIf="(filteredLocationsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                      <div *ngIf="(filteredLocationsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500">
                         {{ t('no_results') }}
                       </div>
                     </div>
@@ -323,7 +314,7 @@
                   <!-- Lot Numbers Column -->
                   <div *ngIf="shouldShowLotNumbers(i)" class="form-group">
                     <div class="flex items-center justify-between mb-2">
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      <label class="block text-sm font-medium text-muted-foreground">
                         {{ t('lot_numbers') }} 
                         <span class="ml-1 text-xs" 
                               [class.text-green-600]="isLotSelectionComplete(i)"
@@ -333,7 +324,7 @@
                         </span>
                       </label>
                       <button type="button" (click)="selectRandomLots(i)"
-                        class="inline-flex items-center px-2 py-1 border border-gray-300 rounded text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+                        class="inline-flex items-center px-2 py-1 border border-border rounded text-xs font-medium text-muted-foreground bg-background hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                         <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 110 2h-1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h4zM6 6v12h12V6H6z"></path>
                         </svg>
@@ -350,7 +341,7 @@
                         (keydown.enter)="$event.preventDefault(); handleLotEnter(i)"
                         [ngModelOptions]="{standalone: true}"
                         [placeholder]="t('search_select_or_type_lots')"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        class="w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground" />
                       <input type="hidden" formControlName="lot_numbers" />
                     </div>
                     
@@ -359,15 +350,14 @@
                       {{ t('lot_selection_complete') }}
                     </div>
                     
-                    <div *ngIf="showLotDropdown[i]" class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md max-h-48 overflow-auto shadow-xl">
+                    <div *ngIf="showLotDropdown[i]" class="absolute z-50 mt-1 w-full bg-background border border-border rounded-md max-h-48 overflow-auto shadow-xl">
                       <button type="button" *ngFor="let ln of filteredLotsPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onLotSelected(i, ln)"
-                        class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200"
-                        [class.bg-blue-50]="isLotSelected(i, ln)"
-                        [class.dark:bg-blue-900]="isLotSelected(i, ln)">
+                        class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground"
+                        [class.bg-blue-50]="isLotSelected(i, ln)">
                         {{ ln }}
                         <span *ngIf="isLotSelected(i, ln)" class="float-right text-blue-600 dark:text-blue-400">✓</span>
                       </button>
-                      <div *ngIf="(filteredLotsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                      <div *ngIf="(filteredLotsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500">
                         {{ t('no_results') }}
                       </div>
                     </div>
@@ -391,7 +381,7 @@
                   <!-- Serial Numbers Column -->
                   <div *ngIf="shouldShowSerialNumbers(i)" class="form-group">
                     <div class="flex items-center justify-between mb-2">
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      <label class="block text-sm font-medium text-muted-foreground">
                         {{ t('serial_numbers') }}
                         <span class="ml-1 text-xs" 
                               [class.text-green-600]="isSerialSelectionComplete(i)"
@@ -401,7 +391,7 @@
                         </span>
                       </label>
                       <button type="button" (click)="selectRandomSerials(i)"
-                        class="inline-flex items-center px-2 py-1 border border-gray-300 rounded text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+                        class="inline-flex items-center px-2 py-1 border border-border rounded text-xs font-medium text-muted-foreground bg-background hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                         <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 110 2h-1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h4zM6 6v12h12V6H6z"></path>
                         </svg>
@@ -418,7 +408,7 @@
                         (keydown.enter)="$event.preventDefault(); handleSerialEnter(i)"
                         [ngModelOptions]="{standalone: true}"
                         [placeholder]="t('search_select_or_type_serials')"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        class="w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground" />
                       <input type="hidden" formControlName="serial_numbers" />
                     </div>
                     
@@ -427,15 +417,14 @@
                       {{ t('serial_selection_complete') }}
                     </div>
                     
-                    <div *ngIf="showSerialDropdown[i]" class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md max-h-48 overflow-auto shadow-xl">
+                    <div *ngIf="showSerialDropdown[i]" class="absolute z-50 mt-1 w-full bg-background border border-border rounded-md max-h-48 overflow-auto shadow-xl">
                       <button type="button" *ngFor="let sn of filteredSerialsPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onSerialSelected(i, sn)"
-                        class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200"
-                        [class.bg-blue-50]="isSerialSelected(i, sn)"
-                        [class.dark:bg-blue-900]="isSerialSelected(i, sn)">
+                        class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground"
+                        [class.bg-blue-50]="isSerialSelected(i, sn)">
                         {{ sn }}
                         <span *ngIf="isSerialSelected(i, sn)" class="float-right text-blue-600 dark:text-blue-400">✓</span>
                       </button>
-                      <div *ngIf="(filteredSerialsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                      <div *ngIf="(filteredSerialsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500">
                         {{ t('no_results') }}
                       </div>
                     </div>
@@ -462,22 +451,22 @@
 
           <!-- Notes Section -->
           <div class="form-group">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('notes_optional') }}</label>
+            <label class="block text-sm font-medium text-muted-foreground mb-2">{{ t('notes_optional') }}</label>
             <textarea formControlName="notes" rows="3" [placeholder]="t('add_special_instructions')"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"></textarea>
+              class="w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground"></textarea>
           </div>
         </form>
       </div>
 
       <!-- Footer -->
-      <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 border-t border-gray-200 dark:border-gray-600">
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 border-t border-gray-200">
         <div class="flex flex-col sm:flex-row sm:justify-end space-y-3 sm:space-y-0 sm:space-x-3">
           <button type="button" (click)="onCancel()"
-            class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:text-sm dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+            class="inline-flex justify-center rounded-md border border-border shadow-sm px-4 py-2 bg-background text-base font-medium text-muted-foreground hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:text-sm">
             {{ t('cancel') }}
           </button>
           <button type="button" (click)="onSubmit()" [disabled]="isLoading || !isFormComplete()"
-            class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#3e66ea] text-base font-medium text-white hover:bg-[#2d5bd9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+            class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#3e66ea] text-base font-medium text-white hover:bg-[#2d5bd9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
             <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

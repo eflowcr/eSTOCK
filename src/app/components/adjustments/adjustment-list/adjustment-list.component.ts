@@ -15,15 +15,13 @@ import { AdjustmentReasonCode } from '../../../models/adjustment-reason-code.mod
 import { User } from '../../../models/user.model';
 import { LanguageService } from '../../../services/extras/language.service';
 import { UserService } from '../../../services/user.service';
-import { ZardButtonComponent } from '../../../shared/components/button/button.component';
-import { ZardInputDirective } from '../../../shared/components/input/input.directive';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-adjustment-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZardButtonComponent, ZardInputDirective, ZardSelectComponent, ZardSelectItemComponent],
+  imports: [CommonModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './adjustment-list.component.html',
   styleUrl: './adjustment-list.component.css'
 })
@@ -156,6 +154,18 @@ export class AdjustmentListComponent implements OnInit {
     this.setPageIndex(0);
   }
 
+  get hasActiveFilters(): boolean {
+    return !!this.searchTerm || !!this.reasonFilter;
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.reasonFilter = '';
+    this.searchTermSignal.set('');
+    this.reasonFilterSignal.set('');
+    this.setPageIndex(0);
+  }
+
   sort(columnId: string): void {
     if (this.sortBy === columnId) {
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
@@ -195,10 +205,18 @@ export class AdjustmentListComponent implements OnInit {
   }
 
   formatDate(date: Date | string): string {
-    return new Date(date).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    const d = new Date(date);
+    const isToday = d.toDateString() === new Date().toDateString();
+    if (isToday) {
+      return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    }
+    return d.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  formatFullDate(date: Date | string): string {
+    return new Date(date).toLocaleString('es-ES', {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
     });
   }
 

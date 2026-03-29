@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { SidebarService } from '@app/services';
+import { UserPreferencesService } from '@app/services/user-preferences.service';
 import { Subscription } from 'rxjs';
 import { AlertComponent } from '../shared/extras/alert/alert.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
@@ -31,12 +32,22 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   desktopSidebarCollapsed = false;
   private sub?: Subscription;
 
-  constructor(@Inject(SidebarService) private sidebarService: SidebarService) {}
+  private hasLoadedPrefs = false;
+
+  constructor(
+    @Inject(SidebarService) private sidebarService: SidebarService,
+    private userPreferencesService: UserPreferencesService,
+  ) {}
 
   ngOnInit(): void {
     this.sub = this.sidebarService.desktopCollapsed$.subscribe(
       (c: boolean) => (this.desktopSidebarCollapsed = c),
     );
+    // Load preferences once per session (theme + language synced from backend)
+    if (!this.hasLoadedPrefs) {
+      this.hasLoadedPrefs = true;
+      this.userPreferencesService.load();
+    }
   }
 
   ngOnDestroy(): void {

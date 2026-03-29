@@ -3,14 +3,14 @@
     <div class="flex flex-col gap-0.5 md:gap-1.5 text-center md:text-left">
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1 min-w-0">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 class="text-lg font-semibold text-gray-900">
             {{ isEditing ? t('edit_inventory_item') : t('add_inventory_entry') }}
           </h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p class="text-sm text-gray-500 mt-1">
             {{ isEditing ? t('edit_inventory_item_description') : t('add_inventory_entry_description') }}
           </p>
         </div>
-        <button type="button" (click)="close()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
+        <button type="button" (click)="close()" class="text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -26,7 +26,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- SKU Combobox -->
             <div class="relative">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label class="block text-sm font-medium text-muted-foreground">
                 {{ t('sku_code') }} *
               </label>
               <div class="mt-1 relative">
@@ -43,18 +43,14 @@
                   [class.bg-gray-100]="isEditing"
                   [class.cursor-not-allowed]="isEditing"
                   [class.cursor-default]="hasValidSkuSelection() && !isEditing"
-                  [class.dark:bg-gray-600]="isEditing"
-                  class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-[#00113f] dark:bg-gray-700 dark:text-white"
+                  class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-foreground"
                   [class.border-red-500]="isFieldInvalid('sku') || (skuSearchTerm && !isSkuValid())"
                   [class.border-green-500]="skuSearchTerm && isSkuValid() && !isFieldInvalid('sku')"
                   [class.focus:ring-red-500]="isFieldInvalid('sku') || (skuSearchTerm && !isSkuValid())"
                   [class.focus:border-red-500]="isFieldInvalid('sku') || (skuSearchTerm && !isSkuValid())"
                   [class.focus:ring-green-500]="skuSearchTerm && isSkuValid() && !isFieldInvalid('sku')"
                   [class.focus:border-green-500]="skuSearchTerm && isSkuValid() && !isFieldInvalid('sku')"
-                  [class.focus:ring-[#3e66ea]]="!isFieldInvalid('sku') && (!skuSearchTerm || isSkuValid())"
-                  [class.focus:border-[#3e66ea]]="!isFieldInvalid('sku') && (!skuSearchTerm || isSkuValid())"
                   [class.border-gray-300]="!isFieldInvalid('sku') && (!skuSearchTerm || isSkuValid())"
-                  [class.dark:border-gray-600]="!isFieldInvalid('sku') && (!skuSearchTerm || isSkuValid())"
                 />
                 <input type="hidden" formControlName="sku" />
                 
@@ -83,12 +79,12 @@
                   </button>
                 </div>
               </div>
-              <div *ngIf="showSkuDropdown" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-56 overflow-auto shadow-lg">
+              <div *ngIf="showSkuDropdown" class="absolute z-10 mt-1 w-full bg-background border border-gray-200 rounded-md max-h-56 overflow-auto shadow-lg">
                 <button type="button" *ngFor="let article of filteredArticles" (mousedown)="$event.preventDefault()" (click)="onSkuSelected(article)"
-                  class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
+                  class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground">
                   {{ article.sku }} - {{ article.name }}
                 </button>
-                <div *ngIf="filteredArticles.length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                <div *ngIf="filteredArticles.length === 0" class="px-3 py-2 text-sm text-gray-500">
                   {{ t('no_results') }}
                 </div>
               </div>
@@ -105,7 +101,7 @@
 
             <!-- Location Combobox -->
             <div class="relative">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label class="block text-sm font-medium text-muted-foreground">
                 {{ t('location') }} *
               </label>
               <div class="mt-1 relative">
@@ -122,18 +118,14 @@
                   [class.bg-gray-100]="isEditing"
                   [class.cursor-not-allowed]="isEditing"
                   [class.cursor-default]="hasValidLocationSelection() && !isEditing"
-                  [class.dark:bg-gray-600]="isEditing"
-                  class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-[#00113f] dark:bg-gray-700 dark:text-white"
+                  class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-foreground"
                   [class.border-red-500]="isFieldInvalid('location') || (locationSearchTerm && !isLocationValid())"
                   [class.border-green-500]="locationSearchTerm && isLocationValid() && !isFieldInvalid('location')"
                   [class.focus:ring-red-500]="isFieldInvalid('location') || (locationSearchTerm && !isLocationValid())"
                   [class.focus:border-red-500]="isFieldInvalid('location') || (locationSearchTerm && !isLocationValid())"
                   [class.focus:ring-green-500]="locationSearchTerm && isLocationValid() && !isFieldInvalid('location')"
                   [class.focus:border-green-500]="locationSearchTerm && isLocationValid() && !isFieldInvalid('location')"
-                  [class.focus:ring-[#3e66ea]]="!isFieldInvalid('location') && (!locationSearchTerm || isLocationValid())"
-                  [class.focus:border-[#3e66ea]]="!isFieldInvalid('location') && (!locationSearchTerm || isLocationValid())"
                   [class.border-gray-300]="!isFieldInvalid('location') && (!locationSearchTerm || isLocationValid())"
-                  [class.dark:border-gray-600]="!isFieldInvalid('location') && (!locationSearchTerm || isLocationValid())"
                 />
                 <input type="hidden" formControlName="location" />
                 
@@ -162,12 +154,12 @@
                   </button>
                 </div>
               </div>
-              <div *ngIf="showLocationDropdown" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md max-h-56 overflow-auto shadow-lg">
+              <div *ngIf="showLocationDropdown" class="absolute z-10 mt-1 w-full bg-background border border-gray-200 rounded-md max-h-56 overflow-auto shadow-lg">
                 <button type="button" *ngFor="let location of filteredLocations" (mousedown)="$event.preventDefault()" (click)="onLocationSelected(location)"
-                  class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-700 dark:text-gray-200">
+                  class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground">
                   {{ location.location_code }} - {{ location.description }}
                 </button>
-                <div *ngIf="filteredLocations.length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                <div *ngIf="filteredLocations.length === 0" class="px-3 py-2 text-sm text-gray-500">
                   {{ t('no_results') }}
                 </div>
               </div>
@@ -184,7 +176,7 @@
           </div>
 
           <!-- Product Information Card -->
-          <div *ngIf="hasValidSkuSelection()" class="bg-blue-50 dark:bg-gray-700 rounded-lg p-4 border border-blue-100 dark:border-gray-600">
+          <div *ngIf="hasValidSkuSelection()" class="bg-blue-50 rounded-lg p-4 border border-blue-100">
             <!-- Header -->
             <h3 class="text-sm font-medium text-blue-900 dark:text-blue-200 mb-3">
               {{ t('sku_master_info') }}
@@ -238,8 +230,8 @@
           </div>
           
           <!-- Placeholder when no product selected -->
-          <div *ngIf="!hasValidSkuSelection()" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 text-center">
-            <p class="text-sm text-gray-500 dark:text-gray-400">
+          <div *ngIf="!hasValidSkuSelection()" class="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-300 text-center">
+            <p class="text-sm text-gray-500">
               {{ t('select_sku_to_see_product_info') }}
             </p>
           </div>
@@ -248,10 +240,10 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Quantity Input -->
             <div>
-              <label for="quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label for="quantity" class="block text-sm font-medium text-muted-foreground">
                 {{ existingInventoryAtLocation ? t('quantity_to_add') : t('quantity') }} *
               </label>
-              <p *ngIf="existingInventoryAtLocation && !isEditing" class="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
+              <p *ngIf="existingInventoryAtLocation && !isEditing" class="mt-0.5 text-sm text-muted-foreground">
                 {{ t('existing_quantity_at_location') }}: <strong>{{ existingInventoryAtLocation.quantity }}</strong> {{ selectedArticle?.presentation || t('units') }}
               </p>
               <div class="mt-1 relative">
@@ -260,18 +252,14 @@
                   (input)="onQuantityInput()"
                   [class.bg-gray-100]="isEditing"
                   [class.cursor-not-allowed]="isEditing"
-                  [class.dark:bg-gray-600]="isEditing"
-                  class="block w-full px-3 py-2.5 border rounded-md shadow-sm focus:outline-none text-[#00113f] dark:bg-gray-700 dark:text-white h-10"
+                  class="block w-full px-3 py-2.5 border rounded-md shadow-sm focus:outline-none text-foreground h-10"
                   [class.border-red-500]="isFieldInvalid('quantity')"
                   [class.focus:ring-red-500]="isFieldInvalid('quantity')"
                   [class.focus:border-red-500]="isFieldInvalid('quantity')"
-                  [class.focus:ring-[#3e66ea]]="!isFieldInvalid('quantity')"
-                  [class.focus:border-[#3e66ea]]="!isFieldInvalid('quantity')"
                   [class.border-gray-300]="!isFieldInvalid('quantity')"
-                  [class.dark:border-gray-600]="!isFieldInvalid('quantity')"
                   [placeholder]="t('enter_quantity')" />
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <span class="text-sm text-gray-500 dark:text-gray-400">
+                  <span class="text-sm text-gray-500">
                     {{ selectedArticle?.presentation || t('units') }}
                   </span>
                 </div>
@@ -283,7 +271,7 @@
 
             <!-- Status Selection -->
             <div>
-              <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label for="status" class="block text-sm font-medium text-muted-foreground">
                 {{ t('status') }} *
               </label>
               <z-select
@@ -305,8 +293,8 @@
 
           <!-- Tracking Information Section - Only show if article supports it -->
           <div *ngIf="inventoryForm.get('trackByLot')?.value || inventoryForm.get('trackBySerial')?.value"
-            class="border-t border-gray-200 dark:border-gray-700 pt-6">
-            <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+            class="border-t border-gray-200 pt-6">
+            <h4 class="text-lg font-medium text-gray-900 mb-4">
               {{ t('tracking_information') }}
             </h4>
 
@@ -316,7 +304,7 @@
               <!-- Lot Numbers Column - same layout as Serial Numbers -->
               <div *ngIf="inventoryForm.get('trackByLot')?.value" class="form-group md:col-span-2">
                 <div class="flex items-center justify-between mb-2">
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label class="block text-sm font-medium text-muted-foreground">
                     {{ t('lot_numbers') }}
                     <span
                       class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
@@ -325,23 +313,17 @@
                       [class.bg-orange-100]="!isLotSelectionComplete() && getSelectedLotCount() > 0"
                       [class.text-orange-800]="!isLotSelectionComplete() && getSelectedLotCount() > 0"
                       [class.bg-gray-100]="getSelectedLotCount() === 0"
-                      [class.text-gray-700]="getSelectedLotCount() === 0"
-                      [class.dark:bg-green-900]="isLotSelectionComplete()"
-                      [class.dark:text-green-200]="isLotSelectionComplete()"
-                      [class.dark:bg-orange-900]="!isLotSelectionComplete() && getSelectedLotCount() > 0"
-                      [class.dark:text-orange-200]="!isLotSelectionComplete() && getSelectedLotCount() > 0"
-                      [class.dark:bg-gray-700]="getSelectedLotCount() === 0"
-                      [class.dark:text-gray-200]="getSelectedLotCount() === 0"
+                      [class.text-muted-foreground]="getSelectedLotCount() === 0"
                     >
                       {{ getSelectedLotCount() }}/{{ getExpectedQuantity() }}
                     </span>
                   </label>
                 </div>
 
-                <p *ngIf="!isEditing" class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                <p *ngIf="!isEditing" class="text-xs text-gray-500 mb-2">
                   {{ t('lots_help_add') }}
                 </p>
-                <p *ngIf="isEditing" class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                <p *ngIf="isEditing" class="text-xs text-gray-500 mb-2">
                   {{ t('tracking_readonly_edit') }}
                 </p>
                 
@@ -353,14 +335,14 @@
                       (keydown.enter)="$event.preventDefault(); handleLotEnter()"
                       [ngModelOptions]="{ standalone: true }"
                       [placeholder]="t('lots_placeholder')"
-                      class="flex-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      class="flex-1 w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground"
                     />
 
                     <button
                       type="button"
                       (click)="addLotFromInput()"
                       [disabled]="!lotSearchTerm.trim()"
-                      class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                      class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {{ t('add') }}
                     </button>
@@ -376,10 +358,10 @@
                 <!-- Selected lots display -->
                 <div *ngIf="getSelectedLots().length > 0" class="mt-2">
                   <div class="flex items-center justify-between mb-2">
-                    <p class="text-xs font-medium text-gray-600 dark:text-gray-300">
+                    <p class="text-xs font-medium text-muted-foreground">
                       {{ t('lots_added') }}
                     </p>
-                    <p *ngIf="!isLotSelectionComplete()" class="text-xs text-gray-500 dark:text-gray-400">
+                    <p *ngIf="!isLotSelectionComplete()" class="text-xs text-gray-500">
                       {{ t('serials_remaining_prefix') }} {{ (getExpectedQuantity() - getSelectedLotCount()) }}
                     </p>
                   </div>
@@ -401,7 +383,7 @@
               <!-- Serial Numbers Column -->
               <div *ngIf="inventoryForm.get('trackBySerial')?.value" class="form-group md:col-span-2">
                 <div class="flex items-center justify-between mb-2">
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label class="block text-sm font-medium text-muted-foreground">
                     {{ t('serial_numbers') }}
                     <span
                       class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
@@ -410,23 +392,17 @@
                       [class.bg-orange-100]="!isSerialSelectionComplete() && getSelectedSerialCount() > 0"
                       [class.text-orange-800]="!isSerialSelectionComplete() && getSelectedSerialCount() > 0"
                       [class.bg-gray-100]="getSelectedSerialCount() === 0"
-                      [class.text-gray-700]="getSelectedSerialCount() === 0"
-                      [class.dark:bg-green-900]="isSerialSelectionComplete()"
-                      [class.dark:text-green-200]="isSerialSelectionComplete()"
-                      [class.dark:bg-orange-900]="!isSerialSelectionComplete() && getSelectedSerialCount() > 0"
-                      [class.dark:text-orange-200]="!isSerialSelectionComplete() && getSelectedSerialCount() > 0"
-                      [class.dark:bg-gray-700]="getSelectedSerialCount() === 0"
-                      [class.dark:text-gray-200]="getSelectedSerialCount() === 0"
+                      [class.text-muted-foreground]="getSelectedSerialCount() === 0"
                     >
                       {{ getSelectedSerialCount() }}/{{ getExpectedQuantity() }}
                     </span>
                   </label>
                 </div>
 
-                <p *ngIf="!isEditing" class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                <p *ngIf="!isEditing" class="text-xs text-gray-500 mb-2">
                   {{ t('serials_help_add') }}
                 </p>
-                <p *ngIf="isEditing" class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                <p *ngIf="isEditing" class="text-xs text-gray-500 mb-2">
                   {{ t('tracking_readonly_edit') }}
                 </p>
                 
@@ -438,14 +414,14 @@
                       (keydown.enter)="$event.preventDefault(); handleSerialEnter()"
                       [ngModelOptions]="{ standalone: true }"
                       [placeholder]="t('serials_placeholder')"
-                      class="flex-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      class="flex-1 w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground"
                     />
 
                     <button
                       type="button"
                       (click)="addSerialFromInput()"
                       [disabled]="!serialSearchTerm.trim()"
-                      class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                      class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {{ t('add') }}
                     </button>
@@ -462,10 +438,10 @@
                 <!-- Selected serials display -->
                 <div *ngIf="getSelectedSerials().length > 0" class="mt-2">
                   <div class="flex items-center justify-between mb-2">
-                    <p class="text-xs font-medium text-gray-600 dark:text-gray-300">
+                    <p class="text-xs font-medium text-muted-foreground">
                       {{ t('serials_added') }}
                     </p>
-                    <p *ngIf="!isSerialSelectionComplete()" class="text-xs text-gray-500 dark:text-gray-400">
+                    <p *ngIf="!isSerialSelectionComplete()" class="text-xs text-gray-500">
                       {{ t('serials_remaining_prefix') }} {{ (getExpectedQuantity() - getSelectedSerialCount()) }}
                     </p>
                   </div>
@@ -490,20 +466,20 @@
           <!--
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label for="image_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label for="image_url" class="block text-sm font-medium text-muted-foreground">
                 {{ t('image_url') }}
               </label>
               <input
                 type="url"
                 id="image_url"
                 formControlName="image_url"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                class="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground"
                 [placeholder]="t('enter_image_url')"
               />
             </div>
 
             <div>
-              <label for="min_quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label for="min_quantity" class="block text-sm font-medium text-muted-foreground">
                 {{ t('min_quantity') }}
               </label>
               <input
@@ -511,13 +487,13 @@
                 id="min_quantity"
                 formControlName="min_quantity"
                 min="0"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                class="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground"
                 [placeholder]="t('enter_min_quantity')"
               />
             </div>
 
             <div>
-              <label for="max_quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label for="max_quantity" class="block text-sm font-medium text-muted-foreground">
                 {{ t('max_quantity') }}
               </label>
               <input
@@ -525,7 +501,7 @@
                 id="max_quantity"
                 formControlName="max_quantity"
                 min="0"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                class="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground"
                 [placeholder]="t('enter_max_quantity')"
               />
             </div>

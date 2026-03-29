@@ -11,7 +11,7 @@ import { Z_MODAL_DATA } from '@app/shared/components/dialog';
   template: `
     @if (inventory) {
       <div class="flex flex-wrap items-center gap-2 mb-4">
-        <span class="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">{{ inventory.sku }}</span>
+        <span class="inline-flex items-center rounded-md bg-accent px-2 py-1 text-xs font-semibold text-primary">{{ inventory.sku }}</span>
         <span class="inline-flex items-center rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">{{ inventory.location || '-' }}</span>
         <span [class]="getStatusBadgeClass(inventory.status)" class="inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold">{{ t(inventory.status) }}</span>
       </div>

@@ -38,6 +38,7 @@ export class ReceivingTaskManagementComponent implements OnInit {
 	isEditDialogOpen = false;
 	editingTask: ReceivingTask | null = null;
 	activeTab: 'active' | 'processed' = 'active';
+	searchQuery = '';
 
 	// Export configuration
 	exportConfig: DataExportConfig = {
@@ -133,16 +134,39 @@ export class ReceivingTaskManagementComponent implements OnInit {
 		);
 	}
 
-	// Nuevo: método para obtener las tareas del tab actual
 	get currentTabTasks(): ReceivingTask[] {
-		return this.activeTab === 'active' ? this.activeTasks : this.processedTasks;
+		const base = this.activeTab === 'active' ? this.activeTasks : this.processedTasks;
+		if (!this.searchQuery.trim()) return base;
+		const q = this.searchQuery.toLowerCase();
+		return base.filter(t =>
+			t.task_id?.toLowerCase().includes(q) ||
+			(t.inbound_number ?? t.order_number ?? '').toLowerCase().includes(q)
+		);
 	}
 
-	// Nuevo: método para obtener la descripción del tab actual
 	get currentTabDescription(): string {
-		return this.activeTab === 'active' 
-			? this.t('tasks_open_or_in_progress') 
+		return this.activeTab === 'active'
+			? this.t('tasks_open_or_in_progress')
 			: this.t('tasks_completed_or_cancelled');
+	}
+
+	get openTasksCount(): number {
+		return this.receivingTasks.filter(t => t.status === 'open').length;
+	}
+
+	get inProgressCount(): number {
+		return this.receivingTasks.filter(t => t.status === 'in_progress').length;
+	}
+
+	get urgentCount(): number {
+		return this.activeTasks.filter(t => t.priority === 'urgent').length;
+	}
+
+	get completedTodayCount(): number {
+		const today = new Date().toDateString();
+		return this.receivingTasks.filter(t =>
+			t.status === 'completed' && t.completed_at && new Date(t.completed_at).toDateString() === today
+		).length;
 	}
 
 	handleEdit(task: ReceivingTask): void {

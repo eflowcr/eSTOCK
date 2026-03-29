@@ -1,10 +1,10 @@
 <div class="space-y-4">
   <!-- Search and Filters -->
-  <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+  <div class="bg-background shadow rounded-lg p-6">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <!-- Search -->
       <div>
-        <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label for="search" class="block text-sm font-medium text-muted-foreground mb-1">
           {{ t('STOCK_ALERTS.SEARCH') }}
         </label>
         <input
@@ -18,7 +18,7 @@
 
       <!-- Alert Level Filter -->
       <div>
-        <label for="alertLevel" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label for="alertLevel" class="block text-sm font-medium text-muted-foreground mb-1">
           {{ t('STOCK_ALERTS.ALERT_LEVEL') }}
         </label>
         <z-select
@@ -36,7 +36,7 @@
 
       <!-- Alert Type Filter -->
       <div>
-        <label for="alertType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label for="alertType" class="block text-sm font-medium text-muted-foreground mb-1">
           {{ t('STOCK_ALERTS.ALERT_TYPE') }}
         </label>
         <z-select
@@ -76,7 +76,7 @@
           <!-- Alert Info -->
           <div class="flex-1">
             <div class="flex items-center space-x-3 mb-2">
-              <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+              <h3 class="text-lg font-medium text-gray-900">
                 {{ alert.sku }}
               </h3>
               <span class="alert-level-badge" [class]="'alert-level-' + alert.alert_level">
@@ -90,26 +90,26 @@
               </span>
             </div>
 
-            <p class="text-gray-600 dark:text-gray-300 mb-4">
+            <p class="text-muted-foreground mb-4">
               {{ alert.message }}
             </p>
 
             <!-- Alert Details Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <span class="font-medium text-gray-500 dark:text-gray-400">{{ t('STOCK_ALERTS.CURRENT_STOCK') }}:</span>
-                <span class="ml-1 text-gray-900 dark:text-gray-100">{{ alert.current_stock }}</span>
+                <span class="font-medium text-gray-500">{{ t('STOCK_ALERTS.CURRENT_STOCK') }}:</span>
+                <span class="ml-1 text-gray-900">{{ alert.current_stock }}</span>
               </div>
               <div>
-                <span class="font-medium text-gray-500 dark:text-gray-400">{{ t('STOCK_ALERTS.RECOMMENDED_STOCK') }}:</span>
-                <span class="ml-1 text-gray-900 dark:text-gray-100">{{ alert.recommended_stock }}</span>
+                <span class="font-medium text-gray-500">{{ t('STOCK_ALERTS.RECOMMENDED_STOCK') }}:</span>
+                <span class="ml-1 text-gray-900">{{ alert.recommended_stock }}</span>
               </div>
               <div *ngIf="alert.lot_number">
-                <span class="font-medium text-gray-500 dark:text-gray-400">{{ t('STOCK_ALERTS.LOT_NUMBER') }}:</span>
-                <span class="ml-1 text-gray-900 dark:text-gray-100">{{ alert.lot_number }}</span>
+                <span class="font-medium text-gray-500">{{ t('STOCK_ALERTS.LOT_NUMBER') }}:</span>
+                <span class="ml-1 text-gray-900">{{ alert.lot_number }}</span>
               </div>
               <div *ngIf="alert.days_to_expiration !== null">
-                <span class="font-medium text-gray-500 dark:text-gray-400">{{ t('STOCK_ALERTS.EXPIRATION') }}:</span>
+                <span class="font-medium text-gray-500">{{ t('STOCK_ALERTS.EXPIRATION') }}:</span>
                 <span class="ml-1" [class]="getDaysToExpirationClass(alert.days_to_expiration || null)">
                   {{ getDaysToExpirationText(alert.days_to_expiration || null) }}
                 </span>
@@ -117,7 +117,7 @@
             </div>
 
             <!-- Timestamps -->
-            <div class="mt-4 flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+            <div class="mt-4 flex items-center space-x-4 text-xs text-gray-500">
               <span>
                 {{ t('STOCK_ALERTS.CREATED_AT') }}: {{ formatDate(alert.created_at) }}
               </span>
@@ -141,7 +141,7 @@
             </button>
 
             <!-- Recommended Action -->
-            <div class="text-xs text-gray-500 dark:text-gray-400">
+            <div class="text-xs text-gray-500">
               <span class="font-medium">{{ t('STOCK_ALERTS.RECOMMENDED_ACTION') }}:</span>
               <br>
               {{ getRecommendedAction(alert) }}
@@ -153,7 +153,7 @@
   </div>
 
   <!-- Pagination -->
-  <div *ngIf="!isLoading() && alerts().length > 0" class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6">
+  <div *ngIf="!isLoading() && alerts().length > 0" class="bg-background px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
     <div class="flex-1 flex justify-between sm:hidden">
       <button
         (click)="previousPage()"
@@ -170,7 +170,7 @@
     </div>
     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
       <div>
-        <p class="text-sm text-gray-700 dark:text-gray-300">
+        <p class="text-sm text-muted-foreground">
           {{ t('COMMON.SHOWING') }} {{ alerts().length }} {{ t('COMMON.RESULTS') }}
         </p>
       </div>

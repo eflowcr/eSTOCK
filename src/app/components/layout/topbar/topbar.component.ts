@@ -64,6 +64,21 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
             />
           </svg>
         </button>
+
+        <!-- Logo — visible only when desktop sidebar is collapsed -->
+        <a
+          *ngIf="desktopCollapsed"
+          routerLink="/dashboard"
+          class="hidden items-center gap-2 font-semibold text-foreground transition-opacity hover:opacity-80 md:flex"
+        >
+          <div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+          </div>
+          <span class="text-base">eSTOCK</span>
+        </a>
+
         <div class="h-6 w-px bg-border" aria-hidden="true"></div>
 
         <div
@@ -208,7 +223,7 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
             zType="ghost"
             type="button"
             (click)="userMenuOpen = !userMenuOpen"
-            class="flex items-center gap-3 rounded-lg py-1.5 pl-1 pr-2 text-left transition-colors hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring"
+            class="flex items-center gap-3 rounded-lg py-1.5 pl-1 pr-2 text-left transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring"
             aria-expanded="userMenuOpen"
             aria-haspopup="true"
           >
@@ -273,6 +288,7 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
 })
 export class TopbarComponent implements OnInit, OnDestroy {
   searchQuery = '';
+  desktopCollapsed = false;
   user: User | null = null;
   items: NavigationItems = [];
   filteredItems: NavigationItem[] = [];
@@ -318,9 +334,11 @@ export class TopbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Get current user from auth service
     this.loadCurrentUser();
     this.items = this.navigationService.getItems();
+    this.subs.add(
+      this.sidebarService.desktopCollapsed$.subscribe(c => (this.desktopCollapsed = c)),
+    );
   }
 
   private loadCurrentUser(): void {

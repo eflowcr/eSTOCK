@@ -13,7 +13,6 @@ import { LanguageService } from '@app/services/extras/language.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { PickingTaskService } from '@app/services/picking-task.service';
 import { ZardDialogService } from '@app/shared/components/dialog';
-import { ZardButtonComponent } from '@app/shared/components/button/button.component';
 import { handleApiError } from '@app/utils';
 import { PickingTaskFormComponent } from '../picking-task-form/picking-task-form.component';
 import { PickingTaskListComponent } from '../picking-task-list/picking-task-list.component';
@@ -29,7 +28,6 @@ import { PickingTaskListComponent } from '../picking-task-list/picking-task-list
     PickingTaskListComponent,
     PickingTaskFormComponent,
     MainLayoutComponent,
-    ZardButtonComponent,
   ],
   templateUrl: './picking-task-management.component.html',
   styleUrls: ['./picking-task-management.component.css'],
@@ -41,6 +39,7 @@ export class PickingTaskManagementComponent implements OnInit {
   isEditDialogOpen = false;
   editingTask: PickingTask | null = null;
   activeTab: 'active' | 'processed' = 'active';
+  searchQuery = '';
 
   // Export configuration
   exportConfig: DataExportConfig = {
@@ -147,13 +146,38 @@ export class PickingTaskManagementComponent implements OnInit {
   }
 
   get currentTabTasks(): PickingTask[] {
-    return this.activeTab === 'active' ? this.activeTasks : this.processedTasks;
+    const base = this.activeTab === 'active' ? this.activeTasks : this.processedTasks;
+    if (!this.searchQuery.trim()) return base;
+    const q = this.searchQuery.toLowerCase();
+    return base.filter(t =>
+      t.task_id?.toLowerCase().includes(q) ||
+      (t.outbound_number ?? t.order_number ?? '').toLowerCase().includes(q)
+    );
   }
 
   get currentTabDescription(): string {
     return this.activeTab === 'active'
       ? this.t('tasks_open_or_in_progress')
       : this.t('tasks_completed_or_cancelled');
+  }
+
+  get openTasksCount(): number {
+    return this.pickingTasks.filter(t => t.status === 'open').length;
+  }
+
+  get inProgressCount(): number {
+    return this.pickingTasks.filter(t => t.status === 'in_progress').length;
+  }
+
+  get urgentCount(): number {
+    return this.activeTasks.filter(t => t.priority === 'urgent').length;
+  }
+
+  get completedTodayCount(): number {
+    const today = new Date().toDateString();
+    return this.pickingTasks.filter(t =>
+      t.status === 'completed' && t.completed_at && new Date(t.completed_at).toDateString() === today
+    ).length;
   }
 
   openCreateForm(): void {
