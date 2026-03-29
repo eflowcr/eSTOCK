@@ -48,3 +48,13 @@ Thumbs.db
 
 # Generated from .env at build time (do not commit)
 src/environment/environment.generated.ts
+
+# Test coverage output
+/coverage-report/
+
+# Karma browser cache
+.karma_cache/
+
+# Compiled spec output (generated, not source)
+**/*.spec.js
+**/*.spec.js.map
