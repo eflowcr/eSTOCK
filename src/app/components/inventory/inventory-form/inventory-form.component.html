@@ -3,14 +3,14 @@
     <div class="flex flex-col gap-0.5 md:gap-1.5 text-center md:text-left">
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1 min-w-0">
-          <h3 class="text-lg font-semibold text-gray-900">
+          <h3 class="text-lg font-semibold text-foreground">
             {{ isEditing ? t('edit_inventory_item') : t('add_inventory_entry') }}
           </h3>
-          <p class="text-sm text-gray-500 mt-1">
+          <p class="text-sm text-muted-foreground mt-1">
             {{ isEditing ? t('edit_inventory_item_description') : t('add_inventory_entry_description') }}
           </p>
         </div>
-        <button type="button" (click)="close()" class="text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
+        <button type="button" (click)="close()" class="text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground p-1 flex-shrink-0" aria-label="Close">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -40,7 +40,7 @@
                   (keydown.enter)="$event.preventDefault(); confirmFirstArticleIfAny()"
                   [ngModelOptions]="{standalone: true}"
                   placeholder="{{ t('select_sku') }}"
-                  [class.bg-gray-100]="isEditing"
+                  [class.bg-muted]="isEditing"
                   [class.cursor-not-allowed]="isEditing"
                   [class.cursor-default]="hasValidSkuSelection() && !isEditing"
                   class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-foreground"
@@ -50,7 +50,7 @@
                   [class.focus:border-red-500]="isFieldInvalid('sku') || (skuSearchTerm && !isSkuValid())"
                   [class.focus:ring-green-500]="skuSearchTerm && isSkuValid() && !isFieldInvalid('sku')"
                   [class.focus:border-green-500]="skuSearchTerm && isSkuValid() && !isFieldInvalid('sku')"
-                  [class.border-gray-300]="!isFieldInvalid('sku') && (!skuSearchTerm || isSkuValid())"
+                  [class.border-border]="!isFieldInvalid('sku') && (!skuSearchTerm || isSkuValid())"
                 />
                 <input type="hidden" formControlName="sku" />
                 
@@ -60,7 +60,7 @@
                   <button type="button" 
                     *ngIf="hasValidSkuSelection() && !isEditing"
                     (click)="enableSkuEdit()"
-                    class="p-1 text-gray-400 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+                    class="p-1 text-muted-foreground hover:text-blue-600 focus:outline-none focus:text-blue-600"
                     [title]="t('edit_selection')">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -71,7 +71,7 @@
                   <button type="button" 
                     *ngIf="(skuSearchTerm || hasValidSkuSelection()) && !isEditing"
                     (click)="clearSkuManually()"
-                    class="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600"
+                    class="p-1 text-muted-foreground hover:text-red-600 focus:outline-none focus:text-red-600"
                     [title]="t('clear_selection')">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -79,12 +79,12 @@
                   </button>
                 </div>
               </div>
-              <div *ngIf="showSkuDropdown" class="absolute z-10 mt-1 w-full bg-background border border-gray-200 rounded-md max-h-56 overflow-auto shadow-lg">
+              <div *ngIf="showSkuDropdown" class="absolute z-10 mt-1 w-full bg-background border border-border rounded-md max-h-56 overflow-auto shadow-lg">
                 <button type="button" *ngFor="let article of filteredArticles" (mousedown)="$event.preventDefault()" (click)="onSkuSelected(article)"
-                  class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground">
+                  class="w-full text-left px-3 py-2 hover:bg-muted text-sm text-muted-foreground">
                   {{ article.sku }} - {{ article.name }}
                 </button>
-                <div *ngIf="filteredArticles.length === 0" class="px-3 py-2 text-sm text-gray-500">
+                <div *ngIf="filteredArticles.length === 0" class="px-3 py-2 text-sm text-muted-foreground">
                   {{ t('no_results') }}
                 </div>
               </div>
@@ -115,7 +115,7 @@
                   (keydown.enter)="$event.preventDefault(); confirmFirstLocationIfAny()"
                   [ngModelOptions]="{standalone: true}"
                   placeholder="{{ t('select_location') }}"
-                  [class.bg-gray-100]="isEditing"
+                  [class.bg-muted]="isEditing"
                   [class.cursor-not-allowed]="isEditing"
                   [class.cursor-default]="hasValidLocationSelection() && !isEditing"
                   class="block w-full px-3 py-2 pr-20 border rounded-md shadow-sm focus:outline-none text-foreground"
@@ -125,7 +125,7 @@
                   [class.focus:border-red-500]="isFieldInvalid('location') || (locationSearchTerm && !isLocationValid())"
                   [class.focus:ring-green-500]="locationSearchTerm && isLocationValid() && !isFieldInvalid('location')"
                   [class.focus:border-green-500]="locationSearchTerm && isLocationValid() && !isFieldInvalid('location')"
-                  [class.border-gray-300]="!isFieldInvalid('location') && (!locationSearchTerm || isLocationValid())"
+                  [class.border-border]="!isFieldInvalid('location') && (!locationSearchTerm || isLocationValid())"
                 />
                 <input type="hidden" formControlName="location" />
                 
@@ -135,7 +135,7 @@
                   <button type="button" 
                     *ngIf="hasValidLocationSelection() && !isEditing"
                     (click)="enableLocationEdit()"
-                    class="p-1 text-gray-400 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+                    class="p-1 text-muted-foreground hover:text-blue-600 focus:outline-none focus:text-blue-600"
                     [title]="t('edit_selection')">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -146,7 +146,7 @@
                   <button type="button" 
                     *ngIf="(locationSearchTerm || hasValidLocationSelection()) && !isEditing"
                     (click)="clearLocationManually()"
-                    class="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600"
+                    class="p-1 text-muted-foreground hover:text-red-600 focus:outline-none focus:text-red-600"
                     [title]="t('clear_selection')">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -154,12 +154,12 @@
                   </button>
                 </div>
               </div>
-              <div *ngIf="showLocationDropdown" class="absolute z-10 mt-1 w-full bg-background border border-gray-200 rounded-md max-h-56 overflow-auto shadow-lg">
+              <div *ngIf="showLocationDropdown" class="absolute z-10 mt-1 w-full bg-background border border-border rounded-md max-h-56 overflow-auto shadow-lg">
                 <button type="button" *ngFor="let location of filteredLocations" (mousedown)="$event.preventDefault()" (click)="onLocationSelected(location)"
-                  class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground">
+                  class="w-full text-left px-3 py-2 hover:bg-muted text-sm text-muted-foreground">
                   {{ location.location_code }} - {{ location.description }}
                 </button>
-                <div *ngIf="filteredLocations.length === 0" class="px-3 py-2 text-sm text-gray-500">
+                <div *ngIf="filteredLocations.length === 0" class="px-3 py-2 text-sm text-muted-foreground">
                   {{ t('no_results') }}
                 </div>
               </div>
@@ -230,8 +230,8 @@
           </div>
           
           <!-- Placeholder when no product selected -->
-          <div *ngIf="!hasValidSkuSelection()" class="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-300 text-center">
-            <p class="text-sm text-gray-500">
+          <div *ngIf="!hasValidSkuSelection()" class="bg-muted rounded-lg p-4 border-2 border-dashed border-border text-center">
+            <p class="text-sm text-muted-foreground">
               {{ t('select_sku_to_see_product_info') }}
             </p>
           </div>
@@ -250,16 +250,16 @@
                 <input type="number" id="quantity" formControlName="quantity" min="0" 
                   [readonly]="isEditing"
                   (input)="onQuantityInput()"
-                  [class.bg-gray-100]="isEditing"
+                  [class.bg-muted]="isEditing"
                   [class.cursor-not-allowed]="isEditing"
                   class="block w-full px-3 py-2.5 border rounded-md shadow-sm focus:outline-none text-foreground h-10"
                   [class.border-red-500]="isFieldInvalid('quantity')"
                   [class.focus:ring-red-500]="isFieldInvalid('quantity')"
                   [class.focus:border-red-500]="isFieldInvalid('quantity')"
-                  [class.border-gray-300]="!isFieldInvalid('quantity')"
+                  [class.border-border]="!isFieldInvalid('quantity')"
                   [placeholder]="t('enter_quantity')" />
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <span class="text-sm text-gray-500">
+                  <span class="text-sm text-muted-foreground">
                     {{ selectedArticle?.presentation || t('units') }}
                   </span>
                 </div>
@@ -293,8 +293,8 @@
 
           <!-- Tracking Information Section - Only show if article supports it -->
           <div *ngIf="inventoryForm.get('trackByLot')?.value || inventoryForm.get('trackBySerial')?.value"
-            class="border-t border-gray-200 pt-6">
-            <h4 class="text-lg font-medium text-gray-900 mb-4">
+            class="border-t border-border pt-6">
+            <h4 class="text-lg font-medium text-foreground mb-4">
               {{ t('tracking_information') }}
             </h4>
 
@@ -312,7 +312,7 @@
                       [class.text-green-800]="isLotSelectionComplete()"
                       [class.bg-orange-100]="!isLotSelectionComplete() && getSelectedLotCount() > 0"
                       [class.text-orange-800]="!isLotSelectionComplete() && getSelectedLotCount() > 0"
-                      [class.bg-gray-100]="getSelectedLotCount() === 0"
+                      [class.bg-muted]="getSelectedLotCount() === 0"
                       [class.text-muted-foreground]="getSelectedLotCount() === 0"
                     >
                       {{ getSelectedLotCount() }}/{{ getExpectedQuantity() }}
@@ -320,10 +320,10 @@
                   </label>
                 </div>
 
-                <p *ngIf="!isEditing" class="text-xs text-gray-500 mb-2">
+                <p *ngIf="!isEditing" class="text-xs text-muted-foreground mb-2">
                   {{ t('lots_help_add') }}
                 </p>
-                <p *ngIf="isEditing" class="text-xs text-gray-500 mb-2">
+                <p *ngIf="isEditing" class="text-xs text-muted-foreground mb-2">
                   {{ t('tracking_readonly_edit') }}
                 </p>
                 
@@ -361,7 +361,7 @@
                     <p class="text-xs font-medium text-muted-foreground">
                       {{ t('lots_added') }}
                     </p>
-                    <p *ngIf="!isLotSelectionComplete()" class="text-xs text-gray-500">
+                    <p *ngIf="!isLotSelectionComplete()" class="text-xs text-muted-foreground">
                       {{ t('serials_remaining_prefix') }} {{ (getExpectedQuantity() - getSelectedLotCount()) }}
                     </p>
                   </div>
@@ -391,7 +391,7 @@
                       [class.text-green-800]="isSerialSelectionComplete()"
                       [class.bg-orange-100]="!isSerialSelectionComplete() && getSelectedSerialCount() > 0"
                       [class.text-orange-800]="!isSerialSelectionComplete() && getSelectedSerialCount() > 0"
-                      [class.bg-gray-100]="getSelectedSerialCount() === 0"
+                      [class.bg-muted]="getSelectedSerialCount() === 0"
                       [class.text-muted-foreground]="getSelectedSerialCount() === 0"
                     >
                       {{ getSelectedSerialCount() }}/{{ getExpectedQuantity() }}
@@ -399,10 +399,10 @@
                   </label>
                 </div>
 
-                <p *ngIf="!isEditing" class="text-xs text-gray-500 mb-2">
+                <p *ngIf="!isEditing" class="text-xs text-muted-foreground mb-2">
                   {{ t('serials_help_add') }}
                 </p>
-                <p *ngIf="isEditing" class="text-xs text-gray-500 mb-2">
+                <p *ngIf="isEditing" class="text-xs text-muted-foreground mb-2">
                   {{ t('tracking_readonly_edit') }}
                 </p>
                 
@@ -441,7 +441,7 @@
                     <p class="text-xs font-medium text-muted-foreground">
                       {{ t('serials_added') }}
                     </p>
-                    <p *ngIf="!isSerialSelectionComplete()" class="text-xs text-gray-500">
+                    <p *ngIf="!isSerialSelectionComplete()" class="text-xs text-muted-foreground">
                       {{ t('serials_remaining_prefix') }} {{ (getExpectedQuantity() - getSelectedSerialCount()) }}
                     </p>
                   </div>

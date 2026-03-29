@@ -3,14 +3,14 @@
     <div class="flex flex-col gap-0.5 md:gap-1.5 text-center md:text-left">
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1 min-w-0">
-          <h3 class="text-lg font-semibold text-gray-900">
+          <h3 class="text-lg font-semibold text-foreground">
             {{ isEditing ? (t('edit') + ' ' + t('picking_task')) : (t('create') + ' ' + t('picking_task')) }}
           </h3>
-          <p class="text-sm text-gray-500 mt-1">
+          <p class="text-sm text-muted-foreground mt-1">
             {{ isEditing ? t('edit_picking_task_description') : t('create_picking_task_description') }}
           </p>
         </div>
-        <button type="button" (click)="close()" class="text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
+        <button type="button" (click)="close()" class="text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground p-1 flex-shrink-0" aria-label="Close">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -52,14 +52,14 @@
                   (keydown.enter)="$event.preventDefault(); confirmFirstOperatorIfAny()" 
                   [ngModelOptions]="{standalone: true}"
                   placeholder="{{ t('select_operator_short') }}"
-                  class="block w-full min-w-0 h-10 min-h-10 px-3 py-2 pr-16 border rounded-lg border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-foreground"
+                  class="block w-full min-w-0 h-10 min-h-10 px-3 py-2 pr-16 border rounded-lg border-border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-foreground"
                   [class.border-red-500]="isFieldInvalid('assigned_to') || (operatorSearchTerm && !isOperatorValid())"
                   [class.border-green-500]="operatorSearchTerm && isOperatorValid() && !isFieldInvalid('assigned_to')"
                   [class.focus:ring-red-500]="isFieldInvalid('assigned_to') || (operatorSearchTerm && !isOperatorValid())"
                   [class.focus:border-red-500]="isFieldInvalid('assigned_to') || (operatorSearchTerm && !isOperatorValid())"
                   [class.focus:ring-green-500]="operatorSearchTerm && isOperatorValid() && !isFieldInvalid('assigned_to')"
                   [class.focus:border-green-500]="operatorSearchTerm && isOperatorValid() && !isFieldInvalid('assigned_to')"
-                  [class.border-gray-300]="!isFieldInvalid('assigned_to') && (!operatorSearchTerm || isOperatorValid())"
+                  [class.border-border]="!isFieldInvalid('assigned_to') && (!operatorSearchTerm || isOperatorValid())"
                 />
                 <input type="hidden" formControlName="assigned_to" />
                 
@@ -69,7 +69,7 @@
                   <button type="button" 
                     *ngIf="hasValidOperatorSelection()"
                     (click)="enableOperatorEdit()"
-                    class="p-1 text-gray-400 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+                    class="p-1 text-muted-foreground hover:text-blue-600 focus:outline-none focus:text-blue-600"
                     [title]="t('edit_selection')">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -80,7 +80,7 @@
                   <button type="button" 
                     *ngIf="operatorSearchTerm || hasValidOperatorSelection()"
                     (click)="clearOperatorManually()"
-                    class="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600"
+                    class="p-1 text-muted-foreground hover:text-red-600 focus:outline-none focus:text-red-600"
                     [title]="t('clear_selection')">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -88,12 +88,12 @@
                   </button>
                 </div>
               </div>
-              <div *ngIf="showOperatorDropdown" class="absolute z-10 mt-1 w-full bg-background border border-gray-200 rounded-md max-h-56 overflow-auto shadow-lg">
+              <div *ngIf="showOperatorDropdown" class="absolute z-10 mt-1 w-full bg-background border border-border rounded-md max-h-56 overflow-auto shadow-lg">
                 <button type="button" *ngFor="let user of filteredOperators" (mousedown)="$event.preventDefault()" (click)="onOperatorSelected(user)"
-                  class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground">
+                  class="w-full text-left px-3 py-2 hover:bg-muted text-sm text-muted-foreground">
                   {{ getUserDisplayName(user.id) }}
                 </button>
-                <div *ngIf="filteredOperators.length === 0" class="px-3 py-2 text-sm text-gray-500">
+                <div *ngIf="filteredOperators.length === 0" class="px-3 py-2 text-sm text-muted-foreground">
                   {{ t('no_results') }}
                 </div>
               </div>
@@ -122,11 +122,11 @@
           </div>
 
           <!-- Items Section -->
-          <div class="rounded-lg border border-gray-200 bg-gray-50/50 p-4">
+          <div class="rounded-lg border border-border bg-muted/50 p-4">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <div>
-                <h3 class="text-base font-semibold text-gray-900">{{ t('items_to_pick') }}</h3>
-                <p class="text-sm text-gray-500 mt-0.5">{{ t('items_to_pick_description') }}</p>
+                <h3 class="text-base font-semibold text-foreground">{{ t('items_to_pick') }}</h3>
+                <p class="text-sm text-muted-foreground mt-0.5">{{ t('items_to_pick_description') }}</p>
               </div>
               <button z-button zType="outline" zSize="sm" type="button" (click)="addItem()" [zDisabled]="!canAddItem()"
                 class="flex-shrink-0">
@@ -139,14 +139,14 @@
 
             <div class="space-y-3" formArrayName="items">
               <div *ngFor="let item of itemsArray.controls; let i = index"
-                class="relative rounded-lg border border-gray-200 bg-background p-4 shadow-sm hover:shadow transition-shadow"
+                class="relative rounded-lg border border-border bg-background p-4 shadow-sm hover:shadow transition-shadow"
                 [formGroupName]="i">
                 <div class="flex items-center justify-between mb-4">
                   <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-accent text-primary text-sm font-semibold">
                     {{ i + 1 }}
                   </span>
                   <button *ngIf="itemsArray.length > 1" z-button zType="ghost" zSize="icon-sm" type="button" (click)="removeItem(i)"
-                    class="text-gray-400 hover:text-red-600 dark:hover:text-red-400" [attr.aria-label]="t('remove_item')">
+                    class="text-muted-foreground hover:text-red-600 dark:hover:text-red-400" [attr.aria-label]="t('remove_item')">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
@@ -167,14 +167,14 @@
                         (keydown.enter)="$event.preventDefault(); confirmFirstArticleIfAny(i)" 
                         [ngModelOptions]="{standalone: true}"
                         placeholder="{{ t('select_sku') }}"
-                        class="block w-full min-w-0 h-10 min-h-10 px-3 py-2 pr-16 border rounded-lg border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-foreground"
+                        class="block w-full min-w-0 h-10 min-h-10 px-3 py-2 pr-16 border rounded-lg border-border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-foreground"
                         [class.border-red-500]="isItemFieldInvalid(i, 'sku') || (skuSearchTerms[i] && !isSkuValid(i))"
                         [class.border-green-500]="skuSearchTerms[i] && isSkuValid(i) && !isItemFieldInvalid(i, 'sku')"
                         [class.focus:ring-red-500]="isItemFieldInvalid(i, 'sku') || (skuSearchTerms[i] && !isSkuValid(i))"
                         [class.focus:border-red-500]="isItemFieldInvalid(i, 'sku') || (skuSearchTerms[i] && !isSkuValid(i))"
                         [class.focus:ring-green-500]="skuSearchTerms[i] && isSkuValid(i) && !isItemFieldInvalid(i, 'sku')"
                         [class.focus:border-green-500]="skuSearchTerms[i] && isSkuValid(i) && !isItemFieldInvalid(i, 'sku')"
-                        [class.border-gray-300]="!isItemFieldInvalid(i, 'sku') && (!skuSearchTerms[i] || isSkuValid(i))"
+                        [class.border-border]="!isItemFieldInvalid(i, 'sku') && (!skuSearchTerms[i] || isSkuValid(i))"
                       />
                       <input type="hidden" formControlName="sku" />
                       
@@ -184,7 +184,7 @@
                         <button type="button" 
                           *ngIf="hasValidSkuSelection(i)"
                           (click)="enableSkuEdit(i)"
-                          class="p-1 text-gray-400 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+                          class="p-1 text-muted-foreground hover:text-blue-600 focus:outline-none focus:text-blue-600"
                           [title]="t('edit_selection')">
                           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -195,7 +195,7 @@
                         <button type="button" 
                           *ngIf="skuSearchTerms[i] || hasValidSkuSelection(i)"
                           (click)="clearSkuManually(i)"
-                          class="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600"
+                          class="p-1 text-muted-foreground hover:text-red-600 focus:outline-none focus:text-red-600"
                           [title]="t('clear_selection')">
                           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -203,12 +203,12 @@
                         </button>
                       </div>
                     </div>
-                    <div *ngIf="showSkuDropdown[i]" class="absolute z-10 mt-1 w-full bg-background border border-gray-200 rounded-md max-h-56 overflow-auto shadow-lg">
+                    <div *ngIf="showSkuDropdown[i]" class="absolute z-10 mt-1 w-full bg-background border border-border rounded-md max-h-56 overflow-auto shadow-lg">
                       <button type="button" *ngFor="let article of filteredArticlesPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onSkuSelected(i, article)"
-                        class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground">
+                        class="w-full text-left px-3 py-2 hover:bg-muted text-sm text-muted-foreground">
                         {{ article.sku }} - {{ article.name }}
                       </button>
-                      <div *ngIf="(filteredArticlesPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500">
+                      <div *ngIf="(filteredArticlesPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-muted-foreground">
                         {{ t('no_results') }}
                       </div>
                     </div>
@@ -248,14 +248,14 @@
                         (keydown.enter)="$event.preventDefault(); confirmFirstLocationIfAny(i)" 
                         [ngModelOptions]="{standalone: true}"
                         placeholder="{{ t('select_location_short') }}"
-                        class="block w-full min-w-0 h-10 min-h-10 px-3 py-2 pr-16 border rounded-lg border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-foreground"
+                        class="block w-full min-w-0 h-10 min-h-10 px-3 py-2 pr-16 border rounded-lg border-border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-foreground"
                         [class.border-red-500]="isItemFieldInvalid(i, 'location') || (locationSearchTerms[i] && !isLocationValid(i))"
                         [class.border-green-500]="locationSearchTerms[i] && isLocationValid(i) && !isItemFieldInvalid(i, 'location')"
                         [class.focus:ring-red-500]="isItemFieldInvalid(i, 'location') || (locationSearchTerms[i] && !isLocationValid(i))"
                         [class.focus:border-red-500]="isItemFieldInvalid(i, 'location') || (locationSearchTerms[i] && !isLocationValid(i))"
                         [class.focus:ring-green-500]="locationSearchTerms[i] && isLocationValid(i) && !isItemFieldInvalid(i, 'location')"
                         [class.focus:border-green-500]="locationSearchTerms[i] && isLocationValid(i) && !isItemFieldInvalid(i, 'location')"
-                        [class.border-gray-300]="!isItemFieldInvalid(i, 'location') && (!locationSearchTerms[i] || isLocationValid(i))"
+                        [class.border-border]="!isItemFieldInvalid(i, 'location') && (!locationSearchTerms[i] || isLocationValid(i))"
                       />
                       <input type="hidden" formControlName="location" />
                       
@@ -265,7 +265,7 @@
                         <button type="button" 
                           *ngIf="hasValidLocationSelection(i)"
                           (click)="enableLocationEdit(i)"
-                          class="p-1 text-gray-400 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+                          class="p-1 text-muted-foreground hover:text-blue-600 focus:outline-none focus:text-blue-600"
                           [title]="t('edit_selection')">
                           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -276,7 +276,7 @@
                         <button type="button" 
                           *ngIf="locationSearchTerms[i] || hasValidLocationSelection(i)"
                           (click)="clearLocationManually(i)"
-                          class="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600"
+                          class="p-1 text-muted-foreground hover:text-red-600 focus:outline-none focus:text-red-600"
                           [title]="t('clear_selection')">
                           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -284,12 +284,12 @@
                         </button>
                       </div>
                     </div>
-                    <div *ngIf="showLocationDropdown[i]" class="absolute z-10 mt-1 w-full bg-background border border-gray-200 rounded-md max-h-56 overflow-auto shadow-lg">
+                    <div *ngIf="showLocationDropdown[i]" class="absolute z-10 mt-1 w-full bg-background border border-border rounded-md max-h-56 overflow-auto shadow-lg">
                       <button type="button" *ngFor="let loc of filteredLocationsPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onLocationSelected(i, loc)"
-                        class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground">
+                        class="w-full text-left px-3 py-2 hover:bg-muted text-sm text-muted-foreground">
                         {{ loc.location_code }} - {{ loc.description }}
                       </button>
-                      <div *ngIf="(filteredLocationsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500">
+                      <div *ngIf="(filteredLocationsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-muted-foreground">
                         {{ t('no_results') }}
                       </div>
                     </div>
@@ -315,7 +315,7 @@
                       <span class="ml-1 text-xs" 
                             [class.text-green-600]="isLotSelectionComplete(i)"
                             [class.text-orange-600]="!isLotSelectionComplete(i) && getSelectedLotCount(i) > 0"
-                            [class.text-gray-500]="getSelectedLotCount(i) === 0">
+                            [class.text-muted-foreground]="getSelectedLotCount(i) === 0">
                         ({{ getSelectedLotCount(i) }}/{{ getRequiredQuantity(i) }})
                       </span>
                     </label>
@@ -333,18 +333,18 @@
                         <input type="hidden" formControlName="lot_numbers" />
                         <div *ngIf="showLotDropdown[i]" class="absolute z-50 mt-1 w-full bg-background border border-border rounded-md max-h-48 overflow-auto shadow-xl">
                           <button type="button" *ngFor="let ln of filteredLotsPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onLotSelected(i, ln)"
-                            class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground"
+                            class="w-full text-left px-3 py-2 hover:bg-muted text-sm text-muted-foreground"
                             [class.bg-blue-50]="isLotSelected(i, ln)">
                             {{ ln }}
                             <span *ngIf="isLotSelected(i, ln)" class="float-right text-blue-600 dark:text-blue-400">✓</span>
                           </button>
-                          <div *ngIf="(filteredLotsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500">
+                          <div *ngIf="(filteredLotsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-muted-foreground">
                             {{ t('no_results') }}
                           </div>
                         </div>
                       </div>
                       <button type="button" (click)="selectRandomLots(i)"
-                        class="flex-[2] flex-shrink-0 inline-flex items-center justify-center px-3 py-2 border border-border rounded-md text-sm font-medium text-muted-foreground bg-background hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        class="flex-[2] flex-shrink-0 inline-flex items-center justify-center px-3 py-2 border border-border rounded-md text-sm font-medium text-muted-foreground bg-background hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                         <svg class="h-4 w-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                           <rect x="2" y="2" width="20" height="20" rx="3" stroke-width="2" fill="none"/>
                           <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
@@ -385,7 +385,7 @@
                       <span class="ml-1 text-xs" 
                             [class.text-green-600]="isSerialSelectionComplete(i)"
                             [class.text-orange-600]="!isSerialSelectionComplete(i) && getSelectedSerialCount(i) > 0"
-                            [class.text-gray-500]="getSelectedSerialCount(i) === 0">
+                            [class.text-muted-foreground]="getSelectedSerialCount(i) === 0">
                         ({{ getSelectedSerialCount(i) }}/{{ getRequiredQuantity(i) }})
                       </span>
                     </label>
@@ -403,18 +403,18 @@
                         <input type="hidden" formControlName="serial_numbers" />
                         <div *ngIf="showSerialDropdown[i]" class="absolute z-50 mt-1 w-full bg-background border border-border rounded-md max-h-48 overflow-auto shadow-xl">
                           <button type="button" *ngFor="let sn of filteredSerialsPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onSerialSelected(i, sn)"
-                            class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground"
+                            class="w-full text-left px-3 py-2 hover:bg-muted text-sm text-muted-foreground"
                             [class.bg-blue-50]="isSerialSelected(i, sn)">
                             {{ sn }}
                             <span *ngIf="isSerialSelected(i, sn)" class="float-right text-blue-600 dark:text-blue-400">✓</span>
                           </button>
-                          <div *ngIf="(filteredSerialsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-gray-500">
+                          <div *ngIf="(filteredSerialsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-muted-foreground">
                             {{ t('no_results') }}
                           </div>
                         </div>
                       </div>
                       <button type="button" (click)="selectRandomSerials(i)"
-                        class="flex-[2] flex-shrink-0 inline-flex items-center justify-center px-3 py-2 border border-border rounded-md text-sm font-medium text-muted-foreground bg-background hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        class="flex-[2] flex-shrink-0 inline-flex items-center justify-center px-3 py-2 border border-border rounded-md text-sm font-medium text-muted-foreground bg-background hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                         <svg class="h-4 w-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                           <rect x="2" y="2" width="20" height="20" rx="3" stroke-width="2" fill="none"/>
                           <circle cx="8" cy="8" r="1.5" fill="currentColor"/>

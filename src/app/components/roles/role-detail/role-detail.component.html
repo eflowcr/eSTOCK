@@ -8,7 +8,7 @@
       <button
         type="button"
         (click)="back()"
-        class="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-gray-900 dark:text-muted-foreground dark:hover:text-white"
+        class="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground dark:text-muted-foreground dark:hover:text-white"
       >
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -18,7 +18,7 @@
     </div>
 
     <!-- Información del rol -->
-    <div class="rounded-lg border border-gray-200 bg-background p-6 shadow">
+    <div class="rounded-lg border border-border bg-background p-6 shadow">
       <h2 class="text-lg font-semibold text-foreground mb-4">{{ t('roles.role_info') }}</h2>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
@@ -39,7 +39,7 @@
     </div>
 
     <!-- Permissions -->
-    <div class="rounded-lg border border-gray-200 bg-background p-6 shadow">
+    <div class="rounded-lg border border-border bg-background p-6 shadow">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h2 class="text-lg font-semibold text-foreground">{{ t('roles.permissions_title') }}</h2>
         <div class="flex items-center gap-2">
@@ -118,7 +118,7 @@
       </div>
     </div>
   } @else {
-    <div class="rounded-lg border border-gray-200 bg-background p-8 text-center">
+    <div class="rounded-lg border border-border bg-background p-8 text-center">
       <p class="text-sm text-muted-foreground">{{ t('roles.not_found') }}</p>
       <button type="button" (click)="back()" class="mt-4 text-sm font-medium text-primary hover:underline">
         {{ t('roles.back_to_list') }}

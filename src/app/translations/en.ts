@@ -913,6 +913,16 @@ export const enTranslations = {
   failed_to_execute_stock_transfer: 'Failed to execute transfer',
 
   // Users additions
+  'user_management.title': 'User Management',
+  'user_management.change_password': 'Change Password',
+  'user_management.change_password_for': 'Change Password for',
+  'user_management.new_password': 'New Password',
+  'user_management.confirm_password': 'Confirm Password',
+  'user_management.enter_new_password': 'Enter new password',
+  'user_management.confirm_new_password': 'Confirm new password',
+  'user_management.update_password': 'Update Password',
+  'user_management.password_updated': 'Password updated successfully',
+  'user_management.failed_update_password': 'Failed to update password',
   'user_management.invalid_email': 'Invalid email address',
   import_successful: 'Import successful',
   all_tracking_types: 'All Tracking Types',
@@ -1162,6 +1172,15 @@ export const enTranslations = {
   'COMMON.DAYS_AGO': '{{days}} days ago',
 
   // Barcode Generator
+  'BARCODE.TITLE': 'Barcode & QR Generator',
+  'BARCODE.DESCRIPTION': 'Description',
+  'BARCODE.GENERATE_LABELS': 'Generate Labels',
+  'BARCODE.GENERATE_LABELS_COUNT': 'Generate Labels',
+  'BARCODE.SELECTED_ITEMS': '{{count}} selected',
+  'BARCODE.CLEAR_SELECTION': 'Clear Selection',
+  'BARCODE.NO_ITEMS_SELECTED': 'No items selected',
+  'BARCODE.SELECT_ITEMS_TO_GENERATE': 'Select items to generate labels',
+  'BARCODE.ITEMS_SELECTED': 'Selected items',
   'BARCODE.PRINT': 'Print',
   'BARCODE.DOWNLOAD_PDF': 'Download',
   'BARCODE.PREVIEW': 'Preview',
@@ -1172,11 +1191,83 @@ export const enTranslations = {
   'BARCODE.GENERATION_ERROR': 'Error generating code',
   'BARCODE.IMAGE_LOAD_ERROR': 'Error loading image',
   'BARCODE.ALT_TEXT': 'Barcode',
+  // Tabs
+  'BARCODE.SKUS': 'SKUs',
+  'BARCODE.LOCATIONS': 'Locations',
+  'BARCODE.TASKS': 'Tasks',
+  // Search
+  'BARCODE.SEARCH_SKUS_PLACEHOLDER': 'Search SKUs by code or name...',
+  'BARCODE.SEARCH_LOCATIONS_PLACEHOLDER': 'Search locations by code or description...',
+  'BARCODE.SEARCH_TASKS_PLACEHOLDER': 'Search tasks by ID or description...',
+  // Selection
+  'BARCODE.SELECT_ALL': 'Select All',
+  'BARCODE.DESELECT_ALL': 'Deselect All',
+  'BARCODE.VIEW_DETAILS': 'View Details',
+  'BARCODE.HIDE': 'Hide',
+  // Lot and Serial tracking
+  'BARCODE.LOT_NUMBERS_COUNT': 'Lot Numbers ({{count}})',
+  'BARCODE.SERIAL_NUMBERS_COUNT': 'Serial Numbers ({{count}})',
+  'BARCODE.QTY_LABEL': 'Qty: {{quantity}}',
+  'BARCODE.EXP_LABEL': 'Exp: {{expiration}}',
+  // Label configuration
+  'BARCODE.LABEL_CONFIGURATION': 'Label Configuration',
+  'BARCODE.CODE_TYPE': 'Code Type',
+  'BARCODE.LABEL_SIZE': 'Label Size',
+  'BARCODE.LABEL_SIZE_4X2': 'label_size_4x2',
+  'BARCODE.LABEL_SIZE_2X1': 'label_size_2x1',
+  'BARCODE.LABEL_SIZE_3X1': 'label_size_3x1',
+  'BARCODE.COMPANY_NAME': 'Company Name',
+  'BARCODE.ENTER_COMPANY_NAME': 'Enter company name',
+  'BARCODE.INCLUDE_IN_LABELS': 'Include in Labels',
+  'BARCODE.ITEM_NAME': 'Item Name',
+  // Preview & generation
+  'BARCODE.PREVIEW_ITEMS': 'Preview ({{count}} items)',
+  'BARCODE.GENERATED_LABELS_SUCCESS': '{{count}} labels generated successfully',
+  'BARCODE.PRINT_SUCCESS': 'Labels sent to print',
+  'BARCODE.FAILED_TO_GENERATE_PDF': 'Failed to generate label PDF',
+  'BARCODE.FAILED_TO_PRINT': 'Failed to print labels',
+  // Empty states
+  'BARCODE.NO_ITEMS_AVAILABLE': 'No items available',
+  'BARCODE.NO_ITEMS_DESCRIPTION': 'No items found to display in this category',
+  // Data loading
+  'BARCODE.LOAD_DATA_ERROR': 'Error loading data',
+
+  // Article tracking columns
+  'ARTICLE.LOT_TRACKING': 'Lot',
+  'ARTICLE.SERIAL_TRACKING': 'Serial',
+  'ARTICLE.EXPIRATION_TRACKING': 'Exp',
+  'ARTICLE.PRESENTATION': 'Presentation',
+  'ARTICLE.PRICE': 'Price',
+  'ARTICLE.MIN_QTY': 'Min',
+  'ARTICLE.MAX_QTY': 'Max',
+  'ARTICLE.ASSIGNED_TO': 'Assigned to',
+  'ARTICLE.ITEMS_COUNT': 'Items',
+
+  // Status aliases
+  'STATUS.ABIERTO': 'Open',
+  'STATUS.CANCELADO': 'Cancelled',
+  'STATUS.COMPLETADO': 'Completed',
+  'STATUS.EN_PROGRESO': 'In Progress',
+  'STATUS.SELECCION': 'Selection',
+
+  // Task type translations
+  'TASK_TYPE.RECEIVING': 'Receiving',
+  'TASK_TYPE.PICKING': 'Picking',
+  'TASK_TYPE.TASK': 'Task',
+
+  // Location type translations
+  'LOCATION.PALLET': 'Pallet',
+  'LOCATION.BLOCK': 'Block',
+  'LOCATION.ZONE': 'Zone',
+  'LOCATION.INACTIVE': 'Inactive',
 
   // Priority translations
   'PRIORITY.HIGH': 'High',
+  'PRIORITY.ALTO': 'High',
   'PRIORITY.MEDIUM': 'Medium',
+  'PRIORITY.MEDIO': 'Medium',
   'PRIORITY.LOW': 'Low',
+  'PRIORITY.BAJO': 'Low',
   'PRIORITY.NORMAL': 'Normal',
   'PRIORITY.URGENT': 'Urgent',
 
@@ -1185,6 +1276,10 @@ export const enTranslations = {
   'admin.not_available': 'Not Available',
 
   // Admin Control Center
+  'admin.title': 'Admin Control Center',
+  'admin.export_data': 'Export Data',
+  'admin.export_operator_performance': 'Export Operator Performance',
+  'admin.no_data': 'No data',
   'admin.admin_control_center': 'Admin Control Center',
   'admin.live_performance_dashboard': 'Live Performance Dashboard',
   'admin.loading_operator_performance_data':
@@ -1212,6 +1307,8 @@ export const enTranslations = {
     'Operators will appear here once they have recorded activity',
   'admin.detailed_performance_metrics': 'Detailed Performance Metrics',
   'admin.pick_accuracy': 'Pick Accuracy',
+  'admin.receiving': 'Receiving',
+  'admin.picking': 'Picking',
   'admin.receiving_tasks': 'Receiving Tasks',
   'admin.picking_tasks': 'Picking Tasks',
   'admin.total_pick_time': 'Total Pick Time',
@@ -1223,6 +1320,7 @@ export const enTranslations = {
   'gamification.loading': 'Loading performance data…',
   'gamification.level': 'Level',
   'gamification.performanceStats': 'Performance Stats',
+  'gamification.userPerformance': 'User Performance',
   'gamification.receivingTasks': 'Receiving Tasks',
   'gamification.pickingTasks': 'Picking Tasks',
   'gamification.pickAccuracy': 'Pick Accuracy',
@@ -1230,11 +1328,26 @@ export const enTranslations = {
   'gamification.totalTasks': 'total tasks',
   'gamification.yourBadgesCount': 'Your Badges ({{count}})',
   'gamification.noBadgesYet': 'Complete tasks to earn your first badge.',
+  'gamification.noBadgesEarned': 'No badges earned yet',
+  'gamification.completeTasksFirstBadge': 'Complete tasks to earn your first badge',
   'gamification.earnedDate': 'Earned {{date}}',
   'gamification.badgeProgress': 'Badge Progress',
   'gamification.earned': 'Earned',
   'gamification.progress': 'Progress',
   'gamification.errorLoading': 'Error loading gamification data',
+  'gamification.demoActions': 'Demo Actions',
+  'gamification.completeReceivingTask': 'Complete Receiving Task',
+  'gamification.completePickingTask': 'Complete Picking Task',
+  'gamification.demoActionsDescription': 'These are demo actions to test the gamification system',
+  'gamification.taskCompleted': 'Task completed successfully',
+  'gamification.statsUpdated': 'Stats updated',
+  'gamification.badgeEarned': 'New badge earned!',
+  'gamification.taskError': 'Error completing task',
+  'gamification.loadError': 'Error loading data',
+  'gamification.error': 'Error',
+  'gamification.failed_load_stats': 'Failed to load stats',
+  'gamification.export_warning': 'No data to export',
+  'gamification.no_data_to_export': 'You have no badges or progress to export',
 
   lots_readonly_edit_mode: 'Batches loaded (read-only)',
   tracking_optional_notice:

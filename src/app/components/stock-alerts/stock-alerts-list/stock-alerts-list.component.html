@@ -76,7 +76,7 @@
           <!-- Alert Info -->
           <div class="flex-1">
             <div class="flex items-center space-x-3 mb-2">
-              <h3 class="text-lg font-medium text-gray-900">
+              <h3 class="text-lg font-medium text-foreground">
                 {{ alert.sku }}
               </h3>
               <span class="alert-level-badge" [class]="'alert-level-' + alert.alert_level">
@@ -97,19 +97,19 @@
             <!-- Alert Details Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <span class="font-medium text-gray-500">{{ t('STOCK_ALERTS.CURRENT_STOCK') }}:</span>
-                <span class="ml-1 text-gray-900">{{ alert.current_stock }}</span>
+                <span class="font-medium text-muted-foreground">{{ t('STOCK_ALERTS.CURRENT_STOCK') }}:</span>
+                <span class="ml-1 text-foreground">{{ alert.current_stock }}</span>
               </div>
               <div>
-                <span class="font-medium text-gray-500">{{ t('STOCK_ALERTS.RECOMMENDED_STOCK') }}:</span>
-                <span class="ml-1 text-gray-900">{{ alert.recommended_stock }}</span>
+                <span class="font-medium text-muted-foreground">{{ t('STOCK_ALERTS.RECOMMENDED_STOCK') }}:</span>
+                <span class="ml-1 text-foreground">{{ alert.recommended_stock }}</span>
               </div>
               <div *ngIf="alert.lot_number">
-                <span class="font-medium text-gray-500">{{ t('STOCK_ALERTS.LOT_NUMBER') }}:</span>
-                <span class="ml-1 text-gray-900">{{ alert.lot_number }}</span>
+                <span class="font-medium text-muted-foreground">{{ t('STOCK_ALERTS.LOT_NUMBER') }}:</span>
+                <span class="ml-1 text-foreground">{{ alert.lot_number }}</span>
               </div>
               <div *ngIf="alert.days_to_expiration !== null">
-                <span class="font-medium text-gray-500">{{ t('STOCK_ALERTS.EXPIRATION') }}:</span>
+                <span class="font-medium text-muted-foreground">{{ t('STOCK_ALERTS.EXPIRATION') }}:</span>
                 <span class="ml-1" [class]="getDaysToExpirationClass(alert.days_to_expiration || null)">
                   {{ getDaysToExpirationText(alert.days_to_expiration || null) }}
                 </span>
@@ -117,7 +117,7 @@
             </div>
 
             <!-- Timestamps -->
-            <div class="mt-4 flex items-center space-x-4 text-xs text-gray-500">
+            <div class="mt-4 flex items-center space-x-4 text-xs text-muted-foreground">
               <span>
                 {{ t('STOCK_ALERTS.CREATED_AT') }}: {{ formatDate(alert.created_at) }}
               </span>
@@ -141,7 +141,7 @@
             </button>
 
             <!-- Recommended Action -->
-            <div class="text-xs text-gray-500">
+            <div class="text-xs text-muted-foreground">
               <span class="font-medium">{{ t('STOCK_ALERTS.RECOMMENDED_ACTION') }}:</span>
               <br>
               {{ getRecommendedAction(alert) }}
@@ -153,7 +153,7 @@
   </div>
 
   <!-- Pagination -->
-  <div *ngIf="!isLoading() && alerts().length > 0" class="bg-background px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+  <div *ngIf="!isLoading() && alerts().length > 0" class="bg-background px-4 py-3 flex items-center justify-between border-t border-border sm:px-6">
     <div class="flex-1 flex justify-between sm:hidden">
       <button
         (click)="previousPage()"

@@ -8,11 +8,11 @@
          (click)="$event.stopPropagation()">
       
       <!-- Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-900">{{ t('import_data') }}</h3>
+      <div class="flex items-center justify-between p-6 border-b border-border">
+        <h3 class="text-lg font-semibold text-foreground">{{ t('import_data') }}</h3>
         <button 
           type="button" 
-          class="text-gray-400 hover:text-muted-foreground transition-colors"
+          class="text-muted-foreground hover:text-muted-foreground transition-colors"
           (click)="close()">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -27,7 +27,7 @@
           <label class="block text-sm font-medium text-muted-foreground mb-2">
             {{ t('select_file') }}
           </label>
-          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+          <div class="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-border transition-colors">
             <input 
               #fileInput
               type="file" 
@@ -36,11 +36,11 @@
               (change)="onFileSelected($event)">
             
             <div *ngIf="!selectedFile" class="cursor-pointer" (click)="fileInput.click()">
-              <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+              <svg class="mx-auto h-12 w-12 text-muted-foreground" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                 <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
               <p class="mt-2 text-sm text-muted-foreground">{{ t('click_to_upload') }}</p>
-              <p class="text-xs text-gray-500">{{ config.acceptedFormats.join(', ') || 'CSV, XLSX' }}</p>
+              <p class="text-xs text-muted-foreground">{{ config.acceptedFormats.join(', ') || 'CSV, XLSX' }}</p>
             </div>
             
             <div *ngIf="selectedFile" class="flex items-center justify-center space-x-2">
@@ -84,9 +84,9 @@
         <div *ngIf="isImporting" class="mb-4">
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm text-muted-foreground">{{ t('importing') }}...</span>
-            <span class="text-sm text-gray-500">{{ importProgress }}%</span>
+            <span class="text-sm text-muted-foreground">{{ importProgress }}%</span>
           </div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="w-full bg-muted rounded-full h-2">
             <div class="bg-primary h-2 rounded-full transition-all duration-300" 
                  [style.width.%]="importProgress"></div>
           </div>
@@ -114,10 +114,10 @@
       </div>
       
       <!-- Footer -->
-      <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
+      <div class="flex items-center justify-end space-x-3 p-6 border-t border-border">
         <button 
           type="button"
-          class="px-4 py-2 text-sm font-medium text-muted-foreground bg-background border border-border rounded-md hover:bg-gray-50 transition-colors"
+          class="px-4 py-2 text-sm font-medium text-muted-foreground bg-background border border-border rounded-md hover:bg-muted transition-colors"
           (click)="close()">
           {{ t('cancel') }}
         </button>

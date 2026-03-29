@@ -3,10 +3,10 @@
     <div class="flex flex-col gap-0.5 md:gap-1.5 text-center md:text-left">
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1 min-w-0">
-          <h3 class="text-lg font-semibold text-gray-900">
+          <h3 class="text-lg font-semibold text-foreground">
             {{ isEditing ? t('edit_stock_transfer') : t('create_stock_transfer') }}
           </h3>
-          <p class="text-sm text-gray-500 mt-1">
+          <p class="text-sm text-muted-foreground mt-1">
             {{ isEditing ? t('edit_stock_transfer_description') : t('create_stock_transfer_description') }}
           </p>
         </div>
@@ -52,7 +52,7 @@
           <input z-input id="dock_location" type="text" formControlName="dock_location"
             [placeholder]="t('stock_transfer_dock_location_placeholder')" class="block w-full" />
         </z-form-control>
-        <span class="text-xs text-gray-500 mt-1">{{ t('stock_transfer_dock_location_hint') }}</span>
+        <span class="text-xs text-muted-foreground mt-1">{{ t('stock_transfer_dock_location_hint') }}</span>
       </z-form-field>
 
       @if (isEditing) {
@@ -88,7 +88,7 @@
           </div>
           <div formArrayName="lines" class="space-y-3">
             @for (line of linesArray.controls; track $index; let i = $index) {
-              <div [formGroupName]="i" class="flex flex-wrap items-start gap-2 p-3 rounded-lg border border-gray-200">
+              <div [formGroupName]="i" class="flex flex-wrap items-start gap-2 p-3 rounded-lg border border-border">
                 <div class="flex-1 min-w-[160px] relative">
                   <input type="hidden" formControlName="sku" />
                   <div class="relative">
@@ -107,28 +107,28 @@
                       <button
                         type="button"
                         (click)="clearLineSku(i)"
-                        class="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 inline-flex items-center justify-center rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        class="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                         [attr.aria-label]="t('clear_selection')">
                         <svg class="h-4 w-4 block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                       </button>
                     }
                     @if (lineShowDropdown[i]) {
-                      <div class="absolute z-10 mt-1 left-0 right-0 bg-background border border-gray-200 rounded-md max-h-48 overflow-auto shadow-lg">
+                      <div class="absolute z-10 mt-1 left-0 right-0 bg-background border border-border rounded-md max-h-48 overflow-auto shadow-lg">
                         @for (art of getFilteredArticlesForLine(i); track art.sku) {
                           <button type="button" (mousedown)="$event.preventDefault()" (click)="onLineSkuSelect(i, art)"
-                            class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-muted-foreground">
+                            class="w-full text-left px-3 py-2 hover:bg-muted text-sm text-muted-foreground">
                             {{ art.sku }} - {{ art.name }}
                           </button>
                         }
                         @if (getFilteredArticlesForLine(i).length === 0) {
-                          <div class="px-3 py-2 text-sm text-gray-500">{{ t('no_results') }}</div>
+                          <div class="px-3 py-2 text-sm text-muted-foreground">{{ t('no_results') }}</div>
                         }
                       </div>
                     }
                   </div>
                   @if (line.get('sku')?.value) {
                     @if (isLineAvailabilityLoading(i)) {
-                      <p class="mt-1 text-xs text-gray-500">{{ t('loading') }}...</p>
+                      <p class="mt-1 text-xs text-muted-foreground">{{ t('loading') }}...</p>
                     } @else if (getLineAvailableQty(i) !== null) {
                       <p class="mt-1 text-xs text-muted-foreground">
                         {{ t('stock_transfer_source_available') }}: <span class="font-medium">{{ getLineAvailableQty(i) }}</span>

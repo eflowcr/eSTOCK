@@ -33,11 +33,11 @@
                   type="checkbox"
                   [checked]="allSelected"
                   (change)="toggleSelectAll($any($event.target).checked)"
-                  class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  class="h-4 w-4 rounded border-border text-primary focus:ring-primary"
                 />
               </th>
               <th scope="col" class="px-4 py-3 text-left">
-                <button type="button" (click)="setSort('name')" class="inline-flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground hover:text-gray-900 dark:hover:text-white">
+                <button type="button" (click)="setSort('name')" class="inline-flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-white">
                   {{ t('roles.name') }}
                   @if (sortBy === 'name') {
                     <span>{{ sortAsc ? '↑' : '↓' }}</span>
@@ -47,7 +47,7 @@
               <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">{{ t('roles.description_col') }}</th>
               <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">{{ t('roles.active') }}</th>
               <th scope="col" class="px-4 py-3 text-left">
-                <button type="button" (click)="setSort('created_at')" class="inline-flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground hover:text-gray-900 dark:hover:text-white">
+                <button type="button" (click)="setSort('created_at')" class="inline-flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-white">
                   {{ t('roles.created') }}
                   @if (sortBy === 'created_at') {
                     <span>{{ sortAsc ? '↑' : '↓' }}</span>
@@ -65,7 +65,7 @@
                     type="checkbox"
                     [checked]="isSelected(role.id)"
                     (change)="toggleSelect(role.id, $any($event.target).checked)"
-                    class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    class="h-4 w-4 rounded border-border text-primary focus:ring-primary"
                   />
                 </td>
                 <td class="px-4 py-3 text-sm font-medium text-foreground">{{ role.name }}</td>

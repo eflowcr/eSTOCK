@@ -3,7 +3,7 @@
   <div class="bg-background rounded-2xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden dialog-surface" (click)="$event.stopPropagation()">
     
     <!-- Header -->
-    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+    <div class="flex items-center justify-between p-6 border-b border-border">
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
           <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -11,11 +11,11 @@
           </svg>
         </div>
         <div>
-          <h2 class="text-xl font-semibold text-gray-900">{{ t('BARCODE.GENERATE_LABELS') }}</h2>
-          <p class="text-sm text-gray-500">{{ items.length }} {{ t('BARCODE.ITEMS_SELECTED') }}</p>
+          <h2 class="text-xl font-semibold text-foreground">{{ t('BARCODE.GENERATE_LABELS') }}</h2>
+          <p class="text-sm text-muted-foreground">{{ items.length }} {{ t('BARCODE.ITEMS_SELECTED') }}</p>
         </div>
       </div>
-      <button (click)="onCancel()" class="text-gray-400 hover:text-muted-foreground p-2 rounded-lg hover:bg-gray-100 transition-colors">
+      <button (click)="onCancel()" class="text-muted-foreground hover:text-muted-foreground p-2 rounded-lg hover:bg-muted transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
@@ -26,19 +26,19 @@
     <div class="p-6 max-h-[calc(90vh-200px)] overflow-y-auto space-y-6 dialog-content">
       
       <!-- Configuration Panel -->
-      <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+      <div class="bg-muted rounded-xl p-6 border border-border">
         <div class="flex items-center gap-2 mb-6">
           <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
           </svg>
-          <h3 class="text-lg font-semibold text-gray-900">{{ t('BARCODE.LABEL_CONFIGURATION') }}</h3>
+          <h3 class="text-lg font-semibold text-foreground">{{ t('BARCODE.LABEL_CONFIGURATION') }}</h3>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
           <!-- Code Type -->
           <div class="space-y-2">
-            <label class="text-sm font-semibold text-gray-900">{{ t('BARCODE.CODE_TYPE') }}</label>
+            <label class="text-sm font-semibold text-foreground">{{ t('BARCODE.CODE_TYPE') }}</label>
             <z-select
               [(ngModel)]="options.codeType"
               (ngModelChange)="onConfigurationChange()"
@@ -52,7 +52,7 @@
 
           <!-- Label Size -->
           <div class="space-y-2">
-            <label class="text-sm font-semibold text-gray-900">{{ t('BARCODE.LABEL_SIZE') }}</label>
+            <label class="text-sm font-semibold text-foreground">{{ t('BARCODE.LABEL_SIZE') }}</label>
             <z-select
               [(ngModel)]="options.labelSize"
               (ngModelChange)="onConfigurationChange()"
@@ -66,33 +66,33 @@
 
           <!-- Company Name -->
           <div class="space-y-2">
-            <label class="text-sm font-semibold text-gray-900">{{ t('BARCODE.COMPANY_NAME') }}</label>
+            <label class="text-sm font-semibold text-foreground">{{ t('BARCODE.COMPANY_NAME') }}</label>
             <input type="text" [(ngModel)]="options.companyName" (ngModelChange)="onConfigurationChange()" 
                    [placeholder]="t('BARCODE.ENTER_COMPANY_NAME')" 
-                   class="config-field w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900">
+                   class="config-field w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground">
           </div>
 
           <!-- Include Options -->
           <div class="space-y-3">
-            <label class="text-sm font-semibold text-gray-900">{{ t('BARCODE.INCLUDE_IN_LABELS') }}</label>
+            <label class="text-sm font-semibold text-foreground">{{ t('BARCODE.INCLUDE_IN_LABELS') }}</label>
             
             <div class="space-y-3">
               <label class="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" [(ngModel)]="options.includeName" (ngModelChange)="onConfigurationChange()" 
-                       class="checkbox-custom w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2">
-                <span class="text-sm font-medium text-gray-900">{{ t('BARCODE.ITEM_NAME') }}</span>
+                       class="checkbox-custom w-4 h-4 text-blue-600 bg-muted border-border rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2">
+                <span class="text-sm font-medium text-foreground">{{ t('BARCODE.ITEM_NAME') }}</span>
               </label>
               
               <label class="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" [(ngModel)]="options.includeDescription" (ngModelChange)="onConfigurationChange()" 
-                       class="checkbox-custom w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2">
-                <span class="text-sm font-medium text-gray-900">{{ t('BARCODE.DESCRIPTION') }}</span>
+                       class="checkbox-custom w-4 h-4 text-blue-600 bg-muted border-border rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2">
+                <span class="text-sm font-medium text-foreground">{{ t('BARCODE.DESCRIPTION') }}</span>
               </label>
               
               <label class="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" [(ngModel)]="options.includeCompanyLogo" (ngModelChange)="onConfigurationChange()" 
-                       class="checkbox-custom w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2">
-                <span class="text-sm font-medium text-gray-900">{{ t('BARCODE.COMPANY_NAME') }}</span>
+                       class="checkbox-custom w-4 h-4 text-blue-600 bg-muted border-border rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2">
+                <span class="text-sm font-medium text-foreground">{{ t('BARCODE.COMPANY_NAME') }}</span>
               </label>
             </div>
           </div>
@@ -100,20 +100,20 @@
       </div>
 
       <!-- Preview Panel -->
-      <div class="border border-gray-200 rounded-xl p-6">
+      <div class="border border-border rounded-xl p-6">
         <div class="flex items-center gap-2 mb-6">
           <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
           </svg>
-          <h3 class="text-lg font-semibold text-gray-900">{{ t('BARCODE.PREVIEW') }} ({{ previewItems().length }})</h3>
+          <h3 class="text-lg font-semibold text-foreground">{{ t('BARCODE.PREVIEW') }} ({{ previewItems().length }})</h3>
         </div>
 
         <div class="preview-scroll max-h-80 overflow-y-auto">
           <div class="grid grid-cols-2 gap-4">
             
             <div *ngFor="let item of previewItems(); trackBy: trackByItemId" 
-                 class="preview-item border border-gray-200 rounded-lg p-4 bg-background">
+                 class="preview-item border border-border rounded-lg p-4 bg-background">
               <div class="text-center space-y-3">
                 <!-- Company Name -->
                 <div *ngIf="options.includeCompanyLogo && options.companyName" 
@@ -147,7 +147,7 @@
             </div>
             
             <!-- More items indicator -->
-            <div *ngIf="items.length > 4" class="text-center text-sm text-gray-500 py-4 col-span-2 border-t border-gray-200 mt-4 pt-4">
+            <div *ngIf="items.length > 4" class="text-center text-sm text-muted-foreground py-4 col-span-2 border-t border-border mt-4 pt-4">
               {{ t('BARCODE.AND_MORE_ITEMS') }}
             </div>
           </div>
@@ -156,7 +156,7 @@
     </div>
 
     <!-- Footer -->
-    <div class="flex justify-end gap-3 p-4 border-t border-gray-200 bg-gray-50">
+    <div class="flex justify-end gap-3 p-4 border-t border-border bg-muted">
       <button (click)="onPrint()" [disabled]="items.length === 0"
               z-button zType="outline" class="action-button">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

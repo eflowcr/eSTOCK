@@ -3,11 +3,11 @@
     <div class="flex flex-col gap-0.5 md:gap-1.5 text-center md:text-left">
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1 min-w-0">
-          <h3 class="text-lg font-semibold text-gray-900">
+          <h3 class="text-lg font-semibold text-foreground">
             {{ t('new_stock_adjustment') }}
           </h3>
         </div>
-        <button type="button" (click)="closeModal()" class="text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300 p-1 flex-shrink-0" aria-label="Close">
+        <button type="button" (click)="closeModal()" class="text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground p-1 flex-shrink-0" aria-label="Close">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -64,7 +64,7 @@
                   [ngModelOptions]="{standalone: true}"
                   placeholder="{{ t('location_auto_filled') }}"
                   readonly
-                  class="block w-full px-3 py-2 border rounded-md shadow-sm bg-gray-50 text-foreground cursor-not-allowed"
+                  class="block w-full px-3 py-2 border rounded-md shadow-sm bg-muted text-foreground cursor-not-allowed"
                   [class.border-red-500]="isFieldInvalid('location')"
                   [class.border-green-500]="hasValidLocationSelection()"
                 />
@@ -120,7 +120,7 @@
                 [placeholder]="t('enter_adjustment_quantity')"
                 class="mt-1 block w-full h-9 px-3 py-1.5 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground disabled:opacity-60 disabled:cursor-not-allowed"
                 [class.border-red-500]="isFieldInvalid('adjustmentQuantity')">
-              <p class="mt-1 text-xs text-gray-500">{{ t('adjustment_quantity_positive_hint') }}</p>
+              <p class="mt-1 text-xs text-muted-foreground">{{ t('adjustment_quantity_positive_hint') }}</p>
               <p *ngIf="!adjustmentForm.get('reason')?.value" class="mt-1 text-xs text-amber-600 dark:text-amber-400">
                 {{ t('select_reason_before_quantity') }}
               </p>
@@ -131,8 +131,8 @@
           </div>
 
           <!-- Tracking Information Section - Only show if article supports it -->
-          <div *ngIf="shouldShowTrackingSection()" class="border-t border-gray-200 pt-6">
-            <h4 class="text-lg font-medium text-gray-900 mb-4">
+          <div *ngIf="shouldShowTrackingSection()" class="border-t border-border pt-6">
+            <h4 class="text-lg font-medium text-foreground mb-4">
               {{ t('tracking_information') }}
             </h4>
 
@@ -157,7 +157,7 @@
                     <span class="ml-1 text-xs" 
                           [class.text-green-600]="isLotSelectionComplete()"
                           [class.text-orange-600]="!isLotSelectionComplete() && getSelectedLotCount() > 0"
-                          [class.text-gray-500]="getSelectedLotCount() === 0">
+                          [class.text-muted-foreground]="getSelectedLotCount() === 0">
                       ({{ getSelectedLotCount() }}/{{ getExpectedQuantity() }})
                     </span>
                   </label>
@@ -201,7 +201,7 @@
                     <span class="ml-1 text-xs" 
                           [class.text-green-600]="isSerialSelectionComplete()"
                           [class.text-orange-600]="!isSerialSelectionComplete() && getSelectedSerialCount() > 0"
-                          [class.text-gray-500]="getSelectedSerialCount() === 0">
+                          [class.text-muted-foreground]="getSelectedSerialCount() === 0">
                       ({{ getSelectedSerialCount() }}/{{ getExpectedQuantity() }})
                     </span>
                   </label>

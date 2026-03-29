@@ -373,6 +373,7 @@ export const esTranslations = {
   'user_management.update_password': 'Actualizar Contraseña',
   'user_management.password_updated': 'Contraseña actualizada exitosamente',
   'user_management.failed_update_password': 'Error al actualizar la contraseña',
+  'user_management.invalid_email': 'Correo electrónico no válido',
   password_mismatch: 'Las contraseñas no coinciden',
   password_update_failed: 'Error al actualizar la contraseña',
   updating: 'Actualizando...',
