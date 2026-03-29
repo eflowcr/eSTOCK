@@ -4,6 +4,13 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/app/*"],
+      "@app/*": ["src/app/*"],
+      "@environment": ["src/environment/environment.base.ts"],
+      "@services": ["src/app/services/index.ts"]
+    },
     "types": [
       "jasmine"
     ]
