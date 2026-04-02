@@ -1,27 +1,28 @@
-FROM node:20-alpine AS build
-
+FROM node:22-alpine AS build
 WORKDIR /usr/local/app
 
-COPY ./ /usr/local/app/
+ARG API_BASE=/api
+ARG ENVIRONMENT=production
+ARG VERSION=0.0.0
+ARG TESTING=false
+ARG PRODUCTION=true
 
-# INSTALL ANGULAR
-RUN npm install -g @angular/cli
+COPY package.json package-lock.json ./
+RUN npm ci --legacy-peer-deps
 
-RUN npm cache clean --force
-RUN npm install --peer-legacy-deps --force
+COPY . .
 
-# RUN npm run build
+# Create .env from build args so load-env.js generates environment.generated.ts
+RUN printf "API_BASE=%s\nVERSION=%s\nTESTING=%s\nPRODUCTION=%s\n" \
+      "$API_BASE" "$VERSION" "$TESTING" "$PRODUCTION" > .env
 
-RUN ng build --configuration=production --source-map=false
+RUN npm run build -- --configuration=$ENVIRONMENT --source-map=false
 
-# RUN mv dist /usr/local/app/
-
-FROM nginx:latest
+FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
-COPY --from=build /usr/local/app/dist/eSTOCK_frontend/browser /usr/share/nginx/html
+COPY --from=build /usr/local/app/dist/eSTOCK_frontend/browser .
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80
 EXPOSE 80
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
