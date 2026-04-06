@@ -23,7 +23,7 @@ const ALL_NAV_ITEMS: NavigationItems = [
   { name: 'user_management', href: '/users', icon: 'UserCircle', adminOnly: true },
   // Settings hub — replaces the 4 config pages in the sidebar.
   // Roles, Location Types, Presentation Types, Conversions are reachable via /settings only.
-  { name: 'settings', href: '/settings', icon: 'Settings', adminOnly: true },
+  { name: 'settings', href: '/settings', icon: 'Settings' },
 ];
 
 @Injectable({ providedIn: 'root' })
