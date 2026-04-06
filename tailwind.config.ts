@@ -9,7 +9,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Montserrat', 'sans-serif'],
+        sans: ['var(--font-body)', 'sans-serif'],
+        heading: ['var(--font-heading)', 'sans-serif'],
+        mono: ['var(--font-mono)', 'monospace'],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -66,6 +68,14 @@ export default {
           "accent-foreground": "var(--sidebar-accent-foreground)",
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
+        },
+        brand: {
+          navy: "#203173",
+          "navy-hover": "#1a2760",
+          blue: "#4A72E8",
+          "blue-light": "#6B92FF",
+          gold: "#e8d833",
+          "gold-muted": "#c9bb2a",
         },
       },
       keyframes: {

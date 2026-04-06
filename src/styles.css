@@ -5,13 +5,25 @@
 
 :root {
   --radius: 0.625rem;
+
+  /* ── ePRAC Brand ── */
+  --font-heading: 'Montserrat', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --color-brand-navy: #203173;
+  --color-brand-navy-hover: #1a2760;
+  --color-brand-blue: #4A72E8;
+  --color-brand-blue-light: #6B92FF;
+  --color-brand-gold: #e8d833;
+  --color-brand-gold-muted: #c9bb2a;
+
   --background: oklch(0.995 0.005 250);
   --foreground: oklch(0.2 0.04 250);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.04 250);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0.04 250);
-  --primary: #007BFF;
+  --primary: #203173;
   --primary-foreground: oklch(0.98 0.01 250);
   --secondary: oklch(0.95 0.02 250);
   --secondary-foreground: oklch(0.3 0.04 250);
@@ -22,20 +34,20 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.9 0.02 250);
   --input: oklch(0.9 0.02 250);
-  --ring: #007BFF;
-  --chart-1: #007BFF;
+  --ring: #4A72E8;
+  --chart-1: #203173;
   --chart-2: oklch(0.6 0.15 220);
   --chart-3: oklch(0.7 0.12 280);
   --chart-4: oklch(0.65 0.18 200);
   --chart-5: oklch(0.75 0.1 260);
   --sidebar: oklch(0.98 0.01 250);
   --sidebar-foreground: oklch(0.2 0.04 250);
-  --sidebar-primary: #007BFF;
+  --sidebar-primary: #203173;
   --sidebar-primary-foreground: oklch(0.98 0.01 250);
   --sidebar-accent: oklch(0.95 0.02 250);
   --sidebar-accent-foreground: oklch(0.3 0.04 250);
   --sidebar-border: oklch(0.9 0.02 250);
-  --sidebar-ring: #007BFF;
+  --sidebar-ring: #4A72E8;
 }
 
 .dark {
@@ -45,7 +57,7 @@
   --card-foreground: oklch(0.95 0.01 250);
   --popover: oklch(0.2 0.03 250);
   --popover-foreground: oklch(0.95 0.01 250);
-  --primary: #3395FF;
+  --primary: #6B92FF;
   --primary-foreground: oklch(0.15 0.025 250);
   --secondary: oklch(0.28 0.035 250);
   --secondary-foreground: oklch(0.95 0.01 250);
@@ -56,20 +68,20 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(0.35 0.035 250);
   --input: oklch(0.35 0.035 250);
-  --ring: #3395FF;
-  --chart-1: #3395FF;
+  --ring: #4A72E8;
+  --chart-1: #6B92FF;
   --chart-2: oklch(0.6 0.12 220);
   --chart-3: oklch(0.7 0.1 280);
   --chart-4: oklch(0.55 0.15 200);
   --chart-5: oklch(0.75 0.08 260);
   --sidebar: oklch(0.2 0.03 250);
   --sidebar-foreground: oklch(0.95 0.01 250);
-  --sidebar-primary: #3395FF;
+  --sidebar-primary: #6B92FF;
   --sidebar-primary-foreground: oklch(0.15 0.025 250);
   --sidebar-accent: oklch(0.28 0.035 250);
   --sidebar-accent-foreground: oklch(0.95 0.01 250);
   --sidebar-border: oklch(0.35 0.035 250);
-  --sidebar-ring: #3395FF;
+  --sidebar-ring: #4A72E8;
 }
 
 
@@ -79,6 +91,15 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+
+  code, pre, kbd {
+    font-family: var(--font-mono);
   }
 
   input[type="number"]::-webkit-inner-spin-button,
@@ -107,4 +128,11 @@
 ::-webkit-scrollbar-track {
   border-radius: 5px;
   background: var(--muted);
+}
+
+.eprac-highlight {
+  text-decoration: underline;
+  text-decoration-color: var(--color-brand-gold);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
 }
