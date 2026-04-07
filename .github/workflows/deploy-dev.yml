@@ -89,7 +89,7 @@ jobs:
           build-args: |
             API_BASE=/api
             ENVIRONMENT=development
-            VERSION=${{ github.sha }}
+            VERSION=dev-${{ github.sha }}
             TESTING=true
             PRODUCTION=false
           tags: |

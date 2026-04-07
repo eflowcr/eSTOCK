@@ -7,6 +7,7 @@ import { NavigationItem, NavigationItems } from '../../../models/navigation.mode
 import { LanguageService } from '../../../services/extras/language.service';
 import { NavigationService } from '../../../services/extras/navigation.service';
 import { SidebarService } from '@app/services';
+import { environment } from '@environment';
 
 interface SidebarSection {
   titleKey: string;
@@ -180,7 +181,7 @@ interface SidebarSection {
 export class SidebarComponent implements OnInit, OnDestroy {
   navigation: NavigationItems = [];
   sections: SidebarSection[] = [];
-  appVersion = 'v1.3.0';
+  appVersion = environment.version;
   collapsed = false;
   mobileOpen = false;
   private subs = new Subscription();
