@@ -169,7 +169,7 @@ interface SidebarSection {
         </div>
         <div class="flex flex-col items-center gap-1.5 border-t border-sidebar-border px-2 py-4" data-sidebar="footer">
           <span class="text-[9px] uppercase tracking-widest text-sidebar-foreground/20">Powered by</span>
-          <img src="assets/ePRAC-Blanco.png" alt="ePRAC" class="h-12 w-auto opacity-90 dark:invert-0 invert" style="background: transparent; object-fit: contain;" />
+          <img src="assets/ePRAC-Blanco.png" alt="ePRAC" width="96" height="48" class="h-12 w-auto opacity-90 dark:invert-0 invert" style="background: transparent; object-fit: contain;" />
           <span class="text-[9px] text-sidebar-foreground/15">{{ appVersion }}</span>
         </div>
       </div>
@@ -180,7 +180,7 @@ interface SidebarSection {
 export class SidebarComponent implements OnInit, OnDestroy {
   navigation: NavigationItems = [];
   sections: SidebarSection[] = [];
-  appVersion = 'v1.0.0';
+  appVersion = 'v1.3.0';
   collapsed = false;
   mobileOpen = false;
   private subs = new Subscription();
