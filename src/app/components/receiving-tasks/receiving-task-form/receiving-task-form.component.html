@@ -73,17 +73,6 @@
                 
                 <!-- Botones de acción -->
                 <div class="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
-                  <!-- Botón de editar (cuando hay selección válida) -->
-                  <button type="button" 
-                    *ngIf="hasValidOperatorSelection()"
-                    (click)="enableOperatorEdit()"
-                    class="p-1 text-muted-foreground hover:text-blue-600 focus:outline-none focus:text-blue-600"
-                    [title]="t('edit_selection')">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
-                  </button>
-                  
                   <!-- Botón de limpiar -->
                   <button type="button" 
                     *ngIf="operatorSearchTerm || hasValidOperatorSelection()"
@@ -183,17 +172,6 @@
                       
                       <!-- Botones de acción -->
                       <div class="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
-                        <!-- Botón de editar (cuando hay selección válida) -->
-                        <button type="button" 
-                          *ngIf="hasValidSkuSelection(i)"
-                          (click)="enableSkuEdit(i)"
-                          class="p-1 text-muted-foreground hover:text-blue-600 focus:outline-none focus:text-blue-600"
-                          [title]="t('edit_selection')">
-                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                          </svg>
-                        </button>
-                        
                         <!-- Botón de limpiar -->
                         <button type="button" 
                           *ngIf="skuSearchTerms[i] || hasValidSkuSelection(i)"
@@ -264,17 +242,6 @@
                       
                       <!-- Botones de acción -->
                       <div class="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
-                        <!-- Botón de editar (cuando hay selección válida) -->
-                        <button type="button" 
-                          *ngIf="hasValidLocationSelection(i)"
-                          (click)="enableLocationEdit(i)"
-                          class="p-1 text-muted-foreground hover:text-blue-600 focus:outline-none focus:text-blue-600"
-                          [title]="t('edit_selection')">
-                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                          </svg>
-                        </button>
-                        
                         <!-- Botón de limpiar -->
                         <button type="button" 
                           *ngIf="locationSearchTerms[i] || hasValidLocationSelection(i)"
@@ -308,78 +275,46 @@
                   </div>
                 </div>
 
-                <!-- Campos de seguimiento (Lotes y Series) en 2 columnas -->
-                <div *ngIf="shouldShowLotNumbers(i) || shouldShowSerialNumbers(i)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  
-                  <!-- Lot Numbers Column -->
-                  <div *ngIf="shouldShowLotNumbers(i)" class="form-group">
-                    <div class="flex items-center justify-between mb-2">
-                      <label class="block text-sm font-medium text-muted-foreground">
-                        {{ t('lot_numbers') }} 
-                        <span class="ml-1 text-xs" 
-                              [class.text-green-600]="isLotSelectionComplete(i)"
-                              [class.text-orange-600]="!isLotSelectionComplete(i) && getSelectedLotCount(i) > 0"
-                              [class.text-muted-foreground]="getSelectedLotCount(i) === 0">
-                          ({{ getSelectedLotCount(i) }}/{{ getExpectedQuantity(i) }})
-                        </span>
-                      </label>
-                      <button type="button" (click)="selectRandomLots(i)"
-                        class="inline-flex items-center px-2 py-1 border border-border rounded text-xs font-medium text-muted-foreground bg-background hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                        <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 110 2h-1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h4zM6 6v12h12V6H6z"></path>
-                        </svg>
-                        {{ t('random_selection') }}
-                      </button>
-                    </div>
-                    
-                    <div class="relative" *ngIf="!isLotSelectionComplete(i)">
-                      <input type="text"
-                        (focus)="showLotDropdown[i] = true; ensureComboboxState(i)"
-                        (blur)="closeLotDropdownLater(i)"
-                        [(ngModel)]="lotSearchTerms[i]"
-                        (input)="filterLotsForItem(i); onManualLotInput(i)"
-                        (keydown.enter)="$event.preventDefault(); handleLotEnter(i)"
-                        [ngModelOptions]="{standalone: true}"
-                        [placeholder]="t('search_select_or_type_lots')"
-                        class="w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-[#3e66ea] text-foreground" />
-                      <input type="hidden" formControlName="lot_numbers" />
-                    </div>
-                    
-                    <!-- Mensaje cuando está completo -->
-                    <div *ngIf="isLotSelectionComplete(i)" class="text-sm text-green-600 dark:text-green-400 font-medium">
-                      {{ t('lot_selection_complete') }}
-                    </div>
-                    
-                    <div *ngIf="showLotDropdown[i]" class="absolute z-50 mt-1 w-full bg-background border border-border rounded-md max-h-48 overflow-auto shadow-xl">
-                      <button type="button" *ngFor="let ln of filteredLotsPerItem[i]" (mousedown)="$event.preventDefault()" (click)="onLotSelected(i, ln)"
-                        class="w-full text-left px-3 py-2 hover:bg-muted text-sm text-muted-foreground"
-                        [class.bg-blue-50]="isLotSelected(i, ln)">
-                        {{ ln }}
-                        <span *ngIf="isLotSelected(i, ln)" class="float-right text-blue-600 dark:text-blue-400">✓</span>
-                      </button>
-                      <div *ngIf="(filteredLotsPerItem[i] || []).length === 0" class="px-3 py-2 text-sm text-muted-foreground">
-                        {{ t('no_results') }}
-                      </div>
-                    </div>
-                    
-                    <!-- Selected lots display -->
-                    <div *ngIf="getSelectedLots(i).length > 0" class="mt-2">
-                      <div class="flex flex-wrap gap-1">
-                        <span *ngFor="let lot of getSelectedLots(i)" 
-                          class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                          {{ lot }}
-                          <button type="button" (click)="removeLot(i, lot)" class="ml-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200">
-                            <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                            </svg>
-                          </button>
-                        </span>
-                      </div>
+                <!-- F1: Sub-form de lotes (FormArray — track_by_lot) -->
+                <div *ngIf="articleTracksByLot(i)" class="mt-3" formArrayName="lots">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-muted-foreground">
+                      {{ t('lot_numbers') }}
+                      <span *ngIf="getLotValidationError(i)" class="text-red-500 text-xs ml-2">
+                        {{ getLotValidationError(i) }}
+                      </span>
+                    </span>
+                    <button type="button" (click)="addLot(i)"
+                      class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 border border-blue-200 rounded hover:bg-blue-50 dark:border-blue-700 dark:hover:bg-blue-900/20">
+                      + {{ t('add_lot') || 'Agregar lote' }}
+                    </button>
+                  </div>
+
+                  <!-- Lot rows -->
+                  <div *ngFor="let lot of getLotsArray(i).controls; let j = index"
+                    [formGroupName]="j"
+                    class="grid grid-cols-3 gap-2 mb-2 p-2 rounded-lg bg-background border border-border">
+                    <input formControlName="lot_number" placeholder="Nº lote"
+                      class="col-span-1 w-full px-2 py-1.5 border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                      [class.border-red-400]="asGroup(lot).get('lot_number')?.invalid && asGroup(lot).get('lot_number')?.touched" />
+                    <input type="number" formControlName="quantity" placeholder="Qty" min="0" step="0.001"
+                      class="col-span-1 w-full px-2 py-1.5 border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                      [class.border-red-400]="asGroup(lot).get('quantity')?.invalid && asGroup(lot).get('quantity')?.touched" />
+                    <div class="col-span-1 flex gap-1">
+                      <input type="date" formControlName="expiration_date"
+                        class="flex-1 w-full px-2 py-1.5 border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+                      <button type="button" (click)="removeLot(i, j)"
+                        class="text-red-400 hover:text-red-600 text-lg leading-none px-1 flex-shrink-0 transition-colors">×</button>
                     </div>
                   </div>
 
-                  <!-- Serial Numbers Column -->
-                  <div *ngIf="shouldShowSerialNumbers(i)" class="form-group">
+                  <p *ngIf="getLotsArray(i).length === 0" class="text-xs text-muted-foreground italic">
+                    {{ t('no_lots_added') || 'No hay lotes. Agregá al menos uno.' }}
+                  </p>
+                </div>
+
+                <!-- Serial Numbers -->
+                <div *ngIf="shouldShowSerialNumbers(i)" class="form-group mt-3">
                     <div class="flex items-center justify-between mb-2">
                       <label class="block text-sm font-medium text-muted-foreground">
                         {{ t('serial_numbers') }}
@@ -444,7 +379,6 @@
                       </div>
                     </div>
                   </div>
-                </div>
               </div>
             </div>
           </div>
