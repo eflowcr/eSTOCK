@@ -1506,4 +1506,30 @@ export const esTranslations = {
   template_includes_validations: 'La plantilla incluye listas desplegables y validaciones de datos.',
   import_parse_error: 'Error al leer el archivo',
   import_articles_error: 'Error al importar artículos',
+
+  // Forgot / reset password (F5)
+  'auth.forgot_password': '¿Olvidaste tu contraseña?',
+  'auth.forgot_password_title': 'Restablecer contraseña',
+  'auth.forgot_password_description': 'Ingresa tu email y te enviaremos un enlace para crear una nueva contraseña.',
+  'auth.forgot_password_sent': 'Si el email existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña en los próximos minutos. El enlace expira en 1 hora.',
+  'auth.forgot_password_error': 'Error al procesar la solicitud',
+  'auth.send_reset_link': 'Enviar enlace',
+  'auth.sending': 'Enviando...',
+  'auth.back_to_login': 'Volver al inicio de sesión',
+  'auth.check_email': 'Revisa tu correo',
+  'auth.reset_password_title': 'Nueva contraseña',
+  'auth.reset_password_description': 'Ingresa tu nueva contraseña. Debe tener al menos 8 caracteres.',
+  'auth.new_password': 'Nueva contraseña',
+  'auth.confirm_password': 'Confirmar contraseña',
+  'auth.passwords_dont_match': 'Las contraseñas no coinciden',
+  'auth.password_too_short': 'Mínimo 8 caracteres',
+  'auth.reset_password_cta': 'Cambiar contraseña',
+  'auth.processing': 'Procesando...',
+  'auth.reset_password_success': '¡Contraseña actualizada!',
+  'auth.reset_password_success_description': 'Tu contraseña se cambió correctamente. Redirigiendo al inicio de sesión...',
+  'auth.reset_token_missing': 'El enlace es inválido. Vuelve a solicitar uno nuevo.',
+  'auth.reset_error': 'El enlace es inválido o expiró. Solicita uno nuevo.',
+
+  // Receiving status (F4)
+  completed_with_differences: 'Completado c/ diferencias',
 };

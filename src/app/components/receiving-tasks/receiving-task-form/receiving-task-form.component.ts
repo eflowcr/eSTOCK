@@ -186,8 +186,8 @@ export class ReceivingTaskFormComponent implements OnInit {
 		try {
 			// pick-suggestions returns entries sorted by FEFO; first entry is most recently used
 			const resp = await this.inventoryService.getPickSuggestions(sku);
-			if (resp?.result?.success && resp.data?.length > 0) {
-				const locationCode = resp.data[0].location;
+			if (resp?.result?.success && resp.data?.allocations?.length > 0) {
+				const locationCode = resp.data.allocations[0].location;
 				if (locationCode) {
 					this.lastLocationCache[sku] = locationCode;
 					// Guard: user might have typed during the async call

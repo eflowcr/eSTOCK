@@ -1389,4 +1389,30 @@ export const enTranslations = {
   template_includes_validations: 'The template includes dropdown lists and data validations.',
   import_parse_error: 'Error reading the file',
   import_articles_error: 'Error importing articles',
+
+  // Forgot / reset password (F5)
+  'auth.forgot_password': 'Forgot your password?',
+  'auth.forgot_password_title': 'Reset password',
+  'auth.forgot_password_description': 'Enter your email and we will send you a link to create a new password.',
+  'auth.forgot_password_sent': 'If the email exists in our system, you will receive a reset link within a few minutes. The link expires in 1 hour.',
+  'auth.forgot_password_error': 'Error processing the request',
+  'auth.send_reset_link': 'Send reset link',
+  'auth.sending': 'Sending...',
+  'auth.back_to_login': 'Back to login',
+  'auth.check_email': 'Check your email',
+  'auth.reset_password_title': 'New password',
+  'auth.reset_password_description': 'Enter your new password. It must be at least 8 characters.',
+  'auth.new_password': 'New password',
+  'auth.confirm_password': 'Confirm password',
+  'auth.passwords_dont_match': 'Passwords do not match',
+  'auth.password_too_short': 'Minimum 8 characters',
+  'auth.reset_password_cta': 'Change password',
+  'auth.processing': 'Processing...',
+  'auth.reset_password_success': 'Password updated!',
+  'auth.reset_password_success_description': 'Your password was changed successfully. Redirecting to login...',
+  'auth.reset_token_missing': 'The link is invalid. Please request a new one.',
+  'auth.reset_error': 'The link is invalid or has expired. Please request a new one.',
+
+  // Receiving status (F4)
+  completed_with_differences: 'Completed w/ differences',
 };
