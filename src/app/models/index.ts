@@ -72,6 +72,7 @@ export interface AuthState {
 
 // Re-export auth models
 export * from './auth.model';
+export * from './lot-entry.model';
 export * from './inventory.model';
 export * from './article.model';
 export * from './dashboard.model';

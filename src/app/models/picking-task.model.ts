@@ -1,3 +1,14 @@
+import { LotEntry, LocationAllocation } from './lot-entry.model';
+
+export type PickingTaskStatus =
+  | 'open'
+  | 'in_progress'
+  | 'assigned'
+  | 'completed'
+  | 'completed_with_differences'
+  | 'cancelled'
+  | 'abandoned';
+
 export interface PickingTask {
 	id: string;
 	task_id: string;
@@ -5,7 +16,7 @@ export interface PickingTask {
 	order_number?: string; // Campo del backend
 	created_by: string;
 	assigned_to: string;
-	status: string;
+	status: PickingTaskStatus | string;
 	priority: string;
 	notes?: string | null;
 	items: PickingTaskItem[];
@@ -16,14 +27,18 @@ export interface PickingTask {
 
 export interface PickingTaskItem {
 	sku: string;
-	required_qty?: number; // Para compatibilidad con frontend
-	expectedQty?: number; // Campo del backend
+	required_qty: number;               // A1: requerido
 	picked_qty?: number;
-	location: string;
-	lot_numbers?: string[]; // Para compatibilidad con frontend
-	serial_numbers?: string[]; // Para compatibilidad con frontend
-	lotNumbers?: string[] | null; // Campo del backend
-	serialNumbers?: string[] | null; // Campo del backend
+	status?: string;
+	allocations: LocationAllocation[];  // A1: reemplaza location: string
+	lots?: LotEntry[];                  // lotes asignados al ítem (agregados across allocations)
+	serial_numbers?: string[];
+	// Aliases legacy (solo para leer tareas viejas del backend — Wave 7/F2 los elimina):
+	location?: string;          // antes era el campo principal; ahora es fallback de lectura
+	expectedQty?: number;
+	lot_numbers?: string[];
+	lotNumbers?: string[] | null;
+	serialNumbers?: string[] | null;
 }
 
 export interface CreatePickingTaskRequest {
@@ -38,8 +53,8 @@ export interface CreatePickingTaskRequest {
 export interface CreatePickingTaskItemRequest {
 	sku: string;
 	required_qty: number;
-	location: string;
-	lot_numbers?: string[];
+	allocations: LocationAllocation[];  // requerido: al menos una allocation
+	lots?: LotEntry[];
 	serial_numbers?: string[];
 }
 
