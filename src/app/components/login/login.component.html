@@ -83,6 +83,12 @@
               <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 <span *ngIf="loginForm.get('password')?.errors?.['required']">{{ t('password_required') }}</span>
               </div>
+              <div class="text-right mt-2">
+                <a routerLink="/forgot-password"
+                   class="text-sm text-primary hover:underline transition-colors">
+                  {{ t('auth.forgot_password') || '¿Olvidaste tu contraseña?' }}
+                </a>
+              </div>
             </div>
 
             <!-- Submit -->

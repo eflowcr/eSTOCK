@@ -114,6 +114,22 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PermissionGuard],
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./components/login/forgot-password/forgot-password.component').then(
+        (m) => m.ForgotPasswordComponent,
+      ),
+    canActivate: [NoAuthGuard],
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./components/login/reset-password/reset-password.component').then(
+        (m) => m.ResetPasswordComponent,
+      ),
+    canActivate: [NoAuthGuard],
+  },
+  {
     path: '**',
     redirectTo: '/dashboard',
   },
