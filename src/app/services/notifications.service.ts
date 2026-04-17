@@ -13,10 +13,6 @@ export const NOTIFICATIONS_URL = returnCompleteURI({
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
-  unreadCount = 0;
-
-  private _pollInterval: ReturnType<typeof setInterval> | null = null;
-
   constructor(private fetchService: FetchService) {}
 
   async list(filters?: NotificationListFilters): Promise<ApiResponse<Notification[]>> {
@@ -61,27 +57,10 @@ export class NotificationsService {
     });
   }
 
-  async upsertPreferences(prefs: NotificationPreference[]): Promise<ApiResponse<void>> {
-    return this.fetchService.post<ApiResponse<void>>({
+  async upsertPreferences(prefs: Omit<NotificationPreference, 'user_id' | 'updated_at'>[]): Promise<ApiResponse<void>> {
+    return this.fetchService.put<ApiResponse<void>>({
       API_Gateway: `${NOTIFICATIONS_URL}/preferences`,
       values: prefs,
     });
-  }
-
-  // Polling helper — W6-B bell icon calls startPolling() in ngOnInit.
-  // Stores latest count in `unreadCount` property; component reads it via interval or ngDoCheck.
-  startPolling(intervalMs = 60000): void {
-    if (this._pollInterval) return;
-    this.countUnread().then(n => { this.unreadCount = n; });
-    this._pollInterval = setInterval(async () => {
-      this.unreadCount = await this.countUnread();
-    }, intervalMs);
-  }
-
-  stopPolling(): void {
-    if (this._pollInterval) {
-      clearInterval(this._pollInterval);
-      this._pollInterval = null;
-    }
   }
 }

@@ -1,8 +1,11 @@
 export type NotificationEventType =
-  | 'task_assigned' | 'task_completed'
-  | 'lot_expiring_7d' | 'lot_expiring_1d'
-  | 'low_stock' | 'user_welcome'
-  | (string & {});  // future-proof
+  | 'task_assigned'
+  | 'task_completed'
+  | 'lot_expiring_7d'
+  | 'lot_expiring_1d'
+  | 'low_stock'
+  | 'user_welcome'
+  | (string & {});
 
 export type NotificationChannel = 'in_app' | 'email' | 'push';
 
@@ -14,7 +17,7 @@ export interface Notification {
   body?: string;
   resource_type?: string;
   resource_id?: string;
-  channels: string;  // comma-separated
+  channels: string;
   is_read: boolean;
   read_at?: string;
   sent_email_at?: string;
