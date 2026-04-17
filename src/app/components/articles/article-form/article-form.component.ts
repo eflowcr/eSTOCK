@@ -13,6 +13,7 @@ import { PresentationTypesService } from '../../../services/presentation-types.s
 import { AlertService } from '../../../services/extras/alert.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { getApiErrorMessage } from '@app/utils';
+import { CategoryPickerComponent } from '../../categories/category-picker/category-picker.component';
 
 /** Ensures min_quantity <= max_quantity when both are set. */
 function minMaxQuantityValidator(group: AbstractControl): Record<string, boolean> | null {
@@ -43,7 +44,7 @@ function minMaxQuantityValidator(group: AbstractControl): Record<string, boolean
 @Component({
   selector: 'app-article-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DrawerComponent, ZardButtonComponent, ZardFormImports, ZardInputDirective, ZardSelectImports],
+  imports: [CommonModule, ReactiveFormsModule, DrawerComponent, ZardButtonComponent, ZardFormImports, ZardInputDirective, ZardSelectImports, CategoryPickerComponent],
   templateUrl: './article-form.component.html',
   styleUrls: ['./article-form.component.css']
 })
@@ -137,7 +138,17 @@ export class ArticleFormComponent implements OnInit, OnChanges {
         rotation_strategy: ['fifo' as const],
         min_quantity: [null, [Validators.min(0)]],
         max_quantity: [null, [Validators.min(0)]],
-        is_active: [true]
+        is_active: [true],
+        // S2 extended fields
+        category_id: [null],
+        shelf_life_in_days: [null, [Validators.min(0)]],
+        safety_stock: [null, [Validators.min(0)]],
+        batch_number_series: ['', Validators.maxLength(100)],
+        serial_number_series: ['', Validators.maxLength(100)],
+        min_order_qty: [null, [Validators.min(0)]],
+        default_location_id: [null],
+        receiving_notes: ['', Validators.maxLength(1000)],
+        shipping_notes: ['', Validators.maxLength(1000)],
       },
       { validators: [minMaxQuantityValidator] }
     );
@@ -279,7 +290,17 @@ export class ArticleFormComponent implements OnInit, OnChanges {
         rotation_strategy: (this.initialData as any).rotation_strategy === 'fefo' ? 'fefo' : 'fifo',
         min_quantity: minQ,
         max_quantity: maxQ,
-        is_active: this.initialData.is_active !== false
+        is_active: this.initialData.is_active !== false,
+        // S2 extended fields
+        category_id: this.initialData.category_id ?? null,
+        shelf_life_in_days: this.initialData.shelf_life_in_days ?? null,
+        safety_stock: this.initialData.safety_stock ?? null,
+        batch_number_series: this.initialData.batch_number_series ?? '',
+        serial_number_series: this.initialData.serial_number_series ?? '',
+        min_order_qty: this.initialData.min_order_qty ?? null,
+        default_location_id: this.initialData.default_location_id ?? null,
+        receiving_notes: this.initialData.receiving_notes ?? '',
+        shipping_notes: this.initialData.shipping_notes ?? '',
       });
 
       // Coerce invalid combination: expiration without lot
@@ -417,7 +438,32 @@ export class ArticleFormComponent implements OnInit, OnChanges {
     if (minQ !== undefined && minQ !== null) payload.min_quantity = minQ;
     if (maxQ !== undefined && maxQ !== null) payload.max_quantity = maxQ;
     if (this.isEditMode || raw['is_active'] !== undefined) payload.is_active = !!raw['is_active'];
+
+    // S2 extended fields
+    const categoryId = raw['category_id'];
+    if (categoryId) (payload as any).category_id = categoryId;
+    const shelfLife = int(raw['shelf_life_in_days']);
+    if (shelfLife !== undefined) (payload as any).shelf_life_in_days = shelfLife;
+    const safetyStock = int(raw['safety_stock']);
+    if (safetyStock !== undefined) (payload as any).safety_stock = safetyStock;
+    const batchSeries = str(raw['batch_number_series']);
+    if (batchSeries) (payload as any).batch_number_series = batchSeries;
+    const serialSeries = str(raw['serial_number_series']);
+    if (serialSeries) (payload as any).serial_number_series = serialSeries;
+    const minOrderQty = int(raw['min_order_qty']);
+    if (minOrderQty !== undefined) (payload as any).min_order_qty = minOrderQty;
+    const defaultLocationId = raw['default_location_id'];
+    if (defaultLocationId) (payload as any).default_location_id = defaultLocationId;
+    const receivingNotes = str(raw['receiving_notes']);
+    if (receivingNotes) (payload as any).receiving_notes = receivingNotes;
+    const shippingNotes = str(raw['shipping_notes']);
+    if (shippingNotes) (payload as any).shipping_notes = shippingNotes;
+
     return payload;
+  }
+
+  onCategoryChanged(event: { id: string | null; name: string | null }): void {
+    this.articleForm.patchValue({ category_id: event.id });
   }
 
   /**

@@ -13,6 +13,8 @@ const ALL_NAV_ITEMS: NavigationItems = [
   { name: 'stock_transfers', href: '/stock-transfers', icon: 'Truck', permission: { resource: 'inventory', action: 'read' } },
   // Inventory
   { name: 'articles', href: '/articles', icon: 'Tag', permission: { resource: 'articles', action: 'read' } },
+  { name: 'clients', href: '/clients', icon: 'Building', permission: { resource: 'clients', action: 'read' } },
+  { name: 'categories', href: '/categories', icon: 'FolderTree', adminOnly: true },
   { name: 'inventory', href: '/inventory', icon: 'Archive', permission: { resource: 'inventory', action: 'read' } },
   { name: 'locations', href: '/locations', icon: 'MapPin', permission: { resource: 'locations', action: 'read' } },
   { name: 'presentation_conversions', href: '/presentation-conversions', icon: 'ArrowRightLeft', adminOnly: true },
