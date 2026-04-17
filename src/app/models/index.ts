@@ -82,6 +82,9 @@ export * from './user.model';
 export * from './role.model';
 export * from './barcode.model';
 export * from './gamification.model';
+export * from './notification.model';
+export * from './client.model';
+export * from './category.model';
 
 // Import Observable for FetchResponseT
 import { Observable } from 'rxjs';

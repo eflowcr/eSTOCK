@@ -7,6 +7,7 @@ import { ApiResponse, Result, Envelope, StockAlert as DashboardStockAlert } from
 import { Article } from '@app/models/article.model';
 import { StockAlert, StockAlertResponse } from '@app/models/stock-alert.model';
 import { AuthData } from '@app/models/auth.model';
+import { Notification } from '@app/models/notification.model';
 
 // ─── Response helpers ────────────────────────────────────────────────────────
 
@@ -162,3 +163,32 @@ export const MOCK_ALERT_RESPONSE: StockAlertResponse = {
   alerts: MOCK_ALERTS,
   summary: { total: 2, critical: 1, high: 1, medium: 0, expiring: 0 },
 };
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+export const MOCK_NOTIFICATION_UNREAD: Notification = {
+  id: 'notif-1',
+  user_id: 'user-1',
+  event_type: 'low_stock',
+  title: 'Low stock alert',
+  body: 'SKU-001 is running low',
+  resource_type: 'article',
+  resource_id: 'art-1',
+  channels: 'in_app',
+  is_read: false,
+  created_at: '2026-04-17T10:00:00Z',
+};
+
+export const MOCK_NOTIFICATION_READ: Notification = {
+  id: 'notif-2',
+  user_id: 'user-1',
+  event_type: 'task_assigned',
+  title: 'Task assigned',
+  body: 'You have a new receiving task',
+  channels: 'in_app',
+  is_read: true,
+  read_at: '2026-04-17T10:05:00Z',
+  created_at: '2026-04-17T09:00:00Z',
+};
+
+export const MOCK_NOTIFICATIONS: Notification[] = [MOCK_NOTIFICATION_UNREAD, MOCK_NOTIFICATION_READ];

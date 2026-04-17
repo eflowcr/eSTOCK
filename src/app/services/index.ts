@@ -16,4 +16,6 @@ export * from './dashboard.service';
 export * from './stock-alert.service';
 export * from './barcode.service';
 export * from './gamification.service';
-
+export * from './clients.service';
+export * from './categories.service';
+export * from './notifications.service';

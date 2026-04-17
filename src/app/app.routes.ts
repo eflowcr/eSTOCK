@@ -109,9 +109,29 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PermissionGuard],
   },
   {
+    path: 'clients',
+    loadComponent: () => import('./components/clients/clients-management/clients-management.component').then((m) => m.ClientsManagementComponent),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
+    path: 'clients/:id',
+    loadComponent: () => import('./components/clients/client-detail/client-detail.component').then((m) => m.ClientDetailComponent),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
+    path: 'categories',
+    loadComponent: () => import('./components/categories/categories-management/categories-management.component').then((m) => m.CategoriesManagementComponent),
+    canActivate: [AuthGuard, AdminGuard],
+  },
+  {
     path: 'barcode-generator',
     loadComponent: () => import('./components/barcode-generator/barcode-generator-management/barcode-generator-management.component').then((m) => m.BarcodeGeneratorManagementComponent),
     canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
+    path: 'notifications',
+    loadComponent: () => import('./components/notifications/notifications-page.component').then((m) => m.NotificationsPageComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'forgot-password',
