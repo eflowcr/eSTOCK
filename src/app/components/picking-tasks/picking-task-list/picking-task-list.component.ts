@@ -68,12 +68,27 @@ export class PickingTaskListComponent {
         className: 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700',
         text: this.t('in_progress')
       },
+      assigned: {
+        variant: 'default',
+        className: 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700',
+        text: this.t('in_progress')
+      },
       completed: {
         variant: 'outline',
         className: 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
         text: this.t('completed')
       },
+      completed_with_differences: {
+        variant: 'outline',
+        className: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-200 dark:border-amber-700',
+        text: this.t('completed_with_differences'),
+      },
       cancelled: {
+        variant: 'destructive',
+        className: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-200 dark:border-red-700',
+        text: this.t('cancelled')
+      },
+      abandoned: {
         variant: 'destructive',
         className: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-200 dark:border-red-700',
         text: this.t('cancelled')
