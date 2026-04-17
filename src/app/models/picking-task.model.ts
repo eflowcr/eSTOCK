@@ -23,6 +23,9 @@ export interface PickingTask {
 	created_at: string;
 	updated_at: string;
 	completed_at?: string | null;
+	// S2 extended fields
+	customer_id?: string | null;
+	customer?: { id: string; code: string; name: string };
 }
 
 export interface PickingTaskItem {

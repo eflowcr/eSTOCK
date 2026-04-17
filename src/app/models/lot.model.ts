@@ -6,6 +6,10 @@ export interface Lot {
 	expiration_date?: string | null;
 	created_at: string;
 	updated_at: string;
+	// S2 extended fields
+	lot_notes?: string | null;
+	manufactured_at?: string | null;
+	best_before_date?: string | null;
 }
 
 export interface CreateLotRequest {

@@ -66,6 +66,15 @@ describe('LotService', () => {
     });
   });
 
+  describe('trace()', () => {
+    it('calls GET /lots/:id/trace', async () => {
+      fetchSpy.get.and.returnValue(Promise.resolve(mockResponse({} as any)));
+      await service.trace('lot-nanoid-001');
+      const url: string = fetchSpy.get.calls.mostRecent().args[0].API_Gateway;
+      expect(url).toContain('lot-nanoid-001/trace');
+    });
+  });
+
   describe('search()', () => {
     it('appends defined params as query string', async () => {
       fetchSpy.get.and.returnValue(Promise.resolve(mockResponse([])));
