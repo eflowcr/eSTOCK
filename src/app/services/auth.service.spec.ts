@@ -218,7 +218,7 @@ describe('AuthService', () => {
       expect(fetchSpy.post).toHaveBeenCalledWith(
         jasmine.objectContaining({
           API_Gateway: jasmine.stringContaining('reset-password'),
-          values: { token: 'reset-token', newPassword: 'newPassword123' },
+          values: { token: 'reset-token', new_password: 'newPassword123' },
         })
       );
     });

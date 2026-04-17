@@ -133,7 +133,7 @@
               </button>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-4" formArrayName="items">
               <div *ngFor="let item of itemsArray.controls; let i = index" class="bg-muted border p-4 rounded-lg space-y-2" [formGroupName]="i">
                 <div class="flex items-center justify-between">
                   <h4 class="font-medium text-foreground">{{ t('item') }} {{ i + 1 }}</h4>

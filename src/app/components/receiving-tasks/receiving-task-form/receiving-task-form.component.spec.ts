@@ -166,7 +166,7 @@ describe('ReceivingTaskFormComponent — F1+R3', () => {
   it('TestAutoLocation_FillsOnSkuSelect: fills location from pick-suggestions when field is empty', async () => {
     const locationCode = 'A-01';
     (mockInventoryService.getPickSuggestions as jasmine.Spy | any) = (_sku: string) =>
-      okResponse([{ location: locationCode, lot_id: '1', lot_number: 'LOT-1', quantity: 50, lot_created_at: '' }]);
+      okResponse({ allocations: [{ location: locationCode, lot_id: '1', lot_number: 'LOT-1', quantity: 50, lot_created_at: '' }], total_found: 50, requested: 50, sufficient: true });
 
     (component as any).itemsArray.at(0).get('sku')?.setValue('SKU-LOT');
     (component as any).itemsArray.at(0).get('location')?.setValue(''); // empty
@@ -191,7 +191,7 @@ describe('ReceivingTaskFormComponent — F1+R3', () => {
       TestBed.inject(InventoryService),
       'getPickSuggestions'
     ).and.returnValue(
-      Promise.resolve({ result: { success: true }, data: [{ location: 'A-01', lot_id: '1', lot_number: 'L', quantity: 10, lot_created_at: '' }] }) as any
+      Promise.resolve({ result: { success: true }, data: { allocations: [{ location: 'A-01', lot_id: '1', lot_number: 'L', quantity: 10, lot_created_at: '' }], total_found: 10, requested: 10, sufficient: true } }) as any
     );
 
     (component as any).itemsArray.at(0).get('location')?.setValue('');

@@ -110,11 +110,7 @@ describe('PickingTaskFormComponent', () => {
         ChangeDetectorRef,
       ],
     })
-    .overrideComponent(PickingTaskFormComponent, {
-      // Stub heavy UI components to simplify rendering
-      remove: { imports: [DrawerComponent, ZardButtonComponent, ZardSelectComponent, ZardSelectItemComponent] },
-      add: { imports: [] },
-    })
+    .overrideTemplate(PickingTaskFormComponent, '<div></div>')
     .compileComponents();
 
     fixture = TestBed.createComponent(PickingTaskFormComponent);
@@ -155,6 +151,9 @@ describe('PickingTaskFormComponent', () => {
   // ── TestAllocationSumValidation_Match ─────────────────
 
   it('TestAllocationSumValidation_Match — canSubmit is true when sum matches required_qty', () => {
+    // Fill required header fields so form is valid
+    component.form.patchValue({ outbound_number: 'OUT-001', assigned_to: 'user-1' });
+
     // Set sku and required_qty on the item
     const itemGroup = getItemGroup(0);
     itemGroup.get('sku')!.setValue('SKU-001');
