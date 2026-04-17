@@ -82,6 +82,16 @@ export * from './user.model';
 export * from './role.model';
 export * from './barcode.model';
 export * from './gamification.model';
+// S2 models
+export * from './client.model';
+export * from './category.model';
+export * from './notification.model';
+export * from './stock-settings.model';
+export * from './inventory-valuation.model';
+export * from './lot-trace.model';
+export * from './adjustment.model';
+// Note: lot.model.ts intentionally NOT re-exported here — name collision with
+// inventory.model.ts's inline Lot/CreateLotRequest. Import lot.model directly.
 
 // Import Observable for FetchResponseT
 import { Observable } from 'rxjs';

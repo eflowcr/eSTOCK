@@ -21,6 +21,13 @@ export interface ReceivingTask {
 	created_at: string;
 	updated_at: string;
 	completed_at?: string | null;
+	// S2 extended fields
+	supplier_id?: string | null;
+	vendor_ref?: string | null;
+	tracking_number?: string | null;
+	reception_method?: string | null;
+	incoterms?: string | null;
+	supplier?: { id: string; code: string; name: string };
 }
 
 export interface ReceivingTaskItem {
@@ -36,6 +43,9 @@ export interface ReceivingTaskItem {
 	lot_numbers?: string[];
 	lotNumbers?: string[];
 	serialNumbers?: string[];
+	// S2 extended fields
+	accepted_qty?: number;
+	rejected_qty?: number;
 }
 
 export interface CreateReceivingTaskRequest {
