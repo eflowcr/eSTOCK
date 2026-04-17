@@ -94,7 +94,7 @@
         <tr *ngFor="let row of table.getRowModel().rows" class="hover:bg-accent">
           <td *ngFor="let cell of row.getVisibleCells()" class="px-3 py-4 text-sm text-foreground align-top" [class.text-center]="cell.column.id === 'actions'">
             <ng-container [ngSwitch]="cell.column.id">
-              <span *ngSwitchCase="'sku'" class="font-mono text-xs font-medium">{{ row.original.sku }}</span>
+              <a *ngSwitchCase="'sku'" [routerLink]="['/articles', row.original.sku]" class="font-mono text-xs font-medium text-primary hover:underline">{{ row.original.sku }}</a>
               <div *ngSwitchCase="'name'" class="min-w-[180px]">
                 <div class="font-medium">{{ row.original.name }}</div>
               </div>

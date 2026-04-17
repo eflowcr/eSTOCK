@@ -89,6 +89,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PermissionGuard],
   },
   {
+    path: 'articles/:sku',
+    loadComponent: () => import('./components/articles/article-detail/article-detail.component').then((m) => m.ArticleDetailComponent),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
     path: 'receiving-tasks',
     loadComponent: () => import('./components/receiving-tasks/receiving-task-management/receiving-task-management.component').then((m) => m.ReceivingTaskManagementComponent),
     canActivate: [AuthGuard, PermissionGuard],
