@@ -16,7 +16,10 @@ export * from './dashboard.service';
 export * from './stock-alert.service';
 export * from './barcode.service';
 export * from './gamification.service';
+// S2 services
 export * from './clients.service';
 export * from './categories.service';
-export * from './inventory-lots.service';
+export * from './notifications.service';
 export * from './stock-settings.service';
+export * from './inventory-valuation.service';
+export * from './inventory-lots.service';

@@ -1,5 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MainLayoutComponent } from '@app/components/layout/main-layout.component';
 import { LanguageService } from '@app/services/extras/language.service';
@@ -10,6 +11,24 @@ import { AlertService } from '@app/services/extras/alert.service';
 import { AuthorizationService } from '@app/services/extras/authorization.service';
 import { AppTheme, AppLanguage, UserPreferences, DEFAULT_PREFERENCES } from '@app/models/user-preferences.model';
 import { handleApiError } from '@app/utils';
+import { NotificationsService } from '@app/services/notifications.service';
+import { NotificationPreference, NotificationEventType } from '@app/models/notification.model';
+
+const EVENT_TYPES: { key: NotificationEventType; labelKey: string }[] = [
+  { key: 'task_assigned', labelKey: 'notif.event_task_assigned' },
+  { key: 'task_completed', labelKey: 'notif.event_task_completed' },
+  { key: 'lot_expiring_7d', labelKey: 'notif.event_lot_expiring_7d' },
+  { key: 'lot_expiring_1d', labelKey: 'notif.event_lot_expiring_1d' },
+  { key: 'low_stock', labelKey: 'notif.event_low_stock' },
+  { key: 'user_welcome', labelKey: 'notif.event_user_welcome' },
+];
+
+interface PrefRow {
+  event_type: NotificationEventType;
+  in_app: boolean;
+  email: boolean;
+  push: boolean;
+}
 
 type SettingsTab = 'profile' | 'appearance' | 'notifications' | 'system';
 
@@ -24,7 +43,7 @@ interface SettingCard {
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
   template: `
     <app-main-layout>
       <div class="mx-auto max-w-3xl space-y-6">
@@ -152,6 +171,8 @@ interface SettingCard {
 
         <!-- ── NOTIFICATIONS tab ───────────────────────────── -->
         <div *ngIf="activeTab() === 'notifications'" class="space-y-6">
+
+          <!-- Global toggles (user-prefs: email/push/marketing) -->
           <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden divide-y divide-border">
             <div *ngFor="let notif of notifOptions"
               class="flex items-center justify-between px-5 py-4 hover:bg-accent transition-colors">
@@ -173,6 +194,76 @@ interface SettingCard {
           <div class="flex justify-end">
             <ng-container *ngTemplateOutlet="saveBtn"></ng-container>
           </div>
+
+          <!-- Per-event preferences matrix -->
+          <div>
+            <div class="mb-3">
+              <p class="text-sm font-semibold text-foreground">{{ t('notif.prefs_title') }}</p>
+              <p class="text-xs text-muted-foreground mt-0.5">{{ t('notif.prefs_subtitle') }}</p>
+            </div>
+
+            <div *ngIf="prefsLoading" class="flex items-center justify-center py-8">
+              <svg class="size-5 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+            </div>
+
+            <div *ngIf="!prefsLoading" class="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+              <table class="w-full min-w-[420px] text-sm">
+                <thead>
+                  <tr class="border-b border-border bg-muted/40">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-muted-foreground w-full">{{ t('notif.prefs_event') }}</th>
+                    <th class="px-4 py-3 text-center text-xs font-semibold text-muted-foreground whitespace-nowrap">{{ t('notif.prefs_in_app') }}</th>
+                    <th class="px-4 py-3 text-center text-xs font-semibold text-muted-foreground whitespace-nowrap">{{ t('notif.prefs_email') }}</th>
+                    <th class="px-4 py-3 text-center text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                      <span [title]="t('notif.prefs_push_disabled')" class="flex items-center justify-center gap-1 opacity-40 cursor-not-allowed">
+                        {{ t('notif.prefs_push') }}
+                        <svg class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                      </span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                  <tr *ngFor="let row of prefRows" class="hover:bg-accent/40 transition-colors">
+                    <td class="px-4 py-3 text-foreground font-medium">{{ t('notif.event_' + row.event_type) }}</td>
+                    <td class="px-4 py-3 text-center">
+                      <input type="checkbox" [(ngModel)]="row.in_app"
+                        class="size-4 rounded border-border text-primary accent-primary cursor-pointer">
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                      <input type="checkbox" [(ngModel)]="row.email"
+                        class="size-4 rounded border-border text-primary accent-primary cursor-pointer">
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                      <input type="checkbox" [ngModel]="row.push" disabled
+                        class="size-4 rounded border-border opacity-30 cursor-not-allowed">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mt-3 flex items-center justify-end gap-3">
+              <p *ngIf="prefsSavedOk" class="text-xs text-emerald-600 flex items-center gap-1">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                {{ t('settings.saved') }}
+              </p>
+              <button type="button" (click)="savePrefs()" [disabled]="prefsSaving"
+                class="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg *ngIf="prefsSaving" class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                {{ prefsSaving ? t('settings.saving') : t('settings.save') }}
+              </button>
+            </div>
+          </div>
+
         </div>
 
         <!-- ── SYSTEM tab (admin only) ─────────────────────── -->
@@ -230,6 +321,12 @@ export class SettingsComponent implements OnInit {
   saving = signal(false);
   savedOk = signal(false);
   activeTab = signal<SettingsTab>('profile');
+
+  // Per-event preferences matrix (FN3)
+  prefRows: PrefRow[] = [];
+  prefsLoading = false;
+  prefsSaving = false;
+  prefsSavedOk = false;
 
   readonly allTabs: { id: SettingsTab; labelKey: string; icon: string; adminOnly?: boolean }[] = [
     {
@@ -310,11 +407,50 @@ export class SettingsComponent implements OnInit {
     private authService: AuthService,
     private authzService: AuthorizationService,
     private alertService: AlertService,
+    private notificationsService: NotificationsService,
   ) {}
 
   ngOnInit(): void {
     this.prefsService.prefs$.subscribe(p => this.prefs.set({ ...p }));
     this.prefsService.load();
+    this.loadNotifPrefs();
+  }
+
+  private async loadNotifPrefs(): Promise<void> {
+    this.prefsLoading = true;
+    try {
+      const res = await this.notificationsService.getPreferences();
+      const saved = res.data ?? [];
+      this.prefRows = EVENT_TYPES.map(et => {
+        const match = saved.find((p: NotificationPreference) => p.event_type === et.key);
+        return {
+          event_type: et.key,
+          in_app: match?.in_app ?? true,
+          email: match?.email ?? true,
+          push: false,
+        };
+      });
+    } catch {
+      this.prefRows = EVENT_TYPES.map(et => ({ event_type: et.key, in_app: true, email: true, push: false }));
+    } finally {
+      this.prefsLoading = false;
+    }
+  }
+
+  async savePrefs(): Promise<void> {
+    this.prefsSaving = true;
+    this.prefsSavedOk = false;
+    try {
+      await this.notificationsService.upsertPreferences(
+        this.prefRows.map(r => ({ event_type: r.event_type, in_app: r.in_app, email: r.email, push: r.push }))
+      );
+      this.prefsSavedOk = true;
+      setTimeout(() => (this.prefsSavedOk = false), 3000);
+    } catch (err: any) {
+      this.alertService.error(handleApiError(err, this.t('notif.prefs_save_error')), this.t('error'));
+    } finally {
+      this.prefsSaving = false;
+    }
   }
 
   t(key: string): string { return this.languageService.t(key); }

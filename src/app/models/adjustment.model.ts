@@ -1,3 +1,5 @@
+export type AdjustmentType = 'increase' | 'decrease' | 'count_reconcile';
+
 export interface Adjustment {
   id: number;
   sku: string;
@@ -9,6 +11,8 @@ export interface Adjustment {
   notes?: string;
   user_id: string;
   created_at: Date;
+  // S2 extended fields
+  adjustment_type?: AdjustmentType;
 }
 
 export interface AdjustmentFormData {
