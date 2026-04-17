@@ -129,6 +129,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PermissionGuard],
   },
   {
+    path: 'notifications',
+    loadComponent: () => import('./components/notifications/notifications-page.component').then((m) => m.NotificationsPageComponent),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'forgot-password',
     loadComponent: () =>
       import('./components/login/forgot-password/forgot-password.component').then(
