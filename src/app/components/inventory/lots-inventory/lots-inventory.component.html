@@ -1,0 +1,135 @@
+<div class="bg-card shadow-sm rounded-xl border border-border flex flex-col flex-1 min-h-0">
+
+  <!-- Filters -->
+  <div class="p-5 sm:p-6 flex-shrink-0 border-b border-border">
+    <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center flex-wrap">
+      <!-- SKU search -->
+      <div class="relative flex-1 min-w-[200px] max-w-xs">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+        </svg>
+        <input type="text" [(ngModel)]="skuFilter" (ngModelChange)="onSkuSearch($event)"
+          placeholder="Buscar SKU…"
+          class="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-foreground" />
+      </div>
+
+      <!-- Location filter -->
+      <z-select [(ngModel)]="locationFilter" (ngModelChange)="onLocationChange()" class="w-44">
+        <z-select-item zValue="">Todas las ubicaciones</z-select-item>
+        <z-select-item *ngFor="let loc of uniqueLocations" [zValue]="loc">{{ loc }}</z-select-item>
+      </z-select>
+
+      <!-- Status filter -->
+      <z-select [(ngModel)]="statusFilter" (ngModelChange)="onStatusChange()" class="w-36">
+        <z-select-item zValue="active">Activos</z-select-item>
+        <z-select-item zValue="expired">Archivados</z-select-item>
+        <z-select-item zValue="">Todos</z-select-item>
+      </z-select>
+
+      <!-- Expiry window pills -->
+      <div class="flex items-center gap-1 flex-wrap">
+        <button *ngFor="let w of EXPIRY_WINDOWS" type="button"
+          (click)="setExpiryWindow(w.value)"
+          [class]="expiryWindow === w.value
+            ? 'bg-primary text-primary-foreground border-primary'
+            : 'bg-background text-muted-foreground border-border hover:bg-accent hover:text-primary'"
+          class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors">
+          {{ w.label }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-auto flex-1 min-h-0">
+    <table class="min-w-full divide-y divide-border text-sm">
+      <thead class="bg-muted">
+        <tr>
+          <th class="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase">SKU</th>
+          <th class="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Lote</th>
+          <th class="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Ubicación</th>
+          <th class="px-3 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Qty</th>
+          <th class="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Vencimiento</th>
+          <th class="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Mejor antes de</th>
+          <th class="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Fabricación</th>
+          <th class="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Estado</th>
+          <th class="px-3 py-3 text-center text-xs font-medium text-muted-foreground uppercase">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-border">
+        <!-- Loading -->
+        <tr *ngIf="isLoading()">
+          <td colspan="9" class="px-3 py-6 text-center text-sm text-muted-foreground">Cargando lotes…</td>
+        </tr>
+
+        <!-- Empty state -->
+        <tr *ngIf="!isLoading() && filteredLots().length === 0">
+          <td colspan="9" class="px-3 py-14 text-center">
+            <div class="flex flex-col items-center gap-2 text-muted-foreground">
+              <svg class="h-10 w-10 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+              </svg>
+              <p class="text-sm font-medium">No hay lotes que coincidan con los filtros</p>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Rows -->
+        <tr *ngFor="let lot of table.getRowModel().rows" class="hover:bg-accent">
+          <td class="px-3 py-3 font-mono text-xs font-medium">{{ lot.original.sku }}</td>
+          <td class="px-3 py-3 font-mono text-xs">{{ lot.original.lot_number }}</td>
+          <td class="px-3 py-3 text-muted-foreground">{{ lot.original.location }}</td>
+          <td class="px-3 py-3 text-right tabular-nums">{{ lot.original.qty }}</td>
+          <td class="px-3 py-3">
+            <ng-container *ngIf="lot.original.expiration_date; else noExp">
+              <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium"
+                [ngClass]="lot.original.expiration_date | expiryClass">
+                {{ formatDate(lot.original.expiration_date) }}
+                <span class="opacity-70">{{ daysLabel(lot.original.expiration_date) }}</span>
+              </span>
+            </ng-container>
+            <ng-template #noExp><span class="text-muted-foreground text-xs">—</span></ng-template>
+          </td>
+          <td class="px-3 py-3 text-sm text-muted-foreground">{{ formatDate(lot.original.best_before_date) }}</td>
+          <td class="px-3 py-3 text-sm text-muted-foreground">{{ formatDate(lot.original.manufactured_at) }}</td>
+          <td class="px-3 py-3">
+            <span class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full" [ngClass]="statusBadge(lot.original.status)">
+              {{ lot.original.status }}
+            </span>
+          </td>
+          <td class="px-3 py-3 text-center">
+            <div class="flex items-center justify-center gap-2">
+              <a [routerLink]="['/lots', lot.original.lot_id, 'trace']"
+                class="text-xs text-primary hover:underline font-medium">
+                Ver trazabilidad
+              </a>
+              <button type="button" disabled
+                title="Disponible en Sprint 4"
+                class="text-xs text-muted-foreground border border-border rounded px-2 py-0.5 cursor-not-allowed opacity-50">
+                Cuarentena
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex-shrink-0 flex flex-col gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <span class="text-xs text-muted-foreground">
+      {{ Math.min(pageIndex * pageSize + 1, totalRows) }}–{{ Math.min((pageIndex + 1) * pageSize, totalRows) }} de {{ totalRows }} lotes
+    </span>
+    <div class="flex items-center gap-2">
+      <button type="button" (click)="table.previousPage()" [disabled]="!table.getCanPreviousPage()"
+        class="px-2 py-1 border border-border rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent">
+        Anterior
+      </button>
+      <span class="text-xs text-muted-foreground">{{ pageIndex + 1 }} / {{ table.getPageCount() || 1 }}</span>
+      <button type="button" (click)="table.nextPage()" [disabled]="!table.getCanNextPage()"
+        class="px-2 py-1 border border-border rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent">
+        Siguiente
+      </button>
+    </div>
+  </div>
+</div>

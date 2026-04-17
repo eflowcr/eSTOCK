@@ -18,3 +18,5 @@ export * from './barcode.service';
 export * from './gamification.service';
 export * from './clients.service';
 export * from './categories.service';
+export * from './inventory-lots.service';
+export * from './stock-settings.service';

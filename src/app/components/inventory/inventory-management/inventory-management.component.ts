@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { Inventory } from '../../../models/inventory.model';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
@@ -8,10 +8,13 @@ import { InventoryService } from '../../../services/inventory.service';
 import { ZardDialogService } from '@app/shared/components/dialog';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { InventoryListComponent } from '../inventory-list/inventory-list.component';
+import { LotsInventoryComponent } from '../lots-inventory/lots-inventory.component';
 import { InventoryFormComponent } from '../inventory-form/inventory-form.component';
 import { DataExportConfig } from '../../shared/data-export/data-export.component';
 import { DataExportContentComponent } from '../../shared/data-export/data-export-content.component';
 import { InventoryImportDialogComponent } from '../inventory-import-dialog/inventory-import-dialog.component';
+
+type InventoryTab = 'sku' | 'lot';
 
 @Component({
   selector: 'app-inventory-management',
@@ -20,6 +23,7 @@ import { InventoryImportDialogComponent } from '../inventory-import-dialog/inven
     CommonModule,
     MainLayoutComponent,
     InventoryListComponent,
+    LotsInventoryComponent,
     InventoryFormComponent,
   ],
   templateUrl: './inventory-management.component.html',
@@ -30,6 +34,7 @@ export class InventoryManagementComponent implements OnInit {
   isLoading = false;
   isCreateDialogOpen = false;
   selectedInventory: Inventory | null = null;
+  readonly activeTab = signal<InventoryTab>('sku');
 
   exportConfig: DataExportConfig = {
     title: 'Export Inventory',
@@ -50,33 +55,28 @@ export class InventoryManagementComponent implements OnInit {
     this.loadInventory();
   }
 
-  /**
-   * @description Get translation for a key
-   */
-  t(key: string): string {
-    return this.languageService.translate(key);
+  t(key: string): string { return this.languageService.translate(key); }
+  isAdmin(): boolean { return this.authService.isAdmin(); }
+
+  setTab(tab: InventoryTab): void {
+    this.activeTab.set(tab);
   }
 
-  /**
-   * @description Check if user is admin
-   */
-  isAdmin(): boolean {
-    return this.authService.isAdmin();
+  tabClass(tab: InventoryTab): string {
+    const base = 'py-3 px-5 border-b-2 text-sm font-medium transition-colors cursor-pointer';
+    return this.activeTab() === tab
+      ? `${base} border-primary text-primary`
+      : `${base} border-transparent text-muted-foreground hover:text-foreground hover:border-border`;
   }
 
-  /**
-   * @description Load all inventory items
-   */
   async loadInventory(): Promise<void> {
     try {
       this.isLoading = true;
       const response = await this.inventoryService.getAll();
-      
       if (response.result.success && response.data) {
         this.inventory = response.data;
         this.exportConfig.data = this.inventory;
       }
-      // When data is empty or load fails, no error toast; UI shows "No data" state.
     } catch (error) {
       console.error('Error loading inventory:', error);
     } finally {
@@ -84,45 +84,30 @@ export class InventoryManagementComponent implements OnInit {
     }
   }
 
-  /**
-   * @description Open create dialog
-   */
   openCreateDialog(): void {
     this.selectedInventory = null;
     this.isCreateDialogOpen = true;
   }
 
-  /**
-   * @description Close create dialog
-   */
   closeCreateDialog(): void {
     this.isCreateDialogOpen = false;
     this.selectedInventory = null;
   }
 
-  /**
-   * @description Open edit dialog
-   */
   openEditDialog(inventory: Inventory): void {
     this.selectedInventory = inventory;
     this.isCreateDialogOpen = true;
   }
 
-  /**
-   * @description Handle successful inventory operation
-   */
   onInventorySuccess(): void {
     this.closeCreateDialog();
     this.loadInventory();
-    const message = this.selectedInventory 
-      ? this.t('inventory_updated_successfully') 
+    const message = this.selectedInventory
+      ? this.t('inventory_updated_successfully')
       : this.t('inventory_created_successfully');
     this.alertService.success(message);
   }
 
-  /**
-   * @description Handle inventory deletion
-   */
   onInventoryDeleted(): void {
     this.loadInventory();
     this.alertService.success(this.t('inventory_deleted_successfully'));
@@ -177,6 +162,4 @@ export class InventoryManagementComponent implements OnInit {
       [h.created_at]: i.created_at, [h.updated_at]: i.updated_at,
     }));
   }
-
-
 }
