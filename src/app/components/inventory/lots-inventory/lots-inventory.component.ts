@@ -54,9 +54,9 @@ export class LotsInventoryComponent implements OnInit {
         if (days === null) return false;
         switch (window) {
           case 'expired': if (days >= 0) return false; break;
-          case '30d':     if (days < 0 || days > 30) return false; break;
-          case '60d':     if (days < 0 || days > 60) return false; break;
-          case '90d':     if (days < 0 || days > 90) return false; break;
+          case '30d':     if (days > 30) return false; break;
+          case '60d':     if (days > 60) return false; break;
+          case '90d':     if (days > 90) return false; break;
         }
       }
       return true;
