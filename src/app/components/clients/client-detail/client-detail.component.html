@@ -1,0 +1,149 @@
+<app-main-layout>
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="flex items-center justify-center h-64">
+    <div class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+  </div>
+
+  <div *ngIf="!isLoading && client" class="flex flex-col flex-1 min-h-0 gap-6">
+    <!-- Header -->
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <a routerLink="/clients"
+          class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground hover:bg-accent transition-colors">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </a>
+        <div>
+          <h1 class="text-2xl font-semibold text-foreground">{{ client.name }}</h1>
+          <p class="text-sm text-muted-foreground">{{ client.code }}</p>
+        </div>
+      </div>
+      <button *ngIf="isAdmin()" type="button" (click)="openEdit()"
+        class="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+        {{ t('edit') }}
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex border-b border-border gap-1">
+      <button type="button" (click)="activeTab = 'general'"
+        class="px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px"
+        [ngClass]="activeTab === 'general'
+          ? 'border-primary text-primary'
+          : 'border-transparent text-muted-foreground hover:text-foreground'">
+        {{ t('clients.tab.general') }}
+      </button>
+      <button type="button" (click)="activeTab = 'history'"
+        class="px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px"
+        [ngClass]="activeTab === 'history'
+          ? 'border-primary text-primary'
+          : 'border-transparent text-muted-foreground hover:text-foreground'">
+        {{ t('clients.tab.history') }}
+      </button>
+    </div>
+
+    <!-- Tab: General -->
+    <div *ngIf="activeTab === 'general'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="rounded-lg border border-border bg-card p-5 space-y-4">
+        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">{{ t('clients.section.general') }}</h2>
+        <dl class="space-y-3">
+          <div class="flex justify-between text-sm">
+            <dt class="text-muted-foreground">{{ t('clients.field.type') }}</dt>
+            <dd>
+              <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" [ngClass]="typeBadgeClass()">
+                {{ t('clients.type.' + client.type) }}
+              </span>
+            </dd>
+          </div>
+          <div class="flex justify-between text-sm">
+            <dt class="text-muted-foreground">{{ t('clients.field.code') }}</dt>
+            <dd class="font-mono text-xs text-foreground">{{ client.code }}</dd>
+          </div>
+          <div class="flex justify-between text-sm">
+            <dt class="text-muted-foreground">{{ t('clients.field.name') }}</dt>
+            <dd class="text-foreground font-medium">{{ client.name }}</dd>
+          </div>
+          <div class="flex justify-between text-sm">
+            <dt class="text-muted-foreground">{{ t('status') }}</dt>
+            <dd>
+              <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                [ngClass]="client.is_active
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                  : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'">
+                {{ client.is_active ? t('active') : t('clients.archived') }}
+              </span>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="rounded-lg border border-border bg-card p-5 space-y-4">
+        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">{{ t('clients.section.contact') }}</h2>
+        <dl class="space-y-3">
+          <div class="flex justify-between text-sm" *ngIf="client.email">
+            <dt class="text-muted-foreground">{{ t('clients.field.email') }}</dt>
+            <dd class="text-foreground">{{ client.email }}</dd>
+          </div>
+          <div class="flex justify-between text-sm" *ngIf="client.phone">
+            <dt class="text-muted-foreground">{{ t('clients.field.phone') }}</dt>
+            <dd class="text-foreground">{{ client.phone }}</dd>
+          </div>
+          <div class="flex justify-between text-sm" *ngIf="client.address">
+            <dt class="text-muted-foreground">{{ t('clients.field.address') }}</dt>
+            <dd class="text-foreground text-right max-w-[60%]">{{ client.address }}</dd>
+          </div>
+          <div class="flex justify-between text-sm" *ngIf="client.tax_id">
+            <dt class="text-muted-foreground">{{ t('clients.field.tax_id') }}</dt>
+            <dd class="font-mono text-xs text-foreground">{{ client.tax_id }}</dd>
+          </div>
+          <div *ngIf="!client.email && !client.phone && !client.address && !client.tax_id"
+            class="text-sm text-muted-foreground italic">{{ t('clients.no_contact_info') }}</div>
+        </dl>
+      </div>
+
+      <div *ngIf="client.notes" class="md:col-span-2 rounded-lg border border-border bg-card p-5">
+        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide mb-3">{{ t('clients.field.notes') }}</h2>
+        <p class="text-sm text-muted-foreground whitespace-pre-line">{{ client.notes }}</p>
+      </div>
+    </div>
+
+    <!-- Tab: History -->
+    <div *ngIf="activeTab === 'history'" class="flex flex-col gap-6">
+      <!-- Receiving History (supplier or both) -->
+      <div *ngIf="showReceivingHistory()" class="rounded-lg border border-border bg-card p-5">
+        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide mb-4">{{ t('clients.history.receiving') }}</h2>
+        <div class="flex flex-col items-center justify-center py-8 text-center">
+          <svg class="h-8 w-8 text-muted-foreground mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p class="text-sm text-muted-foreground">{{ t('clients.history.receiving_pending_backend') }}</p>
+          <p class="text-xs text-muted-foreground/70 mt-1">{{ t('clients.history.requires_backend_filter') }}</p>
+        </div>
+      </div>
+
+      <!-- Picking History (customer or both) -->
+      <div *ngIf="showPickingHistory()" class="rounded-lg border border-border bg-card p-5">
+        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide mb-4">{{ t('clients.history.picking') }}</h2>
+        <div class="flex flex-col items-center justify-center py-8 text-center">
+          <svg class="h-8 w-8 text-muted-foreground mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+          <p class="text-sm text-muted-foreground">{{ t('clients.history.picking_pending_backend') }}</p>
+          <p class="text-xs text-muted-foreground/70 mt-1">{{ t('clients.history.requires_backend_filter') }}</p>
+        </div>
+      </div>
+
+      <div *ngIf="!showReceivingHistory() && !showPickingHistory()"
+        class="text-center py-8 text-sm text-muted-foreground">{{ t('clients.history.no_history') }}</div>
+    </div>
+  </div>
+
+  <app-client-form
+    *ngIf="isEditOpen"
+    [isOpen]="isEditOpen"
+    [initialData]="client"
+    (success)="onClientSaved()"
+    (closed)="closeEdit()">
+  </app-client-form>
+</app-main-layout>
