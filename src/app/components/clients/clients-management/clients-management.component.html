@@ -1,0 +1,34 @@
+<app-main-layout>
+  <div class="flex flex-col flex-1 min-h-0 gap-6">
+    <div class="flex justify-between items-center flex-shrink-0">
+      <div>
+        <h1 class="text-2xl font-semibold text-foreground">{{ t('clients.title') }}</h1>
+        <p class="mt-2 text-sm text-muted-foreground">{{ t('clients.description') }}</p>
+      </div>
+      <button *ngIf="isAdmin()" type="button" (click)="openCreateForm()"
+        class="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary active:scale-[0.97]">
+        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        {{ t('clients.new') }}
+      </button>
+    </div>
+
+    <div class="flex flex-col flex-1 min-h-0">
+      <app-clients-list
+        [clients]="clients"
+        [isLoading]="isLoading"
+        (editClient)="openEditForm($event)"
+        (clientArchived)="onClientArchived()">
+      </app-clients-list>
+    </div>
+
+    <app-client-form
+      *ngIf="isFormOpen"
+      [isOpen]="isFormOpen"
+      [initialData]="selectedClient"
+      (success)="onClientSaved()"
+      (closed)="closeForm()">
+    </app-client-form>
+  </div>
+</app-main-layout>

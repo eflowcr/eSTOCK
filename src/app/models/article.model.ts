@@ -17,6 +17,18 @@ export interface Article {
 	is_active?: boolean | null;
 	created_at: string;
 	updated_at: string;
+	// S2 extended fields
+	category_id?: string | null;
+	category?: { id: string; name: string };
+	shelf_life_in_days?: number | null;
+	safety_stock?: number;
+	batch_number_series?: string | null;
+	serial_number_series?: string | null;
+	min_order_qty?: number;
+	default_location_id?: string | null;
+	default_location?: { id: string; code: string; name: string };
+	receiving_notes?: string | null;
+	shipping_notes?: string | null;
 }
 
 export interface CreateArticleRequest {

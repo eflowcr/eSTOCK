@@ -235,6 +235,107 @@
         </div>
       </div>
     </div>
+    <!-- S2: Classification -->
+    <div class="space-y-4 pt-2">
+      <div>
+        <h3 class="text-lg font-semibold text-foreground">{{ t('article.section.classification') }}</h3>
+        <p class="text-sm text-muted-foreground mt-1">{{ t('article.section.classification_help') }}</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <z-form-field>
+          <label z-form-label for="category_id">{{ t('article.field.category') }}</label>
+          <z-form-control>
+            <app-category-picker
+              [selectedId]="articleForm.get('category_id')?.value"
+              [placeholder]="t('article.field.category_placeholder')"
+              [emptyText]="t('categories.empty')"
+              (selectionChange)="onCategoryChanged($event)">
+            </app-category-picker>
+          </z-form-control>
+        </z-form-field>
+        <z-form-field>
+          <label z-form-label for="shelf_life_in_days">{{ t('article.field.shelf_life_in_days') }}</label>
+          <z-form-control [errorMessage]="isFieldInvalid('shelf_life_in_days') ? getFieldError('shelf_life_in_days') : ''">
+            <input z-input type="number" id="shelf_life_in_days" formControlName="shelf_life_in_days" min="0"
+              [placeholder]="t('article.field.shelf_life_placeholder')"
+              [zStatus]="isFieldInvalid('shelf_life_in_days') ? 'error' : undefined" />
+          </z-form-control>
+        </z-form-field>
+      </div>
+    </div>
+    <!-- S2: Logistics -->
+    <div class="space-y-4 pt-2">
+      <div>
+        <h3 class="text-lg font-semibold text-foreground">{{ t('article.section.logistics') }}</h3>
+        <p class="text-sm text-muted-foreground mt-1">{{ t('article.section.logistics_help') }}</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <z-form-field>
+          <label z-form-label for="safety_stock">{{ t('article.field.safety_stock') }}</label>
+          <z-form-control [errorMessage]="isFieldInvalid('safety_stock') ? getFieldError('safety_stock') : ''">
+            <input z-input type="number" id="safety_stock" formControlName="safety_stock" min="0"
+              [zStatus]="isFieldInvalid('safety_stock') ? 'error' : undefined" />
+          </z-form-control>
+        </z-form-field>
+        <z-form-field>
+          <label z-form-label for="min_order_qty">{{ t('article.field.min_order_qty') }}</label>
+          <z-form-control [errorMessage]="isFieldInvalid('min_order_qty') ? getFieldError('min_order_qty') : ''">
+            <input z-input type="number" id="min_order_qty" formControlName="min_order_qty" min="0"
+              [zStatus]="isFieldInvalid('min_order_qty') ? 'error' : undefined" />
+          </z-form-control>
+        </z-form-field>
+        <z-form-field>
+          <label z-form-label for="batch_number_series">{{ t('article.field.batch_number_series') }}</label>
+          <z-form-control [errorMessage]="isFieldInvalid('batch_number_series') ? getFieldError('batch_number_series') : ''">
+            <input z-input type="text" id="batch_number_series" formControlName="batch_number_series"
+              placeholder="LOT-{YYYY}-{###}"
+              [zStatus]="isFieldInvalid('batch_number_series') ? 'error' : undefined" />
+          </z-form-control>
+        </z-form-field>
+        <z-form-field>
+          <label z-form-label for="serial_number_series">{{ t('article.field.serial_number_series') }}</label>
+          <z-form-control [errorMessage]="isFieldInvalid('serial_number_series') ? getFieldError('serial_number_series') : ''">
+            <input z-input type="text" id="serial_number_series" formControlName="serial_number_series"
+              placeholder="SER-{YYYY}-{###}"
+              [zStatus]="isFieldInvalid('serial_number_series') ? 'error' : undefined" />
+          </z-form-control>
+        </z-form-field>
+        <z-form-field class="md:col-span-2">
+          <label z-form-label for="default_location_id">{{ t('article.field.default_location') }}</label>
+          <z-form-control>
+            <input z-input type="text" id="default_location_id" formControlName="default_location_id"
+              [placeholder]="t('article.field.default_location_placeholder')" />
+          </z-form-control>
+        </z-form-field>
+      </div>
+    </div>
+    <!-- S2: Instructions -->
+    <div class="space-y-4 pt-2">
+      <div>
+        <h3 class="text-lg font-semibold text-foreground">{{ t('article.section.instructions') }}</h3>
+        <p class="text-sm text-muted-foreground mt-1">{{ t('article.section.instructions_help') }}</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <z-form-field>
+          <label z-form-label for="receiving_notes">{{ t('article.field.receiving_notes') }}</label>
+          <z-form-control [errorMessage]="isFieldInvalid('receiving_notes') ? getFieldError('receiving_notes') : ''">
+            <textarea z-input id="receiving_notes" formControlName="receiving_notes" rows="3"
+              [placeholder]="t('article.field.receiving_notes_placeholder')"
+              class="resize-none"
+              [zStatus]="isFieldInvalid('receiving_notes') ? 'error' : undefined"></textarea>
+          </z-form-control>
+        </z-form-field>
+        <z-form-field>
+          <label z-form-label for="shipping_notes">{{ t('article.field.shipping_notes') }}</label>
+          <z-form-control [errorMessage]="isFieldInvalid('shipping_notes') ? getFieldError('shipping_notes') : ''">
+            <textarea z-input id="shipping_notes" formControlName="shipping_notes" rows="3"
+              [placeholder]="t('article.field.shipping_notes_placeholder')"
+              class="resize-none"
+              [zStatus]="isFieldInvalid('shipping_notes') ? 'error' : undefined"></textarea>
+          </z-form-control>
+        </z-form-field>
+      </div>
+    </div>
   </div>
     </form>
   </div>

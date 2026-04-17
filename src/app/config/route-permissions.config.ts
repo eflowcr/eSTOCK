@@ -16,6 +16,7 @@ export interface RoutePermission {
  * operator and viewer (with inventory read) can access them without extra role keys.
  */
 export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
+  '/clients': { resource: 'clients', action: 'read' },
   '/articles': { resource: 'articles', action: 'read' },
   '/inventory': { resource: 'inventory', action: 'read' },
   '/locations': { resource: 'locations', action: 'read' },

@@ -1,0 +1,107 @@
+<div class="flex flex-col gap-4">
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-3 items-center">
+    <div class="relative flex-1 min-w-[200px]">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+      </svg>
+      <input type="text" [(ngModel)]="searchTerm"
+        [placeholder]="t('clients.search_placeholder')"
+        class="w-full h-9 rounded-md border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+    </div>
+
+    <select [(ngModel)]="typeFilter"
+      class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+      <option value="">{{ t('clients.type.all') }}</option>
+      <option value="supplier">{{ t('clients.type.supplier') }}</option>
+      <option value="customer">{{ t('clients.type.customer') }}</option>
+      <option value="both">{{ t('clients.type.both') }}</option>
+    </select>
+
+    <select [(ngModel)]="statusFilter"
+      class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+      <option value="all">{{ t('clients.status.all') }}</option>
+      <option value="active">{{ t('clients.status.active') }}</option>
+      <option value="inactive">{{ t('clients.status.inactive') }}</option>
+    </select>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="flex items-center justify-center h-32">
+    <div class="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!isLoading && filteredClients.length === 0"
+    class="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card p-12 text-center">
+    <svg class="h-10 w-10 text-muted-foreground mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+    </svg>
+    <p class="text-sm font-medium text-foreground">{{ t('clients.empty') }}</p>
+    <p class="text-xs text-muted-foreground mt-1">{{ t('clients.empty_hint') }}</p>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!isLoading && filteredClients.length > 0"
+    class="rounded-lg border border-border bg-card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-border bg-muted/50">
+            <th class="px-4 py-3 text-left font-medium text-muted-foreground">{{ t('clients.col.code') }}</th>
+            <th class="px-4 py-3 text-left font-medium text-muted-foreground">{{ t('clients.col.name') }}</th>
+            <th class="px-4 py-3 text-left font-medium text-muted-foreground">{{ t('clients.col.type') }}</th>
+            <th class="px-4 py-3 text-left font-medium text-muted-foreground">{{ t('clients.col.email') }}</th>
+            <th class="px-4 py-3 text-left font-medium text-muted-foreground">{{ t('clients.col.status') }}</th>
+            <th class="px-4 py-3 text-right font-medium text-muted-foreground">{{ t('actions') }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          <tr *ngFor="let client of filteredClients" class="hover:bg-muted/30 transition-colors">
+            <td class="px-4 py-3 font-mono text-xs text-foreground">{{ client.code }}</td>
+            <td class="px-4 py-3 font-medium text-foreground">{{ client.name }}</td>
+            <td class="px-4 py-3">
+              <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" [ngClass]="typeBadgeClass(client.type)">
+                {{ typeLabel(client.type) }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-muted-foreground">{{ client.email || '—' }}</td>
+            <td class="px-4 py-3">
+              <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                [ngClass]="client.is_active
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                  : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'">
+                {{ client.is_active ? t('active') : t('clients.archived') }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <a [routerLink]="['/clients', client.id]"
+                  class="inline-flex h-8 items-center rounded-md border border-border bg-background px-3 text-xs font-medium text-foreground hover:bg-accent transition-colors">
+                  {{ t('view') }}
+                </a>
+                <button *ngIf="isAdmin()" type="button" (click)="onEdit(client)"
+                  class="inline-flex h-8 items-center rounded-md border border-border bg-background px-3 text-xs font-medium text-foreground hover:bg-accent transition-colors">
+                  {{ t('edit') }}
+                </button>
+                <button *ngIf="isAdmin() && client.is_active" type="button" (click)="openArchiveConfirm(client)"
+                  class="inline-flex h-8 items-center rounded-md border border-border bg-background px-3 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors">
+                  {{ t('clients.archive') }}
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-confirmation-dialog
+  [isOpen]="confirmArchiveOpen"
+  [title]="t('clients.archive_confirm_title')"
+  [message]="t('clients.archive_confirm_message')"
+  [confirmText]="t('clients.archive')"
+  (confirmed)="confirmArchive()"
+  (cancelled)="cancelArchive()">
+</app-confirmation-dialog>

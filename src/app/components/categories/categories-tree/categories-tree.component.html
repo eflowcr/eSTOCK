@@ -1,0 +1,96 @@
+<div class="flex flex-col gap-2">
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="flex items-center justify-center h-32">
+    <div class="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!isLoading && tree.length === 0"
+    class="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card p-12 text-center">
+    <svg class="h-10 w-10 text-muted-foreground mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+    </svg>
+    <p class="text-sm font-medium text-foreground">{{ t('categories.empty') }}</p>
+    <p class="text-xs text-muted-foreground mt-1">{{ t('categories.empty_hint') }}</p>
+  </div>
+
+  <!-- Tree -->
+  <div *ngIf="!isLoading && tree.length > 0"
+    class="rounded-lg border border-border bg-card overflow-hidden">
+    <ng-container *ngFor="let node of tree; let last = last">
+      <!-- Root node -->
+      <div class="flex items-center gap-2 px-4 py-3 hover:bg-muted/30 transition-colors border-b border-border"
+        [ngClass]="{ 'border-b-0': last && !isExpanded(node.id) }">
+        <button type="button" (click)="toggleExpand(node.id)"
+          class="flex-shrink-0 h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+          [ngClass]="{ 'opacity-20 cursor-default': node.children.length === 0 }"
+          [disabled]="node.children.length === 0">
+          <svg class="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            [ngClass]="isExpanded(node.id) ? 'rotate-90' : ''">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+
+        <svg class="h-4 w-4 text-muted-foreground flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+        </svg>
+
+        <span class="flex-1 text-sm font-medium text-foreground">{{ node.name }}</span>
+
+        <span class="text-xs text-muted-foreground">{{ node.children.length }} sub</span>
+
+        <div *ngIf="isAdmin()" class="flex items-center gap-1">
+          <button type="button" (click)="onAddChild(node.id)"
+            class="inline-flex h-7 items-center rounded-md border border-border bg-background px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            [title]="t('categories.add_child')">
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+          </button>
+          <button type="button" (click)="onEdit(node)"
+            class="inline-flex h-7 items-center rounded-md border border-border bg-background px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+            {{ t('edit') }}
+          </button>
+          <button type="button" (click)="openArchiveConfirm(node)"
+            class="inline-flex h-7 items-center rounded-md border border-border bg-background px-2 text-xs text-destructive hover:bg-destructive/10 transition-colors">
+            {{ t('categories.archive') }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Children (indented) -->
+      <ng-container *ngIf="isExpanded(node.id) && node.children.length > 0">
+        <div *ngFor="let child of node.children; let lastChild = last"
+          class="flex items-center gap-2 px-4 py-2.5 pl-12 hover:bg-muted/20 transition-colors border-b border-border/50"
+          [ngClass]="{ 'border-b border-border': !lastChild || !last, 'border-b-0': lastChild && last }">
+
+          <svg class="h-3.5 w-3.5 text-muted-foreground/60 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+
+          <span class="flex-1 text-sm text-foreground">{{ child.name }}</span>
+
+          <div *ngIf="isAdmin()" class="flex items-center gap-1">
+            <button type="button" (click)="onEdit(child)"
+              class="inline-flex h-7 items-center rounded-md border border-border bg-background px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+              {{ t('edit') }}
+            </button>
+            <button type="button" (click)="openArchiveConfirm(child)"
+              class="inline-flex h-7 items-center rounded-md border border-border bg-background px-2 text-xs text-destructive hover:bg-destructive/10 transition-colors">
+              {{ t('categories.archive') }}
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>
+
+<app-confirmation-dialog
+  [isOpen]="confirmArchiveOpen"
+  [title]="t('categories.archive_confirm_title')"
+  [message]="archiveConfirmMessage()"
+  [confirmText]="t('categories.archive')"
+  (confirmed)="confirmArchive()"
+  (cancelled)="cancelArchive()">
+</app-confirmation-dialog>
