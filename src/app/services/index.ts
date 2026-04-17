@@ -24,3 +24,4 @@ export * from './categories.service';
 export * from './notifications.service';
 export * from './stock-settings.service';
 export * from './inventory-valuation.service';
+export * from './inventory-lots.service';

@@ -5,12 +5,14 @@ import {
   ColumnDef,
   PaginationState,
   SortingState,
+  VisibilityState,
   createAngularTable,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
 } from '@tanstack/angular-table';
 import { Inventory } from '../../../models/inventory.model';
+import { ReceivingTaskService } from '../../../services/receiving-task.service';
 import { PresentationTypesService } from '../../../services/presentation-types.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AuthorizationService } from '../../../services/extras/authorization.service';
@@ -24,6 +26,22 @@ import { ZardButtonComponent } from '../../../shared/components/button/button.co
 import { ZardInputDirective } from '../../../shared/components/input/input.directive';
 import { ZardSelectComponent } from '../../../shared/components/select/select.component';
 import { ZardSelectItemComponent } from '../../../shared/components/select/select-item.component';
+
+const EXTRA_COLS = ['libre', 'valor', 'proyectada'] as const;
+type ExtraCol = typeof EXTRA_COLS[number];
+const LS_KEY = 'inventoryColumns';
+
+function defaultVisibility(): VisibilityState {
+  return { libre: true, valor: true, proyectada: true };
+}
+
+function loadVisibility(): VisibilityState {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) return { ...defaultVisibility(), ...JSON.parse(raw) };
+  } catch {}
+  return defaultVisibility();
+}
 
 @Component({
   selector: 'app-inventory-list',
@@ -41,7 +59,6 @@ export class InventoryListComponent implements OnInit {
   @Output() deleteInventory = new EventEmitter<void>();
 
   viewingInventory: Inventory | null = null;
-
   searchTerm = '';
   statusFilter = '';
   locationFilter = '';
@@ -50,7 +67,7 @@ export class InventoryListComponent implements OnInit {
   sortBy = 'sku';
   sortOrder: 'asc' | 'desc' = 'asc';
   filtersExpanded = false;
-  /** Presentation types for filter dropdown (from API). */
+  columnDropdownOpen = false;
   presentationOptions: { value: string; label: string }[] = [];
 
   private readonly inventorySignal = signal<Inventory[]>([]);
@@ -60,10 +77,9 @@ export class InventoryListComponent implements OnInit {
   private readonly presentationFilterSignal = signal('');
   private readonly trackingFilterSignal = signal('');
   private readonly sorting = signal<SortingState>([{ id: 'sku', desc: false }]);
-  private readonly pagination = signal<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
+  private readonly pagination = signal<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  private readonly pendingBySku = signal<Map<string, number>>(new Map());
+  readonly columnVisibility = signal<VisibilityState>(loadVisibility());
 
   readonly filteredInventory = computed(() => {
     const rows = this.inventorySignal();
@@ -94,6 +110,9 @@ export class InventoryListComponent implements OnInit {
     { id: 'name', accessorKey: 'name', enableSorting: true },
     { id: 'location', accessorKey: 'location', enableSorting: true },
     { id: 'quantity', accessorKey: 'quantity', enableSorting: true },
+    { id: 'libre', accessorKey: 'available_qty', enableSorting: true },
+    { id: 'valor', accessorFn: () => '', enableSorting: false },
+    { id: 'proyectada', accessorFn: () => '', enableSorting: false },
     { id: 'presentation', accessorKey: 'presentation', enableSorting: true },
     { id: 'status', accessorKey: 'status', enableSorting: true },
     { id: 'tracking', accessorFn: () => '', enableSorting: false },
@@ -106,6 +125,7 @@ export class InventoryListComponent implements OnInit {
     state: {
       sorting: this.sorting(),
       pagination: this.pagination(),
+      columnVisibility: this.columnVisibility(),
     },
     onSortingChange: (updater) => {
       const next = typeof updater === 'function' ? updater(this.sorting()) : updater;
@@ -120,6 +140,11 @@ export class InventoryListComponent implements OnInit {
       const next = typeof updater === 'function' ? updater(this.pagination()) : updater;
       this.pagination.set(next);
     },
+    onColumnVisibilityChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(this.columnVisibility()) : updater;
+      this.columnVisibility.set(next);
+      try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
+    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -127,6 +152,7 @@ export class InventoryListComponent implements OnInit {
 
   constructor(
     private inventoryService: InventoryService,
+    private receivingTaskService: ReceivingTaskService,
     private presentationTypesService: PresentationTypesService,
     private languageService: LanguageService,
     private alertService: AlertService,
@@ -136,6 +162,7 @@ export class InventoryListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadPresentationTypes();
+    this.loadPendingReceiving();
   }
 
   private async loadPresentationTypes(): Promise<void> {
@@ -146,6 +173,24 @@ export class InventoryListComponent implements OnInit {
       }
     } catch {
       this.presentationOptions = [];
+    }
+  }
+
+  private async loadPendingReceiving(): Promise<void> {
+    try {
+      const res = await this.receivingTaskService.getAll();
+      if (res?.result?.success && Array.isArray(res.data)) {
+        const map = new Map<string, number>();
+        for (const task of res.data) {
+          if (task.status !== 'open' && task.status !== 'in_progress') continue;
+          for (const item of task.items ?? []) {
+            map.set(item.sku, (map.get(item.sku) ?? 0) + (item.expected_qty ?? 0));
+          }
+        }
+        this.pendingBySku.set(map);
+      }
+    } catch {
+      // silently fail — proyectada shows "—"
     }
   }
 
@@ -184,14 +229,23 @@ export class InventoryListComponent implements OnInit {
     });
   }
 
+  toggleColumnDropdown(): void {
+    this.columnDropdownOpen = !this.columnDropdownOpen;
+  }
+
+  isColumnVisible(col: ExtraCol): boolean {
+    return this.columnVisibility()[col] !== false;
+  }
+
+  toggleExtraColumn(col: ExtraCol): void {
+    const current = this.columnVisibility();
+    const next = { ...current, [col]: !this.isColumnVisible(col) };
+    this.columnVisibility.set(next);
+    try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
+  }
+
   hasActiveFilters(): boolean {
-    return !!(
-      this.searchTerm ||
-      this.statusFilter ||
-      this.locationFilter ||
-      this.presentationFilter ||
-      this.trackingFilter
-    );
+    return !!(this.searchTerm || this.statusFilter || this.locationFilter || this.presentationFilter || this.trackingFilter);
   }
 
   clearFilters(): void {
@@ -242,30 +296,33 @@ export class InventoryListComponent implements OnInit {
 
   matchesTrackingFilter(item: Inventory, filter: string): boolean {
     switch (filter) {
-      case 'lot_only':
-        return item.track_by_lot && !item.track_by_serial;
-      case 'serial_only':
-        return !item.track_by_lot && item.track_by_serial;
-      case 'both':
-        return item.track_by_lot && item.track_by_serial;
-      case 'none':
-        return !item.track_by_lot && !item.track_by_serial;
-      default:
-        return true;
+      case 'lot_only':    return item.track_by_lot && !item.track_by_serial;
+      case 'serial_only': return !item.track_by_lot && item.track_by_serial;
+      case 'both':        return item.track_by_lot && item.track_by_serial;
+      case 'none':        return !item.track_by_lot && !item.track_by_serial;
+      default:            return true;
     }
   }
 
   getStatusBadgeClass(status: string): string {
     switch (status) {
-      case 'available':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'reserved':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'damaged':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default:
-        return 'bg-muted text-muted-foreground';
+      case 'available': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'reserved':  return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'damaged':   return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      default:          return 'bg-muted text-muted-foreground';
     }
+  }
+
+  getStockValue(item: Inventory): string {
+    if (item.unit_price == null) return '—';
+    const val = item.quantity * item.unit_price;
+    return '₡\u202F' + val.toLocaleString('es-CR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
+
+  getProjectedQty(item: Inventory): number | null {
+    const available = item.available_qty;
+    if (available == null) return null;
+    return available + (this.pendingBySku().get(item.sku) ?? 0);
   }
 
   viewInventory(inventory: Inventory): void {
@@ -293,9 +350,7 @@ export class InventoryListComponent implements OnInit {
       zCancelText: this.t('cancel'),
       zOkDestructive: true,
       zClosable: false,
-      zOnOk: () => {
-        this.performDeleteAndEmit(sku, location);
-      },
+      zOnOk: () => { this.performDeleteAndEmit(sku, location); },
     });
   }
 
@@ -325,6 +380,9 @@ export class InventoryListComponent implements OnInit {
       name: this.t('description'),
       location: this.t('location'),
       quantity: this.t('quantity'),
+      libre: 'Libre para usar',
+      valor: 'Valor en stock',
+      proyectada: 'Qty proyectada',
       presentation: this.t('presentation'),
       status: this.t('status'),
       tracking: this.t('tracking'),
@@ -333,35 +391,26 @@ export class InventoryListComponent implements OnInit {
     return labels[columnId] ?? columnId;
   }
 
-  get pageIndex(): number {
-    return this.table.getState().pagination.pageIndex;
-  }
-
-  get pageSize(): number {
-    return this.table.getState().pagination.pageSize;
-  }
-
-  get totalFilteredRows(): number {
-    return this.filteredInventory().length;
-  }
+  get pageIndex(): number { return this.table.getState().pagination.pageIndex; }
+  get pageSize(): number  { return this.table.getState().pagination.pageSize; }
+  get totalFilteredRows(): number { return this.filteredInventory().length; }
 
   setPageSize(size: number): void {
-    const current = this.pagination();
-    this.pagination.set({ ...current, pageSize: size, pageIndex: 0 });
+    this.pagination.set({ ...this.pagination(), pageSize: size, pageIndex: 0 });
   }
 
-  nextPage(): void {
-    this.table.nextPage();
-  }
-
-  previousPage(): void {
-    this.table.previousPage();
-  }
+  nextPage(): void     { this.table.nextPage(); }
+  previousPage(): void { this.table.previousPage(); }
 
   private setPageIndex(pageIndex: number): void {
-    const current = this.pagination();
-    this.pagination.set({ ...current, pageIndex });
+    this.pagination.set({ ...this.pagination(), pageIndex });
   }
 
   readonly Math = Math;
+  readonly EXTRA_COLS = EXTRA_COLS;
+  readonly extraColLabels: Record<ExtraCol, string> = {
+    libre: 'Libre para usar',
+    valor: 'Valor en stock',
+    proyectada: 'Qty proyectada',
+  };
 }

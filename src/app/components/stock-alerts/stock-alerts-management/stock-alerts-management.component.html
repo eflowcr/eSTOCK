@@ -72,147 +72,154 @@
 
     <!-- Tab nav -->
     <div class="border-b border-border">
-      <nav class="flex">
+      <nav class="flex overflow-x-auto">
         <button (click)="setActiveTab('all')" [class]="getTabClass('all')"
-          class="flex flex-1 items-center justify-center min-w-0">
+          class="flex shrink-0 items-center justify-center min-w-0 px-4">
           <span class="truncate">{{ t('STOCK_ALERTS.ALL') }}</span>
           <span [class]="getTabBadgeClass('all')">{{ activeAlerts().length }}</span>
         </button>
         <button (click)="setActiveTab('critical')" [class]="getTabClass('critical')"
-          class="flex flex-1 items-center justify-center min-w-0">
+          class="flex shrink-0 items-center justify-center min-w-0 px-4">
           <span class="truncate">{{ t('STOCK_ALERTS.CRITICAL') }}</span>
           <span [class]="getTabBadgeClass('critical')">{{ criticalAlerts().length }}</span>
         </button>
         <button (click)="setActiveTab('high')" [class]="getTabClass('high')"
-          class="flex flex-1 items-center justify-center min-w-0">
+          class="flex shrink-0 items-center justify-center min-w-0 px-4">
           <span class="truncate">{{ t('STOCK_ALERTS.HIGH') }}</span>
           <span [class]="getTabBadgeClass('high')">{{ highAlerts().length }}</span>
         </button>
         <button (click)="setActiveTab('medium')" [class]="getTabClass('medium')"
-          class="flex flex-1 items-center justify-center min-w-0">
+          class="flex shrink-0 items-center justify-center min-w-0 px-4">
           <span class="truncate">{{ t('STOCK_ALERTS.MEDIUM') }}</span>
           <span [class]="getTabBadgeClass('medium')">{{ mediumAlerts().length }}</span>
         </button>
         <button (click)="setActiveTab('resolved')" [class]="getTabClass('resolved')"
-          class="flex flex-1 items-center justify-center min-w-0">
+          class="flex shrink-0 items-center justify-center min-w-0 px-4">
           <span class="truncate">{{ t('STOCK_ALERTS.RESOLVED') }}</span>
           <span [class]="getTabBadgeClass('resolved')">{{ resolvedAlerts().length }}</span>
+        </button>
+        <!-- Vencimientos tab -->
+        <button (click)="setActiveTab('expirations')" [class]="getTabClass('expirations')"
+          class="flex shrink-0 items-center justify-center gap-1.5 min-w-0 px-4">
+          <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <span class="truncate">Vencimientos</span>
         </button>
       </nav>
     </div>
 
-    <!-- Search bar -->
-    <div class="flex items-center gap-3 border-b border-border px-5 py-3">
-      <div class="relative flex-1">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
-        </svg>
-        <input type="search"
-          [value]="searchQuery()"
-          (input)="searchQuery.set($any($event.target).value)"
-          [placeholder]="t('STOCK_ALERTS.SEARCH_PLACEHOLDER')"
-          class="w-full rounded-md border border-border bg-background py-1.5 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-        />
-      </div>
-      <span class="shrink-0 text-xs text-muted-foreground tabular-nums">
-        {{ filteredTabAlerts().length }} {{ t('of') }} {{ currentTabAlerts().length }} {{ t('results') }}
-      </span>
+    <!-- Tab: Vencimientos -->
+    <div *ngIf="activeTab() === 'expirations'">
+      <app-expirations-tab></app-expirations-tab>
     </div>
 
-    <!-- Content -->
-    <div class="max-h-[480px] overflow-y-auto p-5">
+    <!-- Tab: Stock alerts (all other tabs) -->
+    <ng-container *ngIf="activeTab() !== 'expirations'">
 
-      <!-- Loading -->
-      <div *ngIf="isLoading()" class="space-y-2.5">
-        <div *ngFor="let i of [1,2,3]" class="animate-pulse rounded-xl border border-border bg-muted/30 h-20"></div>
+      <!-- Search bar -->
+      <div class="flex items-center gap-3 border-b border-border px-5 py-3">
+        <div class="relative flex-1">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+          </svg>
+          <input type="search"
+            [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"
+            [placeholder]="t('STOCK_ALERTS.SEARCH_PLACEHOLDER')"
+            class="w-full rounded-md border border-border bg-background py-1.5 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+        <span class="shrink-0 text-xs text-muted-foreground tabular-nums">
+          {{ filteredTabAlerts().length }} {{ t('of') }} {{ currentTabAlerts().length }} {{ t('results') }}
+        </span>
       </div>
 
-      <!-- Alert cards -->
-      <div *ngIf="!isLoading() && filteredTabAlerts().length > 0" class="space-y-2.5">
-        <div *ngFor="let alert of filteredTabAlerts()"
-          class="group relative overflow-hidden rounded-xl border border-border bg-background shadow-sm transition-shadow hover:shadow-md">
+      <!-- Content -->
+      <div class="max-h-[480px] overflow-y-auto p-5">
 
-          <!-- Priority accent -->
-          <div class="absolute inset-y-0 left-0 w-[3px]" [ngClass]="alertLevelAccent(alert.alert_level)"></div>
+        <!-- Loading -->
+        <div *ngIf="isLoading()" class="space-y-2.5">
+          <div *ngFor="let i of [1,2,3]" class="animate-pulse rounded-xl border border-border bg-muted/30 h-20"></div>
+        </div>
 
-          <div class="flex items-start justify-between gap-4 p-4 pl-5">
-
-            <!-- Left: identity -->
-            <div class="min-w-0 flex-1">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="font-mono text-sm font-semibold text-foreground">{{ alert.sku }}</span>
-                <span class="rounded-full border px-2 py-0.5 text-xs font-medium"
-                  [ngClass]="getAlertLevelClass(alert.alert_level)">
-                  {{ t('STOCK_ALERTS.LEVEL.' + alert.alert_level.toUpperCase()) }}
-                </span>
-                <span *ngIf="alert.is_resolved"
-                  class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
-                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Alert cards -->
+        <div *ngIf="!isLoading() && filteredTabAlerts().length > 0" class="space-y-2.5">
+          <div *ngFor="let alert of filteredTabAlerts()"
+            class="group relative overflow-hidden rounded-xl border border-border bg-background shadow-sm transition-shadow hover:shadow-md">
+            <div class="absolute inset-y-0 left-0 w-[3px]" [ngClass]="alertLevelAccent(alert.alert_level)"></div>
+            <div class="flex items-start justify-between gap-4 p-4 pl-5">
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-mono text-sm font-semibold text-foreground">{{ alert.sku }}</span>
+                  <span class="rounded-full border px-2 py-0.5 text-xs font-medium" [ngClass]="getAlertLevelClass(alert.alert_level)">
+                    {{ t('STOCK_ALERTS.LEVEL.' + alert.alert_level.toUpperCase()) }}
+                  </span>
+                  <span *ngIf="alert.is_resolved"
+                    class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
+                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    {{ t('STOCK_ALERTS.RESOLVED') }}
+                  </span>
+                </div>
+                <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                  <span class="inline-flex items-center gap-1 font-medium"
+                    [class.text-red-600]="alert.current_stock <= 5"
+                    [class.text-orange-500]="alert.current_stock > 5 && alert.current_stock <= 15">
+                    {{ alert.current_stock }} {{ t('COMMON.UNITS') }}
+                  </span>
+                  <span *ngIf="alert.predicted_stock_out_days" class="text-orange-500 font-medium">
+                    · {{ t('STOCK_ALERTS.PREDICTED_STOCK_OUT') }} {{ alert.predicted_stock_out_days }} {{ t('COMMON.DAYS') }}
+                  </span>
+                  <span *ngIf="alert.days_to_expiration !== null && alert.days_to_expiration !== undefined">
+                    · {{ getDaysToExpirationText(alert) }}
+                  </span>
+                  <span>· {{ formatDate(alert.created_at) }}</span>
+                  <span *ngIf="alert.resolved_at">· {{ t('STOCK_ALERTS.RESOLVED_AT') }} {{ formatDate(alert.resolved_at) }}</span>
+                </div>
+                <p class="mt-1 text-xs text-muted-foreground/80 line-clamp-1">{{ alert.message }}</p>
+              </div>
+              <div class="shrink-0">
+                <button *ngIf="!alert.is_resolved" (click)="resolveAlert(alert.id)"
+                  class="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700 active:scale-[0.97]"
+                  [title]="t('STOCK_ALERTS.RESOLVE')">
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                   </svg>
-                  {{ t('STOCK_ALERTS.RESOLVED') }}
-                </span>
+                  {{ t('STOCK_ALERTS.RESOLVE') }}
+                </button>
               </div>
-
-              <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                <span class="inline-flex items-center gap-1 font-medium"
-                  [class.text-red-600]="alert.current_stock <= 5"
-                  [class.text-orange-500]="alert.current_stock > 5 && alert.current_stock <= 15">
-                  {{ alert.current_stock }} {{ t('COMMON.UNITS') }}
-                </span>
-                <span *ngIf="alert.predicted_stock_out_days" class="text-orange-500 font-medium">
-                  · {{ t('STOCK_ALERTS.PREDICTED_STOCK_OUT') }} {{ alert.predicted_stock_out_days }} {{ t('COMMON.DAYS') }}
-                </span>
-                <span *ngIf="alert.days_to_expiration !== null && alert.days_to_expiration !== undefined">
-                  · {{ getDaysToExpirationText(alert) }}
-                </span>
-                <span>· {{ formatDate(alert.created_at) }}</span>
-                <span *ngIf="alert.resolved_at">· {{ t('STOCK_ALERTS.RESOLVED_AT') }} {{ formatDate(alert.resolved_at) }}</span>
-              </div>
-
-              <p class="mt-1 text-xs text-muted-foreground/80 line-clamp-1">{{ alert.message }}</p>
-            </div>
-
-            <!-- Right: resolve button -->
-            <div class="shrink-0">
-              <button *ngIf="!alert.is_resolved" (click)="resolveAlert(alert.id)"
-                class="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700 active:scale-[0.97]"
-                [title]="t('STOCK_ALERTS.RESOLVE')">
-                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                {{ t('STOCK_ALERTS.RESOLVE') }}
-              </button>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Empty state -->
-      <div *ngIf="!isLoading() && filteredTabAlerts().length === 0"
-        class="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border py-14">
-        <svg class="h-10 w-10 text-muted-foreground/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-        </svg>
-        <div class="text-center">
-          <p class="text-sm font-medium text-foreground">
-            {{ searchQuery() ? t('no_results_for_search') : getEmptyStateMessage() }}
-          </p>
-          <p *ngIf="!searchQuery() && activeAlerts().length === 0" class="mt-0.5 text-xs text-muted-foreground">
-            {{ t('STOCK_ALERTS.RUN_ANALYSIS') }}
-          </p>
+        <!-- Empty state -->
+        <div *ngIf="!isLoading() && filteredTabAlerts().length === 0"
+          class="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border py-14">
+          <svg class="h-10 w-10 text-muted-foreground/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+          </svg>
+          <div class="text-center">
+            <p class="text-sm font-medium text-foreground">
+              {{ searchQuery() ? t('no_results_for_search') : getEmptyStateMessage() }}
+            </p>
+            <p *ngIf="!searchQuery() && activeAlerts().length === 0" class="mt-0.5 text-xs text-muted-foreground">
+              {{ t('STOCK_ALERTS.RUN_ANALYSIS') }}
+            </p>
+          </div>
+          <button *ngIf="!searchQuery() && activeAlerts().length === 0"
+            type="button" (click)="analyzeStock()"
+            class="mt-1 inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary active:scale-[0.97]">
+            {{ t('STOCK_ALERTS.ANALYZE') }}
+          </button>
         </div>
-        <button *ngIf="!searchQuery() && activeAlerts().length === 0"
-          type="button" (click)="analyzeStock()"
-          class="mt-1 inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary active:scale-[0.97]">
-          {{ t('STOCK_ALERTS.ANALYZE') }}
-        </button>
       </div>
-    </div>
+    </ng-container>
   </div>
 
-  <!-- Smart Recommendations -->
-  <div *ngIf="!isLoading() && getTopRecommendations().length > 0"
+  <!-- Smart Recommendations (only for non-expirations tabs) -->
+  <div *ngIf="!isLoading() && getTopRecommendations().length > 0 && activeTab() !== 'expirations'"
     class="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
     <div class="flex items-center gap-2 border-b border-border px-5 py-4">
       <svg class="h-4 w-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
