@@ -1,0 +1,91 @@
+<div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+
+  <!-- Header -->
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <h3 class="text-base font-semibold text-foreground">{{ t('dashboard.valuation.title') }}</h3>
+      <p class="mt-0.5 text-xs text-muted-foreground">{{ t('dashboard.valuation.subtitle') }}</p>
+    </div>
+
+    <!-- Group-by pill toggle -->
+    <div class="flex rounded-lg border border-border bg-muted p-0.5 shrink-0">
+      <button
+        *ngFor="let g of groups"
+        type="button"
+        (click)="onGroupByChange(g.key)"
+        class="rounded-md px-3 py-1 text-xs font-medium transition-colors duration-150"
+        [class.bg-background]="groupBy === g.key"
+        [class.text-foreground]="groupBy === g.key"
+        [class.shadow-sm]="groupBy === g.key"
+        [class.text-muted-foreground]="groupBy !== g.key"
+        [class.hover:text-foreground]="groupBy !== g.key">
+        {{ t(g.labelKey) }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading skeleton -->
+  <ng-container *ngIf="isLoading">
+    <div class="mt-5 space-y-3 animate-pulse">
+      <div class="h-8 w-48 rounded-md bg-muted"></div>
+      <div class="h-4 w-full rounded-md bg-muted"></div>
+      <div class="h-4 w-3/4 rounded-md bg-muted"></div>
+      <div class="h-4 w-2/3 rounded-md bg-muted"></div>
+    </div>
+  </ng-container>
+
+  <!-- Error state -->
+  <ng-container *ngIf="!isLoading && hasError">
+    <div class="mt-5 flex flex-col items-center gap-3 rounded-lg border border-dashed border-border py-8 text-center">
+      <svg class="h-8 w-8 text-muted-foreground/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg>
+      <p class="text-sm text-muted-foreground">{{ t('dashboard.valuation.error') }}</p>
+      <button type="button" (click)="load()"
+        class="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent">
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        {{ t('retry') }}
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- Data -->
+  <ng-container *ngIf="!isLoading && !hasError && valuation">
+    <!-- Total value -->
+    <div class="mt-5">
+      <p class="text-3xl font-bold tracking-tight text-foreground tabular-nums">
+        {{ formatCurrency(valuation.total_value) }}
+      </p>
+      <p class="mt-1 text-xs text-muted-foreground">{{ t('dashboard.valuation.total_label') }}</p>
+    </div>
+
+    <!-- Breakdown top 3 -->
+    <div class="mt-4 space-y-2" *ngIf="topBreakdown.length > 0">
+      <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">{{ t('dashboard.valuation.breakdown') }}</p>
+      <div *ngFor="let item of topBreakdown"
+        class="flex items-center justify-between rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm">
+        <a [routerLink]="linkFor(item)" [queryParams]="queryParamsFor(item)"
+          class="font-medium text-foreground hover:text-primary hover:underline transition-colors truncate max-w-[60%]">
+          {{ item.label }}
+        </a>
+        <span class="shrink-0 font-semibold tabular-nums text-foreground text-xs">
+          {{ formatCurrency(item.total_value) }}
+        </span>
+      </div>
+
+      <!-- Ver todos link -->
+      <div *ngIf="hasMoreBreakdown" class="pt-1 text-right">
+        <a routerLink="/inventory" class="text-xs font-medium text-primary transition-colors hover:underline">
+          {{ t('dashboard.valuation.see_all') }} →
+        </a>
+      </div>
+    </div>
+
+    <!-- Empty breakdown -->
+    <div *ngIf="topBreakdown.length === 0" class="mt-5 flex h-20 items-center justify-center rounded-lg border border-dashed border-border">
+      <p class="text-sm text-muted-foreground">{{ t('no_data') }}</p>
+    </div>
+  </ng-container>
+</div>
