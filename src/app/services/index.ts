@@ -2,6 +2,8 @@ export * from './adjustment.service';
 export * from './article.service';
 export * from './auth.service';
 export * from './inventory.service';
+export * from './inventory-valuation.service';
+export * from './inventory-movements.service';
 export * from './location.service';
 export * from './user.service';
 export * from './serial.service';

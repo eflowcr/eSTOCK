@@ -1529,6 +1529,41 @@ export const enTranslations = {
   'article.field.shipping_notes': 'Shipping notes',
   'article.field.shipping_notes_placeholder': 'Instructions for the picking operator...',
 
+  // S2/W7-A — Dashboard widgets
+  // FD1 — Inventory Valuation
+  'dashboard.valuation.title': 'Inventory Value',
+  'dashboard.valuation.subtitle': 'AVCO valuation from movements',
+  'dashboard.valuation.by_article': 'By Article',
+  'dashboard.valuation.by_location': 'By Location',
+  'dashboard.valuation.by_category': 'By Category',
+  'dashboard.valuation.total_label': 'Total inventory value',
+  'dashboard.valuation.breakdown': 'Top items',
+  'dashboard.valuation.see_all': 'See all',
+  'dashboard.valuation.error': 'Error loading valuation',
+
+  // FD2 — Attention Required
+  'dashboard.attention.title': 'Requires Attention',
+  'dashboard.attention.subtitle': 'Items that need action',
+  'dashboard.attention.expiring_lots': 'Expiring Lots',
+  'dashboard.attention.low_stock': 'Low Stock',
+  'dashboard.attention.unassigned_tasks': 'Unassigned Tasks',
+  'dashboard.attention.discrepancies': 'Discrepancies',
+  'dashboard.attention.no_expiring_lots': 'No lots expiring soon',
+  'dashboard.attention.no_low_stock': 'No low stock alerts',
+  'dashboard.attention.no_unassigned_tasks': 'No unassigned tasks',
+  'dashboard.attention.no_discrepancies': 'No discrepancies',
+  'dashboard.attention.expired': 'Expired',
+
+  // FD3 — Movements by Month
+  'dashboard.movements_chart.title': 'Movements by Month',
+  'dashboard.movements_chart.subtitle': 'Last 6 months — client-side aggregation',
+  'dashboard.movements_chart.receiving': 'Receiving',
+  'dashboard.movements_chart.picking': 'Picking',
+  'dashboard.movements_chart.adjustment': 'Adjustment',
+  'dashboard.movements_chart.error': 'Error loading movements',
+  'dashboard.movements_chart.client_agg': 'Client aggregation',
+  'dashboard.movements_chart.s3_note': 'Server aggregation planned for S3',
+
   // Notifications — W6B
   'bell.aria_label': 'Notifications',
   'bell.title': 'Notifications',

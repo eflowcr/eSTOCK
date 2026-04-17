@@ -1646,6 +1646,41 @@ export const esTranslations = {
   'article.field.shipping_notes': 'Notas de despacho',
   'article.field.shipping_notes_placeholder': 'Instrucciones para el operador de picking...',
 
+  // S2/W7-A — Dashboard widgets
+  // FD1 — Valor inventario
+  'dashboard.valuation.title': 'Valor de inventario',
+  'dashboard.valuation.subtitle': 'Valuación AVCO desde movimientos',
+  'dashboard.valuation.by_article': 'Por artículo',
+  'dashboard.valuation.by_location': 'Por ubicación',
+  'dashboard.valuation.by_category': 'Por categoría',
+  'dashboard.valuation.total_label': 'Valor total del inventario',
+  'dashboard.valuation.breakdown': 'Top artículos',
+  'dashboard.valuation.see_all': 'Ver todos',
+  'dashboard.valuation.error': 'Error al cargar valuación',
+
+  // FD2 — Atención requerida
+  'dashboard.attention.title': 'Requiere atención',
+  'dashboard.attention.subtitle': 'Items que necesitan acción',
+  'dashboard.attention.expiring_lots': 'Lotes por vencer',
+  'dashboard.attention.low_stock': 'Stock bajo',
+  'dashboard.attention.unassigned_tasks': 'Tareas sin asignar',
+  'dashboard.attention.discrepancies': 'Discrepancias',
+  'dashboard.attention.no_expiring_lots': 'Sin lotes próximos a vencer',
+  'dashboard.attention.no_low_stock': 'Sin alertas de stock bajo',
+  'dashboard.attention.no_unassigned_tasks': 'Sin tareas sin asignar',
+  'dashboard.attention.no_discrepancies': 'Sin discrepancias pendientes',
+  'dashboard.attention.expired': 'Vencido',
+
+  // FD3 — Movimientos por mes
+  'dashboard.movements_chart.title': 'Movimientos por mes',
+  'dashboard.movements_chart.subtitle': 'Últimos 6 meses — agregación en cliente',
+  'dashboard.movements_chart.receiving': 'Recepciones',
+  'dashboard.movements_chart.picking': 'Picking',
+  'dashboard.movements_chart.adjustment': 'Ajustes',
+  'dashboard.movements_chart.error': 'Error al cargar movimientos',
+  'dashboard.movements_chart.client_agg': 'Agregación en cliente',
+  'dashboard.movements_chart.s3_note': 'Agregación server-side planificada para S3',
+
   // Notifications — W6B
   'bell.aria_label': 'Notificaciones',
   'bell.title': 'Notificaciones',
