@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import {
   ColumnDef,
   PaginationState,
@@ -26,7 +27,7 @@ import { ZardSelectItemComponent } from '../../../shared/components/select/selec
 @Component({
   selector: 'app-article-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent],
+  imports: [CommonModule, FormsModule, RouterModule, ZardSelectComponent, ZardSelectItemComponent],
   templateUrl: './article-list.component.html',
   styleUrls: ['./article-list.component.css']
 })
