@@ -180,7 +180,7 @@ type ResultItem =
               class="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors hover:bg-accent"
             >
               <span class="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">PICK</span>
-              <span class="font-mono text-xs text-foreground">{{ item.task_id || item.document_number }}</span>
+              <span class="font-mono text-xs text-foreground">{{ item.task_id || item.outbound_number }}</span>
               <span class="ml-auto shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{{ item.status }}</span>
             </button>
           </ng-container>
