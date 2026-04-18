@@ -1,0 +1,206 @@
+<div class="flex flex-col gap-6">
+
+  <!-- Loading -->
+  <div *ngIf="isLoading()" class="flex flex-col gap-4 animate-pulse">
+    <div class="h-40 rounded-lg bg-muted"></div>
+    <div class="h-60 rounded-lg bg-muted"></div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!isLoading() && hasError()"
+    class="rounded-lg border border-destructive/30 bg-destructive/10 text-destructive text-sm p-4">
+    {{ t('historial.error_loading') }}
+  </div>
+
+  <ng-container *ngIf="!isLoading() && !hasError()">
+
+    <!-- Heatmap section -->
+    <section class="rounded-lg border border-border bg-background p-4 flex flex-col gap-3">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h3 class="text-sm font-semibold text-foreground">
+            {{ t('historial.heatmap.title') }}
+          </h3>
+          <p class="text-xs text-muted-foreground">
+            {{ heatmapSubtitle() }}
+          </p>
+        </div>
+        <!-- Legend -->
+        <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <span>{{ t('historial.heatmap.less') }}</span>
+          <span *ngFor="let lvl of legendLevels()"
+            class="inline-block h-3 w-3 rounded-sm"
+            [ngClass]="cellClass(lvl)"></span>
+          <span>{{ t('historial.heatmap.more') }}</span>
+        </div>
+      </div>
+
+      <!-- SVG heatmap -->
+      <div class="overflow-x-auto">
+        <svg [attr.width]="svgWidth" [attr.height]="svgHeight" class="min-w-full"
+          role="img" [attr.aria-label]="t('historial.heatmap.title')">
+          <!-- Month labels -->
+          <g transform="translate(30, 12)">
+            <text *ngFor="let m of monthLabels()"
+              [attr.x]="m.x" y="0"
+              class="fill-muted-foreground text-[10px]">{{ m.label }}</text>
+          </g>
+
+          <!-- Weekday labels -->
+          <g transform="translate(0, 20)">
+            <text *ngFor="let label of weekdayLabels; let i = index"
+              x="0" [attr.y]="i * 14 + 10"
+              class="fill-muted-foreground text-[10px]">{{ label }}</text>
+          </g>
+
+          <!-- Cells -->
+          <g transform="translate(30, 20)">
+            <rect *ngFor="let cell of heatmapCells()"
+              [attr.x]="cell.x" [attr.y]="cell.y"
+              [attr.width]="CELL_SIZE" [attr.height]="CELL_SIZE"
+              rx="2" ry="2"
+              [ngClass]="cellClass(cell.level)"
+              [class.cursor-pointer]="cell.count > 0"
+              [class.opacity-100]="dayFilter() === null || dayFilter() === cell.date"
+              [class.opacity-40]="dayFilter() !== null && dayFilter() !== cell.date"
+              (click)="onCellClick(cell)">
+              <title>{{ heatmapTooltip(cell) }}</title>
+            </rect>
+          </g>
+        </svg>
+      </div>
+
+      <div *ngIf="dayFilter()" class="flex items-center gap-2 text-xs">
+        <span class="text-muted-foreground">{{ t('historial.heatmap.filtered_day') }}:</span>
+        <span class="font-mono font-medium">{{ dayFilter() }}</span>
+        <button type="button" (click)="clearDayFilter()"
+          class="text-primary hover:underline">
+          {{ t('historial.heatmap.clear_day') }}
+        </button>
+      </div>
+    </section>
+
+    <!-- Movements table section -->
+    <section class="rounded-lg border border-border bg-background flex flex-col">
+      <header class="flex items-center justify-between flex-wrap gap-2 p-4 border-b border-border">
+        <h3 class="text-sm font-semibold text-foreground">
+          {{ t('historial.movements.title') }}
+          <span class="ml-1 text-muted-foreground font-normal">({{ totalRows() }})</span>
+        </h3>
+        <button type="button" (click)="clearFilters()"
+          class="text-xs text-muted-foreground hover:text-foreground transition-colors">
+          {{ t('historial.filters.clear') }}
+        </button>
+      </header>
+
+      <!-- Filters -->
+      <div class="flex flex-wrap items-end gap-3 p-4 border-b border-border">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs text-muted-foreground">{{ t('historial.filters.type') }}</label>
+          <div class="flex gap-1.5 flex-wrap">
+            <button *ngFor="let type of MOVEMENT_TYPES" type="button"
+              (click)="toggleType(type)"
+              [ngClass]="isTypeSelected(type)
+                ? typeBadgeClass(type) + ' ring-2 ring-offset-1 ring-primary/40'
+                : 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground hover:bg-accent'">
+              {{ typeLabel(type) }}
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label for="hist-from" class="text-xs text-muted-foreground">{{ t('historial.filters.from') }}</label>
+          <input id="hist-from" type="date"
+            class="h-8 rounded-md border border-border bg-background px-2 text-xs"
+            [ngModel]="fromDate()"
+            (ngModelChange)="onFromChange($event)">
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label for="hist-to" class="text-xs text-muted-foreground">{{ t('historial.filters.to') }}</label>
+          <input id="hist-to" type="date"
+            class="h-8 rounded-md border border-border bg-background px-2 text-xs"
+            [ngModel]="toDate()"
+            (ngModelChange)="onToChange($event)">
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label for="hist-loc" class="text-xs text-muted-foreground">{{ t('historial.filters.location') }}</label>
+          <select id="hist-loc"
+            class="h-8 rounded-md border border-border bg-background px-2 text-xs"
+            [ngModel]="selectedLocation()"
+            (ngModelChange)="onLocationChange($event)">
+            <option value="">{{ t('historial.filters.all_locations') }}</option>
+            <option *ngFor="let loc of uniqueLocations()" [value]="loc">{{ loc }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm" *ngIf="pagedMovements().length > 0">
+          <thead class="bg-muted/50">
+            <tr class="text-left text-xs text-muted-foreground uppercase">
+              <th class="px-3 py-2 font-medium">{{ t('historial.col.date') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('historial.col.type') }}</th>
+              <th class="px-3 py-2 font-medium text-right">{{ t('historial.col.qty') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('historial.col.location') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('historial.col.reference') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('historial.col.user') }}</th>
+              <th class="px-3 py-2 font-medium text-right">{{ t('historial.col.unit_cost') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('historial.col.before_after') }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            <tr *ngFor="let mv of pagedMovements()" class="hover:bg-accent/30 transition-colors">
+              <td class="px-3 py-2" [title]="absoluteDate(mv.created_at)">
+                <span class="text-xs text-muted-foreground">{{ relativeDate(mv.created_at) }}</span>
+              </td>
+              <td class="px-3 py-2">
+                <span [ngClass]="typeBadgeClass(mv.movement_type)">
+                  {{ typeLabel(mv.movement_type) }}
+                </span>
+              </td>
+              <td class="px-3 py-2 text-right font-mono" [ngClass]="qtyClass(mv)">
+                {{ qtyDisplay(mv) }}
+              </td>
+              <td class="px-3 py-2 font-mono text-xs">{{ mv.location_code || '—' }}</td>
+              <td class="px-3 py-2 text-xs">{{ referenceLabel(mv) }}</td>
+              <td class="px-3 py-2 text-xs text-muted-foreground">{{ mv.user_id || '—' }}</td>
+              <td class="px-3 py-2 text-right text-xs">{{ unitCostDisplay(mv.unit_cost) }}</td>
+              <td class="px-3 py-2 text-xs font-mono text-muted-foreground">{{ qtyPairDisplay(mv) }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="pagedMovements().length === 0"
+          class="flex flex-col items-center justify-center py-12 text-center gap-2">
+          <svg class="h-8 w-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+          <p class="text-sm text-muted-foreground">{{ t('historial.movements.empty') }}</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <footer *ngIf="totalRows() > pageSize"
+        class="flex items-center justify-between gap-2 px-4 py-3 border-t border-border">
+        <span class="text-xs text-muted-foreground">
+          {{ t('historial.pagination.page') }} {{ pageIndex() + 1 }} / {{ totalPages() }}
+        </span>
+        <div class="flex items-center gap-2">
+          <button type="button" (click)="prevPage()" [disabled]="pageIndex() === 0"
+            class="h-8 px-3 text-xs rounded-md border border-border hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ t('historial.pagination.prev') }}
+          </button>
+          <button type="button" (click)="nextPage()" [disabled]="pageIndex() >= totalPages() - 1"
+            class="h-8 px-3 text-xs rounded-md border border-border hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ t('historial.pagination.next') }}
+          </button>
+        </div>
+      </footer>
+    </section>
+
+  </ng-container>
+</div>
