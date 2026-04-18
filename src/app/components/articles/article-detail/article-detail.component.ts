@@ -8,6 +8,8 @@ import { AuthorizationService } from '@app/services/extras/authorization.service
 import { LanguageService } from '@app/services/extras/language.service';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { ArticleFormComponent } from '../article-form/article-form.component';
+import { GeneralTabComponent } from './tabs/general-tab/general-tab.component';
+import { InventarioTabComponent } from './tabs/inventario-tab/inventario-tab.component';
 import { AlertasTabComponent } from './tabs/alertas-tab/alertas-tab.component';
 import { ProveedoresTabComponent } from './tabs/proveedores-tab/proveedores-tab.component';
 
@@ -23,6 +25,8 @@ const VALID_TABS: ArticleDetailTab[] = ['general', 'inventario', 'historial', 't
     RouterModule,
     MainLayoutComponent,
     ArticleFormComponent,
+    GeneralTabComponent,
+    InventarioTabComponent,
     AlertasTabComponent,
     ProveedoresTabComponent,
   ],
