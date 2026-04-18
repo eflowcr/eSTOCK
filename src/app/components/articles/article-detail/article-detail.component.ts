@@ -10,6 +10,8 @@ import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { ArticleFormComponent } from '../article-form/article-form.component';
 import { GeneralTabComponent } from './tabs/general-tab/general-tab.component';
 import { InventarioTabComponent } from './tabs/inventario-tab/inventario-tab.component';
+import { HistorialTabComponent } from './tabs/historial-tab/historial-tab.component';
+import { TrazabilidadTabComponent } from './tabs/trazabilidad-tab/trazabilidad-tab.component';
 import { AlertasTabComponent } from './tabs/alertas-tab/alertas-tab.component';
 import { ProveedoresTabComponent } from './tabs/proveedores-tab/proveedores-tab.component';
 
@@ -27,6 +29,8 @@ const VALID_TABS: ArticleDetailTab[] = ['general', 'inventario', 'historial', 't
     ArticleFormComponent,
     GeneralTabComponent,
     InventarioTabComponent,
+    HistorialTabComponent,
+    TrazabilidadTabComponent,
     AlertasTabComponent,
     ProveedoresTabComponent,
   ],
