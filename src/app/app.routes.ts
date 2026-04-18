@@ -160,6 +160,14 @@ export const routes: Routes = [
     canActivate: [NoAuthGuard],
   },
   {
+    path: 'stock-ledger',
+    loadComponent: () =>
+      import('./components/stock-ledger/stock-ledger.component').then(
+        (m) => m.StockLedgerComponent,
+      ),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
     path: '**',
     redirectTo: '/dashboard',
   },
