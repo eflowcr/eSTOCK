@@ -134,6 +134,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PermissionGuard],
   },
   {
+    path: 'lots/:id/trace',
+    loadComponent: () => import('./components/lots/lot-trace/lot-trace.component').then((m) => m.LotTraceComponent),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
     path: 'notifications',
     loadComponent: () => import('./components/notifications/notifications-page.component').then((m) => m.NotificationsPageComponent),
     canActivate: [AuthGuard],

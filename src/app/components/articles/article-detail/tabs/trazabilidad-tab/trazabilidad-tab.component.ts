@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, OnInit, SimpleChanges, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { InventoryLot } from '@app/models/inventory-lot.model';
 import { Lot } from '@app/models/lot.model';
 import { Serial } from '@app/models/serial.model';
@@ -16,6 +17,7 @@ type SortOrder = 'asc' | 'desc';
 
 export interface LotRow {
   id: number;
+  lotId: string;
   lot_number: string;
   sku: string;
   status: string;
@@ -31,7 +33,7 @@ const DEFAULT_STATUS: LotStatusFilter = 'active';
 @Component({
   selector: 'app-trazabilidad-tab',
   standalone: true,
-  imports: [CommonModule, FormsModule, ExpiryClassPipe],
+  imports: [CommonModule, FormsModule, RouterModule, ExpiryClassPipe],
   templateUrl: './trazabilidad-tab.component.html',
 })
 export class TrazabilidadTabComponent implements OnInit, OnChanges {
@@ -64,6 +66,7 @@ export class TrazabilidadTabComponent implements OnInit, OnChanges {
       const agg = byLotNumber.get(lot.lot_number);
       return {
         id: lot.id,
+        lotId: String(lot.id),
         lot_number: lot.lot_number,
         sku: lot.sku,
         status: this.inferLotStatus(lot),
@@ -209,10 +212,6 @@ export class TrazabilidadTabComponent implements OnInit, OnChanges {
     if (d < 0) return this.t('trazabilidad.expiry.expired').replace('{n}', String(Math.abs(d)));
     if (d === 0) return this.t('trazabilidad.expiry.today');
     return this.t('trazabilidad.expiry.in_n_days').replace('{n}', String(d));
-  }
-
-  traceDisabledTooltip(): string {
-    return this.t('trazabilidad.trace.disabled_hint');
   }
 
   serialStatusClass(status: string): string {
