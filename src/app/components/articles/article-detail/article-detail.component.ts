@@ -10,6 +10,8 @@ import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { ArticleFormComponent } from '../article-form/article-form.component';
 import { GeneralTabComponent } from './tabs/general-tab/general-tab.component';
 import { InventarioTabComponent } from './tabs/inventario-tab/inventario-tab.component';
+import { AlertasTabComponent } from './tabs/alertas-tab/alertas-tab.component';
+import { ProveedoresTabComponent } from './tabs/proveedores-tab/proveedores-tab.component';
 
 export type ArticleDetailTab = 'general' | 'inventario' | 'historial' | 'trazabilidad' | 'alertas' | 'proveedores';
 
@@ -18,7 +20,16 @@ const VALID_TABS: ArticleDetailTab[] = ['general', 'inventario', 'historial', 't
 @Component({
   selector: 'app-article-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, MainLayoutComponent, ArticleFormComponent, GeneralTabComponent, InventarioTabComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MainLayoutComponent,
+    ArticleFormComponent,
+    GeneralTabComponent,
+    InventarioTabComponent,
+    AlertasTabComponent,
+    ProveedoresTabComponent,
+  ],
   templateUrl: './article-detail.component.html',
 })
 export class ArticleDetailComponent implements OnInit {
