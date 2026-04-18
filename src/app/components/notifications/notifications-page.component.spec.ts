@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NotificationsPageComponent } from './notifications-page.component';
 import { NotificationsService } from '@app/services/notifications.service';
 import { LanguageService } from '@app/services/extras/language.service';
@@ -11,26 +12,23 @@ describe('NotificationsPageComponent', () => {
   let fixture: ComponentFixture<NotificationsPageComponent>;
   let notifSpy: jasmine.SpyObj<NotificationsService>;
   let alertSpy: jasmine.SpyObj<AlertService>;
-  let routerSpy: jasmine.SpyObj<Router>;
   let langSpy: jasmine.SpyObj<LanguageService>;
 
   beforeEach(async () => {
     notifSpy = jasmine.createSpyObj('NotificationsService', ['list', 'markRead', 'markAllRead']);
     alertSpy = jasmine.createSpyObj('AlertService', ['success', 'error']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     langSpy = jasmine.createSpyObj('LanguageService', ['t']);
 
-    notifSpy.list.and.returnValue(Promise.resolve(mockResponse(MOCK_NOTIFICATIONS)));
+    notifSpy.list.and.returnValue(Promise.resolve(mockResponse(MOCK_NOTIFICATIONS.map(n => ({ ...n })))));
     notifSpy.markRead.and.returnValue(Promise.resolve(mockResponse(undefined)));
     notifSpy.markAllRead.and.returnValue(Promise.resolve(mockResponse(undefined)));
     langSpy.t.and.callFake((k: string) => k);
 
     await TestBed.configureTestingModule({
-      imports: [NotificationsPageComponent],
+      imports: [NotificationsPageComponent, HttpClientTestingModule, RouterModule.forRoot([])],
       providers: [
         { provide: NotificationsService, useValue: notifSpy },
         { provide: AlertService, useValue: alertSpy },
-        { provide: Router, useValue: routerSpy },
         { provide: LanguageService, useValue: langSpy },
       ],
     }).compileComponents();

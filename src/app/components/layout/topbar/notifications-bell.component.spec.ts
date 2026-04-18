@@ -110,7 +110,7 @@ describe('NotificationsBellComponent', () => {
 
     await component.onItemClick(unread);
 
-    expect(notifSpy.markRead).toHaveBeenCalledWith('notif-001');
+    expect(notifSpy.markRead).toHaveBeenCalledWith(MOCK_NOTIFICATION_UNREAD.id);
     expect(unread.is_read).toBe(true);
   });
 
