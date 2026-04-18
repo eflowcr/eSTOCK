@@ -1,0 +1,190 @@
+<div class="flex flex-col gap-6">
+
+  <!-- Loading -->
+  <div *ngIf="isLoadingLots()" class="flex flex-col gap-4 animate-pulse">
+    <div class="h-64 rounded-lg bg-muted"></div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!isLoadingLots() && hasError()"
+    class="rounded-lg border border-destructive/30 bg-destructive/10 text-destructive text-sm p-4">
+    {{ t('trazabilidad.error_loading') }}
+  </div>
+
+  <ng-container *ngIf="!isLoadingLots() && !hasError()">
+
+    <!-- Lots section -->
+    <section class="rounded-lg border border-border bg-background flex flex-col">
+      <header class="flex items-center justify-between flex-wrap gap-2 p-4 border-b border-border">
+        <div>
+          <h3 class="text-sm font-semibold text-foreground">{{ t('trazabilidad.lots.title') }}</h3>
+          <p class="text-xs text-muted-foreground">
+            {{ t('trazabilidad.lots.count') }}: {{ filteredLots().length }}
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <!-- Status filter -->
+          <div class="flex items-center gap-1 text-xs">
+            <span class="text-muted-foreground mr-1">{{ t('trazabilidad.filters.status') }}:</span>
+            <button type="button" (click)="setStatus('all')"
+              [ngClass]="statusFilter() === 'all' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent'"
+              class="rounded-md px-2.5 py-1 transition-colors">
+              {{ t('trazabilidad.filters.all') }}
+            </button>
+            <button type="button" (click)="setStatus('active')"
+              [ngClass]="statusFilter() === 'active' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent'"
+              class="rounded-md px-2.5 py-1 transition-colors">
+              {{ t('trazabilidad.lot_status.active') }}
+            </button>
+            <button type="button" (click)="setStatus('archived')"
+              [ngClass]="statusFilter() === 'archived' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent'"
+              class="rounded-md px-2.5 py-1 transition-colors">
+              {{ t('trazabilidad.lot_status.archived') }}
+            </button>
+          </div>
+
+          <!-- Expiry filter -->
+          <div class="flex items-center gap-1 text-xs">
+            <span class="text-muted-foreground mr-1">{{ t('trazabilidad.filters.expiry') }}:</span>
+            <button type="button" (click)="setExpiry('all')"
+              [ngClass]="expiryFilter() === 'all' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent'"
+              class="rounded-md px-2.5 py-1 transition-colors">
+              {{ t('trazabilidad.filters.all') }}
+            </button>
+            <button type="button" (click)="setExpiry('30d')"
+              [ngClass]="expiryFilter() === '30d' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent'"
+              class="rounded-md px-2.5 py-1 transition-colors">
+              {{ t('trazabilidad.filters.next_30d') }}
+            </button>
+            <button type="button" (click)="setExpiry('expired')"
+              [ngClass]="expiryFilter() === 'expired' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent'"
+              class="rounded-md px-2.5 py-1 transition-colors">
+              {{ t('trazabilidad.filters.expired') }}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm" *ngIf="filteredLots().length > 0">
+          <thead class="bg-muted/50">
+            <tr class="text-left text-xs text-muted-foreground uppercase">
+              <th class="px-3 py-2 font-medium">{{ t('trazabilidad.col.lot') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('trazabilidad.col.status') }}</th>
+              <th class="px-3 py-2 font-medium cursor-pointer" (click)="toggleSort()">
+                <span class="inline-flex items-center gap-1">
+                  {{ t('trazabilidad.col.expiration') }}
+                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path *ngIf="sortOrder() === 'asc'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                    <path *ngIf="sortOrder() === 'desc'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </span>
+              </th>
+              <th class="px-3 py-2 font-medium">{{ t('trazabilidad.col.best_before') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('trazabilidad.col.manufactured') }}</th>
+              <th class="px-3 py-2 font-medium text-right">{{ t('trazabilidad.col.qty') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('trazabilidad.col.locations') }}</th>
+              <th class="px-3 py-2 font-medium text-right">{{ t('trazabilidad.col.actions') }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            <tr *ngFor="let row of filteredLots()" class="hover:bg-accent/30 transition-colors">
+              <td class="px-3 py-2 font-mono text-xs">{{ row.lot_number }}</td>
+              <td class="px-3 py-2">
+                <span [ngClass]="statusBadgeClass(row.status)">
+                  {{ statusLabel(row.status) }}
+                </span>
+              </td>
+              <td class="px-3 py-2">
+                <div class="flex flex-col">
+                  <span class="text-xs font-medium px-2 py-0.5 rounded w-fit" [ngClass]="row.expiration_date | expiryClass">
+                    {{ formatDate(row.expiration_date) }}
+                  </span>
+                  <span *ngIf="row.expiration_date" class="text-[10px] text-muted-foreground mt-0.5">
+                    {{ daysLabel(row.expiration_date) }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-3 py-2 text-xs">{{ formatDate(row.best_before_date) }}</td>
+              <td class="px-3 py-2 text-xs">{{ formatDate(row.manufactured_at) }}</td>
+              <td class="px-3 py-2 text-right font-mono font-semibold">{{ row.totalQty }}</td>
+              <td class="px-3 py-2">
+                <div class="flex flex-wrap gap-1">
+                  <span *ngIf="row.locations.length === 0" class="text-xs text-muted-foreground">—</span>
+                  <span *ngFor="let loc of row.locations"
+                    class="inline-flex items-center rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+                    {{ loc }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-3 py-2 text-right">
+                <button type="button" disabled
+                  [title]="traceDisabledTooltip()"
+                  class="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground opacity-60 cursor-not-allowed">
+                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                  {{ t('trazabilidad.trace.view') }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="filteredLots().length === 0"
+          class="flex flex-col items-center justify-center py-12 text-center gap-2">
+          <svg class="h-8 w-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M20 7l-8-4-8 4m16 0v10l-8 4m-8-4V7m16 10l-8-4m-8 4l8-4"/>
+          </svg>
+          <p class="text-sm text-muted-foreground">{{ t('trazabilidad.lots.empty') }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Serials section (only if SKU is serialized) -->
+    <section *ngIf="isSerialized" class="rounded-lg border border-border bg-background flex flex-col">
+      <header class="flex items-center justify-between gap-2 p-4 border-b border-border">
+        <div>
+          <h3 class="text-sm font-semibold text-foreground">{{ t('trazabilidad.serials.title') }}</h3>
+          <p class="text-xs text-muted-foreground">
+            {{ t('trazabilidad.serials.count') }}: {{ serials().length }}
+          </p>
+        </div>
+      </header>
+
+      <div *ngIf="isLoadingSerials()" class="p-6 animate-pulse">
+        <div class="h-16 rounded bg-muted"></div>
+      </div>
+
+      <div *ngIf="!isLoadingSerials()" class="overflow-x-auto">
+        <table class="w-full text-sm" *ngIf="serials().length > 0">
+          <thead class="bg-muted/50">
+            <tr class="text-left text-xs text-muted-foreground uppercase">
+              <th class="px-3 py-2 font-medium">{{ t('trazabilidad.serials.col.serial') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('trazabilidad.serials.col.status') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('trazabilidad.serials.col.created_at') }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            <tr *ngFor="let s of serials()" class="hover:bg-accent/30 transition-colors">
+              <td class="px-3 py-2 font-mono text-xs">{{ s.serial_number }}</td>
+              <td class="px-3 py-2">
+                <span [ngClass]="serialStatusClass(s.status)">{{ s.status }}</span>
+              </td>
+              <td class="px-3 py-2 text-xs text-muted-foreground">{{ formatDate(s.created_at) }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="serials().length === 0"
+          class="flex flex-col items-center justify-center py-8 text-center gap-2">
+          <p class="text-sm text-muted-foreground">{{ t('trazabilidad.serials.empty') }}</p>
+        </div>
+      </div>
+    </section>
+
+  </ng-container>
+</div>
