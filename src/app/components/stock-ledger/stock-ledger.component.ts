@@ -44,7 +44,7 @@ const MOVEMENT_TYPES: MovementType[] = ['INBOUND', 'OUTBOUND', 'REJECTED', 'ADJU
           </div>
           <div *ngFor="let type of movementTypes" class="rounded-lg border border-border bg-card p-3">
             <div class="text-xs text-muted-foreground">{{ typeLabel(type) }}</div>
-            <div class="mt-1 text-lg font-semibold" [ngClass]="typeBadgeClass(type).split(' ').filter(c => c.includes('text-')).join(' ')">
+            <div class="mt-1 text-lg font-semibold" [ngClass]="typeTextClass(type)">
               {{ countByType(type) }}
             </div>
           </div>
@@ -426,6 +426,17 @@ export class StockLedgerComponent implements OnInit {
 
   typeLabel(type: MovementType): string {
     return this.t(`historial.type.${type.toLowerCase()}`);
+  }
+
+  typeTextClass(type: MovementType): string {
+    switch (type) {
+      case 'INBOUND': return 'text-green-800 dark:text-green-300';
+      case 'OUTBOUND': return 'text-blue-800 dark:text-blue-300';
+      case 'ADJUSTMENT': return 'text-amber-800 dark:text-amber-300';
+      case 'TRANSFER': return 'text-indigo-800 dark:text-indigo-300';
+      case 'REJECTED': return 'text-red-800 dark:text-red-300';
+      default: return 'text-muted-foreground';
+    }
   }
 
   typeBadgeClass(type: MovementType): string {

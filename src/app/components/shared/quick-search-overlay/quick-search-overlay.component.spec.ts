@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { QuickSearchOverlayComponent } from './quick-search-overlay.component';
 import { QuickSearchService } from '@app/services/quick-search.service';
 import { LanguageService } from '@app/services/extras/language.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 const emptyResult = { articles: [], locations: [], lots: [], tasks: { receiving: [], picking: [] } };
@@ -23,7 +24,11 @@ describe('QuickSearchOverlayComponent', () => {
     searchSpy.search.and.returnValue(Promise.resolve(emptyResult));
 
     await TestBed.configureTestingModule({
-      imports: [QuickSearchOverlayComponent],
+      imports: [
+        QuickSearchOverlayComponent,
+        RouterModule.forRoot([]),
+        HttpClientTestingModule,
+      ],
       providers: [
         provideNoopAnimations(),
         { provide: QuickSearchService, useValue: searchSpy },
