@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
 import { TrazabilidadTabComponent } from './trazabilidad-tab.component';
 import { LotService } from '@app/services/lot.service';
 import { InventoryLotsService } from '@app/services/inventory-lots.service';
@@ -58,6 +59,7 @@ describe('TrazabilidadTabComponent', () => {
       imports: [TrazabilidadTabComponent],
       providers: [
         provideNoopAnimations(),
+        provideRouter([]),
         { provide: LotService, useValue: lotService },
         { provide: InventoryLotsService, useValue: inventoryLotsService },
         { provide: SerialService, useValue: serialService },
@@ -91,6 +93,13 @@ describe('TrazabilidadTabComponent', () => {
     const lotA = rows.find(r => r.lot_number === 'LOT-A')!;
     expect(lotA.totalQty).toBe(100);
     expect(lotA.locations.sort()).toEqual(['A-01', 'B-02']);
+  });
+
+  it('lotRows populates lotId as string of lot.id', () => {
+    const rows = component.lotRows();
+    const lotA = rows.find(r => r.lot_number === 'LOT-A')!;
+    expect(lotA.lotId).toBe('1');
+    expect(typeof lotA.lotId).toBe('string');
   });
 
   it('default status=active filters out archived (qty=0 or expired)', () => {
@@ -158,6 +167,7 @@ describe('TrazabilidadTabComponent — with serials', () => {
       imports: [TrazabilidadTabComponent],
       providers: [
         provideNoopAnimations(),
+        provideRouter([]),
         { provide: LotService, useValue: lotService },
         { provide: InventoryLotsService, useValue: inventoryLotsService },
         { provide: SerialService, useValue: serialService },

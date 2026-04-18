@@ -1,0 +1,297 @@
+<div class="flex flex-col gap-6 p-4 sm:p-6 max-w-4xl mx-auto">
+
+  <!-- Loading skeleton -->
+  <ng-container *ngIf="isLoading()">
+    <div class="animate-pulse flex flex-col gap-4">
+      <div class="h-8 w-64 rounded bg-muted"></div>
+      <div class="h-5 w-40 rounded bg-muted"></div>
+      <div class="h-32 rounded-lg bg-muted"></div>
+      <div class="h-48 rounded-lg bg-muted"></div>
+    </div>
+  </ng-container>
+
+  <!-- Error state -->
+  <div *ngIf="!isLoading() && hasError()"
+    class="rounded-lg border border-destructive/30 bg-destructive/10 text-destructive text-sm p-6 flex flex-col items-center gap-2 text-center">
+    <svg class="h-8 w-8 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+        d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+    </svg>
+    <p>{{ t('lot_trace.error') }}</p>
+    <a routerLink="/inventory" class="text-xs underline text-muted-foreground">{{ t('lot_trace.breadcrumb.inventory') }}</a>
+  </div>
+
+  <ng-container *ngIf="!isLoading() && !hasError() && trace() as tr">
+
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <a routerLink="/inventory" class="hover:text-foreground transition-colors">{{ t('lot_trace.breadcrumb.inventory') }}</a>
+      <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+      <span class="text-foreground font-medium">{{ tr.lot.lot_number }}</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
+          <h1 class="text-xl font-bold text-foreground">
+            {{ t('lot_trace.title') }} {{ tr.lot.lot_number }}
+          </h1>
+          <span class="inline-flex items-center rounded bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
+            {{ tr.lot.sku }}
+          </span>
+          <span [ngClass]="statusBadgeClass(tr.lot.status)">
+            {{ t('trazabilidad.lot_status.' + tr.lot.status) }}
+          </span>
+        </div>
+        <div class="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+          <span *ngIf="tr.lot.expiration_date" class="flex items-center gap-1">
+            <span class="text-muted-foreground">{{ t('trazabilidad.col.expiration') }}:</span>
+            <span class="px-1.5 py-0.5 rounded text-xs font-medium" [ngClass]="tr.lot.expiration_date | expiryClass">
+              {{ formatDate(tr.lot.expiration_date) }}
+            </span>
+            <span class="text-muted-foreground">{{ daysLabel(tr.lot.expiration_date) }}</span>
+          </span>
+          <span *ngIf="tr.lot.manufactured_at" class="flex items-center gap-1">
+            <span>{{ t('trazabilidad.col.manufactured') }}:</span>
+            <span class="text-foreground">{{ formatDate(tr.lot.manufactured_at) }}</span>
+          </span>
+          <span *ngIf="tr.lot.best_before_date" class="flex items-center gap-1">
+            <span>{{ t('trazabilidad.col.best_before') }}:</span>
+            <span class="text-foreground">{{ formatDate(tr.lot.best_before_date) }}</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Export button -->
+      <button type="button" (click)="exportPdf()" [disabled]="isExporting()"
+        class="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors disabled:opacity-60 disabled:cursor-not-allowed shrink-0">
+        <svg *ngIf="!isExporting()" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/>
+        </svg>
+        <svg *ngIf="isExporting()" class="h-4 w-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        {{ isExporting() ? t('lot_trace.exporting') : t('lot_trace.export_pdf') }}
+      </button>
+    </div>
+
+    <!-- ══ SECCIÓN ORIGEN ══ -->
+    <section class="rounded-lg border border-border bg-background overflow-hidden">
+      <header class="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/30">
+        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <h2 class="text-sm font-semibold text-foreground">{{ t('lot_trace.origin.section') }}</h2>
+      </header>
+
+      <!-- Origin: known -->
+      <div *ngIf="tr.origin; else noOrigin" class="p-4 flex flex-col gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div>
+            <p class="text-xs text-muted-foreground mb-0.5">{{ t('lot_trace.origin.task') }}</p>
+            <a [routerLink]="['/receiving-tasks']"
+              class="font-mono text-xs text-primary hover:underline">
+              #{{ tr.origin.receiving_task_id.slice(0, 8) }}
+            </a>
+          </div>
+          <div *ngIf="tr.origin.supplier">
+            <p class="text-xs text-muted-foreground mb-0.5">{{ t('lot_trace.origin.supplier') }}</p>
+            <a [routerLink]="['/clients', tr.origin.supplier.id]"
+              class="text-xs text-primary hover:underline">
+              {{ tr.origin.supplier.name }}
+            </a>
+            <span class="text-xs text-muted-foreground ml-1">({{ tr.origin.supplier.code }})</span>
+          </div>
+          <div *ngIf="!tr.origin.supplier">
+            <p class="text-xs text-muted-foreground mb-0.5">{{ t('lot_trace.origin.supplier') }}</p>
+            <span class="text-xs text-muted-foreground">—</span>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-0.5">{{ t('lot_trace.origin.received_at') }}</p>
+            <span class="text-xs text-foreground">{{ formatDateTime(tr.origin.received_at) }}</span>
+          </div>
+          <div *ngIf="movements().length > 0">
+            <p class="text-xs text-muted-foreground mb-0.5">{{ t('lot_trace.origin.initial_qty') }}</p>
+            <span class="text-xs font-mono font-semibold text-foreground">
+              {{ movements()[0].quantity }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Origin: unknown (pre-S2 lot) -->
+      <ng-template #noOrigin>
+        <div class="p-4 flex items-start gap-3">
+          <svg class="h-5 w-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"/>
+          </svg>
+          <div>
+            <p class="text-sm font-medium text-foreground">{{ t('lot_trace.origin.unknown') }}</p>
+            <p class="text-xs text-muted-foreground mt-0.5">{{ t('lot_trace.origin.unknown_hint') }}</p>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+
+    <!-- ══ SECCIÓN MOVIMIENTOS ══ -->
+    <section class="rounded-lg border border-border bg-background overflow-hidden">
+      <header class="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/30">
+        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+        </svg>
+        <h2 class="text-sm font-semibold text-foreground">{{ t('lot_trace.movements.section') }}</h2>
+        <span class="ml-auto text-xs text-muted-foreground">{{ movements().length }}</span>
+      </header>
+
+      <!-- Empty state -->
+      <div *ngIf="movements().length === 0"
+        class="flex flex-col items-center justify-center py-10 gap-2 text-center">
+        <svg class="h-8 w-8 text-muted-foreground opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <p class="text-sm text-muted-foreground">{{ t('lot_trace.movements.empty') }}</p>
+      </div>
+
+      <!-- Timeline -->
+      <div *ngIf="movements().length > 0" class="p-4">
+        <ol class="relative border-l border-border ml-3 flex flex-col gap-0">
+          <li *ngFor="let m of movements(); let last = last"
+            [class.pb-6]="!last"
+            class="ml-6">
+            <!-- dot -->
+            <span class="absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-background"
+              [ngClass]="movementTypeClass(m.type)">
+              <!-- INBOUND -->
+              <svg *ngIf="m.type === 'INBOUND'" class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+              </svg>
+              <!-- OUTBOUND -->
+              <svg *ngIf="m.type === 'OUTBOUND'" class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+              </svg>
+              <!-- REJECTED -->
+              <svg *ngIf="m.type === 'REJECTED'" class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18.364 5.636L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <!-- ADJUSTMENT -->
+              <svg *ngIf="m.type === 'ADJUSTMENT'" class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+              </svg>
+              <!-- TRANSFER_IN / TRANSFER_OUT -->
+              <svg *ngIf="m.type === 'TRANSFER_IN' || m.type === 'TRANSFER_OUT'" class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+              </svg>
+            </span>
+
+            <!-- content -->
+            <div class="flex flex-col gap-0.5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                  [ngClass]="movementTypeClass(m.type)">
+                  {{ t('lot_trace.type.' + m.type.toLowerCase()) }}
+                </span>
+                <span [ngClass]="movementQtyClass(m.type)" class="text-sm">
+                  {{ movementQtyPrefix(m.type) }}{{ m.quantity }}
+                </span>
+                <span *ngIf="m.location" class="inline-flex items-center rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+                  {{ m.location }}
+                </span>
+              </div>
+              <div class="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                <span>{{ formatDateTime(m.created_at) }}</span>
+                <span *ngIf="m.reference_type && m.reference_id">
+                  · {{ t('lot_trace.movements.via') }}
+                  <ng-container *ngIf="refLink(m) as link; else noLink">
+                    <a [routerLink]="link" class="text-primary hover:underline">
+                      {{ refTypeLabel(m.reference_type) }} #{{ m.reference_id.slice(0, 8) }}
+                    </a>
+                  </ng-container>
+                  <ng-template #noLink>
+                    <span>{{ refTypeLabel(m.reference_type) }} #{{ m.reference_id.slice(0, 8) }}</span>
+                  </ng-template>
+                </span>
+              </div>
+              <div *ngIf="m.before_qty !== undefined && m.after_qty !== undefined"
+                class="text-[10px] text-muted-foreground">
+                {{ m.before_qty }} → {{ m.after_qty }}
+              </div>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ══ SECCIÓN STOCK ACTUAL ══ -->
+    <section class="rounded-lg border border-border bg-background overflow-hidden">
+      <header class="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/30">
+        <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+        <h2 class="text-sm font-semibold text-foreground">{{ t('lot_trace.current_stock.section') }}</h2>
+      </header>
+
+      <div class="p-4 flex flex-col gap-4">
+        <!-- KPI total -->
+        <div class="flex items-end gap-2">
+          <span class="text-3xl font-bold tabular-nums" [class.text-muted-foreground]="isDepleted()">
+            {{ tr.current_stock.total_qty }}
+          </span>
+          <span class="text-sm text-muted-foreground mb-1">{{ t('lot_trace.current_stock.total') }}</span>
+        </div>
+
+        <!-- Depleted notice -->
+        <div *ngIf="isDepleted()"
+          class="rounded-md border border-muted bg-muted/40 px-3 py-2 flex flex-col gap-1">
+          <p class="text-sm font-medium text-foreground">{{ t('lot_trace.current_stock.depleted') }}</p>
+          <p *ngIf="lastOutbound() as lo" class="text-xs text-muted-foreground">
+            {{ t('lot_trace.current_stock.last_exit') }}: {{ formatDateTime(lo.created_at) }}
+          </p>
+        </div>
+
+        <!-- By location table -->
+        <div *ngIf="stockByLocation().length > 0" class="overflow-x-auto">
+          <p class="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">
+            {{ t('lot_trace.current_stock.by_location') }}
+          </p>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-xs text-muted-foreground border-b border-border">
+                <th class="pb-1.5 font-medium">{{ t('lot_trace.col.location') }}</th>
+                <th class="pb-1.5 font-medium text-right">{{ t('lot_trace.col.qty') }}</th>
+                <th class="pb-1.5 font-medium text-right"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+              <tr *ngFor="let loc of stockByLocation()" class="hover:bg-accent/30 transition-colors">
+                <td class="py-2">
+                  <span class="inline-flex items-center rounded bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
+                    {{ loc.location }}
+                  </span>
+                </td>
+                <td class="py-2 text-right tabular-nums font-semibold">{{ loc.qty }}</td>
+                <td class="py-2 text-right">
+                  <a [routerLink]="['/inventory']" [queryParams]="{ location: loc.location }"
+                    class="text-xs text-primary hover:underline">
+                    {{ t('trazabilidad.trace.view') }}
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </ng-container>
+
+</div>
