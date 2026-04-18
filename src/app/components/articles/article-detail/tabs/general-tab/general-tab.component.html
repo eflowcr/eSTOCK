@@ -1,0 +1,181 @@
+<div *ngIf="article" class="flex flex-col gap-4">
+
+  <!-- Header: edit button aligned right -->
+  <div *ngIf="canEdit" class="flex items-center justify-end">
+    <button type="button" (click)="onEditClick()"
+      class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground hover:bg-accent transition-colors">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+      </svg>
+      {{ t('article_detail.general.edit_button') }}
+    </button>
+  </div>
+
+  <!-- Main card -->
+  <div class="rounded-lg border border-border bg-card text-card-foreground">
+
+    <!-- Identificación -->
+    <section class="p-5 border-b border-border">
+      <h3 class="text-sm font-semibold text-foreground mb-3">{{ t('article_detail.general.section.identification') }}</h3>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.sku') }}</dt>
+          <dd class="font-mono font-medium text-foreground mt-0.5">{{ article.sku }}</dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.name') }}</dt>
+          <dd class="font-medium text-foreground mt-0.5">{{ article.name }}</dd>
+        </div>
+        <div class="sm:col-span-2">
+          <dt class="text-muted-foreground">{{ t('article_detail.general.description') }}</dt>
+          <dd class="text-foreground mt-0.5 whitespace-pre-line">{{ hasValue(article.description) ? article.description : '—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.status') }}</dt>
+          <dd class="mt-0.5">
+            <span [ngClass]="statusBadgeClass">
+              {{ article.is_active ? t('article_detail.status.active') : t('article_detail.status.archived') }}
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.presentation') }}</dt>
+          <dd class="text-foreground mt-0.5">{{ hasValue(article.presentation) ? article.presentation : '—' }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Clasificación -->
+    <section class="p-5 border-b border-border">
+      <h3 class="text-sm font-semibold text-foreground mb-3">{{ t('article_detail.general.section.classification') }}</h3>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.category') }}</dt>
+          <dd class="mt-0.5">
+            <span *ngIf="article.category; else noCategory" [ngClass]="categoryBadgeClass">
+              {{ article.category.name }}
+            </span>
+            <ng-template #noCategory><span class="text-muted-foreground">—</span></ng-template>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.rotation_strategy') }}</dt>
+          <dd class="text-foreground mt-0.5 uppercase">{{ hasValue(article.rotation_strategy) ? article.rotation_strategy : '—' }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Logística -->
+    <section class="p-5 border-b border-border">
+      <h3 class="text-sm font-semibold text-foreground mb-3">{{ t('article_detail.general.section.logistics') }}</h3>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.shelf_life') }}</dt>
+          <dd class="text-foreground mt-0.5">
+            <span *ngIf="hasValue(article.shelf_life_in_days); else noShelf">
+              {{ t('article_detail.general.shelf_life_value').replace('{n}', article.shelf_life_in_days + '') }}
+            </span>
+            <ng-template #noShelf><span class="text-muted-foreground">—</span></ng-template>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.safety_stock') }}</dt>
+          <dd class="text-foreground mt-0.5">
+            <span *ngIf="hasValue(article.safety_stock); else noSafety">
+              {{ t('article_detail.general.safety_stock_value').replace('{n}', article.safety_stock + '') }}
+            </span>
+            <ng-template #noSafety><span class="text-muted-foreground">—</span></ng-template>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.min_order_qty') }}</dt>
+          <dd class="text-foreground mt-0.5">
+            <span *ngIf="hasValue(article.min_order_qty); else noMoq">
+              {{ t('article_detail.general.moq_value').replace('{n}', article.min_order_qty + '') }}
+            </span>
+            <ng-template #noMoq><span class="text-muted-foreground">—</span></ng-template>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.default_location') }}</dt>
+          <dd class="mt-0.5">
+            <a *ngIf="article.default_location; else noLoc"
+              [routerLink]="['/inventory']"
+              [queryParams]="{ location: article.default_location.code }"
+              class="inline-flex items-center gap-1 rounded-md bg-accent px-2 py-0.5 text-xs font-medium text-foreground hover:bg-accent/80 transition-colors">
+              <span class="font-mono">{{ article.default_location.code }}</span>
+              <span class="text-muted-foreground">·</span>
+              <span>{{ article.default_location.name }}</span>
+            </a>
+            <ng-template #noLoc><span class="text-muted-foreground">—</span></ng-template>
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Series automáticas -->
+    <section class="p-5 border-b border-border">
+      <h3 class="text-sm font-semibold text-foreground mb-3">{{ t('article_detail.general.section.series') }}</h3>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.batch_series') }}</dt>
+          <dd class="text-foreground mt-0.5">
+            <span *ngIf="hasValue(article.batch_number_series); else noBatch" class="font-mono">{{ batchSeriesExample }}</span>
+            <ng-template #noBatch><span class="text-muted-foreground">—</span></ng-template>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.serial_series') }}</dt>
+          <dd class="text-foreground mt-0.5">
+            <span *ngIf="hasValue(article.serial_number_series); else noSerial" class="font-mono">{{ serialSeriesExample }}</span>
+            <ng-template #noSerial><span class="text-muted-foreground">—</span></ng-template>
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Instrucciones -->
+    <section class="p-5 border-b border-border">
+      <h3 class="text-sm font-semibold text-foreground mb-3">{{ t('article_detail.general.section.instructions') }}</h3>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div>
+          <dt class="text-muted-foreground mb-1">{{ t('article_detail.general.receiving_notes') }}</dt>
+          <dd>
+            <div *ngIf="hasValue(article.receiving_notes); else noRecv"
+              class="rounded-md border border-border bg-muted/40 p-3 text-foreground whitespace-pre-line">
+              {{ article.receiving_notes }}
+            </div>
+            <ng-template #noRecv><span class="text-muted-foreground">—</span></ng-template>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground mb-1">{{ t('article_detail.general.shipping_notes') }}</dt>
+          <dd>
+            <div *ngIf="hasValue(article.shipping_notes); else noShip"
+              class="rounded-md border border-border bg-muted/40 p-3 text-foreground whitespace-pre-line">
+              {{ article.shipping_notes }}
+            </div>
+            <ng-template #noShip><span class="text-muted-foreground">—</span></ng-template>
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Metadata -->
+    <section class="p-5">
+      <h3 class="text-sm font-semibold text-foreground mb-3">{{ t('article_detail.general.section.metadata') }}</h3>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.created_at') }}</dt>
+          <dd class="text-foreground mt-0.5" [title]="formatAbsolute(article.created_at)">{{ formatRelative(article.created_at) }}</dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground">{{ t('article_detail.general.updated_at') }}</dt>
+          <dd class="text-foreground mt-0.5" [title]="formatAbsolute(article.updated_at)">{{ formatRelative(article.updated_at) }}</dd>
+        </div>
+      </dl>
+    </section>
+
+  </div>
+</div>
