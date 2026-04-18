@@ -11,6 +11,7 @@ const ALL_NAV_ITEMS: NavigationItems = [
   { name: 'stock_adjustments', href: '/stock-adjustments', icon: 'Edit', permission: { resource: 'inventory', action: 'update' } },
   { name: 'stock_alerts', href: '/stock-alerts', icon: 'AlertTriangle', permission: { resource: 'inventory', action: 'read' } },
   { name: 'stock_transfers', href: '/stock-transfers', icon: 'Truck', permission: { resource: 'inventory', action: 'read' } },
+  { name: 'stock_ledger', href: '/stock-ledger', icon: 'ScrollText', permission: { resource: 'inventory', action: 'read' } },
   // Inventory
   { name: 'articles', href: '/articles', icon: 'Tag', permission: { resource: 'articles', action: 'read' } },
   { name: 'clients', href: '/clients', icon: 'Building', permission: { resource: 'clients', action: 'read' } },
