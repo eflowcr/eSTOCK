@@ -36,7 +36,7 @@ export class ClientsService {
     }
     const qs = params.toString();
     return this.fetchService.get<ApiResponse<Client[]>>({
-      API_Gateway: qs ? `${CLIENTS_URL}?${qs}` : `${CLIENTS_URL}`,
+      API_Gateway: qs ? `${CLIENTS_URL}/?${qs}` : `${CLIENTS_URL}/`,
     });
   }
 
@@ -48,7 +48,7 @@ export class ClientsService {
 
   async create(payload: Omit<Client, 'id' | 'tenant_id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Client>> {
     return this.fetchService.post<ApiResponse<Client>>({
-      API_Gateway: CLIENTS_URL,
+      API_Gateway: `${CLIENTS_URL}/`,
       values: payload,
     });
   }

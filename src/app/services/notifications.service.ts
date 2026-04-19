@@ -26,7 +26,7 @@ export class NotificationsService {
     }
     const qs = params.toString();
     return this.fetchService.get<ApiResponse<Notification[]>>({
-      API_Gateway: qs ? `${NOTIFICATIONS_URL}?${qs}` : NOTIFICATIONS_URL,
+      API_Gateway: qs ? `${NOTIFICATIONS_URL}/?${qs}` : `${NOTIFICATIONS_URL}/`,
     });
   }
 

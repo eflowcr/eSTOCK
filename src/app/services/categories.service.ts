@@ -17,7 +17,7 @@ export class CategoriesService {
 
   async list(): Promise<ApiResponse<Category[]>> {
     return this.fetchService.get<ApiResponse<Category[]>>({
-      API_Gateway: CATEGORIES_URL,
+      API_Gateway: `${CATEGORIES_URL}/`,
     });
   }
 
@@ -35,7 +35,7 @@ export class CategoriesService {
 
   async create(payload: Omit<Category, 'id' | 'tenant_id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Category>> {
     return this.fetchService.post<ApiResponse<Category>>({
-      API_Gateway: CATEGORIES_URL,
+      API_Gateway: `${CATEGORIES_URL}/`,
       values: payload,
     });
   }
