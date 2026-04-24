@@ -168,6 +168,22 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PermissionGuard],
   },
   {
+    path: 'delivery-notes',
+    loadComponent: () =>
+      import('./components/delivery-notes/delivery-notes-list/delivery-notes-list.component').then(
+        (m) => m.DeliveryNotesListComponent,
+      ),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
+    path: 'delivery-notes/:id',
+    loadComponent: () =>
+      import('./components/delivery-notes/delivery-note-detail/delivery-note-detail.component').then(
+        (m) => m.DeliveryNoteDetailComponent,
+      ),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
     path: '**',
     redirectTo: '/dashboard',
   },

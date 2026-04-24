@@ -133,6 +133,10 @@ interface SidebarSection {
               <svg *ngIf="item.icon === 'ArrowRightLeft'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18M17 8l4 4m0 0l-4 4m4-4H3"></path>
               </svg>
+              <!-- FileText Icon (delivery notes) -->
+              <svg *ngIf="item.icon === 'FileText'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
               <!-- ClipboardCheck Icon (picking tasks) -->
               <svg *ngIf="item.icon === 'ClipboardCheck'" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
@@ -242,7 +246,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       {
         // Daily warehouse operations — includes Stock Transfers (moved from catalog)
         titleKey: 'sidebar.section.operations',
-        hrefs: ['/receiving-tasks', '/picking-tasks', '/stock-adjustments', '/stock-alerts', '/stock-transfers', '/stock-ledger'],
+        hrefs: ['/receiving-tasks', '/picking-tasks', '/delivery-notes', '/stock-adjustments', '/stock-alerts', '/stock-transfers', '/stock-ledger'],
       },
       {
         // Core inventory catalog — trimmed to 4 high-frequency pages
