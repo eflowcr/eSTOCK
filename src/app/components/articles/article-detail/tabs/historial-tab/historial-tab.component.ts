@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { InventoryMovement, MovementType } from '@app/models/inventory-movement.model';
 import { InventoryMovementsService } from '@app/services/inventory-movements.service';
 import { LanguageService } from '@app/services/extras/language.service';
+import { RelativeDatePipe } from '@app/shared/pipes/relative-date.pipe';
+import { MovementTypeBadgePipe } from '@app/shared/pipes/movement-type-badge.pipe';
 
 export interface HeatmapCell {
   date: string;      // YYYY-MM-DD
@@ -31,7 +33,7 @@ const MOVEMENT_TYPES: MovementType[] = ['inbound', 'outbound', 'rejected', 'adju
 @Component({
   selector: 'app-historial-tab',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RelativeDatePipe, MovementTypeBadgePipe],
   templateUrl: './historial-tab.component.html',
 })
 export class HistorialTabComponent implements OnInit, OnChanges {
@@ -279,24 +281,6 @@ export class HistorialTabComponent implements OnInit, OnChanges {
     return Array.from({ length: LEGEND_LEVELS }, (_, i) => i);
   }
 
-  typeBadgeClass(type: MovementType): string {
-    const base = 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium';
-    switch (type) {
-      case 'inbound':
-        return `${base} bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300`;
-      case 'outbound':
-        return `${base} bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300`;
-      case 'adjustment':
-        return `${base} bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300`;
-      case 'transfer':
-        return `${base} bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300`;
-      case 'rejected':
-        return `${base} bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300`;
-      default:
-        return `${base} bg-muted text-muted-foreground`;
-    }
-  }
-
   typeLabel(type: MovementType): string {
     return this.t(`historial.type.${type}`);
   }
@@ -319,23 +303,6 @@ export class HistorialTabComponent implements OnInit, OnChanges {
 
   absoluteDate(iso: string): string {
     try { return new Date(iso).toLocaleString('es'); } catch { return iso; }
-  }
-
-  relativeDate(iso: string): string {
-    try {
-      const then = new Date(iso).getTime();
-      const diffSec = Math.round((Date.now() - then) / 1000);
-      if (diffSec < 60) return `${diffSec}s`;
-      const diffMin = Math.round(diffSec / 60);
-      if (diffMin < 60) return `${diffMin}m`;
-      const diffH = Math.round(diffMin / 60);
-      if (diffH < 24) return `${diffH}h`;
-      const diffD = Math.round(diffH / 24);
-      if (diffD < 30) return `${diffD}d`;
-      const diffMo = Math.round(diffD / 30);
-      if (diffMo < 12) return `${diffMo}mo`;
-      return `${Math.round(diffMo / 12)}y`;
-    } catch { return ''; }
   }
 
   referenceLabel(mv: InventoryMovement): string {

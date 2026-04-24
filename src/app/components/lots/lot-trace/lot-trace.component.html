@@ -169,7 +169,7 @@
             class="ml-6">
             <!-- dot -->
             <span class="absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-background"
-              [ngClass]="movementTypeClass(m.movement_type)">
+              [ngClass]="m.movement_type | movementTypeBadge:'color'">
               <!-- inbound -->
               <svg *ngIf="m.movement_type === 'inbound'" class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
@@ -196,7 +196,7 @@
             <div class="flex flex-col gap-0.5">
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-                  [ngClass]="movementTypeClass(m.movement_type)">
+                  [ngClass]="m.movement_type | movementTypeBadge:'color'">
                   {{ t('lot_trace.type.' + m.movement_type) }}
                 </span>
                 <span [ngClass]="movementQtyClass(m.movement_type)" class="text-sm">

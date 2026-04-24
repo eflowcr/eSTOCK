@@ -8,6 +8,7 @@ import { LanguageService } from '@app/services/extras/language.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { Notification, NotificationEventType, NotificationListFilters } from '@app/models/notification.model';
 import { handleApiError } from '@app/utils';
+import { RelativeDatePipe } from '@app/shared/pipes/relative-date.pipe';
 
 const PAGE_SIZE = 20;
 
@@ -17,18 +18,6 @@ const RESOURCE_ROUTES: Record<string, string> = {
   stock_alert: '/stock-alerts',
   lot: '/lots',
 };
-
-function formatRelativeTime(isoDate: string): string {
-  const diffMs = Date.now() - new Date(isoDate).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'ahora';
-  if (mins < 60) return `hace ${mins}m`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `hace ${hrs}h`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `hace ${days}d`;
-  return `hace ${Math.floor(days / 7)}sem`;
-}
 
 const EVENT_TYPE_OPTIONS: { value: NotificationEventType | ''; labelKey: string }[] = [
   { value: '', labelKey: 'notif.filter_all_types' },
@@ -43,7 +32,7 @@ const EVENT_TYPE_OPTIONS: { value: NotificationEventType | ''; labelKey: string 
 @Component({
   selector: 'app-notifications-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, RelativeDatePipe],
   template: `
     <app-main-layout>
       <div class="space-y-5">
@@ -154,7 +143,7 @@ const EVENT_TYPE_OPTIONS: { value: NotificationEventType | ''; labelKey: string 
             </div>
 
             <!-- Time -->
-            <span class="shrink-0 text-[11px] text-muted-foreground">{{ relativeTime(notif.created_at) }}</span>
+            <span class="shrink-0 text-[11px] text-muted-foreground">{{ notif.created_at | relativeDate }}</span>
           </div>
         </div>
 
@@ -310,10 +299,6 @@ export class NotificationsPageComponent implements OnInit {
     } catch (e) {
       console.warn('[NotificationsPage] navigation failed', e);
     }
-  }
-
-  relativeTime(isoDate: string): string {
-    return formatRelativeTime(isoDate);
   }
 
   eventTypeBadgeClass(eventType: string): string {

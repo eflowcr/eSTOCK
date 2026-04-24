@@ -101,7 +101,7 @@
             <button *ngFor="let type of MOVEMENT_TYPES" type="button"
               (click)="toggleType(type)"
               [ngClass]="isTypeSelected(type)
-                ? typeBadgeClass(type) + ' ring-2 ring-offset-1 ring-primary/40'
+                ? (type | movementTypeBadge) + ' ring-2 ring-offset-1 ring-primary/40'
                 : 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground hover:bg-accent'">
               {{ typeLabel(type) }}
             </button>
@@ -154,10 +154,10 @@
           <tbody class="divide-y divide-border">
             <tr *ngFor="let mv of pagedMovements()" class="hover:bg-accent/30 transition-colors">
               <td class="px-3 py-2" [title]="absoluteDate(mv.created_at)">
-                <span class="text-xs text-muted-foreground">{{ relativeDate(mv.created_at) }}</span>
+                <span class="text-xs text-muted-foreground">{{ mv.created_at | relativeDate }}</span>
               </td>
               <td class="px-3 py-2">
-                <span [ngClass]="typeBadgeClass(mv.movement_type)">
+                <span [ngClass]="mv.movement_type | movementTypeBadge">
                   {{ typeLabel(mv.movement_type) }}
                 </span>
               </td>
