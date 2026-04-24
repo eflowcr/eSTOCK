@@ -1,13 +1,14 @@
 import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { ReceivingTask, CreateReceivingTaskRequest } from '@app/models/receiving-task.model';
+import { ReceivingTask, ReceivingTaskItem, CreateReceivingTaskRequest } from '@app/models/receiving-task.model';
+import { LotEntry } from '@app/models/lot-entry.model';
 import { Location } from '@app/models/location.model';
 import { User } from '@app/models/user.model';
 import { Article } from '@app/models/article.model';
 import { ReceivingTaskService } from '@app/services/receiving-task.service';
-import { LotService } from '@app/services/lot.service';
+import { InventoryService } from '@app/services/inventory.service';
 import { SerialService } from '@app/services/serial.service';
 import { LocationService } from '@app/services/location.service';
 import { UserService } from '@app/services/user.service';
@@ -45,28 +46,28 @@ export class ReceivingTaskFormComponent implements OnInit {
 	filteredArticlesPerItem: Article[][] = [];
 	filteredLocationsPerItem: Location[][] = [];
 
-	availableLotsPerItem: string[][] = [];
+	// Serial tracking state (lots now use FormArray — see getLotsArray)
 	availableSerialsPerItem: string[][] = [];
-	filteredLotsPerItem: string[][] = [];
 	filteredSerialsPerItem: string[][] = [];
-	lotSearchTerms: string[] = [];
 	serialSearchTerms: string[] = [];
-	showLotDropdown: boolean[] = [];
 	showSerialDropdown: boolean[] = [];
 	expectedQuantities: number[] = [];
-	
-	// Operator combobox properties
+
+	// Operator combobox
 	operatorSearchTerm: string = '';
 	showOperatorDropdown: boolean = false;
 	filteredOperators: User[] = [];
 
+	// R3: last-known location per SKU, scoped to this form session
+	private lastLocationCache: Record<string, string> = {};
+
 	constructor(
 		private fb: FormBuilder,
 		private receivingTaskService: ReceivingTaskService,
+		private inventoryService: InventoryService,
 		private locationService: LocationService,
 		private userService: UserService,
 		private articleService: ArticleService,
-		private lotService: LotService,
 		private serialService: SerialService,
 		private alertService: AlertService,
 		private loadingService: LoadingService,
@@ -96,7 +97,116 @@ export class ReceivingTaskFormComponent implements OnInit {
 		return this.languageService.t.bind(this.languageService);
 	}
 
-	// Modal helpers
+	// ── FormArray accessors ──────────────────────────────────────────────────
+
+	get itemsArray(): FormArray {
+		return this.form.get('items') as FormArray;
+	}
+
+	getLotsArray(itemIndex: number): FormArray {
+		return (this.itemsArray.at(itemIndex) as FormGroup).get('lots') as FormArray;
+	}
+
+	/** Cast AbstractControl → FormGroup for Angular template nested FormArrays */
+	asGroup(control: AbstractControl): FormGroup {
+		return control as FormGroup;
+	}
+
+	// ── Item / Lot group factories ───────────────────────────────────────────
+
+	private createItemGroup(item?: ReceivingTaskItem): FormGroup {
+		return this.fb.group({
+			sku: [item?.sku || '', Validators.required],
+			location: [item?.location || '', Validators.required],
+			serial_numbers: [''],
+			lots: this.fb.array(
+				(item?.lots ?? []).map(l => this.createLotGroup(l))
+			),
+		});
+	}
+
+	private createLotGroup(lot?: LotEntry): FormGroup {
+		return this.fb.group({
+			lot_number: [lot?.lot_number || '', Validators.required],
+			quantity: [lot?.quantity ?? 0, [Validators.required, Validators.min(0.001)]],
+			expiration_date: [lot?.expiration_date || ''],
+		});
+	}
+
+	// ── Lot FormArray operations (F1) ────────────────────────────────────────
+
+	addLot(itemIndex: number): void {
+		this.getLotsArray(itemIndex).push(this.createLotGroup());
+	}
+
+	removeLot(itemIndex: number, lotIndex: number): void {
+		this.getLotsArray(itemIndex).removeAt(lotIndex);
+	}
+
+	articleTracksByLot(itemIndex: number): boolean {
+		const sku = (this.itemsArray.at(itemIndex) as FormGroup).get('sku')?.value;
+		const article = this.articles.find(a => a.sku === sku);
+		return article?.track_by_lot ?? false;
+	}
+
+	validateLotSum(itemIndex: number): string | null {
+		const expectedQty = this.expectedQuantities[itemIndex] || 0;
+		if (!this.articleTracksByLot(itemIndex) || expectedQty === 0) return null;
+		const lots = this.getLotsArray(itemIndex).controls;
+		const sumQty = lots.reduce((sum, l) => sum + (l.get('quantity')?.value || 0), 0);
+		if (Math.abs(sumQty - expectedQty) > 0.001) {
+			return `Suma de lotes (${sumQty}) ≠ cantidad esperada (${expectedQty})`;
+		}
+		return null;
+	}
+
+	getLotValidationError(itemIndex: number): string | null {
+		return this.validateLotSum(itemIndex);
+	}
+
+	// ── R3: Auto-sugerencia de última ubicación para el SKU ──────────────────
+
+	async suggestLastLocationForSku(itemIndex: number, sku: string): Promise<void> {
+		if (!sku) return;
+		const item = this.itemsArray.at(itemIndex) as FormGroup;
+		// Do not overwrite if operator already has a location selected
+		if (item.get('location')?.value) return;
+
+		// Cache hit — no network call needed
+		if (this.lastLocationCache[sku]) {
+			const locationCode = this.lastLocationCache[sku];
+			item.get('location')?.setValue(locationCode);
+			const loc = this.locations.find(l => l.location_code === locationCode);
+			this.locationSearchTerms[itemIndex] = loc
+				? `${loc.location_code} - ${loc.description}`
+				: locationCode;
+			return;
+		}
+
+		try {
+			// pick-suggestions returns entries sorted by FEFO; first entry is most recently used
+			const resp = await this.inventoryService.getPickSuggestions(sku);
+			if (resp?.result?.success && resp.data?.allocations?.length > 0) {
+				const locationCode = resp.data.allocations[0].location;
+				if (locationCode) {
+					this.lastLocationCache[sku] = locationCode;
+					// Guard: user might have typed during the async call
+					if (!item.get('location')?.value) {
+						item.get('location')?.setValue(locationCode);
+						const loc = this.locations.find(l => l.location_code === locationCode);
+						this.locationSearchTerms[itemIndex] = loc
+							? `${loc.location_code} - ${loc.description}`
+							: locationCode;
+					}
+				}
+			}
+		} catch (err) {
+			console.debug('[R3] suggestLastLocationForSku failed silently', err);
+		}
+	}
+
+	// ── Modal helpers ────────────────────────────────────────────────────────
+
 	close(): void {
 		this.resetForm();
 		this.cancel.emit();
@@ -120,16 +230,17 @@ export class ReceivingTaskFormComponent implements OnInit {
 		}
 	}
 
-	// Operator combobox methods
+	// ── Operator combobox ────────────────────────────────────────────────────
+
 	filterOperators(): void {
 		const term = (this.operatorSearchTerm || '').toLowerCase();
 		if (!term) {
 			this.filteredOperators = [...this.users];
 			return;
 		}
-		this.filteredOperators = this.users.filter(user => 
-			(user.first_name || '').toLowerCase().includes(term) || 
-			(user.last_name || '').toLowerCase().includes(term) || 
+		this.filteredOperators = this.users.filter(user =>
+			(user.first_name || '').toLowerCase().includes(term) ||
+			(user.last_name || '').toLowerCase().includes(term) ||
 			(user.email || '').toLowerCase().includes(term)
 		);
 	}
@@ -180,10 +291,12 @@ export class ReceivingTaskFormComponent implements OnInit {
 		if (list.length > 0) this.onOperatorSelected(list[0]);
 	}
 
+	// ── Data loading ─────────────────────────────────────────────────────────
+
 	async loadData(): Promise<void> {
 		try {
 			this.isLoading = true;
-			
+
 			const [locationResponse, userResponse, articleResponse] = await Promise.all([
 				this.locationService.getAll(),
 				this.userService.getAll(),
@@ -205,10 +318,7 @@ export class ReceivingTaskFormComponent implements OnInit {
 				this.articles = (articleResponse.data || []).filter(article => article.is_active !== false);
 			}
 		} catch (error) {
-			this.alertService.error(
-				this.t('error_loading_data'),
-				this.t('error')
-			);
+			this.alertService.error(this.t('error_loading_data'), this.t('error'));
 		} finally {
 			this.isLoading = false;
 		}
@@ -217,15 +327,11 @@ export class ReceivingTaskFormComponent implements OnInit {
 	loadTaskForEdit(): void {
 		if (!this.task) return;
 
-		// Map operator display name
 		if (this.task.assigned_to) {
 			const user = this.users.find(u => u.id === this.task!.assigned_to);
-			if (user) {
-				this.operatorSearchTerm = this.getUserDisplayName(user.id);
-			}
+			if (user) this.operatorSearchTerm = this.getUserDisplayName(user.id);
 		}
 
-		// Patch form with backend field mapping
 		this.form.patchValue({
 			inbound_number: this.task.order_number || this.task.inbound_number,
 			assigned_to: this.task.assigned_to,
@@ -233,31 +339,27 @@ export class ReceivingTaskFormComponent implements OnInit {
 			notes: this.task.notes || ''
 		});
 
-		// Clear existing items
-		while (this.itemsArray.length !== 0) {
-			this.itemsArray.removeAt(0);
-		}
+		while (this.itemsArray.length !== 0) this.itemsArray.removeAt(0);
 
 		if (this.task.items && this.task.items.length > 0) {
 			this.task.items.forEach((item, i) => {
-				// Map backend field names to frontend
-				const lotNumbers = item.lotNumbers || item.lot_numbers || [];
 				const serialNumbers = item.serialNumbers || item.serial_numbers || [];
 				const expectedQty = item.expectedQty || item.expected_qty || 0;
 
-				this.itemsArray.push(this.fb.group({
-					sku: [item.sku, [Validators.required]],
-					location: [item.location, [Validators.required]],
-					lot_numbers: [lotNumbers.join(', ') || ''],
-					serial_numbers: [serialNumbers.join(', ') || '']
-				}));
-				
+				this.itemsArray.push(this.createItemGroup(item));
+				(this.itemsArray.at(i) as FormGroup)
+					.get('serial_numbers')?.setValue(serialNumbers.join(', ') || '');
+
 				this.expectedQuantities[i] = expectedQty;
 				this.ensureComboboxState(i);
+
 				const article = this.getArticleBySku(item.sku);
 				this.skuSearchTerms[i] = article ? `${article.sku} - ${article.name}` : item.sku;
 				const loc = this.locations.find(l => l.location_code === item.location);
-				this.locationSearchTerms[i] = loc ? `${loc.location_code} - ${loc.description}` : item.location;
+				this.locationSearchTerms[i] = loc
+					? `${loc.location_code} - ${loc.description}`
+					: item.location;
+
 				this.loadTrackingOptionsForItem(i, item.sku);
 			});
 		} else {
@@ -265,23 +367,16 @@ export class ReceivingTaskFormComponent implements OnInit {
 		}
 	}
 
-	get itemsArray(): FormArray {
-		return this.form.get('items') as FormArray;
-	}
+	// ── Item CRUD ────────────────────────────────────────────────────────────
 
 	canAddItem(): boolean {
-		if (this.itemsArray.length === 0) {
-			return true;
-		}
-
-		const lastItem = this.itemsArray.at(this.itemsArray.length - 1);
-		if (!lastItem) return true;
-
+		if (this.itemsArray.length === 0) return true;
 		const lastIndex = this.itemsArray.length - 1;
+		const lastItem = this.itemsArray.at(lastIndex);
+		if (!lastItem) return true;
 		const sku = lastItem.get('sku')?.value;
 		const expectedQty = this.expectedQuantities[lastIndex];
 		const location = lastItem.get('location')?.value;
-
 		return !!(sku && expectedQty && expectedQty > 0 && location);
 	}
 
@@ -293,20 +388,11 @@ export class ReceivingTaskFormComponent implements OnInit {
 			);
 			return;
 		}
-
-		const itemGroup = this.fb.group({
-			sku: ['', [Validators.required]],
-			location: ['', [Validators.required]],
-			lot_numbers: [''],
-			serial_numbers: ['']
-		});
-
-		this.itemsArray.push(itemGroup);
-
+		this.itemsArray.push(this.createItemGroup());
 		const index = this.itemsArray.length - 1;
-		this.expectedQuantities[index] = 1; // Initialize with 1 instead of 0
+		this.expectedQuantities[index] = 1;
 		this.ensureComboboxState(index);
-		this.cdr.detectChanges(); // Force change detection
+		this.cdr.detectChanges();
 	}
 
 	removeItem(index: number): void {
@@ -319,51 +405,64 @@ export class ReceivingTaskFormComponent implements OnInit {
 			this.filteredArticlesPerItem.splice(index, 1);
 			this.filteredLocationsPerItem.splice(index, 1);
 			this.expectedQuantities.splice(index, 1);
-			this.availableLotsPerItem.splice(index, 1);
 			this.availableSerialsPerItem.splice(index, 1);
-			this.filteredLotsPerItem.splice(index, 1);
 			this.filteredSerialsPerItem.splice(index, 1);
-			this.lotSearchTerms.splice(index, 1);
 			this.serialSearchTerms.splice(index, 1);
-			this.showLotDropdown.splice(index, 1);
 			this.showSerialDropdown.splice(index, 1);
 		}
 	}
 
+	// ── Submit ───────────────────────────────────────────────────────────────
+
 	async onSubmit(): Promise<void> {
 		if (this.form.invalid || !this.isFormComplete()) {
 			this.markFormGroupTouched(this.form);
-			this.alertService.error(
-				this.t('please_complete_required_fields'),
-				this.t('error')
-			);
+			this.alertService.error(this.t('please_complete_required_fields'), this.t('error'));
 			return;
 		}
 
 		try {
 			this.loadingService.show();
-			
+
 			const formValue = this.form.value;
 			const taskData: any = {
 				inbound_number: formValue.inbound_number,
 				assigned_to: formValue.assigned_to,
 				priority: formValue.priority,
 				status: this.task ? this.task.status : 'open',
-				items: formValue.items.map((item: any, index: number) => ({
-					sku: item.sku,
-					expected_qty: this.expectedQuantities[index] || 0,
-					location: item.location,
-					lot_numbers: item.lot_numbers ? item.lot_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s) : undefined,
-					serial_numbers: item.serial_numbers ? item.serial_numbers.split(',').map((s: string) => s.trim()).filter((s: string) => s) : undefined
-				}))
+				items: formValue.items.map((item: any, index: number) => {
+					const mapped: any = {
+						sku: item.sku,
+						expected_qty: this.expectedQuantities[index] || 0,
+						location: item.location,
+					};
+					// F1: map lots FormArray → LotEntry[]
+					if (item.lots && item.lots.length > 0) {
+						mapped.lots = (item.lots as any[]).map(l => ({
+							lot_number: l.lot_number,
+							quantity: l.quantity,
+							...(l.expiration_date ? { expiration_date: l.expiration_date } : {}),
+						}));
+					}
+					// Legacy alias: preserve lot_numbers[] for older tasks that had them
+					const legacyLots = this.task?.items?.[index]?.lot_numbers;
+					if (legacyLots?.length && !mapped.lots) {
+						mapped.lot_numbers = legacyLots;
+					}
+					if (item.serial_numbers) {
+						const serials = (item.serial_numbers as string)
+							.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+						if (serials.length) mapped.serial_numbers = serials;
+					}
+					return mapped;
+				})
 			};
 
-			if (formValue.notes && formValue.notes.trim() !== '') {
+			if (formValue.notes?.trim()) {
 				taskData.notes = formValue.notes;
 			}
 
 			if (this.task) {
-				// Update existing task
 				const response = await this.receivingTaskService.update(this.task.id, taskData);
 				if (response.result.success) {
 					this.alertService.success(
@@ -372,9 +471,8 @@ export class ReceivingTaskFormComponent implements OnInit {
 					);
 					this.success.emit();
 				} else {
-					const msg = response.result.message || '';
 					this.alertService.error(
-						humanizeApiError(msg, this.t, 'failed_to_update_receiving_task'),
+						humanizeApiError(response.result.message || '', this.t, 'failed_to_update_receiving_task'),
 						this.t('error')
 					);
 				}
@@ -387,9 +485,8 @@ export class ReceivingTaskFormComponent implements OnInit {
 					);
 					this.success.emit();
 				} else {
-					const msg = response.result.message || '';
 					this.alertService.error(
-						humanizeApiError(msg, this.t, 'failed_to_create_receiving_task'),
+						humanizeApiError(response.result.message || '', this.t, 'failed_to_create_receiving_task'),
 						this.t('error')
 					);
 				}
@@ -404,24 +501,22 @@ export class ReceivingTaskFormComponent implements OnInit {
 		}
 	}
 
+	// ── Combobox state init ──────────────────────────────────────────────────
+
 	ensureComboboxState(index: number): void {
 		if (this.skuSearchTerms[index] === undefined) this.skuSearchTerms[index] = '';
 		if (this.locationSearchTerms[index] === undefined) this.locationSearchTerms[index] = '';
 		if (this.showSkuDropdown[index] === undefined) this.showSkuDropdown[index] = false;
 		if (this.showLocationDropdown[index] === undefined) this.showLocationDropdown[index] = false;
-		
 		this.filteredArticlesPerItem[index] = [...this.articles];
 		this.filteredLocationsPerItem[index] = [...this.locations];
-		
-		if (!this.availableLotsPerItem[index]) this.availableLotsPerItem[index] = [];
 		if (!this.availableSerialsPerItem[index]) this.availableSerialsPerItem[index] = [];
-		if (!this.filteredLotsPerItem[index]) this.filteredLotsPerItem[index] = [];
 		if (!this.filteredSerialsPerItem[index]) this.filteredSerialsPerItem[index] = [];
-		if (this.lotSearchTerms[index] === undefined) this.lotSearchTerms[index] = '';
 		if (this.serialSearchTerms[index] === undefined) this.serialSearchTerms[index] = '';
-		if (this.showLotDropdown[index] === undefined) this.showLotDropdown[index] = false;
 		if (this.showSerialDropdown[index] === undefined) this.showSerialDropdown[index] = false;
 	}
+
+	// ── SKU combobox ─────────────────────────────────────────────────────────
 
 	filterArticlesForItem(index: number): void {
 		const term = (this.skuSearchTerms[index] || '').toLowerCase();
@@ -434,48 +529,31 @@ export class ReceivingTaskFormComponent implements OnInit {
 		);
 	}
 
-	filterLocationsForItem(index: number): void {
-		const term = (this.locationSearchTerms[index] || '').toLowerCase();
-		if (!term) {
-			this.filteredLocationsPerItem[index] = [...this.locations];
-			return;
-		}
-		this.filteredLocationsPerItem[index] = this.locations.filter(l =>
-			(l.location_code || '').toLowerCase().includes(term) || (l.description || '').toLowerCase().includes(term)
-		);
-	}
-
 	onSkuSelected(index: number, article: Article): void {
 		this.clearItemTrackingData(index);
-		
+
 		this.itemsArray.at(index).get('sku')?.setValue(article.sku);
 		this.skuSearchTerms[index] = `${article.sku} - ${article.name}`;
 		this.showSkuDropdown[index] = false;
-		
+
 		this.itemsArray.at(index).get('location')?.setValue('');
 		this.locationSearchTerms[index] = '';
-		
+
 		this.loadTrackingOptionsForItem(index, article.sku);
+		// R3: pre-fill location with last known location for this SKU
+		this.suggestLastLocationForSku(index, article.sku);
 	}
 
 	clearItemTrackingData(index: number): void {
-		this.itemsArray.at(index).get('lot_numbers')?.setValue('');
+		// Clear serials
 		this.itemsArray.at(index).get('serial_numbers')?.setValue('');
-		
-		this.availableLotsPerItem[index] = [];
 		this.availableSerialsPerItem[index] = [];
-		this.filteredLotsPerItem[index] = [];
 		this.filteredSerialsPerItem[index] = [];
-		this.lotSearchTerms[index] = '';
 		this.serialSearchTerms[index] = '';
-		this.showLotDropdown[index] = false;
 		this.showSerialDropdown[index] = false;
-	}
-
-	onLocationSelected(index: number, location: Location): void {
-		this.itemsArray.at(index).get('location')?.setValue(location.location_code);
-		this.locationSearchTerms[index] = `${location.location_code} - ${location.description}`;
-		this.showLocationDropdown[index] = false;
+		// Clear lots FormArray
+		const lotsArray = this.getLotsArray(index);
+		while (lotsArray && lotsArray.length > 0) lotsArray.removeAt(0);
 	}
 
 	onSkuBlur(index: number): void {
@@ -515,6 +593,26 @@ export class ReceivingTaskFormComponent implements OnInit {
 		return article ? article.name : '';
 	}
 
+	// ── Location combobox ────────────────────────────────────────────────────
+
+	filterLocationsForItem(index: number): void {
+		const term = (this.locationSearchTerms[index] || '').toLowerCase();
+		if (!term) {
+			this.filteredLocationsPerItem[index] = [...this.locations];
+			return;
+		}
+		this.filteredLocationsPerItem[index] = this.locations.filter(l =>
+			(l.location_code || '').toLowerCase().includes(term) ||
+			(l.description || '').toLowerCase().includes(term)
+		);
+	}
+
+	onLocationSelected(index: number, location: Location): void {
+		this.itemsArray.at(index).get('location')?.setValue(location.location_code);
+		this.locationSearchTerms[index] = `${location.location_code} - ${location.description}`;
+		this.showLocationDropdown[index] = false;
+	}
+
 	onLocationBlur(index: number): void {
 		setTimeout(() => (this.showLocationDropdown[index] = false), 150);
 	}
@@ -547,31 +645,23 @@ export class ReceivingTaskFormComponent implements OnInit {
 	getSelectedLocationName(index: number): string {
 		const locationCode = this.itemsArray.at(index).get('location')?.value;
 		const location = this.locations.find(l => l.location_code === locationCode);
-		return location ? `${location.location_code} - ${location.description}` : '';
+		return location ? `${location.location_code} - ${location.description}` : locationCode;
 	}
 
 	confirmFirstArticleIfAny(index: number): void {
 		const list = this.filteredArticlesPerItem[index] || [];
-		if (list.length > 0) {
-			this.onSkuSelected(index, list[0]);
-		}
+		if (list.length > 0) this.onSkuSelected(index, list[0]);
 	}
 
 	confirmFirstLocationIfAny(index: number): void {
 		const list = this.filteredLocationsPerItem[index] || [];
-		if (list.length > 0) {
-			this.onLocationSelected(index, list[0]);
-		}
+		if (list.length > 0) this.onLocationSelected(index, list[0]);
 	}
+
+	// ── Article helpers ──────────────────────────────────────────────────────
 
 	private getArticleBySku(sku: string): Article | undefined {
 		return this.articles.find(a => a.sku === sku);
-	}
-
-	shouldShowLotNumbers(index: number): boolean {
-		const sku = this.itemsArray.at(index).get('sku')?.value;
-		const article = this.getArticleBySku(sku);
-		return !!article?.track_by_lot;
 	}
 
 	shouldShowSerialNumbers(index: number): boolean {
@@ -580,82 +670,45 @@ export class ReceivingTaskFormComponent implements OnInit {
 		return !!article?.track_by_serial;
 	}
 
-	isLotSelectionComplete(index: number): boolean {
-		const expectedQty = this.getExpectedQuantity(index);
-		const selectedCount = this.getSelectedLotCount(index);
-		return expectedQty > 0 && selectedCount === expectedQty;
-	}
+	// ── Serial tracking ──────────────────────────────────────────────────────
 
 	isSerialSelectionComplete(index: number): boolean {
 		const expectedQty = this.getExpectedQuantity(index);
-		const selectedCount = this.getSelectedSerialCount(index);
-		return expectedQty > 0 && selectedCount === expectedQty;
+		return expectedQty > 0 && this.getSelectedSerialCount(index) === expectedQty;
 	}
 
 	private async loadTrackingOptionsForItem(index: number, sku: string): Promise<void> {
 		const article = this.getArticleBySku(sku);
-		if (!article) return;
-		if (article.track_by_lot) {
-			try {
-				const lotsResp = await this.lotService.getBySku(sku);
-				if (lotsResp.result.success) {
-					this.availableLotsPerItem[index] = (lotsResp.data || []).map(l => l.lot_number);
-					this.filteredLotsPerItem[index] = [...this.availableLotsPerItem[index]];
-				}
-			} catch {}
-		}
-		if (article.track_by_serial) {
-			try {
-				const serialsResp = await this.serialService.getBySku(sku);
-				if (serialsResp.result.success) {
-					this.availableSerialsPerItem[index] = (serialsResp.data || []).map(s => s.serial_number);
-					this.filteredSerialsPerItem[index] = [...this.availableSerialsPerItem[index]];
-				}
-			} catch {}
-		}
-	}
-
-	filterLotsForItem(index: number): void {
-		const term = (this.lotSearchTerms[index] || '').toLowerCase();
-		const options = this.availableLotsPerItem[index] || [];
-		this.filteredLotsPerItem[index] = term ? options.filter(v => (v || '').toLowerCase().includes(term)) : [...options];
+		if (!article?.track_by_serial) return;
+		try {
+			const serialsResp = await this.serialService.getBySku(sku);
+			if (serialsResp.result.success) {
+				this.availableSerialsPerItem[index] = (serialsResp.data || []).map(s => s.serial_number);
+				this.filteredSerialsPerItem[index] = [...this.availableSerialsPerItem[index]];
+			}
+		} catch {}
 	}
 
 	filterSerialsForItem(index: number): void {
 		const term = (this.serialSearchTerms[index] || '').toLowerCase();
 		const options = this.availableSerialsPerItem[index] || [];
-		this.filteredSerialsPerItem[index] = term ? options.filter(v => (v || '').toLowerCase().includes(term)) : [...options];
+		this.filteredSerialsPerItem[index] = term
+			? options.filter(v => (v || '').toLowerCase().includes(term))
+			: [...options];
 	}
 
 	onExpectedQuantityChange(index: number): void {
 		const ctrl = this.itemsArray.at(index);
 		if (ctrl) {
-			ctrl.get('lot_numbers')?.setValue('');
 			ctrl.get('serial_numbers')?.setValue('');
-			this.lotSearchTerms[index] = '';
 			this.serialSearchTerms[index] = '';
-			this.showLotDropdown[index] = false;
 			this.showSerialDropdown[index] = false;
 		}
 	}
 
 	getExpectedQuantity(index: number, dato?: number): number {
-		if (dato !== undefined && dato !== null) {
-			return dato;
-		}
-		
-		const qty = this.expectedQuantities[index] || 0;
-		return Number(qty) || 0;
-	}
-
-	getSelectedLots(index: number): string[] {
-		const ctrl = this.itemsArray.at(index).get('lot_numbers');
-		const current = (ctrl?.value as string) || '';
-		return current ? current.split(',').map(s => s.trim()).filter(Boolean) : [];
-	}
-
-	getSelectedLotCount(index: number): number {
-		return this.getSelectedLots(index).length;
+		if (dato !== undefined && dato !== null) return dato;
+		return Number(this.expectedQuantities[index] || 0) || 0;
 	}
 
 	getSelectedSerials(index: number): string[] {
@@ -668,223 +721,93 @@ export class ReceivingTaskFormComponent implements OnInit {
 		return this.getSelectedSerials(index).length;
 	}
 
-	isLotSelected(index: number, lotNumber: string): boolean {
-		return this.getSelectedLots(index).includes(lotNumber);
-	}
-
 	isSerialSelected(index: number, serialNumber: string): boolean {
 		return this.getSelectedSerials(index).includes(serialNumber);
-	}
-
-	onLotSelected(index: number, lotNumber: string): void {
-		const ctrl = this.itemsArray.at(index).get('lot_numbers');
-		const current = this.getSelectedLots(index);
-		const expectedQty = this.getExpectedQuantity(index);
-
-		if (current.includes(lotNumber)) {
-			const updated = current.filter(lot => lot !== lotNumber);
-			ctrl?.setValue(updated.join(', '));
-		} else if (current.length < expectedQty) {
-			current.push(lotNumber);
-			ctrl?.setValue(current.join(', '));
-		} else {
-			this.alertService.warning(
-				this.t('lot_selection_limit_reached'),
-				this.t('warning')
-			);
-		}
-		this.showLotDropdown[index] = false;
 	}
 
 	onSerialSelected(index: number, serialNumber: string): void {
 		const ctrl = this.itemsArray.at(index).get('serial_numbers');
 		const current = this.getSelectedSerials(index);
 		const expectedQty = this.getExpectedQuantity(index);
-
 		if (current.includes(serialNumber)) {
-			const updated = current.filter(serial => serial !== serialNumber);
-			ctrl?.setValue(updated.join(', '));
+			ctrl?.setValue(current.filter(s => s !== serialNumber).join(', '));
 		} else if (current.length < expectedQty) {
 			current.push(serialNumber);
 			ctrl?.setValue(current.join(', '));
 		} else {
-			this.alertService.warning(
-				this.t('serial_selection_limit_reached'),
-				this.t('warning')
-			);
+			this.alertService.warning(this.t('serial_selection_limit_reached'), this.t('warning'));
 		}
 		this.showSerialDropdown[index] = false;
-	}
-
-	removeLot(index: number, lotNumber: string): void {
-		const ctrl = this.itemsArray.at(index).get('lot_numbers');
-		const current = this.getSelectedLots(index);
-		const updated = current.filter(lot => lot !== lotNumber);
-		ctrl?.setValue(updated.join(', '));
 	}
 
 	removeSerial(index: number, serialNumber: string): void {
 		const ctrl = this.itemsArray.at(index).get('serial_numbers');
 		const current = this.getSelectedSerials(index);
-		const updated = current.filter(serial => serial !== serialNumber);
-		ctrl?.setValue(updated.join(', '));
-	}
-
-	selectRandomLots(index: number): void {
-		const expectedQty = this.getExpectedQuantity(index);
-		const availableLots = this.availableLotsPerItem[index] || [];
-		
-		if (availableLots.length === 0) {
-			this.alertService.warning(
-				this.t('no_lots_available'),
-				this.t('warning')
-			);
-			return;
-		}
-
-		if (expectedQty <= 0) {
-			this.alertService.warning(
-				this.t('set_expected_quantity_first'),
-				this.t('warning')
-			);
-			return;
-		}
-
-		const shuffled = [...availableLots].sort(() => 0.5 - Math.random());
-		const selected = shuffled.slice(0, Math.min(expectedQty, availableLots.length));
-		
-		const ctrl = this.itemsArray.at(index).get('lot_numbers');
-		ctrl?.setValue(selected.join(', '));
-
-		this.alertService.success(
-			this.t('random_lots_selected') + ` (${selected.length})`,
-			this.t('success')
-		);
+		ctrl?.setValue(current.filter(s => s !== serialNumber).join(', '));
 	}
 
 	selectRandomSerials(index: number): void {
 		const expectedQty = this.getExpectedQuantity(index);
 		const availableSerials = this.availableSerialsPerItem[index] || [];
-		
 		if (availableSerials.length === 0) {
-			this.alertService.warning(
-				this.t('no_serials_available'),
-				this.t('warning')
-			);
+			this.alertService.warning(this.t('no_serials_available'), this.t('warning'));
 			return;
 		}
-
 		if (expectedQty <= 0) {
-			this.alertService.warning(
-				this.t('set_expected_quantity_first'),
-				this.t('warning')
-			);
+			this.alertService.warning(this.t('set_expected_quantity_first'), this.t('warning'));
 			return;
 		}
-
-		const shuffled = [...availableSerials].sort(() => 0.5 - Math.random());
-		const selected = shuffled.slice(0, Math.min(expectedQty, availableSerials.length));
-		
-		const ctrl = this.itemsArray.at(index).get('serial_numbers');
-		ctrl?.setValue(selected.join(', '));
-
+		const selected = [...availableSerials]
+			.sort(() => 0.5 - Math.random())
+			.slice(0, Math.min(expectedQty, availableSerials.length));
+		this.itemsArray.at(index).get('serial_numbers')?.setValue(selected.join(', '));
 		this.alertService.success(
 			this.t('random_serials_selected') + ` (${selected.length})`,
 			this.t('success')
 		);
 	}
 
-	closeLotDropdownLater(index: number): void {
-		setTimeout(() => (this.showLotDropdown[index] = false), 150);
-	}
-
 	closeSerialDropdownLater(index: number): void {
 		setTimeout(() => (this.showSerialDropdown[index] = false), 150);
 	}
 
-	confirmFirstLotIfAny(index: number): void {
-		const list = this.filteredLotsPerItem[index] || [];
-		if (list.length > 0) this.onLotSelected(index, list[0]);
-	}
-
 	confirmFirstSerialIfAny(index: number): void {
 		const list = this.filteredSerialsPerItem[index] || [];
-		if (list.length > 0 && !this.getSelectedSerials(index).includes(list[0])) this.onSerialSelected(index, list[0]);
-	}
-
-	onManualLotInput(index: number): void {
-	}
-
-	onManualSerialInput(index: number): void {
-	}
-
-	handleLotEnter(index: number): void {
-		const searchTerm = (this.lotSearchTerms[index] || '').trim();
-		if (searchTerm) {
-			const filtered = this.filteredLotsPerItem[index] || [];
-			const exactMatch = filtered.find(lot => lot.toLowerCase() === searchTerm.toLowerCase());
-			
-			if (exactMatch) {
-				this.onLotSelected(index, exactMatch);
-			} else {
-				this.addManualLot(index, searchTerm);
-			}
+		if (list.length > 0 && !this.getSelectedSerials(index).includes(list[0])) {
+			this.onSerialSelected(index, list[0]);
 		}
 	}
 
 	handleSerialEnter(index: number): void {
 		const searchTerm = (this.serialSearchTerms[index] || '').trim();
-		if (searchTerm) {
-			const filtered = this.filteredSerialsPerItem[index] || [];
-			const exactMatch = filtered.find(serial => serial.toLowerCase() === searchTerm.toLowerCase());
-			
-			if (exactMatch) {
-				this.onSerialSelected(index, exactMatch);
-			} else {
-				this.addManualSerial(index, searchTerm);
-			}
-		}
-	}
-
-	addManualLot(index: number, lotNumber: string): void {
-		if (!lotNumber.trim()) return;
-		
-		const ctrl = this.itemsArray.at(index).get('lot_numbers');
-		const current = this.getSelectedLots(index);
-		const expectedQty = this.getExpectedQuantity(index);
-
-		if (!current.includes(lotNumber.trim()) && current.length < expectedQty) {
-			current.push(lotNumber.trim());
-			ctrl?.setValue(current.join(', '));
-			this.lotSearchTerms[index] = '';
-			this.showLotDropdown[index] = false;
-		} else if (current.length >= expectedQty) {
-			this.alertService.warning(
-				this.t('lot_selection_limit_reached'),
-				this.t('warning')
-			);
+		if (!searchTerm) return;
+		const filtered = this.filteredSerialsPerItem[index] || [];
+		const exactMatch = filtered.find(s => s.toLowerCase() === searchTerm.toLowerCase());
+		if (exactMatch) {
+			this.onSerialSelected(index, exactMatch);
+		} else {
+			this.addManualSerial(index, searchTerm);
 		}
 	}
 
 	addManualSerial(index: number, serialNumber: string): void {
 		if (!serialNumber.trim()) return;
-		
 		const ctrl = this.itemsArray.at(index).get('serial_numbers');
 		const current = this.getSelectedSerials(index);
 		const expectedQty = this.getExpectedQuantity(index);
-
 		if (!current.includes(serialNumber.trim()) && current.length < expectedQty) {
 			current.push(serialNumber.trim());
 			ctrl?.setValue(current.join(', '));
 			this.serialSearchTerms[index] = '';
 			this.showSerialDropdown[index] = false;
 		} else if (current.length >= expectedQty) {
-			this.alertService.warning(
-				this.t('serial_selection_limit_reached'),
-				this.t('warning')
-			);
+			this.alertService.warning(this.t('serial_selection_limit_reached'), this.t('warning'));
 		}
 	}
+
+	onManualSerialInput(_index: number): void {}
+
+	// ── Form validation helpers ──────────────────────────────────────────────
 
 	getUserDisplayName(userId: string): string {
 		const user = this.users.find(u => u.id === userId);
@@ -893,14 +816,15 @@ export class ReceivingTaskFormComponent implements OnInit {
 
 	getLocationDisplayName(locationCode: string): string {
 		const location = this.locations.find(l => l.location_code === locationCode);
-		return location ? `${location.location_code}${location.description ? ` - ${location.description}` : ''}` : locationCode;
+		return location
+			? `${location.location_code}${location.description ? ` - ${location.description}` : ''}`
+			: locationCode;
 	}
 
 	markFormGroupTouched(formGroup: any): void {
 		Object.keys(formGroup.controls).forEach(field => {
 			const control = formGroup.get(field);
 			control?.markAsTouched({ onlySelf: true });
-			
 			if (control && (control as any).controls) {
 				this.markFormGroupTouched(control);
 			}
@@ -908,33 +832,26 @@ export class ReceivingTaskFormComponent implements OnInit {
 	}
 
 	isFormComplete(): boolean {
-				for (let i = 0; i < this.itemsArray.length; i++) {
+		for (let i = 0; i < this.itemsArray.length; i++) {
 			const item = this.itemsArray.at(i);
 			const sku = item.get('sku')?.value;
 			const expectedQty = this.expectedQuantities[i] || 0;
 			const location = item.get('location')?.value;
 
-			if (!sku || !expectedQty || expectedQty <= 0 || !location) {
-				return false;
-			}
+			if (!sku || !expectedQty || expectedQty <= 0 || !location) return false;
 
 			const article = this.getArticleBySku(sku);
-			
+
 			if (article?.track_by_lot) {
-				const selectedLots = this.getSelectedLots(i);
-				if (selectedLots.length !== expectedQty) {
-					return false;
-				}
+				// Must have at least one lot and sum must match expected_qty
+				if (this.getLotsArray(i).length === 0) return false;
+				if (this.validateLotSum(i) !== null) return false;
 			}
-			
+
 			if (article?.track_by_serial) {
-				const selectedSerials = this.getSelectedSerials(i);
-				if (selectedSerials.length !== expectedQty) {
-					return false;
-				}
+				if (this.getSelectedSerials(i).length !== expectedQty) return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -946,47 +863,30 @@ export class ReceivingTaskFormComponent implements OnInit {
 	getFieldError(fieldName: string): string {
 		const field = this.form.get(fieldName);
 		if (field && field.errors && field.touched) {
-			if (field.errors['required']) {
-				return this.t(`${fieldName}_required`);
-			}
-			if (field.errors['min']) {
-				return this.t('quantity_min');
-			}
+			if (field.errors['required']) return this.t(`${fieldName}_required`);
+			if (field.errors['min']) return this.t('quantity_min');
 		}
 		return '';
 	}
 
 	isItemFieldInvalid(itemIndex: number, fieldName: string): boolean {
 		if (fieldName === 'expected_qty') {
-			const qty = this.expectedQuantities[itemIndex] || 0;
-			return qty <= 0;
+			return (this.expectedQuantities[itemIndex] || 0) <= 0;
 		}
-		
-		const itemGroup = this.itemsArray.at(itemIndex);
-		const field = itemGroup.get(fieldName);
+		const field = this.itemsArray.at(itemIndex).get(fieldName);
 		return !!(field && field.invalid && field.touched);
 	}
 
 	getItemFieldError(itemIndex: number, fieldName: string): string {
 		if (fieldName === 'expected_qty') {
-			const qty = this.expectedQuantities[itemIndex] || 0;
-			if (qty <= 0) {
-				return this.t('expected_qty_required');
-			}
+			if ((this.expectedQuantities[itemIndex] || 0) <= 0) return this.t('expected_qty_required');
 			return '';
 		}
-		
-		const itemGroup = this.itemsArray.at(itemIndex);
-		const field = itemGroup.get(fieldName);
+		const field = this.itemsArray.at(itemIndex).get(fieldName);
 		if (field && field.errors && field.touched) {
-			if (field.errors['required']) {
-				return this.t(`${fieldName}_required`);
-			}
-			if (field.errors['min']) {
-				return this.t('quantity_min');
-			}
+			if (field.errors['required']) return this.t(`${fieldName}_required`);
+			if (field.errors['min']) return this.t('quantity_min');
 		}
 		return '';
 	}
 }
- 

@@ -34,6 +34,12 @@
       </div>
     </div>
 
+    <!-- S2/W7-A — Inventory Valuation Widget (FD1) -->
+    <app-inventory-valuation-widget></app-inventory-valuation-widget>
+
+    <!-- S2/W7-A — Attention Required Section (FD2) -->
+    <app-attention-required></app-attention-required>
+
     <!-- KPI cards -->
     <div class="grid gap-4 sm:grid-cols-3">
       <div
@@ -75,54 +81,12 @@
       </div>
     </div>
 
-    <!-- Movements overview + Tasks this week -->
+    <!-- S2/W7-A — Movements by Month chart (FD3) + Tasks this week -->
     <div class="grid gap-6 lg:grid-cols-3">
 
-      <!-- Stacked bar: movements by month -->
-      <div class="rounded-xl border border-border bg-card p-6 shadow-sm lg:col-span-2">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="text-base font-semibold text-foreground">{{ t('dashboard.movements_overview') }}</h3>
-            <p class="mt-0.5 text-sm text-muted-foreground">
-              {{ movementsTotal.toLocaleString() }}
-              <span class="text-muted-foreground/60">{{ t('dashboard.operations') }}</span>
-            </p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button type="button" class="text-xs text-muted-foreground transition-colors hover:text-foreground">{{ t('dashboard.filter') }}</button>
-            <button type="button" class="text-xs text-muted-foreground transition-colors hover:text-foreground">{{ t('dashboard.sort') }}</button>
-          </div>
-        </div>
-
-        <!-- Empty state -->
-        <div *ngIf="stackedBarData.length === 0" class="mt-6 flex h-24 items-center justify-center rounded-lg border border-dashed border-border">
-          <p class="text-sm text-muted-foreground">{{ t('dashboard.no_movements') }}</p>
-        </div>
-
-        <!-- Chart -->
-        <div *ngIf="stackedBarData.length > 0" class="mt-6">
-          <div class="flex items-end gap-3" style="height: 80px;">
-            <div *ngFor="let point of stackedBarData"
-              class="flex max-w-[72px] flex-1 flex-col items-center gap-1.5">
-              <div class="flex w-full flex-col-reverse gap-0.5 overflow-hidden rounded-sm" style="height: 64px;">
-                <div *ngFor="let seg of point.segments"
-                  class="w-full transition-opacity hover:opacity-80"
-                  [style.flex]="seg.value + ' 1 0%'"
-                  [style.background]="seg.color"
-                  [style.min-height.px]="seg.value > 0 ? 3 : 0">
-                </div>
-              </div>
-              <span class="text-[11px] font-medium text-muted-foreground">{{ point.period }}</span>
-              <span class="text-[10px] text-muted-foreground/70">{{ point.total.toLocaleString() }}</span>
-            </div>
-          </div>
-          <div class="mt-4 flex flex-wrap gap-4 border-t border-border pt-4">
-            <span *ngFor="let seg of stackedBarLegend" class="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span class="h-2.5 w-2.5 rounded-sm shrink-0" [style.background]="seg.color"></span>
-              {{ t('dashboard.' + seg.key) }}
-            </span>
-          </div>
-        </div>
+      <!-- Stacked bar: movements by month (client-side agg, last 6 months) -->
+      <div class="lg:col-span-2">
+        <app-movements-by-month></app-movements-by-month>
       </div>
 
       <!-- Tasks this week -->

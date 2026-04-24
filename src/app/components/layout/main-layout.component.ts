@@ -4,16 +4,18 @@ import { SidebarService } from '@app/services';
 import { UserPreferencesService } from '@app/services/user-preferences.service';
 import { Subscription } from 'rxjs';
 import { AlertComponent } from '../shared/extras/alert/alert.component';
+import { QuickSearchOverlayComponent } from '../shared/quick-search-overlay/quick-search-overlay.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { TopbarComponent } from './topbar/topbar.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, TopbarComponent, AlertComponent],
+  imports: [CommonModule, SidebarComponent, TopbarComponent, AlertComponent, QuickSearchOverlayComponent],
   template: `
     <div class="flex min-h-screen w-full bg-background">
       <app-alert></app-alert>
+      <app-quick-search-overlay></app-quick-search-overlay>
       <app-sidebar></app-sidebar>
       <div
         class="flex flex-1 flex-col min-h-0 md:pl-3"

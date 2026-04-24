@@ -14,11 +14,23 @@ import { ZardSelectItemComponent } from '../../shared/components/select/select-i
 import { ZardDialogService } from '@app/shared/components/dialog';
 import { DashboardFiltersContentComponent } from './dashboard-filters-content/dashboard-filters-content.component';
 import { DataExportContentComponent } from '../shared/data-export/data-export-content.component';
+import { InventoryValuationWidgetComponent } from './widgets/inventory-valuation-widget/inventory-valuation-widget.component';
+import { AttentionRequiredComponent } from './widgets/attention-required/attention-required.component';
+import { MovementsByMonthComponent } from './widgets/movements-by-month/movements-by-month.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, MainLayoutComponent, ZardSelectComponent, ZardSelectItemComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MainLayoutComponent,
+    ZardSelectComponent,
+    ZardSelectItemComponent,
+    InventoryValuationWidgetComponent,
+    AttentionRequiredComponent,
+    MovementsByMonthComponent,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
@@ -34,12 +46,9 @@ export class DashboardComponent implements OnInit {
   donutConicGradient = '';
   tableRows: DashboardTableRow[] = [];
 
-  // Period selections — bound to the z-select widgets
   headerPeriod = 'monthly';
   tasksPeriod = 'weekly';
   distributionPeriod = 'monthly';
-
-  // Active filters
   lowStockThreshold = 20;
 
   get dateRangeLabel(): string {
@@ -171,28 +180,24 @@ export class DashboardComponent implements OnInit {
 
   openExport(): void {
     const exportData = [
-      // KPI section
       ...this.kpis.map(k => ({
         Section: 'KPI',
         Metric: this.t(k.title),
         Value: k.value,
         'Change %': `${k.changePercent}%`,
       })),
-      // Top articles section
       ...this.tableRows.map(r => ({
         Section: 'Top Articles',
         Metric: r.name,
         Value: r.amount,
         'Change %': `${r.ratePercent}%`,
       })),
-      // Location distribution section
       ...this.donutData.map(d => ({
         Section: 'Location Distribution',
         Metric: d.label,
         Value: d.amount,
         'Change %': `${(d.value as number).toFixed(1)}%`,
       })),
-      // Movements section
       ...this.stackedBarData.map(m => ({
         Section: 'Movements',
         Metric: m.period,

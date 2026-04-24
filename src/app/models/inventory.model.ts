@@ -18,6 +18,8 @@ export interface Inventory {
 	max_quantity?: number | null;
 	lots?: Lot[] | null;
 	serials?: Serial[] | null;
+	reserved_qty?: number;     // cantidad reservada por pickings in_progress
+	available_qty?: number;    // quantity - reserved_qty (calculado backend)
 }
 
 export interface CreateInventoryRequest {

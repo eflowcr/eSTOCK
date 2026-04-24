@@ -401,7 +401,7 @@ export class AuthService {
 				API_Gateway: `${AUTH_URL}/reset-password`,
 				values: {
 					token,
-					newPassword
+					new_password: newPassword,
 				},
 			});
 

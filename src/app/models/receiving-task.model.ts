@@ -1,36 +1,58 @@
+import { LotEntry } from './lot-entry.model';
+
+export type ReceivingTaskStatus =
+  | 'open'
+  | 'in_progress'
+  | 'completed'
+  | 'completed_with_differences'
+  | 'cancelled';
+
 export interface ReceivingTask {
 	id: number;
 	task_id: string;
 	inbound_number: string;
-	order_number?: string; 
+	order_number?: string;
 	created_by: string;
 	assigned_to: string;
-	status: string;
+	status: ReceivingTaskStatus | string;
 	priority: string;
 	notes?: string | null;
 	items: ReceivingTaskItem[];
 	created_at: string;
 	updated_at: string;
 	completed_at?: string | null;
+	// S2 extended fields
+	supplier_id?: string | null;
+	vendor_ref?: string | null;
+	tracking_number?: string | null;
+	reception_method?: string | null;
+	incoterms?: string | null;
+	supplier?: { id: string; code: string; name: string };
 }
 
 export interface ReceivingTaskItem {
 	sku: string;
 	expected_qty: number;
-	expectedQty?: number; 
+	expectedQty?: number;
 	received_qty: number;
-	location: string;
-	lot_numbers?: string[];
+	location: string;           // receiving es single-location por línea
+	status?: string;
+	lots?: LotEntry[];          // shape nuevo (Wave 6+)
 	serial_numbers?: string[];
-	lotNumbers?: string[]; 
-	serialNumbers?: string[]; 
+	// Aliases legacy (solo para leer tareas viejas del backend):
+	lot_numbers?: string[];
+	lotNumbers?: string[];
+	serialNumbers?: string[];
+	// S2 extended fields
+	accepted_qty?: number;
+	rejected_qty?: number;
 }
 
 export interface CreateReceivingTaskRequest {
 	inbound_number: string;
 	assigned_to: string;
 	priority: string;
-	status: string; 
+	status: string;
 	notes?: string;
 	items: CreateReceivingTaskItemRequest[];
 }
@@ -39,7 +61,7 @@ export interface CreateReceivingTaskItemRequest {
 	sku: string;
 	expected_qty: number;
 	location: string;
-	lot_numbers?: string[];
+	lots?: LotEntry[];
 	serial_numbers?: string[];
 }
 

@@ -11,8 +11,11 @@ const ALL_NAV_ITEMS: NavigationItems = [
   { name: 'stock_adjustments', href: '/stock-adjustments', icon: 'Edit', permission: { resource: 'inventory', action: 'update' } },
   { name: 'stock_alerts', href: '/stock-alerts', icon: 'AlertTriangle', permission: { resource: 'inventory', action: 'read' } },
   { name: 'stock_transfers', href: '/stock-transfers', icon: 'Truck', permission: { resource: 'inventory', action: 'read' } },
+  { name: 'stock_ledger', href: '/stock-ledger', icon: 'ScrollText', permission: { resource: 'inventory', action: 'read' } },
   // Inventory
   { name: 'articles', href: '/articles', icon: 'Tag', permission: { resource: 'articles', action: 'read' } },
+  { name: 'clients', href: '/clients', icon: 'Building', permission: { resource: 'clients', action: 'read' } },
+  { name: 'categories', href: '/categories', icon: 'FolderTree', adminOnly: true },
   { name: 'inventory', href: '/inventory', icon: 'Archive', permission: { resource: 'inventory', action: 'read' } },
   { name: 'locations', href: '/locations', icon: 'MapPin', permission: { resource: 'locations', action: 'read' } },
   { name: 'presentation_conversions', href: '/presentation-conversions', icon: 'ArrowRightLeft', adminOnly: true },
@@ -23,7 +26,7 @@ const ALL_NAV_ITEMS: NavigationItems = [
   { name: 'user_management', href: '/users', icon: 'UserCircle', adminOnly: true },
   // Settings hub — replaces the 4 config pages in the sidebar.
   // Roles, Location Types, Presentation Types, Conversions are reachable via /settings only.
-  { name: 'settings', href: '/settings', icon: 'Settings' },
+  { name: 'settings', href: '/settings', icon: 'Settings', adminOnly: true },
 ];
 
 @Injectable({ providedIn: 'root' })

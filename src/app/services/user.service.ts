@@ -50,17 +50,6 @@ export class UserService {
 		});
 	}
 
-	/**
- * @description Create new user
- * @param user User data
- * @returns Promise<ApiResponse<any>>
- */
-	async register(user: Partial<User>): Promise<ApiResponse<any>> {
-		return await this.fetchService.post<ApiResponse<any>>({
-			API_Gateway: `${USER_URL}/register`,
-			values: user,
-		});
-	}
 
 	/**
 	 * @description Update user by ID

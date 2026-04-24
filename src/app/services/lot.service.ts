@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiResponse } from '@app/models';
 import { Lot, CreateLotRequest, UpdateLotRequest, LotSearchParams } from '@app/models/lot.model';
+import { LotTraceResponse } from '@app/models/lot-trace.model';
 import { returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { FetchService } from './extras/fetch.service';
@@ -71,6 +72,16 @@ export class LotService {
 	async delete(id: number): Promise<ApiResponse<any>> {
 		return await this.fetchService.delete<ApiResponse<any>>({
 			API_Gateway: `${LOT_URL}/${id}`,
+		});
+	}
+
+	/**
+	 * @description Get full trace for a lot (movements, origin, current stock by location).
+	 * @param lotId Lot ID (nanoid)
+	 */
+	async trace(lotId: string): Promise<ApiResponse<LotTraceResponse>> {
+		return await this.fetchService.get<ApiResponse<LotTraceResponse>>({
+			API_Gateway: `${LOT_URL}/${lotId}/trace`,
 		});
 	}
 

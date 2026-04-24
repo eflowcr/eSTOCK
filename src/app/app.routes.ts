@@ -89,6 +89,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PermissionGuard],
   },
   {
+    path: 'articles/:sku',
+    loadComponent: () => import('./components/articles/article-detail/article-detail.component').then((m) => m.ArticleDetailComponent),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
     path: 'receiving-tasks',
     loadComponent: () => import('./components/receiving-tasks/receiving-task-management/receiving-task-management.component').then((m) => m.ReceivingTaskManagementComponent),
     canActivate: [AuthGuard, PermissionGuard],
@@ -109,8 +114,57 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PermissionGuard],
   },
   {
+    path: 'clients',
+    loadComponent: () => import('./components/clients/clients-management/clients-management.component').then((m) => m.ClientsManagementComponent),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
+    path: 'clients/:id',
+    loadComponent: () => import('./components/clients/client-detail/client-detail.component').then((m) => m.ClientDetailComponent),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
+    path: 'categories',
+    loadComponent: () => import('./components/categories/categories-management/categories-management.component').then((m) => m.CategoriesManagementComponent),
+    canActivate: [AuthGuard, AdminGuard],
+  },
+  {
     path: 'barcode-generator',
     loadComponent: () => import('./components/barcode-generator/barcode-generator-management/barcode-generator-management.component').then((m) => m.BarcodeGeneratorManagementComponent),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
+    path: 'lots/:id/trace',
+    loadComponent: () => import('./components/lots/lot-trace/lot-trace.component').then((m) => m.LotTraceComponent),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
+    path: 'notifications',
+    loadComponent: () => import('./components/notifications/notifications-page.component').then((m) => m.NotificationsPageComponent),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./components/login/forgot-password/forgot-password.component').then(
+        (m) => m.ForgotPasswordComponent,
+      ),
+    canActivate: [NoAuthGuard],
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./components/login/reset-password/reset-password.component').then(
+        (m) => m.ResetPasswordComponent,
+      ),
+    canActivate: [NoAuthGuard],
+  },
+  {
+    path: 'stock-ledger',
+    loadComponent: () =>
+      import('./components/stock-ledger/stock-ledger.component').then(
+        (m) => m.StockLedgerComponent,
+      ),
     canActivate: [AuthGuard, PermissionGuard],
   },
   {

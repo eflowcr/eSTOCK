@@ -53,18 +53,6 @@ describe('UserService', () => {
     });
   });
 
-  // ─── register ─────────────────────────────────────────────────────────────
-
-  describe('register()', () => {
-    it('calls POST /users/register', async () => {
-      fetchSpy.post.and.returnValue(Promise.resolve(mockResponse({})));
-      await service.register({ email: 'test@estock.com' });
-      expect(fetchSpy.post).toHaveBeenCalledWith(
-        jasmine.objectContaining({ API_Gateway: jasmine.stringContaining('/register') })
-      );
-    });
-  });
-
   // ─── update ───────────────────────────────────────────────────────────────
 
   describe('update()', () => {

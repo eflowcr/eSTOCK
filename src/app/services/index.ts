@@ -2,6 +2,8 @@ export * from './adjustment.service';
 export * from './article.service';
 export * from './auth.service';
 export * from './inventory.service';
+export * from './inventory-valuation.service';
+export * from './inventory-movements.service';
 export * from './location.service';
 export * from './user.service';
 export * from './serial.service';
@@ -16,4 +18,10 @@ export * from './dashboard.service';
 export * from './stock-alert.service';
 export * from './barcode.service';
 export * from './gamification.service';
-
+// S2 services
+export * from './clients.service';
+export * from './categories.service';
+export * from './notifications.service';
+export * from './stock-settings.service';
+export * from './inventory-valuation.service';
+export * from './inventory-lots.service';

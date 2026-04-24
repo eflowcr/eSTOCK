@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subject, takeUntil, interval, startWith, switchMap } from 'rxjs';
+import { Subject, takeUntil, interval, switchMap } from 'rxjs';
 import { StockAlertService } from '@app/services';
 import { AlertService } from '@app/services/extras/alert.service';
 import { StockAlert, StockAlertResponse } from '@app/models/stock-alert.model';
@@ -9,46 +9,32 @@ import { LanguageService } from '@app/services/extras/language.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { handleApiError } from '@app/utils';
 import { MainLayoutComponent } from "@app/components/layout/main-layout.component";
+import { ExpirationsTabComponent } from '../expirations-tab/expirations-tab.component';
+
+type AlertTab = 'all' | 'critical' | 'high' | 'medium' | 'resolved' | 'expirations';
 
 @Component({
 	selector: 'app-stock-alerts-management',
 	standalone: true,
-	imports: [CommonModule, MainLayoutComponent],
+	imports: [CommonModule, MainLayoutComponent, ExpirationsTabComponent],
 	templateUrl: './stock-alerts-management.component.html',
 	styleUrl: './stock-alerts-management.component.css'
 })
 export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 	private destroy$ = new Subject<void>();
-	
-	// Signals for reactive state management
+
 	alerts = signal<StockAlert[]>([]);
 	isLoading = signal(false);
-	activeTab = signal<'all' | 'critical' | 'high' | 'medium' | 'resolved'>('all');
+	activeTab = signal<AlertTab>('all');
 	hasAutoAnalyzed = signal(false);
 	searchQuery = signal('');
 
-	// Computed values for filtered alerts
-	activeAlerts = computed(() =>
-		this.alerts().filter(alert => !alert.is_resolved)
-	);
+	activeAlerts = computed(() => this.alerts().filter(alert => !alert.is_resolved));
+	resolvedAlerts = computed(() => this.alerts().filter(alert => alert.is_resolved));
+	criticalAlerts = computed(() => this.activeAlerts().filter(alert => alert.alert_level === 'critical'));
+	highAlerts = computed(() => this.activeAlerts().filter(alert => alert.alert_level === 'high'));
+	mediumAlerts = computed(() => this.activeAlerts().filter(alert => alert.alert_level === 'medium'));
 
-	resolvedAlerts = computed(() =>
-		this.alerts().filter(alert => alert.is_resolved)
-	);
-
-	criticalAlerts = computed(() =>
-		this.activeAlerts().filter(alert => alert.alert_level === 'critical')
-	);
-
-	highAlerts = computed(() =>
-		this.activeAlerts().filter(alert => alert.alert_level === 'high')
-	);
-
-	mediumAlerts = computed(() =>
-		this.activeAlerts().filter(alert => alert.alert_level === 'medium')
-	);
-
-	// Current tab alerts (unfiltered by search)
 	currentTabAlerts = computed(() => {
 		switch (this.activeTab()) {
 			case 'all':      return this.activeAlerts();
@@ -60,7 +46,6 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 		}
 	});
 
-	// Filtered by search query
 	filteredTabAlerts = computed(() => {
 		const q = this.searchQuery().toLowerCase().trim();
 		const alerts = this.currentTabAlerts();
@@ -95,7 +80,6 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 	}
 
 	private setupAutoRefresh(): void {
-		// Refresh every 30 seconds — no startWith(0) to avoid double-firing with initializeData
 		interval(30000)
 			.pipe(
 				switchMap(() => this.stockAlertService.analyze()),
@@ -107,14 +91,12 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 						this.alerts.set(response.data.alerts);
 					}
 				},
-				error: () => { /* silently handle auto-refresh errors */ }
+				error: () => {}
 			});
 	}
 
 	private loadAlerts(): void {
 		this.isLoading.set(true);
-		
-		// Use analyze endpoint to get all alerts
 		this.stockAlertService.analyze()
 			.then(response => {
 				if (response.result.success && response.data) {
@@ -132,35 +114,21 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 					this.languageService.translate('COMMON.ERROR')
 				);
 			})
-			.finally(() => {
-				this.isLoading.set(false);
-			});
+			.finally(() => { this.isLoading.set(false); });
 	}
 
 	analyzeStock(): void {
 		this.loadingService.show();
-		
 		this.stockAlertService.analyze()
 			.then(response => {
 				if (response.result.success && response.data) {
-					// Update alerts with the new data from analysis
 					this.alerts.set(response.data.alerts);
-					
-					// Show success message with summary
-					const summary = response.data.summary;
-					const totalAlerts = summary.total;
-					
-					let successMessage = this.languageService.translate('STOCK_ALERTS.ANALYZE_SUCCESS');
-					if (totalAlerts > 0) {
-						successMessage += ` - ${this.languageService.translate('STOCK_ALERTS.FOUND_ALERTS')}: ${totalAlerts}`;
-					} else {
-						successMessage += ` - ${this.languageService.translate('STOCK_ALERTS.NO_ALERTS_FOUND')}`;
-					}
-					
-					this.alertService.success(
-						successMessage,
-						this.languageService.translate('COMMON.SUCCESS')
-					);
+					const totalAlerts = response.data.summary.total;
+					let msg = this.languageService.translate('STOCK_ALERTS.ANALYZE_SUCCESS');
+					msg += totalAlerts > 0
+						? ` - ${this.languageService.translate('STOCK_ALERTS.FOUND_ALERTS')}: ${totalAlerts}`
+						: ` - ${this.languageService.translate('STOCK_ALERTS.NO_ALERTS_FOUND')}`;
+					this.alertService.success(msg, this.languageService.translate('COMMON.SUCCESS'));
 				} else {
 					throw new Error(response.result.message || 'Analysis failed');
 				}
@@ -171,14 +139,11 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 					this.languageService.translate('COMMON.ERROR')
 				);
 			})
-			.finally(() => {
-				this.loadingService.hide();
-			});
+			.finally(() => { this.loadingService.hide(); });
 	}
 
 	resolveAlert(alertId: string): void {
 		this.loadingService.show();
-		
 		this.stockAlertService.resolve(alertId)
 			.then(response => {
 				if (response.result.success) {
@@ -186,17 +151,13 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 						this.languageService.translate('STOCK_ALERTS.RESOLVE_SUCCESS'),
 						this.languageService.translate('COMMON.SUCCESS')
 					);
-					
-					// Update the alert locally
-					this.alerts.update(alerts => 
-						alerts.map(alert => 
-							alert.id === alertId 
+					this.alerts.update(alerts =>
+						alerts.map(alert =>
+							alert.id === alertId
 								? { ...alert, is_resolved: true, resolved_at: new Date().toISOString() }
 								: alert
 						)
 					);
-					
-					// Switch to resolved tab to show the resolved alert
 					this.activeTab.set('resolved');
 				} else {
 					throw new Error(response.result.message || 'Resolution failed');
@@ -208,14 +169,11 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 					this.languageService.translate('COMMON.ERROR')
 				);
 			})
-			.finally(() => {
-				this.loadingService.hide();
-			});
+			.finally(() => { this.loadingService.hide(); });
 	}
 
 	exportAlerts(): void {
 		this.loadingService.show();
-
 		this.stockAlertService.export()
 			.then(blob => {
 				const url = window.URL.createObjectURL(blob);
@@ -235,22 +193,17 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 					this.languageService.translate('COMMON.ERROR')
 				);
 			})
-			.finally(() => {
-				this.loadingService.hide();
-			});
+			.finally(() => { this.loadingService.hide(); });
 	}
 
-	setActiveTab(tab: 'all' | 'critical' | 'high' | 'medium' | 'resolved'): void {
+	setActiveTab(tab: AlertTab): void {
 		this.activeTab.set(tab);
 		this.searchQuery.set('');
 	}
 
 	alertLevelAccent(level: string): string {
 		const map: Record<string, string> = {
-			critical: 'bg-red-500',
-			high:     'bg-orange-400',
-			medium:   'bg-yellow-400',
-			low:      'bg-blue-400',
+			critical: 'bg-red-500', high: 'bg-orange-400', medium: 'bg-yellow-400', low: 'bg-blue-400',
 		};
 		return map[level] ?? 'bg-border';
 	}
@@ -265,24 +218,11 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 		return levelClasses[level] || levelClasses.medium;
 	}
 
-	getAlertTypeClass(type: string): string {
-		const typeClasses = {
-			low_stock: 'bg-red-50 text-red-700 border-red-200',
-			trend_based: 'bg-purple-50 text-purple-700 border-purple-200',
-			seasonal: 'bg-green-50 text-green-700 border-green-200'
-		};
-		return typeClasses[type as keyof typeof typeClasses] || typeClasses.low_stock;
-	}
-
 	getDaysToExpirationText(alert: StockAlert): string {
 		if (alert.days_to_expiration !== null && alert.days_to_expiration !== undefined) {
-			if (alert.days_to_expiration <= 0) {
-				return this.languageService.translate('STOCK_ALERTS.EXPIRED');
-			} else if (alert.days_to_expiration === 1) {
-				return this.languageService.translate('STOCK_ALERTS.EXPIRES_TOMORROW');
-			} else {
-				return this.languageService.translate('STOCK_ALERTS.EXPIRES_IN_DAYS').replace('{{days}}', alert.days_to_expiration.toString());
-			}
+			if (alert.days_to_expiration <= 0) return this.languageService.translate('STOCK_ALERTS.EXPIRED');
+			if (alert.days_to_expiration === 1) return this.languageService.translate('STOCK_ALERTS.EXPIRES_TOMORROW');
+			return this.languageService.translate('STOCK_ALERTS.EXPIRES_IN_DAYS').replace('{{days}}', alert.days_to_expiration.toString());
 		}
 		return '';
 	}
@@ -296,64 +236,34 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 	}
 
 	getTopRecommendations(): StockAlert[] {
-		// Get top 3 alerts that need restocking, prioritized by level and deficit
 		return this.activeAlerts()
 			.filter(alert => alert.recommended_stock > alert.current_stock)
 			.sort((a, b) => {
-				// First sort by alert level priority
 				const levelPriority = { critical: 4, high: 3, medium: 2, low: 1 };
 				const aPriority = levelPriority[a.alert_level as keyof typeof levelPriority] || 0;
 				const bPriority = levelPriority[b.alert_level as keyof typeof levelPriority] || 0;
-				
-				if (aPriority !== bPriority) {
-					return bPriority - aPriority; // Higher priority first
-				}
-				
-				// Then sort by deficit amount
-				const aDeficit = a.recommended_stock - a.current_stock;
-				const bDeficit = b.recommended_stock - b.current_stock;
-				return bDeficit - aDeficit; // Larger deficit first
+				if (aPriority !== bPriority) return bPriority - aPriority;
+				return (b.recommended_stock - b.current_stock) - (a.recommended_stock - a.current_stock);
 			})
 			.slice(0, 3);
 	}
 
-	// Translation helper method
-	t(key: string): string {
-		return this.languageService.translate(key);
-	}
+	t(key: string): string { return this.languageService.translate(key); }
 
-	// Tab management methods
-	getTabClass(tab: 'all' | 'critical' | 'high' | 'medium' | 'resolved'): string {
+	getTabClass(tab: AlertTab): string {
 		const isActive = this.activeTab() === tab;
-		const baseClasses = 'py-3 px-4 border-b-2 font-medium text-sm transition-all duration-200 cursor-pointer';
-		
-		if (isActive) {
-			return `${baseClasses} border-[#3e66ea] text-[#3e66ea] bg-white dark:bg-gray-800`;
-		} else {
-			return `${baseClasses} border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300`;
-		}
+		const base = 'py-3 px-4 border-b-2 font-medium text-sm transition-all duration-200 cursor-pointer';
+		return isActive
+			? `${base} border-[#3e66ea] text-[#3e66ea] bg-white dark:bg-gray-800`
+			: `${base} border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300`;
 	}
 
-	getTabBadgeClass(tab: 'all' | 'critical' | 'high' | 'medium' | 'resolved'): string {
+	getTabBadgeClass(tab: AlertTab): string {
 		const isActive = this.activeTab() === tab;
-		const baseClasses = 'ml-2 text-xs px-2.5 py-1 rounded-full font-medium';
-		
-		if (isActive) {
-			return `${baseClasses} bg-[#3e66ea] text-white`;
-		} else {
-			return `${baseClasses} bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300`;
-		}
-	}
-
-	currentTabDescription(): string {
-		switch (this.activeTab()) {
-			case 'all':      return this.t('STOCK_ALERTS.ALL_ALERTS_DESCRIPTION');
-			case 'critical': return this.t('STOCK_ALERTS.CRITICAL_ALERTS_DESCRIPTION');
-			case 'high':     return this.t('STOCK_ALERTS.HIGH_ALERTS_DESCRIPTION');
-			case 'medium':   return this.t('STOCK_ALERTS.MEDIUM_ALERTS_DESCRIPTION');
-			case 'resolved': return this.t('STOCK_ALERTS.RESOLVED_ALERTS_DESCRIPTION');
-			default:         return '';
-		}
+		const base = 'ml-2 text-xs px-2.5 py-1 rounded-full font-medium';
+		return isActive
+			? `${base} bg-[#3e66ea] text-white`
+			: `${base} bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300`;
 	}
 
 	getEmptyStateMessage(): string {
@@ -368,10 +278,6 @@ export class StockAlertsManagementComponent implements OnInit, OnDestroy {
 	}
 
 	formatDate(dateString: string): string {
-		try {
-			return new Date(dateString).toLocaleDateString();
-		} catch {
-			return dateString;
-		}
+		try { return new Date(dateString).toLocaleDateString(); } catch { return dateString; }
 	}
 }
