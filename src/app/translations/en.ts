@@ -2296,4 +2296,9 @@ export const enTranslations = {
   'billing.locked_title': 'Feature locked',
   'billing.locked_body': 'This feature requires the {requiredPlan} plan. Your current plan is {currentPlan}.',
   'billing.required_plan': 'Required plan',
+  // ─── Trial banner (S3-W6-C) ───────────────────────────────────────────────
+  'trial_banner.expires_in_days': 'Your trial ends in {n} days.',
+  'trial_banner.expires_today': 'Your trial expires today.',
+  'trial_banner.past_due_message': 'Your trial has expired. Upgrade your plan to restore access.',
+  'trial_banner.upgrade_cta': 'Upgrade plan',
 };

@@ -33,3 +33,4 @@ export * from './backorders.service';
 export * from './article-suppliers.service';
 // S3-W6-B
 export * from './billing.service';
+export * from './trial.service';
