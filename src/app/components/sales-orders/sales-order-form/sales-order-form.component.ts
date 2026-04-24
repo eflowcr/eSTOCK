@@ -14,6 +14,7 @@ import {
   Validators,
   ReactiveFormsModule,
   AbstractControl,
+  ValidationErrors,
 } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { SalesOrder, CreateSalesOrderRequest, UpdateSalesOrderRequest } from '@app/models/sales-order.model';
@@ -27,6 +28,12 @@ import { LanguageService } from '@app/services/extras/language.service';
 import { LoadingService } from '@app/services/extras/loading.service';
 import { getDisplayableApiError, humanizeApiError } from '@app/utils';
 import { DrawerComponent } from '@app/shared/components/drawer';
+
+/** Validator: FormArray must have at least one item (M4) */
+function atLeastOneItemValidator(control: AbstractControl): ValidationErrors | null {
+  const arr = control as FormArray;
+  return arr.length > 0 ? null : { atLeastOne: true };
+}
 
 @Component({
   selector: 'app-sales-order-form',
@@ -229,7 +236,7 @@ export class SalesOrderFormComponent implements OnInit {
       customer_id: ['', Validators.required],
       expected_date: [''],
       notes: [''],
-      items: this.fb.array([]),
+      items: this.fb.array([], atLeastOneItemValidator),
     });
   }
 
@@ -340,11 +347,14 @@ export class SalesOrderFormComponent implements OnInit {
     try {
       this.isLoading = true;
       const [custResp, artResp] = await Promise.all([
-        this.clientsService.list({ type: 'customer', is_active: true }),
+        this.clientsService.list({ is_active: true }),
         this.articleService.getAll(),
       ]);
       if (custResp.result.success) {
-        this.customers = custResp.data || [];
+        // Include type='both' (M7 fix: clients that are both supplier+customer must appear)
+        this.customers = (custResp.data || []).filter(
+          (c: Client) => c.type === 'customer' || c.type === 'both',
+        );
       }
       if (artResp.result.success) {
         this.articles = (artResp.data || []).filter((a: Article) => a.is_active !== false);
