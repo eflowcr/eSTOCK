@@ -3,8 +3,7 @@ export interface DeliveryNoteItem {
   delivery_note_id: string;
   article_sku: string;
   qty: number;
-  lot_id?: string;
-  serial_id?: string;
+  lot_numbers?: string[];
   notes?: string;
 }
 
@@ -29,7 +28,7 @@ export interface DeliveryNote {
 export interface DeliveryNoteListFilters {
   sales_order_id?: string;
   customer_id?: string;
-  search?: string;
+  so_number?: string;
   page?: number;
   page_size?: number;
 }
