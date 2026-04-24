@@ -168,6 +168,24 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PermissionGuard],
   },
   {
+    path: 'purchase-orders',
+    loadComponent: () =>
+      import('./components/purchase-orders/purchase-orders-list/purchase-orders-list.component').then(
+        (m) => m.PurchaseOrdersListComponent,
+      ),
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permissions: ['purchase_orders:read'] },
+  },
+  {
+    path: 'purchase-orders/:id',
+    loadComponent: () =>
+      import('./components/purchase-orders/purchase-order-detail/purchase-order-detail.component').then(
+        (m) => m.PurchaseOrderDetailComponent,
+      ),
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permissions: ['purchase_orders:read'] },
+  },
+  {
     path: '**',
     redirectTo: '/dashboard',
   },
