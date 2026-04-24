@@ -5,9 +5,13 @@ import { LanguageService } from '@app/services/extras/language.service';
  * Transforms an ISO date string or Date into a human-readable relative time string.
  * Uses the LanguageService for i18n (reuses `article_detail.general.time.*` keys).
  *
+ * Impure pipe: re-evaluates on every CD cycle to keep relative timestamps
+ * current without requiring input reference changes. Cost is negligible
+ * for the small number of timestamps typically displayed.
+ *
  * Preferred usage in templates: `{{ notif.created_at | relativeDate }}`
  */
-@Pipe({ name: 'relativeDate', standalone: true, pure: true })
+@Pipe({ name: 'relativeDate', standalone: true, pure: false })
 export class RelativeDatePipe implements PipeTransform {
   constructor(private languageService: LanguageService) {}
 
