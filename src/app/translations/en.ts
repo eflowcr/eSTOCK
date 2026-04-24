@@ -2225,4 +2225,75 @@ export const enTranslations = {
   'onboarding.presentation_box': 'Box',
   'onboarding.presentation_pallet': 'Pallet',
   'onboarding.presentation_kg': 'Kilogram (kg)',
+  // ── Billing (S3-W6-B) ──────────────────────────────────────────────────────
+  'billing.title': 'Billing & Plans',
+  'billing.subtitle': 'Manage your subscription, upgrade your plan, or access the Stripe billing portal.',
+  'billing.current_plan': 'Current Plan',
+  'billing.plans_title': 'Available Plans',
+  'billing.feature': 'Feature',
+  'billing.current': 'Current',
+  'billing.select_plan': 'Select plan',
+  'billing.contact_sales': 'Contact sales',
+  'billing.manage_billing': 'Manage billing',
+  'billing.upgrade_now': 'Upgrade now',
+
+  // Plan names
+  'billing.plan_trial': 'Trial',
+  'billing.plan_starter': 'Starter',
+  'billing.plan_pro': 'Pro',
+  'billing.plan_enterprise': 'Enterprise',
+
+  // Plan prices
+  'billing.plan_trial_price': '14 days free',
+  'billing.plan_starter_price': '$29 / mo',
+  'billing.plan_pro_price': '$99 / mo',
+  'billing.plan_enterprise_price': 'Custom pricing',
+
+  // Subscription status labels
+  'billing.status_trialing': 'Trial',
+  'billing.status_active': 'Active',
+  'billing.status_past_due': 'Past due',
+  'billing.status_cancelled': 'Cancelled',
+  'billing.status_unpaid': 'Unpaid',
+  'billing.status_incomplete': 'Incomplete',
+  'billing.status_unknown': 'Unknown',
+
+  // Dates & countdown
+  'billing.trial_ends': 'Trial ends',
+  'billing.trial_expired': 'Expired',
+  'billing.day_left': 'day left',
+  'billing.days_left': 'days left',
+  'billing.renews_on': 'Renews on',
+  'billing.cancels_on': 'Cancels on',
+  'billing.cancel_at_period_end_warning': 'Your subscription will not renew at the end of the current period.',
+
+  // Features table
+  'billing.feature_warehouses': 'Warehouses',
+  'billing.feature_users': 'Users',
+  'billing.feature_articles': 'Articles / SKUs',
+  'billing.feature_api_access': 'API access',
+  'billing.feature_export': 'Export to Excel',
+  'billing.feature_support': 'Support',
+  'billing.feature_sla': 'SLA guarantee',
+  'billing.feature_custom_integrations': 'Custom integrations',
+  'billing.feature_limited': 'Limited',
+  'billing.feature_unlimited': 'Unlimited',
+  'billing.feature_support_basic': 'Basic',
+  'billing.feature_support_priority': 'Priority',
+  'billing.feature_support_dedicated': 'Dedicated',
+
+  // Checkout flow
+  'billing.confirm_checkout_title': 'Redirect to Stripe Checkout',
+  'billing.confirm_checkout_body': 'You will be redirected to Stripe Checkout to upgrade to the {plan} plan. Ready to proceed?',
+  'billing.confirm_checkout_ok': 'Continue to Stripe',
+  'billing.checkout_success': 'Your subscription has been updated successfully.',
+  'billing.checkout_cancelled': 'Checkout cancelled. No changes were made to your subscription.',
+  'billing.checkout_error': 'Error creating checkout session. Please try again.',
+  'billing.portal_error': 'Error opening the billing portal. Please try again.',
+  'billing.load_error': 'Error loading subscription data.',
+
+  // Plan locked modal
+  'billing.locked_title': 'Feature locked',
+  'billing.locked_body': 'This feature requires the {requiredPlan} plan. Your current plan is {currentPlan}.',
+  'billing.required_plan': 'Required plan',
 };

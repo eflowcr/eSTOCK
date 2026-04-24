@@ -99,6 +99,8 @@ export * from './sales-order.model';
 export * from './delivery-note.model';
 export * from './backorder.model';
 export * from './tenant.model';
+// S3-W6-B billing
+export * from './billing.model';
 
 // Import Observable for FetchResponseT
 import { Observable } from 'rxjs';
