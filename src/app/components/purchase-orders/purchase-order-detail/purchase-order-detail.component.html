@@ -1,0 +1,250 @@
+<app-main-layout>
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="flex items-center justify-center h-64">
+    <div class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+  </div>
+
+  <div *ngIf="!isLoading && po" class="flex flex-col flex-1 min-h-0 gap-6">
+
+    <!-- Header -->
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-center gap-3">
+        <a routerLink="/purchase-orders"
+          class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground hover:bg-accent transition-colors">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </a>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl font-semibold text-foreground font-mono">{{ po.po_number }}</h1>
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" [ngClass]="statusBadgeClass(po.status)">
+              {{ t('purchase_orders.status.' + po.status) }}
+            </span>
+          </div>
+          <p class="text-sm text-muted-foreground mt-0.5">{{ po.supplier?.name ?? '—' }}</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <button *ngIf="canEdit" type="button" (click)="openEdit()"
+          class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground hover:bg-accent transition-colors">
+          {{ t('edit') }}
+        </button>
+        <button *ngIf="canSubmit" type="button" (click)="openSubmitConfirm()"
+          class="inline-flex h-9 items-center gap-1.5 rounded-md bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700 transition-colors">
+          {{ t('purchase_orders.submit') }}
+        </button>
+        <button *ngIf="canCancel" type="button" (click)="openCancelConfirm()"
+          class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-4 text-sm font-medium text-muted-foreground hover:bg-accent transition-colors">
+          {{ t('purchase_orders.cancel') }}
+        </button>
+        <button *ngIf="canDelete" type="button" (click)="openDeleteConfirm()"
+          class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-4 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors">
+          {{ t('delete') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Main grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Left: Supplier card + Timeline -->
+      <div class="flex flex-col gap-6">
+
+        <!-- Supplier card -->
+        <div class="rounded-lg border border-border bg-card p-5 space-y-3">
+          <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">{{ t('purchase_orders.section.supplier') }}</h2>
+          <dl class="space-y-2.5 text-sm">
+            <div class="flex justify-between">
+              <dt class="text-muted-foreground">{{ t('purchase_orders.field.supplier') }}</dt>
+              <dd class="font-medium text-foreground">{{ po.supplier?.name ?? '—' }}</dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-muted-foreground">{{ t('purchase_orders.col.po_number') }}</dt>
+              <dd class="font-mono text-xs text-foreground">{{ po.po_number }}</dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-muted-foreground">{{ t('purchase_orders.field.expected_date') }}</dt>
+              <dd class="text-foreground">{{ po.expected_date ? (po.expected_date | date:'mediumDate') : '—' }}</dd>
+            </div>
+            <div *ngIf="po.notes" class="pt-1">
+              <dt class="text-muted-foreground mb-1">{{ t('purchase_orders.field.notes') }}</dt>
+              <dd class="text-foreground text-xs whitespace-pre-line">{{ po.notes }}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Timeline -->
+        <div class="rounded-lg border border-border bg-card p-5 space-y-3">
+          <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">{{ t('purchase_orders.section.timeline') }}</h2>
+          <ol class="relative border-l border-border ml-2 space-y-4">
+            <li class="ml-4">
+              <span class="absolute -left-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-muted border border-border"></span>
+              <p class="text-xs font-medium text-foreground">{{ t('purchase_orders.timeline.created') }}</p>
+              <time class="text-xs text-muted-foreground">{{ po.created_at | date:'medium' }}</time>
+            </li>
+            <li *ngIf="po.submitted_at" class="ml-4">
+              <span class="absolute -left-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-blue-500 border border-blue-300"></span>
+              <p class="text-xs font-medium text-foreground">{{ t('purchase_orders.timeline.submitted') }}</p>
+              <time class="text-xs text-muted-foreground">{{ po.submitted_at | date:'medium' }}</time>
+            </li>
+            <li *ngIf="po.completed_at" class="ml-4">
+              <span class="absolute -left-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-green-500 border border-green-300"></span>
+              <p class="text-xs font-medium text-foreground">{{ t('purchase_orders.timeline.completed') }}</p>
+              <time class="text-xs text-muted-foreground">{{ po.completed_at | date:'medium' }}</time>
+            </li>
+            <li *ngIf="po.cancelled_at" class="ml-4">
+              <span class="absolute -left-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-red-500 border border-red-300"></span>
+              <p class="text-xs font-medium text-foreground">{{ t('purchase_orders.timeline.cancelled') }}</p>
+              <time class="text-xs text-muted-foreground">{{ po.cancelled_at | date:'medium' }}</time>
+            </li>
+          </ol>
+        </div>
+
+        <!-- Linked receiving task -->
+        <div *ngIf="po.receiving_task_id" class="rounded-lg border border-border bg-card p-5 space-y-3">
+          <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">{{ t('purchase_orders.section.receiving_task') }}</h2>
+          <a [routerLink]="['/receiving-tasks']"
+            class="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            {{ t('purchase_orders.view_receiving_task') }}
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Items table (takes 2 columns) -->
+      <div class="lg:col-span-2 flex flex-col gap-6">
+
+        <!-- Items table -->
+        <div class="rounded-lg border border-border bg-card overflow-hidden">
+          <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">
+              {{ t('purchase_orders.section.items') }}
+              <span class="ml-1 text-xs font-normal text-muted-foreground">({{ po.items?.length ?? 0 }})</span>
+            </h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table *ngIf="po.items && po.items.length > 0" class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-border bg-muted/50">
+                  <th class="px-4 py-3 text-left font-medium text-muted-foreground">{{ t('purchase_orders.items.col.sku') }}</th>
+                  <th class="px-4 py-3 text-right font-medium text-muted-foreground">{{ t('purchase_orders.items.col.expected') }}</th>
+                  <th class="px-4 py-3 text-right font-medium text-muted-foreground">{{ t('purchase_orders.items.col.received') }}</th>
+                  <th class="px-4 py-3 text-right font-medium text-muted-foreground">{{ t('purchase_orders.items.col.rejected') }}</th>
+                  <th class="px-4 py-3 text-right font-medium text-muted-foreground">{{ t('purchase_orders.items.col.discrepancy') }}</th>
+                  <th class="px-4 py-3 text-right font-medium text-muted-foreground">{{ t('purchase_orders.items.col.unit_cost') }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                <tr *ngFor="let item of po.items" class="hover:bg-muted/30 transition-colors">
+                  <td class="px-4 py-3 font-mono text-xs text-foreground">{{ item.article_sku }}</td>
+                  <td class="px-4 py-3 text-right text-foreground">{{ item.expected_qty }}</td>
+                  <td class="px-4 py-3 text-right text-foreground">{{ item.received_qty }}</td>
+                  <td class="px-4 py-3 text-right text-muted-foreground">{{ item.rejected_qty }}</td>
+                  <td class="px-4 py-3 text-right" [ngClass]="discrepancyClass(item)">
+                    {{ discrepancyLabel(item) }}
+                  </td>
+                  <td class="px-4 py-3 text-right text-muted-foreground">
+                    {{ item.unit_cost != null ? (item.unit_cost | number:'1.2-2') : '—' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div *ngIf="!po.items || po.items.length === 0"
+              class="flex flex-col items-center justify-center py-10 text-center">
+              <p class="text-sm text-muted-foreground">{{ t('purchase_orders.items.empty') }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Discrepancy section -->
+        <div *ngIf="hasDiscrepancies" class="rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 overflow-hidden">
+          <div class="px-5 py-4 border-b border-amber-200 dark:border-amber-700">
+            <h2 class="text-sm font-semibold text-amber-800 dark:text-amber-300 uppercase tracking-wide flex items-center gap-2">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              {{ t('purchase_orders.section.discrepancies') }}
+            </h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-amber-200 dark:border-amber-700">
+                  <th class="px-4 py-3 text-left font-medium text-amber-700 dark:text-amber-400">{{ t('purchase_orders.items.col.sku') }}</th>
+                  <th class="px-4 py-3 text-right font-medium text-amber-700 dark:text-amber-400">{{ t('purchase_orders.items.col.expected') }}</th>
+                  <th class="px-4 py-3 text-right font-medium text-amber-700 dark:text-amber-400">{{ t('purchase_orders.items.col.received') }}</th>
+                  <th class="px-4 py-3 text-right font-medium text-amber-700 dark:text-amber-400">{{ t('purchase_orders.items.col.discrepancy') }}</th>
+                  <th class="px-4 py-3 text-left font-medium text-amber-700 dark:text-amber-400">{{ t('purchase_orders.discrepancy.meaning') }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-amber-100 dark:divide-amber-800">
+                <tr *ngFor="let item of discrepantItems" class="hover:bg-amber-100/50 dark:hover:bg-amber-900/30 transition-colors">
+                  <td class="px-4 py-3 font-mono text-xs text-foreground">{{ item.article_sku }}</td>
+                  <td class="px-4 py-3 text-right">{{ item.expected_qty }}</td>
+                  <td class="px-4 py-3 text-right">{{ item.received_qty }}</td>
+                  <td class="px-4 py-3 text-right" [ngClass]="discrepancyClass(item)">
+                    {{ discrepancyLabel(item) }}
+                  </td>
+                  <td class="px-4 py-3 text-xs">
+                    <span *ngIf="item.discrepancy > 0" class="text-red-600 dark:text-red-400">
+                      {{ t('purchase_orders.discrepancy.missing') }}
+                    </span>
+                    <span *ngIf="item.discrepancy < 0" class="text-amber-600 dark:text-amber-400">
+                      {{ t('purchase_orders.discrepancy.excess') }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit drawer -->
+  <app-purchase-order-form
+    *ngIf="isEditOpen"
+    [isOpen]="isEditOpen"
+    mode="edit"
+    [poId]="po?.id"
+    (success)="onEditSuccess()"
+    (closed)="closeEdit()">
+  </app-purchase-order-form>
+
+  <!-- Submit confirmation -->
+  <app-confirmation-dialog
+    [isOpen]="confirmSubmitOpen"
+    [title]="t('purchase_orders.submit_confirm_title')"
+    [message]="t('purchase_orders.submit_confirm_message')"
+    [confirmText]="t('purchase_orders.submit')"
+    (confirmed)="confirmSubmit()"
+    (cancelled)="cancelSubmit()">
+  </app-confirmation-dialog>
+
+  <!-- Cancel confirmation -->
+  <app-confirmation-dialog
+    [isOpen]="confirmCancelOpen"
+    [title]="t('purchase_orders.cancel_confirm_title')"
+    [message]="t('purchase_orders.cancel_confirm_message')"
+    [confirmText]="t('purchase_orders.cancel')"
+    (confirmed)="confirmCancel()"
+    (cancelled)="cancelCancel()">
+  </app-confirmation-dialog>
+
+  <!-- Delete confirmation -->
+  <app-confirmation-dialog
+    [isOpen]="confirmDeleteOpen"
+    [title]="t('purchase_orders.delete_confirm_title')"
+    [message]="t('purchase_orders.delete_confirm_message')"
+    [confirmText]="t('delete')"
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()">
+  </app-confirmation-dialog>
+</app-main-layout>

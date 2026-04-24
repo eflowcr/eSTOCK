@@ -1,0 +1,199 @@
+<app-main-layout>
+  <div class="flex flex-col flex-1 min-h-0 gap-6">
+    <!-- Header -->
+    <div class="flex justify-between items-start flex-shrink-0 gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold text-foreground">{{ t('purchase_orders.title') }}</h1>
+        <p class="mt-1 text-sm text-muted-foreground">{{ t('purchase_orders.description') }}</p>
+      </div>
+      <button
+        *ngIf="hasPermission('purchase_orders', 'create')"
+        type="button"
+        (click)="openCreateForm()"
+        class="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 active:scale-[0.97] flex-shrink-0">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        {{ t('purchase_orders.new') }}
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-3 items-center">
+      <!-- Search -->
+      <div class="relative min-w-[220px] flex-1">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+        </svg>
+        <input type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+          [placeholder]="t('purchase_orders.search_placeholder')"
+          class="w-full h-9 rounded-md border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+      </div>
+
+      <!-- Status filter -->
+      <select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()"
+        class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+        <option value="">{{ t('purchase_orders.status.all') }}</option>
+        <option value="draft">{{ t('purchase_orders.status.draft') }}</option>
+        <option value="submitted">{{ t('purchase_orders.status.submitted') }}</option>
+        <option value="partial">{{ t('purchase_orders.status.partial') }}</option>
+        <option value="completed">{{ t('purchase_orders.status.completed') }}</option>
+        <option value="cancelled">{{ t('purchase_orders.status.cancelled') }}</option>
+      </select>
+
+      <!-- Supplier filter -->
+      <select [(ngModel)]="supplierFilter" (ngModelChange)="onFilterChange()"
+        class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+        <option value="">{{ t('purchase_orders.filter.all_suppliers') }}</option>
+        <option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</option>
+      </select>
+
+      <!-- Date from -->
+      <input type="date" [(ngModel)]="dateFrom" (ngModelChange)="onFilterChange()"
+        class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+
+      <!-- Date to -->
+      <input type="date" [(ngModel)]="dateTo" (ngModelChange)="onFilterChange()"
+        class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading()" class="flex items-center justify-center h-32">
+      <div class="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!isLoading() && purchaseOrders.length === 0"
+      class="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card p-12 text-center">
+      <svg class="h-10 w-10 text-muted-foreground mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+      </svg>
+      <p class="text-sm font-medium text-foreground">{{ t('purchase_orders.empty') }}</p>
+      <p class="text-xs text-muted-foreground mt-1">{{ t('purchase_orders.empty_hint') }}</p>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!isLoading() && purchaseOrders.length > 0" class="rounded-lg border border-border bg-card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border bg-muted/50">
+              <th class="px-4 py-3 text-left font-medium text-muted-foreground">{{ t('purchase_orders.col.po_number') }}</th>
+              <th class="px-4 py-3 text-left font-medium text-muted-foreground">{{ t('purchase_orders.col.supplier') }}</th>
+              <th class="px-4 py-3 text-left font-medium text-muted-foreground">{{ t('purchase_orders.col.status') }}</th>
+              <th class="px-4 py-3 text-left font-medium text-muted-foreground">{{ t('purchase_orders.col.expected_date') }}</th>
+              <th class="px-4 py-3 text-left font-medium text-muted-foreground">{{ t('purchase_orders.col.items') }}</th>
+              <th class="px-4 py-3 text-left font-medium text-muted-foreground">{{ t('purchase_orders.col.created_at') }}</th>
+              <th class="px-4 py-3 text-right font-medium text-muted-foreground">{{ t('actions') }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            <tr *ngFor="let po of purchaseOrders" class="hover:bg-muted/30 transition-colors">
+              <td class="px-4 py-3 font-mono text-xs text-foreground font-medium">{{ po.po_number }}</td>
+              <td class="px-4 py-3 text-foreground">{{ po.supplier?.name ?? '—' }}</td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" [ngClass]="statusBadgeClass(po.status)">
+                  {{ statusLabel(po.status) }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-muted-foreground">
+                {{ po.expected_date ? (po.expected_date | date:'mediumDate') : '—' }}
+              </td>
+              <td class="px-4 py-3 text-muted-foreground text-center">{{ itemCount(po) }}</td>
+              <td class="px-4 py-3 text-muted-foreground">{{ po.created_at | date:'short' }}</td>
+              <td class="px-4 py-3 text-right">
+                <div class="flex items-center justify-end gap-1.5">
+                  <a [routerLink]="['/purchase-orders', po.id]"
+                    class="inline-flex h-8 items-center rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground hover:bg-accent transition-colors">
+                    {{ t('view') }}
+                  </a>
+                  <button *ngIf="canEdit(po) && hasPermission('purchase_orders', 'update')"
+                    type="button" (click)="openEditForm(po)"
+                    class="inline-flex h-8 items-center rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground hover:bg-accent transition-colors">
+                    {{ t('edit') }}
+                  </button>
+                  <button *ngIf="canSubmit(po) && hasPermission('purchase_orders', 'update')"
+                    type="button" (click)="openSubmitConfirm(po)"
+                    class="inline-flex h-8 items-center rounded-md border border-blue-300 bg-blue-50 px-2.5 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-300 transition-colors">
+                    {{ t('purchase_orders.submit') }}
+                  </button>
+                  <button *ngIf="canCancel(po) && hasPermission('purchase_orders', 'update')"
+                    type="button" (click)="openCancelConfirm(po)"
+                    class="inline-flex h-8 items-center rounded-md border border-border bg-background px-2.5 text-xs font-medium text-muted-foreground hover:bg-accent transition-colors">
+                    {{ t('purchase_orders.cancel') }}
+                  </button>
+                  <button *ngIf="canDelete(po) && hasPermission('purchase_orders', 'delete')"
+                    type="button" (click)="openDeleteConfirm(po)"
+                    class="inline-flex h-8 items-center rounded-md border border-border bg-background px-2.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors">
+                    {{ t('delete') }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="totalPages > 1" class="flex items-center justify-between px-4 py-3 border-t border-border">
+        <span class="text-xs text-muted-foreground">
+          {{ t('purchase_orders.pagination.showing') }} {{ (page - 1) * pageSize + 1 }}–{{ pageEnd }}
+          {{ t('purchase_orders.pagination.of') }} {{ totalCount }}
+        </span>
+        <div class="flex items-center gap-2">
+          <button type="button" [disabled]="!hasPrev" (click)="prevPage()"
+            class="inline-flex h-8 items-center rounded-md border border-border bg-background px-3 text-xs font-medium text-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            {{ t('purchase_orders.pagination.prev') }}
+          </button>
+          <span class="text-xs text-muted-foreground">{{ page }} / {{ totalPages }}</span>
+          <button type="button" [disabled]="!hasNext" (click)="nextPage()"
+            class="inline-flex h-8 items-center rounded-md border border-border bg-background px-3 text-xs font-medium text-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            {{ t('purchase_orders.pagination.next') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form drawer -->
+  <app-purchase-order-form
+    *ngIf="isFormOpen"
+    [isOpen]="isFormOpen"
+    [mode]="formMode"
+    [poId]="selectedPoId"
+    (success)="onFormSuccess()"
+    (closed)="closeForm()">
+  </app-purchase-order-form>
+
+  <!-- Delete confirmation -->
+  <app-confirmation-dialog
+    [isOpen]="confirmDeleteOpen"
+    [title]="t('purchase_orders.delete_confirm_title')"
+    [message]="t('purchase_orders.delete_confirm_message')"
+    [confirmText]="t('delete')"
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()">
+  </app-confirmation-dialog>
+
+  <!-- Submit confirmation -->
+  <app-confirmation-dialog
+    [isOpen]="confirmSubmitOpen"
+    [title]="t('purchase_orders.submit_confirm_title')"
+    [message]="t('purchase_orders.submit_confirm_message')"
+    [confirmText]="t('purchase_orders.submit')"
+    (confirmed)="confirmSubmit()"
+    (cancelled)="cancelSubmit()">
+  </app-confirmation-dialog>
+
+  <!-- Cancel confirmation -->
+  <app-confirmation-dialog
+    [isOpen]="confirmCancelOpen"
+    [title]="t('purchase_orders.cancel_confirm_title')"
+    [message]="t('purchase_orders.cancel_confirm_message')"
+    [confirmText]="t('purchase_orders.cancel')"
+    (confirmed)="confirmCancel()"
+    (cancelled)="cancelCancel()">
+  </app-confirmation-dialog>
+</app-main-layout>

@@ -1,0 +1,153 @@
+<app-drawer [isOpen]="isOpen" (closed)="onClose()" direction="bottom" panelClass="!max-h-[96vh] w-full max-w-full">
+  <div drawerHeader>
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex-1 min-w-0">
+        <h3 class="text-lg font-semibold text-foreground">
+          {{ isEditMode ? t('purchase_orders.edit') : t('purchase_orders.new') }}
+        </h3>
+        <p class="text-sm text-muted-foreground mt-1">
+          {{ isEditMode ? t('purchase_orders.edit_description') : t('purchase_orders.new_description') }}
+        </p>
+      </div>
+      <button type="button" (click)="onClose()" class="text-muted-foreground hover:text-foreground p-1 flex-shrink-0">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div drawerContent>
+    <!-- Loading state for edit mode -->
+    <div *ngIf="isLoadingData" class="flex items-center justify-center h-32">
+      <div class="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+    </div>
+
+    <!-- Non-draft warning -->
+    <div *ngIf="!isLoadingData && isEditMode && !isDraftMode"
+      class="mb-4 flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20">
+      <svg class="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg>
+      <p class="text-sm text-amber-700 dark:text-amber-300">{{ t('purchase_orders.readonly_warning') }}</p>
+    </div>
+
+    <form *ngIf="!isLoadingData" id="poForm" [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6 px-1">
+
+      <!-- Main fields -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <z-form-field>
+          <label z-form-label zRequired>{{ t('purchase_orders.field.supplier') }}</label>
+          <z-form-control [errorMessage]="isFieldInvalid('supplier_id') ? getFieldError('supplier_id') : ''">
+            <z-select formControlName="supplier_id" [zPlaceholder]="t('purchase_orders.field.supplier_placeholder')">
+              <z-select-item *ngFor="let s of suppliers" [zValue]="s.id">{{ s.name }}</z-select-item>
+            </z-select>
+          </z-form-control>
+        </z-form-field>
+
+        <z-form-field>
+          <label z-form-label>{{ t('purchase_orders.field.expected_date') }}</label>
+          <z-form-control>
+            <input z-input type="date" formControlName="expected_date" />
+          </z-form-control>
+        </z-form-field>
+
+        <z-form-field class="md:col-span-2">
+          <label z-form-label>{{ t('purchase_orders.field.notes') }}</label>
+          <z-form-control>
+            <textarea z-input formControlName="notes" rows="2"
+              [placeholder]="t('purchase_orders.field.notes_placeholder')"
+              class="resize-none"></textarea>
+          </z-form-control>
+        </z-form-field>
+      </div>
+
+      <!-- Items section -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="text-sm font-semibold text-foreground uppercase tracking-wide">
+            {{ t('purchase_orders.items.title') }}
+            <span class="ml-1 text-xs font-normal text-muted-foreground">({{ items.length }})</span>
+          </h4>
+          <button *ngIf="isDraftMode" type="button" (click)="addItem()"
+            class="inline-flex h-8 items-center gap-1 rounded-md border border-border bg-background px-3 text-xs font-medium text-foreground hover:bg-accent transition-colors">
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            {{ t('purchase_orders.items.add') }}
+          </button>
+        </div>
+
+        <!-- Items validation error -->
+        <div *ngIf="items.invalid && items.touched"
+          class="mb-3 text-xs text-destructive">
+          {{ t('purchase_orders.items.required') }}
+        </div>
+
+        <div formArrayName="items" class="space-y-3">
+          <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
+            class="rounded-md border border-border bg-muted/20 p-4">
+            <div class="flex items-start gap-3">
+              <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
+
+                <!-- Article SKU select -->
+                <z-form-field class="md:col-span-2">
+                  <label z-form-label zRequired>{{ t('purchase_orders.items.article') }}</label>
+                  <z-form-control [errorMessage]="isItemFieldInvalid(i, 'article_sku') ? getItemFieldError(i, 'article_sku') : ''">
+                    <z-select formControlName="article_sku" [zPlaceholder]="t('purchase_orders.items.article_placeholder')">
+                      <z-select-item *ngFor="let a of articles" [zValue]="a.sku">
+                        {{ a.sku }} — {{ a.name }}
+                      </z-select-item>
+                    </z-select>
+                  </z-form-control>
+                </z-form-field>
+
+                <!-- Expected qty -->
+                <z-form-field>
+                  <label z-form-label zRequired>{{ t('purchase_orders.items.qty') }}</label>
+                  <z-form-control [errorMessage]="isItemFieldInvalid(i, 'expected_qty') ? getItemFieldError(i, 'expected_qty') : ''">
+                    <input z-input type="number" min="1" formControlName="expected_qty"
+                      [zStatus]="isItemFieldInvalid(i, 'expected_qty') ? 'error' : undefined" />
+                  </z-form-control>
+                </z-form-field>
+
+                <!-- Unit cost -->
+                <z-form-field>
+                  <label z-form-label>{{ t('purchase_orders.items.unit_cost') }}</label>
+                  <z-form-control>
+                    <input z-input type="number" min="0" step="0.01" formControlName="unit_cost"
+                      [placeholder]="t('purchase_orders.items.unit_cost_placeholder')" />
+                  </z-form-control>
+                </z-form-field>
+              </div>
+
+              <!-- Remove button -->
+              <button *ngIf="isDraftMode && items.length > 1"
+                type="button" (click)="removeItem(i)"
+                class="mt-6 inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div drawerFooter>
+    <div class="flex items-center justify-end gap-3">
+      <button type="button" (click)="onClose()"
+        class="inline-flex h-9 items-center rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground hover:bg-accent transition-colors">
+        {{ t('cancel') }}
+      </button>
+      <button *ngIf="isDraftMode" type="submit" form="poForm" [disabled]="isLoading"
+        class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors">
+        <span *ngIf="isLoading" class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+        {{ isEditMode ? t('save') : t('purchase_orders.new') }}
+      </button>
+    </div>
+  </div>
+</app-drawer>
