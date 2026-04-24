@@ -1,4 +1,4 @@
-export type MovementType = 'INBOUND' | 'OUTBOUND' | 'ADJUSTMENT' | 'TRANSFER' | 'REJECTED';
+export type MovementType = 'inbound' | 'outbound' | 'adjustment' | 'transfer' | 'rejected';
 
 export interface InventoryMovement {
   id: string;

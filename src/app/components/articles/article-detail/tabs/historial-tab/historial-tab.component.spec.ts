@@ -19,12 +19,12 @@ function daysAgo(n: number): string {
 
 const MOCK_MOVEMENTS: InventoryMovement[] = [
   // Same day — 3 movements
-  { id: 'm1', sku: 'SKU-X', location_code: 'A-01', quantity: 10, movement_type: 'INBOUND',  created_at: daysAgo(1) },
-  { id: 'm2', sku: 'SKU-X', location_code: 'A-01', quantity:  5, movement_type: 'INBOUND',  created_at: daysAgo(1) },
-  { id: 'm3', sku: 'SKU-X', location_code: 'B-02', quantity:  3, movement_type: 'OUTBOUND', created_at: daysAgo(1) },
+  { id: 'm1', sku: 'SKU-X', location_code: 'A-01', quantity: 10, movement_type: 'inbound',  created_at: daysAgo(1) },
+  { id: 'm2', sku: 'SKU-X', location_code: 'A-01', quantity:  5, movement_type: 'inbound',  created_at: daysAgo(1) },
+  { id: 'm3', sku: 'SKU-X', location_code: 'B-02', quantity:  3, movement_type: 'outbound', created_at: daysAgo(1) },
   // Another day
-  { id: 'm4', sku: 'SKU-X', location_code: 'A-01', quantity:  2, movement_type: 'ADJUSTMENT', created_at: daysAgo(5) },
-  { id: 'm5', sku: 'SKU-X', location_code: 'A-01', quantity:  7, movement_type: 'REJECTED',   created_at: daysAgo(15) },
+  { id: 'm4', sku: 'SKU-X', location_code: 'A-01', quantity:  2, movement_type: 'adjustment', created_at: daysAgo(5) },
+  { id: 'm5', sku: 'SKU-X', location_code: 'A-01', quantity:  7, movement_type: 'rejected',   created_at: daysAgo(15) },
 ];
 
 const mockLanguageService = { translate: (k: string) => k, t: (k: string) => k };
@@ -90,7 +90,7 @@ describe('HistorialTabComponent', () => {
   });
 
   it('type filter narrows movements', () => {
-    component.toggleType('INBOUND');
+    component.toggleType('inbound');
     expect(component.sortedMovements().length).toBe(2);
   });
 
@@ -114,7 +114,7 @@ describe('HistorialTabComponent', () => {
   });
 
   it('clearFilters resets state', () => {
-    component.toggleType('INBOUND');
+    component.toggleType('inbound');
     component.onLocationChange('A-01');
     component.clearFilters();
     expect(component.selectedTypes().size).toBe(0);

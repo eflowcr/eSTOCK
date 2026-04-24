@@ -1,6 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { PdfExportService } from './pdf-export.service';
+import { LanguageService } from '@app/services/extras/language.service';
 import { LotTraceResponse } from '@app/models/lot-trace.model';
+
+const mockLanguageService = { t: (k: string) => k, translate: (k: string) => k };
 
 const MOCK_DATA: LotTraceResponse = {
   lot: {
@@ -18,9 +21,9 @@ const MOCK_DATA: LotTraceResponse = {
   movements: [
     {
       id: 'mv-1',
-      type: 'INBOUND',
+      movement_type: 'inbound',
       sku: 'SKU-PDF',
-      location: 'A-01',
+      location_code: 'A-01',
       quantity: 50,
       before_qty: 0,
       after_qty: 50,
@@ -39,7 +42,11 @@ describe('PdfExportService', () => {
   let service: PdfExportService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: LanguageService, useValue: mockLanguageService },
+      ],
+    });
     service = TestBed.inject(PdfExportService);
   });
 
@@ -75,9 +82,9 @@ describe('PdfExportService', () => {
       ...MOCK_DATA,
       movements: Array.from({ length: 60 }, (_, i) => ({
         id: `mv-${i}`,
-        type: 'INBOUND' as const,
+        movement_type: 'inbound' as const,
         sku: 'SKU-PDF',
-        location: 'A-01',
+        location_code: 'A-01',
         quantity: 1,
         created_at: '2025-01-15T10:00:00Z',
       })),

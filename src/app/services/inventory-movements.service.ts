@@ -65,9 +65,9 @@ export class InventoryMovementsService {
         ? Math.abs(mv.quantity) * mv.unit_cost
         : Math.abs(mv.quantity);
 
-      if (mv.reference_type === 'receiving_task' || mv.movement_type === 'INBOUND') {
+      if (mv.reference_type === 'receiving_task' || mv.movement_type === 'inbound') {
         bucket.receiving += value;
-      } else if (mv.reference_type === 'picking_task' || mv.movement_type === 'OUTBOUND') {
+      } else if (mv.reference_type === 'picking_task' || mv.movement_type === 'outbound') {
         bucket.picking += value;
       } else {
         bucket.adjustment += value;

@@ -26,7 +26,7 @@ const CELL_GAP = 2;
 const CELL_TOTAL = CELL_SIZE + CELL_GAP;
 const LEGEND_LEVELS = 5;
 
-const MOVEMENT_TYPES: MovementType[] = ['INBOUND', 'OUTBOUND', 'REJECTED', 'ADJUSTMENT', 'TRANSFER'];
+const MOVEMENT_TYPES: MovementType[] = ['inbound', 'outbound', 'rejected', 'adjustment', 'transfer'];
 
 @Component({
   selector: 'app-historial-tab',
@@ -282,15 +282,15 @@ export class HistorialTabComponent implements OnInit, OnChanges {
   typeBadgeClass(type: MovementType): string {
     const base = 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium';
     switch (type) {
-      case 'INBOUND':
+      case 'inbound':
         return `${base} bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300`;
-      case 'OUTBOUND':
+      case 'outbound':
         return `${base} bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300`;
-      case 'ADJUSTMENT':
+      case 'adjustment':
         return `${base} bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300`;
-      case 'TRANSFER':
+      case 'transfer':
         return `${base} bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300`;
-      case 'REJECTED':
+      case 'rejected':
         return `${base} bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300`;
       default:
         return `${base} bg-muted text-muted-foreground`;
@@ -298,20 +298,20 @@ export class HistorialTabComponent implements OnInit, OnChanges {
   }
 
   typeLabel(type: MovementType): string {
-    return this.t(`historial.type.${type.toLowerCase()}`);
+    return this.t(`historial.type.${type}`);
   }
 
   qtyClass(mv: InventoryMovement): string {
-    if (mv.movement_type === 'INBOUND') return 'text-green-700 dark:text-green-400 font-semibold';
-    if (mv.movement_type === 'OUTBOUND') return 'text-red-700 dark:text-red-400 font-semibold';
-    if (mv.movement_type === 'REJECTED') return 'text-red-700 dark:text-red-400 font-semibold';
+    if (mv.movement_type === 'inbound') return 'text-green-700 dark:text-green-400 font-semibold';
+    if (mv.movement_type === 'outbound') return 'text-red-700 dark:text-red-400 font-semibold';
+    if (mv.movement_type === 'rejected') return 'text-red-700 dark:text-red-400 font-semibold';
     return 'text-foreground font-semibold';
   }
 
   qtyDisplay(mv: InventoryMovement): string {
     const qty = Number(mv.quantity) || 0;
-    if (mv.movement_type === 'INBOUND') return `+${qty}`;
-    if (mv.movement_type === 'OUTBOUND' || mv.movement_type === 'REJECTED') {
+    if (mv.movement_type === 'inbound') return `+${qty}`;
+    if (mv.movement_type === 'outbound' || mv.movement_type === 'rejected') {
       return qty > 0 ? `-${qty}` : `${qty}`;
     }
     return qty > 0 ? `+${qty}` : `${qty}`;

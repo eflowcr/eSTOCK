@@ -1,23 +1,7 @@
-export type MovementType =
-  | 'INBOUND' | 'OUTBOUND' | 'REJECTED'
-  | 'ADJUSTMENT' | 'TRANSFER_IN' | 'TRANSFER_OUT';
-
-export interface InventoryMovement {
-  id: string;
-  type: MovementType;
-  sku: string;
-  location?: string;
-  quantity: number;
-  before_qty?: number;
-  after_qty?: number;
-  unit_cost?: number;
-  reference_type?: 'receiving_task' | 'picking_task' | 'adjustment' | 'stock_transfer' | string;
-  reference_id?: string;
-  lot_id?: string;
-  serial_id?: string;
-  user_id?: string;
-  created_at: string;
-}
+// Re-export canonical types — single source of truth for movement shape.
+// The backend endpoint GET /lots/:id/trace returns movement_type (not type).
+import type { InventoryMovement, MovementType } from './inventory-movement.model';
+export type { MovementType, InventoryMovement };
 
 export interface LotTraceOrigin {
   receiving_task_id: string;
