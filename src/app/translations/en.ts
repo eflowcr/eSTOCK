@@ -2126,4 +2126,10 @@ export const enTranslations = {
   'sales_orders.timeline_submitted': 'Order submitted',
   'sales_orders.timeline_completed': 'Order completed',
   'sales_orders.timeline_cancelled': 'Order cancelled',
+
+  // ─── Trial banner (S3-W6-C) ───────────────────────────────────────────────
+  'trial_banner.expires_in_days': 'Your trial ends in {n} days.',
+  'trial_banner.expires_today': 'Your trial expires today.',
+  'trial_banner.past_due_message': 'Your trial has expired. Upgrade your plan to restore access.',
+  'trial_banner.upgrade_cta': 'Upgrade plan',
 };

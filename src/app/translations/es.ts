@@ -2253,4 +2253,10 @@ export const esTranslations = {
   'pdf.col_before_after': 'Antes→Después',
   'pdf.lot_label': 'Lote',
   'pdf.page': 'Página',
+
+  // ─── Trial banner (S3-W6-C) ───────────────────────────────────────────────
+  'trial_banner.expires_in_days': 'Tu trial termina en {n} días.',
+  'trial_banner.expires_today': 'Tu trial expira hoy.',
+  'trial_banner.past_due_message': 'Tu trial expiró. Actualiza tu plan para recuperar acceso.',
+  'trial_banner.upgrade_cta': 'Actualizar plan',
 };

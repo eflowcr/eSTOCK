@@ -31,3 +31,4 @@ export * from './sales-orders.service';
 export * from './delivery-notes.service';
 export * from './backorders.service';
 export * from './article-suppliers.service';
+export * from './trial.service';

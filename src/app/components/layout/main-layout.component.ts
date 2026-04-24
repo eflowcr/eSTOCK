@@ -5,13 +5,14 @@ import { UserPreferencesService } from '@app/services/user-preferences.service';
 import { Subscription } from 'rxjs';
 import { AlertComponent } from '../shared/extras/alert/alert.component';
 import { QuickSearchOverlayComponent } from '../shared/quick-search-overlay/quick-search-overlay.component';
+import { TrialBannerComponent } from '../shared/trial-banner/trial-banner.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { TopbarComponent } from './topbar/topbar.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, TopbarComponent, AlertComponent, QuickSearchOverlayComponent],
+  imports: [CommonModule, SidebarComponent, TopbarComponent, AlertComponent, QuickSearchOverlayComponent, TrialBannerComponent],
   template: `
     <div class="flex min-h-screen w-full bg-background">
       <app-alert></app-alert>
@@ -21,6 +22,7 @@ import { TopbarComponent } from './topbar/topbar.component';
         class="flex flex-1 flex-col min-h-0 md:pl-3"
         [class.md:ml-64]="!desktopSidebarCollapsed"
       >
+        <app-trial-banner></app-trial-banner>
         <app-topbar></app-topbar>
         <main class="flex flex-1 flex-col min-h-0 gap-4 p-4">
           <ng-content></ng-content>
