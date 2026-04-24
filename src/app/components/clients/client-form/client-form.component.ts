@@ -125,14 +125,13 @@ export class ClientFormComponent implements OnInit, OnChanges {
         tax_id: raw.tax_id || undefined,
         notes: raw.notes || undefined,
         is_active: !!raw.is_active,
-        created_by: undefined,
       };
 
       if (this.isEditMode && this.initialData) {
         await this.clientsService.update(this.initialData.id, payload);
         this.alertService.success(this.t('clients.updated_success'));
       } else {
-        await this.clientsService.create(payload as any);
+        await this.clientsService.create(payload);
         this.alertService.success(this.t('clients.created_success'));
       }
       this.success.emit();
