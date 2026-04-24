@@ -33,7 +33,7 @@ export class SalesOrdersService {
     }
     const qs = params.toString();
     return this.fetchService.get<ApiResponse<SalesOrder[]>>({
-      API_Gateway: qs ? `${SALES_ORDERS_URL}/?${qs}` : `${SALES_ORDERS_URL}/`,
+      API_Gateway: qs ? `${SALES_ORDERS_URL}?${qs}` : SALES_ORDERS_URL,
     });
   }
 

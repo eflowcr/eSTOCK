@@ -32,7 +32,7 @@ export class PurchaseOrdersService {
     }
     const qs = params.toString();
     return this.fetchService.get<ApiResponse<PurchaseOrder[]>>({
-      API_Gateway: qs ? `${PURCHASE_ORDERS_URL}/?${qs}` : `${PURCHASE_ORDERS_URL}/`,
+      API_Gateway: qs ? `${PURCHASE_ORDERS_URL}?${qs}` : PURCHASE_ORDERS_URL,
     });
   }
 
