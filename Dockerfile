@@ -25,7 +25,7 @@ USER root
 RUN rm -rf ./*
 COPY --from=build --chown=nginx:nginx /usr/local/app/dist/eSTOCK_frontend/browser .
 COPY --chown=nginx:nginx ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
-USER nginx
+USER 101:101
 
 EXPOSE 8080
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
