@@ -7,6 +7,7 @@ import { LanguageService } from '@app/services/extras/language.service';
 import { MainLayoutComponent } from '../layout/main-layout.component';
 import { InventoryMovement, MovementType } from '@app/models/inventory-movement.model';
 import { RelativeDatePipe } from '@app/shared/pipes/relative-date.pipe';
+import { MovementTypeBadgePipe } from '@app/shared/pipes/movement-type-badge.pipe';
 
 const PAGE_SIZE = 20;
 const MOVEMENT_TYPES: MovementType[] = ['inbound', 'outbound', 'rejected', 'adjustment', 'transfer'];
@@ -14,7 +15,7 @@ const MOVEMENT_TYPES: MovementType[] = ['inbound', 'outbound', 'rejected', 'adju
 @Component({
   selector: 'app-stock-ledger',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, RelativeDatePipe],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, RelativeDatePipe, MovementTypeBadgePipe],
   template: `
     <app-main-layout>
       <div class="flex flex-col gap-4">
@@ -139,7 +140,7 @@ const MOVEMENT_TYPES: MovementType[] = ['inbound', 'outbound', 'rejected', 'adju
                   [class.ring-2]="isTypeSelected(type)"
                   [class.ring-offset-1]="isTypeSelected(type)"
                   class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-all"
-                  [ngClass]="typeBadgeClass(type)"
+                  [ngClass]="type | movementTypeBadge"
                 >{{ typeLabel(type) }}</button>
               </div>
             </div>
@@ -200,7 +201,7 @@ const MOVEMENT_TYPES: MovementType[] = ['inbound', 'outbound', 'rejected', 'adju
                   <span class="text-[10px]">{{ absoluteDate(mv.created_at) }}</span>
                 </td>
                 <td class="whitespace-nowrap px-4 py-2.5">
-                  <span class="rounded-full px-2 py-0.5 text-xs font-medium" [ngClass]="typeBadgeClass(mv.movement_type)">
+                  <span class="rounded-full px-2 py-0.5 text-xs font-medium" [ngClass]="mv.movement_type | movementTypeBadge:'color'">
                     {{ typeLabel(mv.movement_type) }}
                   </span>
                 </td>
@@ -437,24 +438,6 @@ export class StockLedgerComponent implements OnInit {
       case 'transfer': return 'text-indigo-800 dark:text-indigo-300';
       case 'rejected': return 'text-red-800 dark:text-red-300';
       default: return 'text-muted-foreground';
-    }
-  }
-
-  typeBadgeClass(type: MovementType): string {
-    const base = 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium';
-    switch (type) {
-      case 'inbound':
-        return `${base} bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300`;
-      case 'outbound':
-        return `${base} bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300`;
-      case 'adjustment':
-        return `${base} bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300`;
-      case 'transfer':
-        return `${base} bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300`;
-      case 'rejected':
-        return `${base} bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300`;
-      default:
-        return `${base} bg-muted text-muted-foreground`;
     }
   }
 

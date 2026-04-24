@@ -5,12 +5,13 @@ import { LotService } from '@app/services/lot.service';
 import { PdfExportService } from '@app/services/pdf-export.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { ExpiryClassPipe, daysUntilExpiry } from '@app/shared/pipes/expiry-class.pipe';
+import { MovementTypeBadgePipe } from '@app/shared/pipes/movement-type-badge.pipe';
 import { LotTraceResponse, InventoryMovement, MovementType } from '@app/models/lot-trace.model';
 
 @Component({
   selector: 'app-lot-trace',
   standalone: true,
-  imports: [CommonModule, RouterModule, ExpiryClassPipe],
+  imports: [CommonModule, RouterModule, ExpiryClassPipe, MovementTypeBadgePipe],
   templateUrl: './lot-trace.component.html',
 })
 export class LotTraceComponent implements OnInit {
@@ -112,17 +113,6 @@ export class LotTraceComponent implements OnInit {
     if (d < 0) return this.t('trazabilidad.expiry.expired').replace('{n}', String(Math.abs(d)));
     if (d === 0) return this.t('trazabilidad.expiry.today');
     return this.t('trazabilidad.expiry.in_n_days').replace('{n}', String(d));
-  }
-
-  movementTypeClass(type: MovementType): string {
-    switch (type) {
-      case 'inbound':    return 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30';
-      case 'outbound':   return 'text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30';
-      case 'rejected':   return 'text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/30';
-      case 'adjustment': return 'text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/30';
-      case 'transfer':   return 'text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30';
-      default:           return 'text-muted-foreground bg-muted';
-    }
   }
 
   movementQtyClass(type: MovementType): string {
