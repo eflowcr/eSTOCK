@@ -18,11 +18,14 @@ RUN printf "API_BASE=%s\nVERSION=%s\nTESTING=%s\nPRODUCTION=%s\n" \
 
 RUN npm run build -- --configuration=$ENVIRONMENT --source-map=false
 
-FROM nginx:alpine
+# Non-root nginx variant (official) — runs as UID 101, listens on 8080
+FROM nginxinc/nginx-unprivileged:alpine
 WORKDIR /usr/share/nginx/html
+USER root
 RUN rm -rf ./*
-COPY --from=build /usr/local/app/dist/eSTOCK_frontend/browser .
-COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build --chown=nginx:nginx /usr/local/app/dist/eSTOCK_frontend/browser .
+COPY --chown=nginx:nginx ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
+USER nginx
 
-EXPOSE 80
+EXPOSE 8080
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
