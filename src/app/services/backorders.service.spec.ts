@@ -49,11 +49,11 @@ describe('BackordersService', () => {
       expect(url).toContain('article_sku=SKU-002');
     });
 
-    it('appends sales_order_id filter', async () => {
+    it('appends so_id filter (correct backend param name)', async () => {
       fetchSpy.get.and.returnValue(Promise.resolve(mockResponse([])));
-      await service.list({ sales_order_id: 'so-001' });
+      await service.list({ so_id: 'so-001' });
       const url: string = fetchSpy.get.calls.mostRecent().args[0].API_Gateway;
-      expect(url).toContain('sales_order_id=so-001');
+      expect(url).toContain('so_id=so-001');
     });
   });
 
