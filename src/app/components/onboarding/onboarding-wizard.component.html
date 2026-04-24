@@ -1,0 +1,278 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+  <app-alert></app-alert>
+
+  <!-- Header -->
+  <header class="bg-background border-b border-border px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <img src="assets/logo_ePRAC.png" alt="ePRAC Logo" class="h-8" style="object-fit: contain" />
+      <button
+        (click)="skipAll()"
+        class="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+      >
+        {{ t('onboarding.skip_all') }}
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-10 space-y-8">
+
+    <!-- Progress indicator -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between text-sm">
+        <span class="font-medium text-foreground">{{ t('onboarding.step_label') }} {{ currentStep() }}/{{ totalSteps }}</span>
+        <span class="text-muted-foreground">{{ progress() }}%</span>
+      </div>
+      <div class="w-full bg-muted rounded-full h-2 overflow-hidden">
+        <div
+          class="bg-primary h-full rounded-full transition-all duration-500"
+          [style.width.%]="progress()"
+        ></div>
+      </div>
+      <!-- Step dots -->
+      <div class="flex gap-2 justify-center">
+        <div *ngFor="let i of [1,2,3]"
+          class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300"
+          [class]="i === currentStep() ? 'bg-primary text-white shadow-md' : i < currentStep() ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'">
+          <svg *ngIf="i < currentStep()" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span *ngIf="i >= currentStep()">{{ i }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== STEP 1: Welcome ====== -->
+    <div *ngIf="currentStep() === 1" class="space-y-6 animate-in fade-in duration-300">
+      <!-- Trial banner -->
+      <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 flex items-center gap-3">
+        <svg class="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p class="text-sm text-amber-800 dark:text-amber-300">
+          <span class="font-semibold">{{ t('onboarding.trial_label') }}</span> — {{ t('onboarding.trial_days_left') }}
+        </p>
+      </div>
+
+      <div class="bg-background rounded-xl shadow-sm border border-border p-8 space-y-6">
+        <div class="text-center space-y-3">
+          <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+            <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+            </svg>
+          </div>
+          <h1 class="text-2xl font-bold text-foreground">{{ t('onboarding.welcome_title') }}</h1>
+          <p class="text-muted-foreground max-w-md mx-auto">{{ t('onboarding.welcome_subtitle') }}</p>
+        </div>
+
+        <!-- Feature highlights -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-muted/50 rounded-lg p-4 text-center space-y-2">
+            <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto">
+              <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+            </div>
+            <h3 class="text-sm font-semibold text-foreground">{{ t('onboarding.feature_receiving') }}</h3>
+          </div>
+          <div class="bg-muted/50 rounded-lg p-4 text-center space-y-2">
+            <div class="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mx-auto">
+              <svg class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+            </div>
+            <h3 class="text-sm font-semibold text-foreground">{{ t('onboarding.feature_inventory') }}</h3>
+          </div>
+          <div class="bg-muted/50 rounded-lg p-4 text-center space-y-2">
+            <div class="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center mx-auto">
+              <svg class="h-5 w-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+              </svg>
+            </div>
+            <h3 class="text-sm font-semibold text-foreground">{{ t('onboarding.feature_alerts') }}</h3>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button
+            (click)="goNext()"
+            class="bg-primary hover:bg-primary/90 text-white font-semibold py-2.5 px-6 rounded-lg transition-colors duration-200 flex items-center gap-2"
+          >
+            {{ t('onboarding.get_started') }}
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== STEP 2: Invite Team ====== -->
+    <div *ngIf="currentStep() === 2" class="space-y-4 animate-in fade-in duration-300">
+      <div class="bg-background rounded-xl shadow-sm border border-border p-8 space-y-6">
+        <div class="space-y-2">
+          <h2 class="text-xl font-bold text-foreground">{{ t('onboarding.invite_title') }}</h2>
+          <p class="text-sm text-muted-foreground">{{ t('onboarding.invite_subtitle') }}</p>
+        </div>
+
+        <form [formGroup]="inviteForm" (ngSubmit)="onInviteSubmit()" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-1">{{ t('onboarding.invite_first_name') }} <span class="text-red-500">*</span></label>
+              <input
+                type="text"
+                formControlName="first_name"
+                [placeholder]="t('auth.first_name_placeholder')"
+                class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors bg-background"
+              />
+              <div *ngIf="inviteForm.get('first_name')?.invalid && inviteForm.get('first_name')?.touched" class="mt-1 text-xs text-red-600">
+                {{ t('firstName_required') }}
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-1">{{ t('onboarding.invite_last_name') }} <span class="text-red-500">*</span></label>
+              <input
+                type="text"
+                formControlName="last_name"
+                [placeholder]="t('auth.last_name_placeholder')"
+                class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors bg-background"
+              />
+              <div *ngIf="inviteForm.get('last_name')?.invalid && inviteForm.get('last_name')?.touched" class="mt-1 text-xs text-red-600">
+                {{ t('lastName_required') }}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-muted-foreground mb-1">{{ t('auth.email') }} <span class="text-red-500">*</span></label>
+            <input
+              type="email"
+              formControlName="email"
+              [placeholder]="t('auth.email_placeholder')"
+              class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors bg-background"
+            />
+            <div *ngIf="inviteForm.get('email')?.invalid && inviteForm.get('email')?.touched" class="mt-1 text-xs text-red-600">
+              <span *ngIf="inviteForm.get('email')?.errors?.['required']">{{ t('email_required') }}</span>
+              <span *ngIf="inviteForm.get('email')?.errors?.['email']">{{ t('email_invalid') }}</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-muted-foreground mb-1">{{ t('onboarding.invite_role') }} <span class="text-red-500">*</span></label>
+            <input
+              type="text"
+              formControlName="role_id"
+              [placeholder]="t('onboarding.invite_role_placeholder')"
+              class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors bg-background"
+            />
+            <p class="text-xs text-muted-foreground mt-1">{{ t('onboarding.invite_role_hint') }}</p>
+          </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <button type="button" (click)="goBack()" class="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              {{ t('onboarding.back') }}
+            </button>
+            <div class="flex gap-3">
+              <button type="button" (click)="skipStep()" class="text-sm text-muted-foreground hover:text-foreground border border-border px-4 py-2 rounded-lg transition-colors">
+                {{ t('onboarding.skip_step') }}
+              </button>
+              <button
+                type="submit"
+                [disabled]="isLoading()"
+                class="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-5 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <svg *ngIf="isLoading()" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ t('onboarding.invite_send') }}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ====== STEP 3: First Article ====== -->
+    <div *ngIf="currentStep() === 3" class="space-y-4 animate-in fade-in duration-300">
+      <div class="bg-background rounded-xl shadow-sm border border-border p-8 space-y-6">
+        <div class="space-y-2">
+          <h2 class="text-xl font-bold text-foreground">{{ t('onboarding.article_title') }}</h2>
+          <p class="text-sm text-muted-foreground">{{ t('onboarding.article_subtitle') }}</p>
+        </div>
+
+        <form [formGroup]="articleForm" (ngSubmit)="onArticleSubmit()" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-muted-foreground mb-1">{{ t('onboarding.article_sku') }} <span class="text-red-500">*</span></label>
+            <input
+              type="text"
+              formControlName="sku"
+              [placeholder]="t('onboarding.article_sku_placeholder')"
+              class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors bg-background font-mono"
+            />
+            <div *ngIf="articleForm.get('sku')?.invalid && articleForm.get('sku')?.touched" class="mt-1 text-xs text-red-600">
+              {{ t('onboarding.article_sku_invalid') }}
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-muted-foreground mb-1">{{ t('onboarding.article_name') }} <span class="text-red-500">*</span></label>
+            <input
+              type="text"
+              formControlName="name"
+              [placeholder]="t('onboarding.article_name_placeholder')"
+              class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors bg-background"
+            />
+            <div *ngIf="articleForm.get('name')?.invalid && articleForm.get('name')?.touched" class="mt-1 text-xs text-red-600">
+              {{ t('onboarding.article_name_required') }}
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-muted-foreground mb-1">{{ t('onboarding.article_presentation') }}</label>
+            <select
+              formControlName="presentation"
+              class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground transition-colors bg-background"
+            >
+              <option value="unit">{{ t('onboarding.presentation_unit') }}</option>
+              <option value="box">{{ t('onboarding.presentation_box') }}</option>
+              <option value="pallet">{{ t('onboarding.presentation_pallet') }}</option>
+              <option value="kg">{{ t('onboarding.presentation_kg') }}</option>
+            </select>
+          </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <button type="button" (click)="goBack()" class="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              {{ t('onboarding.back') }}
+            </button>
+            <div class="flex gap-3">
+              <button type="button" (click)="skipStep()" class="text-sm text-muted-foreground hover:text-foreground border border-border px-4 py-2 rounded-lg transition-colors">
+                {{ t('onboarding.skip_step') }}
+              </button>
+              <button
+                type="submit"
+                [disabled]="isLoading()"
+                class="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-5 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <svg *ngIf="isLoading()" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ t('onboarding.article_create') }}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+</div>

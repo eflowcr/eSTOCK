@@ -218,6 +218,39 @@ export const routes: Routes = [
       ),
     canActivate: [AuthGuard, PermissionGuard],
   },
+  // S3-W6-A: Self-service signup + onboarding
+  {
+    path: 'signup',
+    loadComponent: () =>
+      import('./components/signup/signup/signup.component').then(
+        (m) => m.SignupComponent,
+      ),
+    canActivate: [NoAuthGuard],
+  },
+  {
+    path: 'signup/verify',
+    loadComponent: () =>
+      import('./components/signup/signup-verify/signup-verify.component').then(
+        (m) => m.SignupVerifyComponent,
+      ),
+    canActivate: [NoAuthGuard],
+  },
+  {
+    path: 'signup/check-email',
+    loadComponent: () =>
+      import('./components/signup/check-email/check-email.component').then(
+        (m) => m.CheckEmailComponent,
+      ),
+    canActivate: [NoAuthGuard],
+  },
+  {
+    path: 'onboarding',
+    loadComponent: () =>
+      import('./components/onboarding/onboarding-wizard.component').then(
+        (m) => m.OnboardingWizardComponent,
+      ),
+    canActivate: [AuthGuard],
+  },
   {
     path: '**',
     redirectTo: '/dashboard',

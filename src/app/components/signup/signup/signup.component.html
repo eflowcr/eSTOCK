@@ -1,0 +1,271 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex relative">
+  <!-- Alert Component -->
+  <app-alert></app-alert>
+
+  <!-- Left Side - Signup Form -->
+  <div class="w-full lg:w-[50%] flex items-center justify-center p-8 overflow-y-auto">
+    <div class="w-full max-w-lg space-y-6 py-8">
+      <!-- Logo + Title -->
+      <div class="text-center space-y-2">
+        <div class="flex flex-col items-center justify-center">
+          <img
+            src="assets/logo_ePRAC.png"
+            alt="ePRAC Logo"
+            class="w-36 mb-2 drop-shadow-lg"
+            style="background: transparent; object-fit: contain; border-radius: 0.5rem"
+          />
+        </div>
+        <h1 class="text-2xl font-bold text-foreground">{{ t('signup.title') }}</h1>
+        <p class="text-sm text-muted-foreground">{{ t('signup.subtitle') }}</p>
+      </div>
+
+      <!-- Form Card -->
+      <div class="bg-background rounded-lg shadow-lg border border-border">
+        <div class="p-6 space-y-4">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+
+            <!-- Email -->
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-1">
+                {{ t('auth.email') }} <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <svg class="absolute left-3 top-3 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+                </svg>
+                <input
+                  type="email"
+                  formControlName="email"
+                  [placeholder]="t('auth.email_placeholder')"
+                  class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors duration-200 bg-background"
+                />
+              </div>
+              <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                <span *ngIf="form.get('email')?.errors?.['required']">{{ t('email_required') }}</span>
+                <span *ngIf="form.get('email')?.errors?.['email']">{{ t('email_invalid') }}</span>
+              </div>
+            </div>
+
+            <!-- Company Name -->
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-1">
+                {{ t('signup.company_name') }} <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <svg class="absolute left-3 top-3 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                <input
+                  type="text"
+                  formControlName="company_name"
+                  [placeholder]="t('signup.company_name_placeholder')"
+                  class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors duration-200 bg-background"
+                />
+              </div>
+              <div *ngIf="form.get('company_name')?.invalid && form.get('company_name')?.touched" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                <span *ngIf="form.get('company_name')?.errors?.['required']">{{ t('signup.company_name_required') }}</span>
+                <span *ngIf="form.get('company_name')?.errors?.['minlength']">{{ t('signup.company_name_min') }}</span>
+              </div>
+            </div>
+
+            <!-- Tenant Slug -->
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-1">
+                {{ t('signup.tenant_slug') }} <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <svg class="absolute left-3 top-3 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                </svg>
+                <input
+                  type="text"
+                  formControlName="tenant_slug"
+                  [placeholder]="t('signup.tenant_slug_placeholder')"
+                  class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors duration-200 bg-background font-mono text-sm"
+                />
+              </div>
+              <p class="mt-1 text-xs text-muted-foreground">{{ t('signup.tenant_slug_hint') }}</p>
+              <div *ngIf="form.get('tenant_slug')?.invalid && form.get('tenant_slug')?.touched" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                <span *ngIf="form.get('tenant_slug')?.errors?.['required']">{{ t('signup.tenant_slug_required') }}</span>
+                <span *ngIf="form.get('tenant_slug')?.errors?.['invalidSlug']">{{ t('signup.tenant_slug_invalid') }}</span>
+              </div>
+            </div>
+
+            <!-- Admin Name -->
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-1">
+                {{ t('signup.admin_name') }} <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <svg class="absolute left-3 top-3 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <input
+                  type="text"
+                  formControlName="admin_name"
+                  [placeholder]="t('signup.admin_name_placeholder')"
+                  class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors duration-200 bg-background"
+                />
+              </div>
+              <div *ngIf="form.get('admin_name')?.invalid && form.get('admin_name')?.touched" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                <span *ngIf="form.get('admin_name')?.errors?.['required']">{{ t('signup.admin_name_required') }}</span>
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-1">
+                {{ t('auth.password') }} <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <svg class="absolute left-3 top-3 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="admin_password"
+                  [placeholder]="t('auth.password_create_placeholder')"
+                  class="w-full pl-10 pr-10 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors duration-200 bg-background"
+                />
+                <button type="button" (click)="togglePassword()" class="absolute right-3 top-3 text-muted-foreground hover:text-foreground">
+                  <svg *ngIf="!showPassword()" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  <svg *ngIf="showPassword()" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+                  </svg>
+                </button>
+              </div>
+              <!-- Strength meter -->
+              <div *ngIf="form.get('admin_password')?.value" class="mt-2">
+                <div class="flex gap-1 h-1.5">
+                  <div *ngFor="let i of [1,2,3,4]"
+                    class="flex-1 rounded-full transition-all duration-300"
+                    [class]="i <= passwordStrength() ? strengthColor : 'bg-gray-200 dark:bg-gray-700'">
+                  </div>
+                </div>
+                <p class="text-xs mt-1 text-muted-foreground">{{ strengthLabel }}</p>
+              </div>
+              <div *ngIf="form.get('admin_password')?.invalid && form.get('admin_password')?.touched" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                <span *ngIf="form.get('admin_password')?.errors?.['required']">{{ t('password_required') }}</span>
+                <span *ngIf="form.get('admin_password')?.errors?.['minlength']">{{ t('signup.password_min') }}</span>
+              </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-1">
+                {{ t('signup.password_confirm') }} <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <svg class="absolute left-3 top-3 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                <input
+                  [type]="showConfirmPassword() ? 'text' : 'password'"
+                  formControlName="admin_password_confirm"
+                  [placeholder]="t('signup.password_confirm_placeholder')"
+                  class="w-full pl-10 pr-10 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder-gray-400 transition-colors duration-200 bg-background"
+                />
+                <button type="button" (click)="toggleConfirmPassword()" class="absolute right-3 top-3 text-muted-foreground hover:text-foreground">
+                  <svg *ngIf="!showConfirmPassword()" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  <svg *ngIf="showConfirmPassword()" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+                  </svg>
+                </button>
+              </div>
+              <div *ngIf="form.errors?.['passwordMismatch'] && form.get('admin_password_confirm')?.touched" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                {{ t('signup.password_mismatch') }}
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <button
+              type="submit"
+              [disabled]="isLoading"
+              class="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            >
+              <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isLoading ? t('signup.creating') : t('signup.submit') }}
+            </button>
+
+          </form>
+        </div>
+
+        <!-- Footer link -->
+        <div class="px-6 pb-6 text-center border-t border-border pt-4">
+          <p class="text-sm text-muted-foreground">
+            {{ t('signup.already_have_account') }}
+            <a routerLink="/login" class="text-primary hover:underline font-medium ml-1">{{ t('auth.signin') }}</a>
+          </p>
+        </div>
+      </div>
+
+      <!-- Trial info -->
+      <div class="text-center">
+        <p class="text-xs text-muted-foreground">{{ t('signup.trial_info') }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side - Hero Section -->
+  <div class="hidden lg:flex w-[50%] bg-primary items-center justify-center p-12">
+    <div class="max-w-xl text-center space-y-6">
+      <div class="space-y-4 pb-3">
+        <h2 class="text-4xl font-bold text-white">
+          {{ t('auth.hero_title') }}
+        </h2>
+        <p class="text-xl text-blue-100">
+          {{ t('auth.hero_subtitle') }}
+        </p>
+      </div>
+      <div class="my-6 h-px bg-white/20 rounded-full border-0"></div>
+
+      <!-- Feature cards -->
+      <div class="grid gap-4 text-left pt-3">
+        <div class="bg-white/10 rounded-xl p-4 flex items-start gap-3">
+          <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-white text-sm">{{ t('signup.feature_trial') }}</h3>
+            <p class="text-blue-100 text-xs mt-0.5">{{ t('signup.feature_trial_desc') }}</p>
+          </div>
+        </div>
+
+        <div class="bg-white/10 rounded-xl p-4 flex items-start gap-3">
+          <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-white text-sm">{{ t('auth.inventory_tracking') }}</h3>
+            <p class="text-blue-100 text-xs mt-0.5">{{ t('auth.inventory_tracking_desc') }}</p>
+          </div>
+        </div>
+
+        <div class="bg-white/10 rounded-xl p-4 flex items-start gap-3">
+          <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-white text-sm">{{ t('signup.feature_setup') }}</h3>
+            <p class="text-blue-100 text-xs mt-0.5">{{ t('signup.feature_setup_desc') }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
