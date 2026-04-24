@@ -5,6 +5,7 @@ import {
   SalesOrderListFilters,
   CreateSalesOrderRequest,
   UpdateSalesOrderRequest,
+  SubmitSalesOrderResponse,
   ConfirmSalesOrderResponse,
 } from '@app/models/sales-order.model';
 import { returnCompleteURI } from '@app/utils';
@@ -62,11 +63,17 @@ export class SalesOrdersService {
     });
   }
 
-  async confirm(id: string): Promise<ApiResponse<ConfirmSalesOrderResponse>> {
-    return this.fetchService.post<ApiResponse<ConfirmSalesOrderResponse>>({
+  /** Submit a draft SO — backend endpoint POST /sales-orders/:id/confirm; status becomes 'submitted'. */
+  async submit(id: string): Promise<ApiResponse<SubmitSalesOrderResponse>> {
+    return this.fetchService.post<ApiResponse<SubmitSalesOrderResponse>>({
       API_Gateway: `${SALES_ORDERS_URL}/${id}/confirm`,
       values: {},
     });
+  }
+
+  /** @deprecated Use submit() — backend status is 'submitted' not 'confirmed'. */
+  async confirm(id: string): Promise<ApiResponse<ConfirmSalesOrderResponse>> {
+    return this.submit(id);
   }
 
   async cancel(id: string): Promise<ApiResponse<SalesOrder>> {

@@ -48,6 +48,13 @@ describe('DeliveryNotesService', () => {
       const url: string = fetchSpy.get.calls.mostRecent().args[0].API_Gateway;
       expect(url).toContain('sales_order_id=so-123');
     });
+
+    it('appends so_number filter (backend param name)', async () => {
+      fetchSpy.get.and.returnValue(Promise.resolve(mockResponse([])));
+      await service.list({ so_number: 'SO-2026-001' });
+      const url: string = fetchSpy.get.calls.mostRecent().args[0].API_Gateway;
+      expect(url).toContain('so_number=SO-2026-001');
+    });
   });
 
   describe('getById()', () => {

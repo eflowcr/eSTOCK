@@ -13,7 +13,8 @@ export interface Backorder {
 }
 
 export interface BackorderListFilters {
-  sales_order_id?: string;
+  so_id?: string;
+  // TODO(CS4): article_sku filter declared here but backend controller ignores it — implement or remove in S4.
   article_sku?: string;
   status?: BackorderStatus;
 }

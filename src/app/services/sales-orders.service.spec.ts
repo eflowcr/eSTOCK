@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { SalesOrdersService } from './sales-orders.service';
 import { FetchService } from './extras/fetch.service';
 import { mockResponse } from '../../__tests__/mocks/data';
-import { SalesOrder, ConfirmSalesOrderResponse } from '@app/models/sales-order.model';
+import { SalesOrder, SubmitSalesOrderResponse } from '@app/models/sales-order.model';
 
 const MOCK_SO: SalesOrder = {
   id: 'so-001',
@@ -36,9 +36,9 @@ describe('SalesOrdersService', () => {
 
     it('appends status filter as query string', async () => {
       fetchSpy.get.and.returnValue(Promise.resolve(mockResponse([])));
-      await service.list({ status: 'confirmed' });
+      await service.list({ status: 'submitted' });
       const url: string = fetchSpy.get.calls.mostRecent().args[0].API_Gateway;
-      expect(url).toContain('status=confirmed');
+      expect(url).toContain('status=submitted');
     });
 
     it('appends multiple filters', async () => {
@@ -98,13 +98,26 @@ describe('SalesOrdersService', () => {
     });
   });
 
-  describe('confirm()', () => {
-    it('calls POST /sales-orders/:id/confirm', async () => {
-      const mockConfirmResp: ConfirmSalesOrderResponse = {
-        sales_order: { ...MOCK_SO, status: 'confirmed' },
+  describe('submit()', () => {
+    it('calls POST /sales-orders/:id/confirm (backend endpoint)', async () => {
+      const mockSubmitResp: SubmitSalesOrderResponse = {
+        sales_order: { ...MOCK_SO, status: 'submitted' },
         picking_task_id: 'pt-999',
       };
-      fetchSpy.post.and.returnValue(Promise.resolve(mockResponse(mockConfirmResp)));
+      fetchSpy.post.and.returnValue(Promise.resolve(mockResponse(mockSubmitResp)));
+      await service.submit('so-001');
+      const url: string = fetchSpy.post.calls.mostRecent().args[0].API_Gateway;
+      expect(url).toContain('so-001/confirm');
+    });
+  });
+
+  describe('confirm() [deprecated alias for submit]', () => {
+    it('calls POST /sales-orders/:id/confirm', async () => {
+      const mockSubmitResp: SubmitSalesOrderResponse = {
+        sales_order: { ...MOCK_SO, status: 'submitted' },
+        picking_task_id: 'pt-999',
+      };
+      fetchSpy.post.and.returnValue(Promise.resolve(mockResponse(mockSubmitResp)));
       await service.confirm('so-001');
       const url: string = fetchSpy.post.calls.mostRecent().args[0].API_Gateway;
       expect(url).toContain('so-001/confirm');
