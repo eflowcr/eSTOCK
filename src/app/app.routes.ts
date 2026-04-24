@@ -167,6 +167,23 @@ export const routes: Routes = [
       ),
     canActivate: [AuthGuard, PermissionGuard],
   },
+  // S3-W4B: Sales Orders
+  {
+    path: 'sales-orders',
+    loadComponent: () =>
+      import('./components/sales-orders/sales-orders-management/sales-orders-management.component').then(
+        (m) => m.SalesOrdersManagementComponent,
+      ),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
+  {
+    path: 'sales-orders/:id',
+    loadComponent: () =>
+      import('./components/sales-orders/sales-order-detail/sales-order-detail.component').then(
+        (m) => m.SalesOrderDetailComponent,
+      ),
+    canActivate: [AuthGuard, PermissionGuard],
+  },
   {
     path: '**',
     redirectTo: '/dashboard',
