@@ -167,6 +167,16 @@ export const routes: Routes = [
       ),
     canActivate: [AuthGuard, PermissionGuard],
   },
+  // S3-W6-B: Billing
+  {
+    path: 'settings/billing',
+    loadComponent: () =>
+      import('./components/billing/billing-page.component').then(
+        (m) => m.BillingPageComponent,
+      ),
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permissions: ['billing:read'] },
+  },
   // S3-W4B: Sales Orders
   {
     path: 'sales-orders',
