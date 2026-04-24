@@ -29,9 +29,9 @@ const MOCK_TRACE: LotTraceResponse = {
   movements: [
     {
       id: 'mv-1',
-      type: 'INBOUND',
+      movement_type: 'inbound',
       sku: 'SKU-TEST',
-      location: 'A-01',
+      location_code: 'A-01',
       quantity: 100,
       before_qty: 0,
       after_qty: 100,
@@ -42,9 +42,9 @@ const MOCK_TRACE: LotTraceResponse = {
     },
     {
       id: 'mv-2',
-      type: 'OUTBOUND',
+      movement_type: 'outbound',
       sku: 'SKU-TEST',
-      location: 'A-01',
+      location_code: 'A-01',
       quantity: 20,
       before_qty: 100,
       after_qty: 80,
@@ -55,9 +55,9 @@ const MOCK_TRACE: LotTraceResponse = {
     },
     {
       id: 'mv-3',
-      type: 'ADJUSTMENT',
+      movement_type: 'adjustment',
       sku: 'SKU-TEST',
-      location: 'A-01',
+      location_code: 'A-01',
       quantity: 5,
       before_qty: 80,
       after_qty: 85,

@@ -9,7 +9,7 @@ function mockMovement(overrides: Partial<InventoryMovement> = {}): InventoryMove
     sku: 'SKU-001',
     location_code: 'A1',
     quantity: 10,
-    movement_type: 'INBOUND',
+    movement_type: 'inbound',
     reference_type: 'receiving_task',
     reference_id: 'rt-1',
     unit_cost: 100,
@@ -52,9 +52,9 @@ describe('InventoryMovementsService', () => {
     const now = new Date();
     const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const movements = [
-      mockMovement({ movement_type: 'INBOUND', reference_type: 'receiving_task', unit_cost: 50, quantity: 10, created_at: `${thisMonth}-15T00:00:00Z` }),
-      mockMovement({ movement_type: 'OUTBOUND', reference_type: 'picking_task', unit_cost: 50, quantity: 5, created_at: `${thisMonth}-16T00:00:00Z` }),
-      mockMovement({ movement_type: 'ADJUSTMENT', reference_type: 'adjustment', unit_cost: null, quantity: 2, created_at: `${thisMonth}-17T00:00:00Z` }),
+      mockMovement({ movement_type: 'inbound', reference_type: 'receiving_task', unit_cost: 50, quantity: 10, created_at: `${thisMonth}-15T00:00:00Z` }),
+      mockMovement({ movement_type: 'outbound', reference_type: 'picking_task', unit_cost: 50, quantity: 5, created_at: `${thisMonth}-16T00:00:00Z` }),
+      mockMovement({ movement_type: 'adjustment', reference_type: 'adjustment', unit_cost: null, quantity: 2, created_at: `${thisMonth}-17T00:00:00Z` }),
     ];
     fetchSpy.get.and.returnValue(mockResponse(movements));
 
@@ -76,7 +76,7 @@ describe('InventoryMovementsService', () => {
 
   it('aggregation skips movements outside the 6-month window', async () => {
     fetchSpy.get.and.returnValue(mockResponse([
-      mockMovement({ movement_type: 'INBOUND', reference_type: 'receiving_task', unit_cost: 100, quantity: 5, created_at: '2000-01-01T00:00:00Z' }),
+      mockMovement({ movement_type: 'inbound', reference_type: 'receiving_task', unit_cost: 100, quantity: 5, created_at: '2000-01-01T00:00:00Z' }),
     ]));
     const result = await service.getMovementsByMonth(6);
     expect(result.every(m => m.receiving === 0)).toBeTrue();

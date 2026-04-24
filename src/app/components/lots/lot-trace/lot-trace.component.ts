@@ -38,7 +38,7 @@ export class LotTraceComponent implements OnInit {
     if (!this.isDepleted()) return null;
     const mvs = this.movements();
     for (let i = mvs.length - 1; i >= 0; i--) {
-      if (mvs[i].type === 'OUTBOUND') return mvs[i];
+      if (mvs[i].movement_type === 'outbound') return mvs[i];
     }
     return null;
   });
@@ -116,24 +116,21 @@ export class LotTraceComponent implements OnInit {
 
   movementTypeClass(type: MovementType): string {
     switch (type) {
-      case 'INBOUND':      return 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30';
-      case 'OUTBOUND':     return 'text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30';
-      case 'REJECTED':     return 'text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/30';
-      case 'ADJUSTMENT':   return 'text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/30';
-      case 'TRANSFER_IN':  return 'text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30';
-      case 'TRANSFER_OUT': return 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20';
-      default:             return 'text-muted-foreground bg-muted';
+      case 'inbound':    return 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30';
+      case 'outbound':   return 'text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30';
+      case 'rejected':   return 'text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/30';
+      case 'adjustment': return 'text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/30';
+      case 'transfer':   return 'text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30';
+      default:           return 'text-muted-foreground bg-muted';
     }
   }
 
   movementQtyClass(type: MovementType): string {
     switch (type) {
-      case 'INBOUND':
-      case 'TRANSFER_IN':
+      case 'inbound':
         return 'text-green-700 dark:text-green-300 font-mono font-semibold';
-      case 'OUTBOUND':
-      case 'TRANSFER_OUT':
-      case 'REJECTED':
+      case 'outbound':
+      case 'rejected':
         return 'text-red-700 dark:text-red-300 font-mono font-semibold';
       default:
         return 'text-amber-700 dark:text-amber-300 font-mono font-semibold';
@@ -142,12 +139,10 @@ export class LotTraceComponent implements OnInit {
 
   movementQtyPrefix(type: MovementType): string {
     switch (type) {
-      case 'INBOUND':
-      case 'TRANSFER_IN':
+      case 'inbound':
         return '+';
-      case 'OUTBOUND':
-      case 'TRANSFER_OUT':
-      case 'REJECTED':
+      case 'outbound':
+      case 'rejected':
         return '−';
       default:
         return '±';

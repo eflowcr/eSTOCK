@@ -13,7 +13,7 @@ function makeMovement(overrides: Partial<any> = {}): any {
     sku: 'ABC-001',
     location_code: 'A-01',
     quantity: 10,
-    movement_type: 'INBOUND',
+    movement_type: 'inbound',
     reference_type: 'receiving_task',
     reference_id: 'rt-001',
     created_at: '2026-04-15T10:00:00Z',
@@ -82,12 +82,12 @@ describe('StockLedgerComponent', () => {
     const fixture = TestBed.createComponent(StockLedgerComponent);
     const component = fixture.componentInstance;
     component.allMovements.set([
-      makeMovement({ movement_type: 'INBOUND' }),
-      makeMovement({ id: 'mv-2', movement_type: 'OUTBOUND' }),
+      makeMovement({ movement_type: 'inbound' }),
+      makeMovement({ id: 'mv-2', movement_type: 'outbound' }),
     ]);
-    component.selectedTypes.set(new Set(['INBOUND']));
+    component.selectedTypes.set(new Set(['inbound']));
     expect(component.filteredMovements().length).toBe(1);
-    expect(component.filteredMovements()[0].movement_type).toBe('INBOUND');
+    expect(component.filteredMovements()[0].movement_type).toBe('inbound');
   });
 
   it('filters by date range', () => {
@@ -118,7 +118,7 @@ describe('StockLedgerComponent', () => {
     const component = fixture.componentInstance;
     component.filterSku = 'abc';
     component.filterFrom = '2026-01-01';
-    component.selectedTypes.set(new Set(['INBOUND']));
+    component.selectedTypes.set(new Set(['inbound']));
     component.clearFilters();
     expect(component.filterSku).toBe('');
     expect(component.filterFrom).toBe('');
