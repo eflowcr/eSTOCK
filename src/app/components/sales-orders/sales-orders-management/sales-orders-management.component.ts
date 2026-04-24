@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MainLayoutComponent } from '@app/components/layout/main-layout.component';
-import { SalesOrder } from '@app/models/sales-order.model';
+import { SalesOrder, SalesOrderListFilters, SalesOrderStatus } from '@app/models/sales-order.model';
 import { Client } from '@app/models/client.model';
 import { SalesOrdersService } from '@app/services/sales-orders.service';
 import { ClientsService } from '@app/services/clients.service';
@@ -11,6 +11,9 @@ import { LanguageService } from '@app/services/extras/language.service';
 import { handleApiError } from '@app/utils';
 import { SalesOrdersListComponent } from '../sales-orders-list/sales-orders-list.component';
 import { SalesOrderFormComponent } from '../sales-order-form/sales-order-form.component';
+
+const LS_KEY = 'so_list_filters';
+const PAGE_SIZE = 20;
 
 @Component({
   selector: 'app-sales-orders-management',
@@ -83,11 +86,19 @@ import { SalesOrderFormComponent } from '../sales-order-form/sales-order-form.co
       <!-- List -->
       <app-sales-orders-list
         [orders]="orders"
-        [isLoading]="isLoading"
+        [isLoading]="isLoading()"
         [customers]="customers"
+        [totalCount]="totalCount"
+        [currentPage]="currentPage"
+        [pageSize]="pageSize"
+        [statusFilter]="statusFilter"
+        [customerFilter]="customerFilter"
+        [searchQuery]="searchQuery"
         (newOrder)="openCreateForm()"
         (edit)="handleEdit($event)"
         (refresh)="load()"
+        (filterChange)="onListFilterChange($event)"
+        (pageChange)="onPageChange($event)"
       ></app-sales-orders-list>
     </app-main-layout>
 
@@ -113,10 +124,18 @@ import { SalesOrderFormComponent } from '../sales-order-form/sales-order-form.co
 export class SalesOrdersManagementComponent implements OnInit {
   orders: SalesOrder[] = [];
   customers: Client[] = [];
-  isLoading = false;
+  isLoading = signal(false);
   isCreateOpen = false;
   isEditOpen = false;
   editingOrder: SalesOrder | null = null;
+
+  // Server-side pagination + filters (C3 + M2)
+  currentPage = 1;
+  pageSize = PAGE_SIZE;
+  totalCount = 0;
+  statusFilter = '';
+  customerFilter = '';
+  searchQuery = '';
 
   constructor(
     private salesOrdersService: SalesOrdersService,
@@ -143,34 +162,85 @@ export class SalesOrdersManagementComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    this.restoreFilters();
     await Promise.all([this.load(), this.loadCustomers()]);
   }
 
-  async load(): Promise<void> {
-    this.isLoading = true;
+  private restoreFilters(): void {
     try {
-      const resp = await this.salesOrdersService.list();
+      const saved = localStorage.getItem(LS_KEY);
+      if (saved) {
+        const f = JSON.parse(saved);
+        this.statusFilter = f.status ?? '';
+        this.customerFilter = f.customer_id ?? '';
+        this.searchQuery = f.search ?? '';
+        this.currentPage = f.page ?? 1;
+      }
+    } catch { /* ignore */ }
+  }
+
+  private saveFilters(): void {
+    try {
+      const f: Record<string, unknown> = { page: this.currentPage };
+      if (this.statusFilter) f['status'] = this.statusFilter;
+      if (this.customerFilter) f['customer_id'] = this.customerFilter;
+      if (this.searchQuery) f['search'] = this.searchQuery;
+      localStorage.setItem(LS_KEY, JSON.stringify(f));
+    } catch { /* ignore */ }
+  }
+
+  async load(): Promise<void> {
+    this.isLoading.set(true);
+    try {
+      const filters: SalesOrderListFilters = {
+        page: this.currentPage,
+        page_size: this.pageSize,
+      };
+      if (this.statusFilter) filters.status = this.statusFilter as SalesOrderStatus;
+      if (this.customerFilter) filters.customer_id = this.customerFilter;
+      if (this.searchQuery.trim()) filters.search = this.searchQuery.trim();
+
+      this.saveFilters();
+
+      const resp = await this.salesOrdersService.list(filters);
       if (resp.result.success) {
         this.orders = resp.data || [];
+        this.totalCount = (resp as any).meta?.total ?? this.orders.length;
       } else {
         this.alertService.error(resp.result.message || this.t('operation_failed'), this.t('error'));
       }
     } catch (err: any) {
       this.alertService.error(handleApiError(err, this.t('sales_orders.load_error')), this.t('error'));
     } finally {
-      this.isLoading = false;
+      this.isLoading.set(false);
     }
   }
 
   async loadCustomers(): Promise<void> {
     try {
-      const resp = await this.clientsService.list({ type: 'customer', is_active: true });
+      // Include type='both' so clients that are both supplier+customer appear (M7 fix)
+      const resp = await this.clientsService.list({ is_active: true });
       if (resp.result.success) {
-        this.customers = resp.data || [];
+        this.customers = (resp.data || []).filter(
+          (c) => c.type === 'customer' || c.type === 'both',
+        );
       }
     } catch {
       // non-critical
     }
+  }
+
+  onListFilterChange(filters: { status: string; customer_id: string; search: string }): void {
+    this.statusFilter = filters.status;
+    this.customerFilter = filters.customer_id;
+    this.searchQuery = filters.search;
+    this.currentPage = 1;
+    this.load();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.load();
   }
 
   openCreateForm(): void {
@@ -190,12 +260,13 @@ export class SalesOrdersManagementComponent implements OnInit {
   onCreated(): void {
     this.isCreateOpen = false;
     this.load();
-    this.alertService.success(this.t('sales_orders.created_ok'), this.t('success'));
+    // No secondary toast — form already emits its own (M1: management should NOT fire a second toast)
+    // TODO M1: Remove toast from SalesOrderFormComponent.onSubmit() so only management toasts.
   }
 
   onUpdated(): void {
     this.closeEdit();
     this.load();
-    this.alertService.success(this.t('sales_orders.updated_ok'), this.t('success'));
+    // TODO M1: Remove toast from SalesOrderFormComponent.onSubmit() so only management toasts.
   }
 }

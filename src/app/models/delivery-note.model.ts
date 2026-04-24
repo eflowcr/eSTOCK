@@ -29,6 +29,8 @@ export interface DeliveryNoteListFilters {
   sales_order_id?: string;
   customer_id?: string;
   so_number?: string;
+  from?: string;
+  to?: string;
   page?: number;
   page_size?: number;
 }

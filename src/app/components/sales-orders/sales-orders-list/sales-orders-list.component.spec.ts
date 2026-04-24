@@ -89,31 +89,61 @@ describe('SalesOrdersListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('shows all orders when no filter applied', () => {
-    expect(component.filteredOrders.length).toBe(3);
+  it('shows all orders passed as @Input', () => {
+    // Server-side: no client-side filtering, orders come as-is from parent
+    expect(component.orders.length).toBe(3);
   });
 
-  it('filters by status correctly', () => {
-    component.statusFilter = 'draft';
-    expect(component.filteredOrders.length).toBe(1);
-    expect(component.filteredOrders[0].status).toBe('draft');
+  it('emits filterChange when localStatus changes', () => {
+    spyOn(component.filterChange, 'emit');
+    component.localStatus = 'draft';
+    component.emitFilterChange();
+    expect(component.filterChange.emit).toHaveBeenCalledWith(
+      jasmine.objectContaining({ status: 'draft' }),
+    );
   });
 
-  it('filters by customer', () => {
-    component.customerFilter = 'cust-001';
-    expect(component.filteredOrders.length).toBe(3);
-    component.customerFilter = 'cust-999';
-    expect(component.filteredOrders.length).toBe(0);
+  it('emits filterChange when localCustomer changes', () => {
+    spyOn(component.filterChange, 'emit');
+    component.localCustomer = 'cust-001';
+    component.emitFilterChange();
+    expect(component.filterChange.emit).toHaveBeenCalledWith(
+      jasmine.objectContaining({ customer_id: 'cust-001' }),
+    );
   });
 
-  it('filters by search query (so_number)', () => {
-    component.searchQuery = 'SO-2026-001';
-    expect(component.filteredOrders.length).toBe(1);
+  it('emits filterChange when localSearch changes', () => {
+    spyOn(component.filterChange, 'emit');
+    component.localSearch = 'SO-001';
+    component.emitFilterChange();
+    expect(component.filterChange.emit).toHaveBeenCalledWith(
+      jasmine.objectContaining({ search: 'SO-001' }),
+    );
   });
 
-  it('filters by search query (customer name)', () => {
-    component.searchQuery = 'alpha';
-    expect(component.filteredOrders.length).toBe(1);
+  it('emits pageChange on onPrevPage() when currentPage > 1', () => {
+    spyOn(component.pageChange, 'emit');
+    component.currentPage = 3;
+    component.totalCount = 100;
+    component.pageSize = 20;
+    component.onPrevPage();
+    expect(component.pageChange.emit).toHaveBeenCalledWith(2);
+  });
+
+  it('does not emit pageChange on onPrevPage() when at page 1', () => {
+    spyOn(component.pageChange, 'emit');
+    component.currentPage = 1;
+    component.onPrevPage();
+    expect(component.pageChange.emit).not.toHaveBeenCalled();
+  });
+
+  it('emits pageChange on onNextPage() when more pages exist', () => {
+    spyOn(component.pageChange, 'emit');
+    component.currentPage = 1;
+    component.totalCount = 100;
+    component.pageSize = 20;
+    component.onNextPage();
+    expect(component.pageChange.emit).toHaveBeenCalledWith(2);
   });
 
   it('emits newOrder when new order button clicked', () => {

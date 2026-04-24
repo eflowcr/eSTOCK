@@ -1,11 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SalesOrder, SalesOrderStatus } from '@app/models/sales-order.model';
 import { Client } from '@app/models/client.model';
 import { SalesOrdersService } from '@app/services/sales-orders.service';
-import { ClientsService } from '@app/services/clients.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { LoadingService } from '@app/services/extras/loading.service';
@@ -21,14 +20,14 @@ import { handleApiError } from '@app/utils';
       <div class="flex flex-wrap items-center gap-3">
         <input
           type="text"
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="onSearchChange()"
+          [(ngModel)]="localSearch"
+          (ngModelChange)="emitFilterChange()"
           [placeholder]="t('sales_orders.search_placeholder')"
           class="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring w-56"
         />
         <select
-          [(ngModel)]="statusFilter"
-          (ngModelChange)="onFilterChange()"
+          [(ngModel)]="localStatus"
+          (ngModelChange)="emitFilterChange()"
           class="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
         >
           <option value="">{{ t('sales_orders.all_statuses') }}</option>
@@ -39,8 +38,8 @@ import { handleApiError } from '@app/utils';
           <option value="cancelled">{{ t('sales_orders.status_cancelled') }}</option>
         </select>
         <select
-          [(ngModel)]="customerFilter"
-          (ngModelChange)="onFilterChange()"
+          [(ngModel)]="localCustomer"
+          (ngModelChange)="emitFilterChange()"
           class="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring w-48"
         >
           <option value="">{{ t('sales_orders.all_customers') }}</option>
@@ -64,7 +63,7 @@ import { handleApiError } from '@app/utils';
       </div>
 
       <!-- Empty State -->
-      <div *ngIf="!isLoading && filteredOrders.length === 0" class="flex flex-col items-center gap-3 py-16 text-muted-foreground">
+      <div *ngIf="!isLoading && orders.length === 0" class="flex flex-col items-center gap-3 py-16 text-muted-foreground">
         <svg class="h-12 w-12 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
         </svg>
@@ -72,7 +71,7 @@ import { handleApiError } from '@app/utils';
       </div>
 
       <!-- Table -->
-      <div *ngIf="!isLoading && filteredOrders.length > 0" class="rounded-lg border border-border bg-card overflow-x-auto">
+      <div *ngIf="!isLoading && orders.length > 0" class="rounded-lg border border-border bg-card overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-border bg-muted/50">
@@ -86,7 +85,7 @@ import { handleApiError } from '@app/utils';
           </thead>
           <tbody>
             <tr
-              *ngFor="let order of filteredOrders"
+              *ngFor="let order of orders"
               class="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
             >
               <td class="px-4 py-3 font-mono text-xs font-medium">
@@ -163,20 +162,50 @@ import { handleApiError } from '@app/utils';
           </tbody>
         </table>
       </div>
+
+      <!-- Pagination (server-side, C3) -->
+      <div *ngIf="!isLoading && totalCount > pageSize"
+        class="flex items-center justify-between text-sm text-muted-foreground">
+        <span>{{ t('showing') }} {{ (currentPage - 1) * pageSize + 1 }}–{{ min(currentPage * pageSize, totalCount) }} {{ t('of') }} {{ totalCount }}</span>
+        <div class="flex items-center gap-2">
+          <button
+            [disabled]="currentPage <= 1"
+            (click)="onPrevPage()"
+            class="inline-flex h-8 items-center gap-1 rounded-md border border-border px-3 text-xs disabled:opacity-40 hover:bg-accent transition-colors">
+            ← {{ t('prev') }}
+          </button>
+          <span class="text-xs">{{ currentPage }} / {{ totalPages }}</span>
+          <button
+            [disabled]="currentPage >= totalPages"
+            (click)="onNextPage()"
+            class="inline-flex h-8 items-center gap-1 rounded-md border border-border px-3 text-xs disabled:opacity-40 hover:bg-accent transition-colors">
+            {{ t('next') }} →
+          </button>
+        </div>
+      </div>
     </div>
   `,
 })
-export class SalesOrdersListComponent implements OnInit {
+export class SalesOrdersListComponent implements OnInit, OnChanges {
   @Input() orders: SalesOrder[] = [];
   @Input() isLoading = false;
   @Input() customers: Client[] = [];
+  @Input() totalCount = 0;
+  @Input() currentPage = 1;
+  @Input() pageSize = 20;
+  @Input() statusFilter = '';
+  @Input() customerFilter = '';
+  @Input() searchQuery = '';
+
   @Output() newOrder = new EventEmitter<void>();
   @Output() edit = new EventEmitter<SalesOrder>();
   @Output() refresh = new EventEmitter<void>();
+  @Output() filterChange = new EventEmitter<{ status: string; customer_id: string; search: string }>();
+  @Output() pageChange = new EventEmitter<number>();
 
-  searchQuery = '';
-  statusFilter = '';
-  customerFilter = '';
+  localSearch = '';
+  localStatus = '';
+  localCustomer = '';
 
   private customerMap = new Map<string, string>();
 
@@ -189,33 +218,47 @@ export class SalesOrdersListComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildCustomerMap();
+    // Sync local filter state from parent inputs (restored from localStorage)
+    this.localSearch = this.searchQuery;
+    this.localStatus = this.statusFilter;
+    this.localCustomer = this.customerFilter;
+  }
+
+  ngOnChanges(): void {
+    this.buildCustomerMap();
   }
 
   get t() {
     return this.languageService.t.bind(this.languageService);
   }
 
-  get filteredOrders(): SalesOrder[] {
-    let list = this.orders;
-    if (this.statusFilter) {
-      list = list.filter((o) => o.status === this.statusFilter);
-    }
-    if (this.customerFilter) {
-      list = list.filter((o) => o.customer_id === this.customerFilter);
-    }
-    if (this.searchQuery.trim()) {
-      const q = this.searchQuery.toLowerCase();
-      list = list.filter(
-        (o) =>
-          o.so_number.toLowerCase().includes(q) ||
-          (o.customer?.name || '').toLowerCase().includes(q),
-      );
-    }
-    return list;
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalCount / this.pageSize));
   }
 
-  onSearchChange(): void {}
-  onFilterChange(): void {}
+  min(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+  emitFilterChange(): void {
+    this.filterChange.emit({
+      status: this.localStatus,
+      customer_id: this.localCustomer,
+      search: this.localSearch,
+    });
+  }
+
+  onPrevPage(): void {
+    if (this.currentPage > 1) {
+      this.pageChange.emit(this.currentPage - 1);
+    }
+  }
+
+  onNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.pageChange.emit(this.currentPage + 1);
+    }
+  }
 
   onNewOrder(): void {
     this.newOrder.emit();
@@ -227,6 +270,7 @@ export class SalesOrdersListComponent implements OnInit {
 
   async onSubmit(order: SalesOrder): Promise<void> {
     if (!confirm(this.t('sales_orders.confirm_submit'))) return;
+    // TODO M5: Replace confirm() with ConfirmationDialogComponent
     try {
       this.loadingService.show();
       const resp = await this.salesOrdersService.submit(order.id);
@@ -245,6 +289,7 @@ export class SalesOrdersListComponent implements OnInit {
 
   async onCancel(order: SalesOrder): Promise<void> {
     if (!confirm(this.t('sales_orders.confirm_cancel'))) return;
+    // TODO M5: Replace confirm() with ConfirmationDialogComponent
     try {
       this.loadingService.show();
       const resp = await this.salesOrdersService.cancel(order.id);
@@ -263,6 +308,7 @@ export class SalesOrdersListComponent implements OnInit {
 
   async onDelete(order: SalesOrder): Promise<void> {
     if (!confirm(this.t('sales_orders.confirm_delete'))) return;
+    // TODO M5: Replace confirm() with ConfirmationDialogComponent
     try {
       this.loadingService.show();
       const resp = await this.salesOrdersService.softDelete(order.id);
@@ -295,6 +341,7 @@ export class SalesOrdersListComponent implements OnInit {
   }
 
   private buildCustomerMap(): void {
+    this.customerMap.clear();
     this.customers.forEach((c) => this.customerMap.set(c.id, c.name));
   }
 

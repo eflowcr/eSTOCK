@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -11,6 +11,8 @@ import { LanguageService } from '@app/services/extras/language.service';
 import { handleApiError } from '@app/utils';
 import { Client } from '@app/models/client.model';
 
+const DN_LS_KEY = 'dn_list_filters';
+
 @Component({
   selector: 'app-delivery-notes-list',
   standalone: true,
@@ -21,7 +23,7 @@ import { Client } from '@app/models/client.model';
 export class DeliveryNotesListComponent implements OnInit {
   deliveryNotes: DeliveryNote[] = [];
   clients: Client[] = [];
-  isLoading = false;
+  isLoading = signal(false);
 
   // Filters
   filterCustomerId = '';
@@ -47,8 +49,34 @@ export class DeliveryNotesListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.restoreFilters();
     this.loadClients();
     this.loadDeliveryNotes();
+  }
+
+  private restoreFilters(): void {
+    try {
+      const saved = localStorage.getItem(DN_LS_KEY);
+      if (saved) {
+        const f = JSON.parse(saved);
+        this.filterCustomerId = f.customer_id ?? '';
+        this.filterSoNumber = f.so_number ?? '';
+        this.filterFrom = f.from ?? '';
+        this.filterTo = f.to ?? '';
+        this.currentPage = f.page ?? 1;
+      }
+    } catch { /* ignore */ }
+  }
+
+  private saveFilters(): void {
+    try {
+      const f: Record<string, unknown> = { page: this.currentPage };
+      if (this.filterCustomerId) f['customer_id'] = this.filterCustomerId;
+      if (this.filterSoNumber) f['so_number'] = this.filterSoNumber;
+      if (this.filterFrom) f['from'] = this.filterFrom;
+      if (this.filterTo) f['to'] = this.filterTo;
+      localStorage.setItem(DN_LS_KEY, JSON.stringify(f));
+    } catch { /* ignore */ }
   }
 
   async loadClients(): Promise<void> {
@@ -63,7 +91,7 @@ export class DeliveryNotesListComponent implements OnInit {
   }
 
   async loadDeliveryNotes(): Promise<void> {
-    this.isLoading = true;
+    this.isLoading.set(true);
     try {
       const filters: DeliveryNoteListFilters = {
         page: this.currentPage,
@@ -71,6 +99,8 @@ export class DeliveryNotesListComponent implements OnInit {
       };
       if (this.filterCustomerId) filters.customer_id = this.filterCustomerId;
       if (this.filterSoNumber) filters.so_number = this.filterSoNumber;
+      if (this.filterFrom) filters.from = this.filterFrom;
+      if (this.filterTo) filters.to = this.filterTo;
 
       const res = await this.deliveryNotesService.list(filters);
       if (res.result.success) {
@@ -88,12 +118,13 @@ export class DeliveryNotesListComponent implements OnInit {
         this.t('error'),
       );
     } finally {
-      this.isLoading = false;
+      this.isLoading.set(false);
     }
   }
 
   onFilterChange(): void {
     this.currentPage = 1;
+    this.saveFilters();
     this.loadDeliveryNotes();
   }
 
@@ -103,6 +134,7 @@ export class DeliveryNotesListComponent implements OnInit {
     this.filterFrom = '';
     this.filterTo = '';
     this.currentPage = 1;
+    localStorage.removeItem(DN_LS_KEY);
     this.loadDeliveryNotes();
   }
 
@@ -113,6 +145,7 @@ export class DeliveryNotesListComponent implements OnInit {
   prevPage(): void {
     if (this.currentPage > 1) {
       this.currentPage--;
+      this.saveFilters();
       this.loadDeliveryNotes();
     }
   }
@@ -120,6 +153,7 @@ export class DeliveryNotesListComponent implements OnInit {
   nextPage(): void {
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
+      this.saveFilters();
       this.loadDeliveryNotes();
     }
   }

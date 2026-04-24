@@ -26,7 +26,7 @@ export class DeliveryNotesService {
     }
     const qs = params.toString();
     return this.fetchService.get<ApiResponse<DeliveryNote[]>>({
-      API_Gateway: qs ? `${DELIVERY_NOTES_URL}/?${qs}` : `${DELIVERY_NOTES_URL}/`,
+      API_Gateway: qs ? `${DELIVERY_NOTES_URL}?${qs}` : DELIVERY_NOTES_URL,
     });
   }
 
