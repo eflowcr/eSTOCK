@@ -1,0 +1,174 @@
+<app-main-layout>
+<div class="space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-foreground">{{ t('delivery_notes.title') }}</h1>
+      <p class="mt-0.5 text-sm text-muted-foreground">{{ t('delivery_notes.subtitle') }}</p>
+    </div>
+  </div>
+
+  <!-- Filters card -->
+  <div class="rounded-xl border border-border bg-card shadow-sm">
+    <div class="border-b border-border px-5 py-3 flex flex-wrap items-end gap-3">
+
+      <!-- Customer filter -->
+      <div class="flex flex-col gap-1 min-w-[160px]">
+        <label class="text-xs font-medium text-muted-foreground">{{ t('delivery_notes.filter_customer') }}</label>
+        <select
+          [(ngModel)]="filterCustomerId"
+          (ngModelChange)="onFilterChange()"
+          class="rounded-md border border-border bg-background px-2.5 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary">
+          <option value="">{{ t('delivery_notes.all_customers') }}</option>
+          @for (client of clients; track client.id) {
+            <option [value]="client.id">{{ client.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- SO Number search -->
+      <div class="flex flex-col gap-1 flex-1 min-w-[160px]">
+        <label class="text-xs font-medium text-muted-foreground">{{ t('delivery_notes.filter_so_number') }}</label>
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+          </svg>
+          <input
+            type="search"
+            [(ngModel)]="filterSoNumber"
+            (ngModelChange)="onFilterChange()"
+            [placeholder]="t('delivery_notes.search_so_placeholder')"
+            class="w-full rounded-md border border-border bg-background py-1.5 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+      </div>
+
+      <!-- Clear filters -->
+      @if (hasActiveFilters) {
+        <button type="button" (click)="clearFilters()"
+          class="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          {{ t('delivery_notes.clear_filters') }}
+        </button>
+      }
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      @if (isLoading) {
+        <div class="space-y-2 p-5">
+          @for (item of [1,2,3,4,5]; track item) {
+            <div class="animate-pulse rounded-lg border border-border bg-card h-12"></div>
+          }
+        </div>
+      }
+
+      @if (!isLoading && deliveryNotes.length > 0) {
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border bg-muted/40">
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">{{ t('delivery_notes.col_dn_number') }}</th>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">{{ t('delivery_notes.col_customer') }}</th>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">{{ t('delivery_notes.col_so_number') }}</th>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">{{ t('delivery_notes.col_items') }}</th>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">{{ t('delivery_notes.col_pdf') }}</th>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">{{ t('delivery_notes.col_delivered_at') }}</th>
+              <th class="px-4 py-2.5 text-right text-xs font-medium text-muted-foreground uppercase tracking-wide">{{ t('delivery_notes.col_actions') }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            @for (dn of deliveryNotes; track dn.id) {
+              <tr class="group hover:bg-muted/30 transition-colors cursor-pointer" (click)="viewDetail(dn)">
+                <td class="px-4 py-3">
+                  <span class="font-medium text-foreground">{{ dn.dn_number }}</span>
+                </td>
+                <td class="px-4 py-3 text-muted-foreground">{{ getClientName(dn) }}</td>
+                <td class="px-4 py-3">
+                  @if (dn.sales_order_id) {
+                    <a
+                      [routerLink]="['/sales-orders', dn.sales_order_id]"
+                      (click)="$event.stopPropagation()"
+                      class="text-primary hover:underline text-xs font-medium">
+                      {{ dn.sales_order_id }}
+                    </a>
+                  } @else {
+                    <span class="text-muted-foreground text-xs">-</span>
+                  }
+                </td>
+                <td class="px-4 py-3 text-foreground tabular-nums">{{ dn.total_items }}</td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium"
+                    [ngClass]="getPdfStatusBadge(dn).className">
+                    {{ getPdfStatusBadge(dn).text }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-muted-foreground text-xs">{{ formatDate(dn.delivered_at) }}</td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button type="button" (click)="viewDetail(dn); $event.stopPropagation()"
+                      class="inline-flex h-7 items-center rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.97]">
+                      {{ t('view_details') }}
+                    </button>
+                    @if (dn.pdf_url) {
+                      <button type="button" (click)="downloadPdf(dn, $event)"
+                        class="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.97]"
+                        [attr.aria-label]="t('delivery_notes.download_pdf')">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        PDF
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+
+      <!-- Empty state -->
+      @if (!isLoading && deliveryNotes.length === 0) {
+        <div class="flex flex-col items-center justify-center gap-3 py-16">
+          <svg class="h-10 w-10 text-muted-foreground/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <div class="text-center">
+            <p class="text-sm font-medium text-foreground">{{ t('delivery_notes.empty_title') }}</p>
+            <p class="mt-0.5 text-xs text-muted-foreground">{{ t('delivery_notes.empty_subtitle') }}</p>
+          </div>
+          @if (hasActiveFilters) {
+            <button type="button" (click)="clearFilters()"
+              class="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-xs font-medium transition-colors hover:bg-accent">
+              {{ t('delivery_notes.clear_filters') }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (!isLoading && deliveryNotes.length > 0) {
+      <div class="flex items-center justify-between border-t border-border px-5 py-3">
+        <span class="text-xs text-muted-foreground tabular-nums">
+          {{ t('delivery_notes.page_info').replace('{page}', '' + currentPage).replace('{total}', '' + totalPages) }}
+        </span>
+        <div class="flex items-center gap-1.5">
+          <button type="button" (click)="prevPage()" [disabled]="currentPage <= 1"
+            class="inline-flex h-7 items-center rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-accent disabled:opacity-40 disabled:cursor-not-allowed">
+            {{ t('delivery_notes.prev') }}
+          </button>
+          <button type="button" (click)="nextPage()" [disabled]="currentPage >= totalPages"
+            class="inline-flex h-7 items-center rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-accent disabled:opacity-40 disabled:cursor-not-allowed">
+            {{ t('delivery_notes.next') }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+</div>
+</app-main-layout>
