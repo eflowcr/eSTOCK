@@ -6,6 +6,7 @@ import { InventoryMovementsService } from '@app/services/inventory-movements.ser
 import { LanguageService } from '@app/services/extras/language.service';
 import { MainLayoutComponent } from '../layout/main-layout.component';
 import { InventoryMovement, MovementType } from '@app/models/inventory-movement.model';
+import { RelativeDatePipe } from '@app/shared/pipes/relative-date.pipe';
 
 const PAGE_SIZE = 20;
 const MOVEMENT_TYPES: MovementType[] = ['inbound', 'outbound', 'rejected', 'adjustment', 'transfer'];
@@ -13,7 +14,7 @@ const MOVEMENT_TYPES: MovementType[] = ['inbound', 'outbound', 'rejected', 'adju
 @Component({
   selector: 'app-stock-ledger',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, RelativeDatePipe],
   template: `
     <app-main-layout>
       <div class="flex flex-col gap-4">
@@ -194,7 +195,7 @@ const MOVEMENT_TYPES: MovementType[] = ['inbound', 'outbound', 'rejected', 'adju
                 class="border-b border-border/50 transition-colors hover:bg-muted/30"
               >
                 <td class="whitespace-nowrap px-4 py-2.5 text-xs text-muted-foreground">
-                  <span [title]="mv.created_at">{{ relativeDate(mv.created_at) }}</span>
+                  <span [title]="mv.created_at">{{ mv.created_at | relativeDate }}</span>
                   <br/>
                   <span class="text-[10px]">{{ absoluteDate(mv.created_at) }}</span>
                 </td>
@@ -492,19 +493,5 @@ export class StockLedgerComponent implements OnInit {
     try { return new Date(iso).toLocaleString('es'); } catch { return iso; }
   }
 
-  relativeDate(iso: string): string {
-    try {
-      const diffSec = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
-      if (diffSec < 60) return `${diffSec}s`;
-      const diffMin = Math.round(diffSec / 60);
-      if (diffMin < 60) return `${diffMin}m`;
-      const diffH = Math.round(diffMin / 60);
-      if (diffH < 24) return `${diffH}h`;
-      const diffD = Math.round(diffH / 24);
-      if (diffD < 30) return `${diffD}d`;
-      const diffMo = Math.round(diffD / 30);
-      if (diffMo < 12) return `${diffMo}mo`;
-      return `${Math.round(diffMo / 12)}y`;
-    } catch { return ''; }
-  }
 }
+

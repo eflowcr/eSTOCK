@@ -9,18 +9,7 @@ import { Router, RouterModule } from '@angular/router';
 import { NotificationsService } from '@app/services/notifications.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { Notification } from '@app/models/notification.model';
-
-function formatRelativeTime(isoDate: string): string {
-  const diffMs = Date.now() - new Date(isoDate).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'ahora';
-  if (mins < 60) return `hace ${mins}m`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `hace ${hrs}h`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `hace ${days}d`;
-  return `hace ${Math.floor(days / 7)}sem`;
-}
+import { RelativeDatePipe } from '@app/shared/pipes/relative-date.pipe';
 
 const RESOURCE_ROUTES: Record<string, string> = {
   picking_task: '/picking-tasks',
@@ -32,7 +21,7 @@ const RESOURCE_ROUTES: Record<string, string> = {
 @Component({
   selector: 'app-notifications-bell',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, RelativeDatePipe],
   template: `
     <div class="notifications-bell-zone relative">
       <!-- Bell button -->
@@ -80,7 +69,7 @@ const RESOURCE_ROUTES: Record<string, string> = {
                 [class.font-normal]="notif.is_read">
                 {{ notif.title }}
               </span>
-              <span class="shrink-0 text-[10px] text-muted-foreground">{{ relativeTime(notif.created_at) }}</span>
+              <span class="shrink-0 text-[10px] text-muted-foreground">{{ notif.created_at | relativeDate }}</span>
             </div>
             <p *ngIf="notif.body" class="text-xs text-muted-foreground line-clamp-2">
               {{ truncate(notif.body, 80) }}
@@ -182,10 +171,6 @@ export class NotificationsBellComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.warn('[NotificationsBell] navigation failed', e);
     }
-  }
-
-  relativeTime(isoDate: string): string {
-    return formatRelativeTime(isoDate);
   }
 
   truncate(text: string, maxLen: number): string {

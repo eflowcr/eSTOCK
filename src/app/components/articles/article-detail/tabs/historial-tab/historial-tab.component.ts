@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { InventoryMovement, MovementType } from '@app/models/inventory-movement.model';
 import { InventoryMovementsService } from '@app/services/inventory-movements.service';
 import { LanguageService } from '@app/services/extras/language.service';
+import { RelativeDatePipe } from '@app/shared/pipes/relative-date.pipe';
 
 export interface HeatmapCell {
   date: string;      // YYYY-MM-DD
@@ -31,7 +32,7 @@ const MOVEMENT_TYPES: MovementType[] = ['inbound', 'outbound', 'rejected', 'adju
 @Component({
   selector: 'app-historial-tab',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RelativeDatePipe],
   templateUrl: './historial-tab.component.html',
 })
 export class HistorialTabComponent implements OnInit, OnChanges {
@@ -319,23 +320,6 @@ export class HistorialTabComponent implements OnInit, OnChanges {
 
   absoluteDate(iso: string): string {
     try { return new Date(iso).toLocaleString('es'); } catch { return iso; }
-  }
-
-  relativeDate(iso: string): string {
-    try {
-      const then = new Date(iso).getTime();
-      const diffSec = Math.round((Date.now() - then) / 1000);
-      if (diffSec < 60) return `${diffSec}s`;
-      const diffMin = Math.round(diffSec / 60);
-      if (diffMin < 60) return `${diffMin}m`;
-      const diffH = Math.round(diffMin / 60);
-      if (diffH < 24) return `${diffH}h`;
-      const diffD = Math.round(diffH / 24);
-      if (diffD < 30) return `${diffD}d`;
-      const diffMo = Math.round(diffD / 30);
-      if (diffMo < 12) return `${diffMo}mo`;
-      return `${Math.round(diffMo / 12)}y`;
-    } catch { return ''; }
   }
 
   referenceLabel(mv: InventoryMovement): string {

@@ -154,7 +154,7 @@
           <tbody class="divide-y divide-border">
             <tr *ngFor="let mv of pagedMovements()" class="hover:bg-accent/30 transition-colors">
               <td class="px-3 py-2" [title]="absoluteDate(mv.created_at)">
-                <span class="text-xs text-muted-foreground">{{ relativeDate(mv.created_at) }}</span>
+                <span class="text-xs text-muted-foreground">{{ mv.created_at | relativeDate }}</span>
               </td>
               <td class="px-3 py-2">
                 <span [ngClass]="typeBadgeClass(mv.movement_type)">
