@@ -92,6 +92,13 @@ export * from './lot-trace.model';
 export * from './adjustment.model';
 // Note: lot.model.ts intentionally NOT re-exported here — name collision with
 // inventory.model.ts's inline Lot/CreateLotRequest. Import lot.model directly.
+// S3 models
+export * from './article-supplier.model';
+export * from './purchase-order.model';
+export * from './sales-order.model';
+export * from './delivery-note.model';
+export * from './backorder.model';
+export * from './tenant.model';
 
 // Import Observable for FetchResponseT
 import { Observable } from 'rxjs';
