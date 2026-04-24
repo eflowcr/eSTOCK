@@ -18,7 +18,7 @@ RUN printf "API_BASE=%s\nVERSION=%s\nTESTING=%s\nPRODUCTION=%s\n" \
 
 RUN npm run build -- --configuration=$ENVIRONMENT --source-map=false
 
-# Non-root nginx variant (official) — runs as UID 101, listens on 8080
+# nginx-unprivileged runs as uid 101 and binds on :8080 (required by VPS Manager SecurityContext)
 FROM nginxinc/nginx-unprivileged:alpine
 WORKDIR /usr/share/nginx/html
 USER root
