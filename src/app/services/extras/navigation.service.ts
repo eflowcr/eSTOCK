@@ -8,6 +8,7 @@ const ALL_NAV_ITEMS: NavigationItems = [
   // Operations
   { name: 'receiving_tasks', href: '/receiving-tasks', icon: 'Download', permission: { resource: 'inventory', action: 'read' } },
   { name: 'picking_tasks', href: '/picking-tasks', icon: 'ClipboardCheck', permission: { resource: 'inventory', action: 'read' } },
+  { name: 'sales_orders', href: '/sales-orders', icon: 'ShoppingCart', permission: { resource: 'sales_orders', action: 'read' } },
   { name: 'stock_adjustments', href: '/stock-adjustments', icon: 'Edit', permission: { resource: 'inventory', action: 'update' } },
   { name: 'stock_alerts', href: '/stock-alerts', icon: 'AlertTriangle', permission: { resource: 'inventory', action: 'read' } },
   { name: 'stock_transfers', href: '/stock-transfers', icon: 'Truck', permission: { resource: 'inventory', action: 'read' } },
