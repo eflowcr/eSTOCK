@@ -344,7 +344,8 @@ export class SalesOrderDetailComponent implements OnInit {
     if (this.order.status === 'completed' || this.order.status === 'partial') {
       this.loadingDNs = true;
       try {
-        const dnResp = await this.deliveryNotesService.list({ sales_order_id: soId });
+        // Use so_number — backend DN list accepts so_number query param (C5 fix)
+        const dnResp = await this.deliveryNotesService.list({ so_number: this.order.so_number });
         if (dnResp.result.success) {
           this.deliveryNotes = dnResp.data || [];
         }
