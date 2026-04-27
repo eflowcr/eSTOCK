@@ -2301,4 +2301,21 @@ export const enTranslations = {
   'trial_banner.expires_today': 'Your trial expires today.',
   'trial_banner.past_due_message': 'Your trial has expired. Upgrade your plan to restore access.',
   'trial_banner.upgrade_cta': 'Upgrade plan',
+  // ─── Trial banner (S3.6/B4 — extended messages by remaining days) ──────────
+  'trial_banner.expires_in_days_safe': 'Your trial ends in {n} days.',
+  'trial_banner.expires_in_days_warning': 'Your trial ends in {n} days — consider your plan.',
+  'trial_banner.expires_in_days_critical': 'Your trial ends in {n} day(s).',
+  'trial_banner.expired': 'Your trial has expired. Upgrade your plan.',
+  // ─── 404 Not Found (S3.6/B19) ─────────────────────────────────────────────
+  'not_found.title': 'Page not found',
+  'not_found.subtitle': 'The page you are looking for does not exist or was moved.',
+  'not_found.back_to_dashboard': 'Back to Dashboard',
+  'not_found.report': 'Report problem',
+  // ─── Onboarding role select (S3.6/B3) ─────────────────────────────────────
+  'onboarding.invite_role_loading': 'Loading roles...',
+  'onboarding.invite_role_select_placeholder': 'Select a role',
+  'onboarding.invite_role_hint_v2': 'Select the permission level for this team member.',
+  // ─── Signup success feedback (S3.6/B1) ────────────────────────────────────
+  'signup.success_title': 'Signup received!',
+  'signup.success_message': 'Check your email to complete the registration.',
 };
