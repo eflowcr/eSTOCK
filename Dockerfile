@@ -3,7 +3,8 @@ WORKDIR /usr/local/app
 
 ARG API_BASE=/api
 ARG ENVIRONMENT=production
-ARG VERSION=0.0.0
+# VERSION is optional; when empty, load-env.js falls back to package.json version (B5 fix S3.6).
+ARG VERSION=
 ARG TESTING=false
 ARG PRODUCTION=true
 
@@ -12,9 +13,15 @@ RUN npm ci --legacy-peer-deps
 
 COPY . .
 
-# Create .env from build args so load-env.js generates environment.generated.ts
-RUN printf "API_BASE=%s\nVERSION=%s\nTESTING=%s\nPRODUCTION=%s\n" \
-      "$API_BASE" "$VERSION" "$TESTING" "$PRODUCTION" > .env
+# Create .env from build args so load-env.js generates environment.generated.ts.
+# Only emit VERSION line when build arg is explicitly provided to avoid clobbering package.json fallback.
+RUN if [ -n "$VERSION" ]; then \
+      printf "API_BASE=%s\nVERSION=%s\nTESTING=%s\nPRODUCTION=%s\n" \
+        "$API_BASE" "$VERSION" "$TESTING" "$PRODUCTION" > .env; \
+    else \
+      printf "API_BASE=%s\nTESTING=%s\nPRODUCTION=%s\n" \
+        "$API_BASE" "$TESTING" "$PRODUCTION" > .env; \
+    fi
 
 RUN npm run build -- --configuration=$ENVIRONMENT --source-map=false
 

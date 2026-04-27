@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, '..');
 const envPath = path.join(root, '.env');
 const generatedPath = path.join(root, 'src/environment/environment.generated.ts');
 const basePath = path.join(root, 'src/environment/environment.base.ts');
+const pkgPath = path.join(root, 'package.json');
 
 function parseEnv(content) {
   const out = {};
@@ -19,9 +20,21 @@ function parseEnv(content) {
   return out;
 }
 
+// Source of truth for app version: package.json (B5 fix S3.6).
+// Allow .env VERSION override only when explicitly set.
+let pkgVersion = '0.0.0';
+try {
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+  if (pkg && typeof pkg.version === 'string' && pkg.version.length > 0) {
+    pkgVersion = pkg.version;
+  }
+} catch (_) {
+  // ignore
+}
+
 let apiBase = 'http://localhost:8081/api';
-let version = 'v4.20.0.0';
-let versionBD = '4.20.0.0';
+let version = `v${pkgVersion}`;
+let versionBD = pkgVersion;
 let testing = true;
 let production = false;
 

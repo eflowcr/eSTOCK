@@ -3,8 +3,8 @@
  * Sensitive config (API_BASE, etc.) must be in .env → environment.generated.ts.
  */
 export const environment = {
-  version: 'v4.20.0.0',
-  versionBD: '4.20.0.0',
+  version: 'v0.3.0',
+  versionBD: '0.3.0',
   API: {
     BASE: 'http://localhost:8080/api',
   },
