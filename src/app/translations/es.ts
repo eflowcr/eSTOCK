@@ -2428,4 +2428,21 @@ export const esTranslations = {
   'trial_banner.expires_today': 'Tu trial expira hoy.',
   'trial_banner.past_due_message': 'Tu trial expiró. Actualiza tu plan para recuperar acceso.',
   'trial_banner.upgrade_cta': 'Actualizar plan',
+  // ─── Trial banner (S3.6/B4 — extended messages by remaining days) ──────────
+  'trial_banner.expires_in_days_safe': 'Tu período de prueba vence en {n} días.',
+  'trial_banner.expires_in_days_warning': 'Tu prueba vence en {n} días — considera tu plan.',
+  'trial_banner.expires_in_days_critical': 'Tu prueba vence en {n} día(s).',
+  'trial_banner.expired': 'Tu prueba ha vencido. Renueva tu plan.',
+  // ─── 404 Not Found (S3.6/B19) ─────────────────────────────────────────────
+  'not_found.title': 'Página no encontrada',
+  'not_found.subtitle': 'La página que buscás no existe o fue movida.',
+  'not_found.back_to_dashboard': 'Volver al Dashboard',
+  'not_found.report': 'Reportar problema',
+  // ─── Onboarding role select (S3.6/B3) ─────────────────────────────────────
+  'onboarding.invite_role_loading': 'Cargando roles...',
+  'onboarding.invite_role_select_placeholder': 'Selecciona un rol',
+  'onboarding.invite_role_hint_v2': 'Selecciona el nivel de permisos para este miembro del equipo.',
+  // ─── Signup success feedback (S3.6/B1) ────────────────────────────────────
+  'signup.success_title': '¡Registro recibido!',
+  'signup.success_message': 'Revisa tu correo electrónico para completar el registro.',
 };

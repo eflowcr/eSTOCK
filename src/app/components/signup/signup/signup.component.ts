@@ -111,13 +111,30 @@ export class SignupComponent implements OnInit {
     try {
       const { admin_password_confirm, ...payload } = this.form.value;
       const response = await this.signupService.initiateSignup(payload);
-      if (response.result.success) {
+      // B1 fix S3.6: defensively accept either the envelope shape
+      // ({ result: { success } }) or a flat shape ({ success }) — both have
+      // been observed from the backend depending on the endpoint variant.
+      const flat = response as unknown as { success?: boolean; message?: string };
+      const success = response?.result?.success ?? flat?.success === true;
+      const message =
+        response?.result?.message ??
+        flat?.message ??
+        response?.data?.message ??
+        '';
+
+      if (success) {
+        // Show explicit success toast BEFORE navigating so the user gets
+        // immediate feedback even if the navigation fails or the page is slow.
+        this.alertService.success(
+          message || this.t('signup.success_message'),
+          this.t('signup.success_title'),
+        );
         this.router.navigate(['/signup/check-email'], {
           queryParams: { email: this.form.value.email },
         });
       } else {
         this.alertService.error(
-          response.result.message || this.t('signup.error_generic'),
+          message || this.t('signup.error_generic'),
           this.t('signup.error_title'),
         );
       }

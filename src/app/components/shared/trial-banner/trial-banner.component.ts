@@ -121,6 +121,25 @@ export class TrialBannerComponent implements OnInit {
     return true;
   }
 
+  /**
+   * B4 fix S3.6: derive remaining days defensively. Never trust the server's
+   * `days_left` blindly — when `trial_ends_at` is present we recompute it on
+   * the client because we observed a tenant whose server payload reported
+   * days_left=0 even though trial_ends_at was 14 days in the future. Ceil
+   * upwards so a trial that ends "tomorrow at 02:00" still shows >=1.
+   */
+  private get effectiveDaysLeft(): number {
+    if (!this.status) return 0;
+    if (this.status.trial_ends_at) {
+      const end = new Date(this.status.trial_ends_at);
+      if (!isNaN(end.getTime())) {
+        const diffMs = end.getTime() - Date.now();
+        return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      }
+    }
+    return this.status.days_left ?? 0;
+  }
+
   get bannerClasses(): string[] {
     const base = [
       'flex', 'items-center', 'justify-between', 'gap-3',
@@ -131,13 +150,17 @@ export class TrialBannerComponent implements OnInit {
       return [...base, 'bg-red-600'];
     }
 
-    const days = this.status?.days_left ?? 0;
+    const days = this.effectiveDaysLeft;
 
+    if (days < 0) {
+      // Trial ended but server hasn't flipped status yet.
+      return [...base, 'bg-red-600'];
+    }
     if (days === 0) {
       // Today — pulsing
       return [...base, 'bg-red-600', 'banner-pulse'];
-    } else if (days <= 3) {
-      return [...base, 'bg-red-500'];
+    } else if (days <= 2) {
+      return [...base, 'bg-orange-500'];
     } else if (days <= 7) {
       return [...base, 'bg-amber-500'];
     } else {
@@ -150,13 +173,21 @@ export class TrialBannerComponent implements OnInit {
       return this.t('trial_banner.past_due_message');
     }
 
-    const days = this.status?.days_left ?? 0;
+    const days = this.effectiveDaysLeft;
 
+    if (days < 0) {
+      return this.t('trial_banner.expired');
+    }
     if (days === 0) {
       return this.t('trial_banner.expires_today');
     }
-
-    return this.t('trial_banner.expires_in_days').replace('{n}', String(days));
+    if (days <= 2) {
+      return this.t('trial_banner.expires_in_days_critical').replace('{n}', String(days));
+    }
+    if (days <= 7) {
+      return this.t('trial_banner.expires_in_days_warning').replace('{n}', String(days));
+    }
+    return this.t('trial_banner.expires_in_days_safe').replace('{n}', String(days));
   }
 
   navigateToBilling(): void {

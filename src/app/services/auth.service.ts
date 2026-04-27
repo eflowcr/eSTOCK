@@ -299,6 +299,40 @@ export class AuthService {
 	}
 
 	/**
+	 * @description Ingest an externally-issued JWT (e.g. from /signup/verify) and
+	 * fully bootstrap the auth state without going through /auth/login. Used by
+	 * the signup verify flow so the user lands authenticated on /onboarding
+	 * instead of being redirected to /login by AuthGuard.
+	 *
+	 * B2 fix S3.6.
+	 * @memberof AuthService
+	 */
+	ingestExternalToken(token: string): void {
+		if (!token) return;
+		const authData: AuthData = { token } as AuthData;
+		localStorage.setItem(this.AUTH_STORAGE_KEY, JSON.stringify(authData));
+		try {
+			const user = this.decodeTokenPayload(token);
+			this.updateAuthState({
+				user,
+				token,
+				isAuthenticated: true,
+				isLoading: false,
+				error: null,
+			});
+		} catch (_) {
+			this.clearAuthData();
+			this.updateAuthState({
+				user: null,
+				token: null,
+				isAuthenticated: false,
+				isLoading: false,
+				error: 'Invalid token',
+			});
+		}
+	}
+
+	/**
 	 * @description Clear session and redirect to login (e.g. on 401). Does not call backend logout.
 	 * @memberof AuthService
 	 */

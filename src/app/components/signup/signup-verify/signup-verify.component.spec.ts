@@ -16,7 +16,11 @@ const MOCK_JWT =
 
 const langSpy = jasmine.createSpyObj('LanguageService', ['t']);
 const alertSpy = jasmine.createSpyObj('AlertService', ['success', 'error', 'info']);
-const authSpy = jasmine.createSpyObj('AuthService', ['getCurrentUser', 'isAuthenticated']);
+const authSpy = jasmine.createSpyObj('AuthService', [
+  'getCurrentUser',
+  'isAuthenticated',
+  'ingestExternalToken',
+]);
 
 async function createFixture(token: string | null): Promise<{ fixture: ComponentFixture<SignupVerifyComponent>; component: SignupVerifyComponent; signupSpy: jasmine.SpyObj<SignupService>; router: Router }> {
   const signupSpy = jasmine.createSpyObj<SignupService>('SignupService', ['verifySignup']);
@@ -77,7 +81,7 @@ describe('SignupVerifyComponent', () => {
     expect(signupSpy.verifySignup).toHaveBeenCalledWith('my-token');
   }));
 
-  it('should store JWT and navigate to /onboarding on success', fakeAsync(async () => {
+  it('B2 S3.6: ingests JWT into AuthService and navigates to /onboarding on verify success', fakeAsync(async () => {
     const { fixture, component, signupSpy, router } = await createFixture('valid-token');
     const verifyData = { token: MOCK_JWT, tenant_id: 't1', email: 'a@b.com', name: 'Admin' };
     signupSpy.verifySignup.and.returnValue(Promise.resolve(mockResponse(verifyData)));
@@ -85,10 +89,9 @@ describe('SignupVerifyComponent', () => {
     fixture.detectChanges();
     tick(2000);
 
-    const stored = localStorage.getItem('auth_estock');
-    expect(stored).toBeTruthy();
-    const parsed = JSON.parse(stored!);
-    expect(parsed.token).toBe(MOCK_JWT);
+    // AuthService.ingestExternalToken() must be called BEFORE the navigate
+    // so AuthGuard sees an authenticated state on /onboarding.
+    expect(authSpy.ingestExternalToken).toHaveBeenCalledWith(MOCK_JWT);
     expect(router.navigate).toHaveBeenCalledWith(['/onboarding']);
   }));
 

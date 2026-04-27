@@ -9,6 +9,8 @@ import { LanguageService } from '../../services/extras/language.service';
 import { AlertComponent } from '../shared/extras/alert/alert.component';
 import { handleApiError } from '@app/utils';
 import { AuthService } from '../../services/auth.service';
+import { RolesService } from '../../services/roles.service';
+import { Role } from '@app/models/role.model';
 
 const STORAGE_KEY = 'onboarding_progress';
 
@@ -38,6 +40,12 @@ export class OnboardingWizardComponent implements OnInit, OnDestroy {
   inviteSubmitted = false;
   articleSubmitted = false;
 
+  // B3 fix S3.6: roles loaded from /api/roles for the step-2 select.
+  // Default to the seeded "Operator" role id if present in the list.
+  roles: Role[] = [];
+  rolesLoading = false;
+  private readonly DEFAULT_OPERATOR_ROLE_ID = 'Hw6PBkkS4ZCRWTjXGQHp';
+
   progress = computed(() => Math.round((this.currentStep() / this.totalSteps) * 100));
 
   constructor(
@@ -48,12 +56,40 @@ export class OnboardingWizardComponent implements OnInit, OnDestroy {
     private alertService: AlertService,
     private languageService: LanguageService,
     private authService: AuthService,
+    private rolesService: RolesService,
   ) {}
 
   ngOnInit(): void {
     this.initForms();
     this.loadProgress();
     this.loadUserInfo();
+    this.loadRoles();
+  }
+
+  /** B3 fix S3.6: populate the role select. */
+  private async loadRoles(): Promise<void> {
+    this.rolesLoading = true;
+    try {
+      const resp = await this.rolesService.getList();
+      if (resp?.result?.success) {
+        this.roles = resp.data ?? [];
+        // Apply default only if user has not already chosen / restored a role.
+        const current = this.inviteForm.get('role_id')?.value;
+        if (!current) {
+          const operator = this.roles.find((r) => r.id === this.DEFAULT_OPERATOR_ROLE_ID);
+          const fallback =
+            operator ?? this.roles.find((r) => /operator/i.test(r.name)) ?? this.roles[0];
+          if (fallback) {
+            this.inviteForm.get('role_id')?.setValue(fallback.id);
+          }
+        }
+      }
+    } catch (_) {
+      // Non-blocking: user can still type the role_id manually if the
+      // /api/roles call fails (rare).
+    } finally {
+      this.rolesLoading = false;
+    }
   }
 
   private initForms(): void {

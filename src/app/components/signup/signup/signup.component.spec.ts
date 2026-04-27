@@ -119,6 +119,48 @@ describe('SignupComponent', () => {
     );
   });
 
+  it('B1 S3.6: shows success toast before navigating on 202 success', async () => {
+    signupSpy.initiateSignup.and.returnValue(
+      Promise.resolve(mockResponse({ message: 'Revisa tu correo electrónico para completar el registro' })),
+    );
+    component.form.setValue({
+      email: 'admin@acme.com',
+      company_name: 'ACME Corp',
+      tenant_slug: 'acme-corp',
+      admin_name: 'Admin User',
+      admin_password: 'SecurePass123!',
+      admin_password_confirm: 'SecurePass123!',
+    });
+
+    await component.onSubmit();
+
+    expect(alertSpy.success).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/signup/check-email'],
+      jasmine.objectContaining({ queryParams: { email: 'admin@acme.com' } }),
+    );
+  });
+
+  it('B1 S3.6: accepts flat {success:true,message} response shape', async () => {
+    // Some backend variants return the flat shape (no envelope) for signup.
+    signupSpy.initiateSignup.and.returnValue(
+      Promise.resolve({ success: true, message: 'OK' } as any),
+    );
+    component.form.setValue({
+      email: 'admin@acme.com',
+      company_name: 'ACME Corp',
+      tenant_slug: 'acme-corp',
+      admin_name: 'Admin User',
+      admin_password: 'SecurePass123!',
+      admin_password_confirm: 'SecurePass123!',
+    });
+
+    await component.onSubmit();
+
+    expect(alertSpy.success).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalled();
+  });
+
   it('shows error alert when initiateSignup fails', async () => {
     signupSpy.initiateSignup.and.returnValue(Promise.reject(new Error('Network error')));
     component.form.setValue({

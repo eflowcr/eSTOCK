@@ -8,6 +8,7 @@ import { ArticleService } from '../../services/article.service';
 import { AlertService } from '../../services/extras/alert.service';
 import { LanguageService } from '../../services/extras/language.service';
 import { AuthService } from '../../services/auth.service';
+import { RolesService } from '../../services/roles.service';
 import { mockResponse } from '../../../__tests__/mocks/data';
 
 const STORAGE_KEY = 'onboarding_progress';
@@ -17,6 +18,7 @@ describe('OnboardingWizardComponent', () => {
   let fixture: ComponentFixture<OnboardingWizardComponent>;
   let userSpy: jasmine.SpyObj<UserService>;
   let articleSpy: jasmine.SpyObj<ArticleService>;
+  let rolesSpy: jasmine.SpyObj<RolesService>;
   let router: Router;
 
   const langSpy = jasmine.createSpyObj('LanguageService', ['t']);
@@ -26,6 +28,15 @@ describe('OnboardingWizardComponent', () => {
   beforeEach(async () => {
     userSpy = jasmine.createSpyObj('UserService', ['create']);
     articleSpy = jasmine.createSpyObj('ArticleService', ['create']);
+    rolesSpy = jasmine.createSpyObj('RolesService', ['getList']);
+    rolesSpy.getList.and.returnValue(
+      Promise.resolve(
+        mockResponse([
+          { id: 'Hw6PBkkS4ZCRWTjXGQHp', name: 'Operator', description: 'Op', is_active: true },
+          { id: 'role-admin', name: 'Admin', description: 'Adm', is_active: true },
+        ]) as any,
+      ),
+    );
     langSpy.t.and.callFake((key: string) => key);
     authSpy.getCurrentUser.and.returnValue({ user_id: '1', user_name: 'Admin', email: 'a@b.com', role: 'admin' });
     localStorage.removeItem(STORAGE_KEY);
@@ -38,6 +49,7 @@ describe('OnboardingWizardComponent', () => {
         { provide: AlertService, useValue: alertSpy },
         { provide: LanguageService, useValue: langSpy },
         { provide: AuthService, useValue: authSpy },
+        { provide: RolesService, useValue: rolesSpy },
       ],
     }).compileComponents();
 
@@ -156,6 +168,34 @@ describe('OnboardingWizardComponent', () => {
 
     expect(articleSpy.create).toHaveBeenCalledTimes(1);
     expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+  }));
+
+  it('B3 S3.6: loads roles from /api/roles on init', fakeAsync(async () => {
+    // Wait microtask for the loadRoles() promise to resolve.
+    await Promise.resolve();
+    tick();
+    expect(rolesSpy.getList).toHaveBeenCalled();
+    expect(component.roles.length).toBe(2);
+  }));
+
+  it('B3 S3.6: defaults role_id to seeded Operator role when present', fakeAsync(async () => {
+    await Promise.resolve();
+    tick();
+    expect(component.inviteForm.get('role_id')?.value).toBe('Hw6PBkkS4ZCRWTjXGQHp');
+  }));
+
+  it('B3 S3.6: renders role <select> populated with options from /api/roles', fakeAsync(async () => {
+    await Promise.resolve();
+    tick();
+    fixture.detectChanges();
+    component.currentStep.set(2);
+    fixture.detectChanges();
+    const html: string = fixture.nativeElement.innerHTML;
+    // Both role names should be rendered as <option> values.
+    expect(html).toContain('Operator');
+    expect(html).toContain('Admin');
+    // Helper text v2 (not the legacy raw-UUID hint).
+    expect(html).toContain('onboarding.invite_role_hint_v2');
   }));
 
   it('onInviteSubmit shows error when userService.create fails', fakeAsync(async () => {

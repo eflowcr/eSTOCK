@@ -131,7 +131,7 @@ describe('TrialBannerComponent', () => {
     expect(classes).toContain('bg-amber-500');
   }));
 
-  it('uses red when days_left is 1-3', fakeAsync(async () => {
+  it('uses orange when days_left is 1-2 (B4 S3.6)', fakeAsync(async () => {
     trialSpy.getCurrentTrialStatus.and.returnValue(
       Promise.resolve(makeStatus('trial', 2, futureDate(2)))
     );
@@ -141,7 +141,46 @@ describe('TrialBannerComponent', () => {
     tick(0);
 
     const classes = component.bannerClasses.join(' ');
-    expect(classes).toContain('bg-red-500');
+    expect(classes).toContain('bg-orange-500');
+  }));
+
+  it('B4 S3.6: shows safe message with N days when trial_ends_at is 14 days in future', fakeAsync(async () => {
+    // Critical regression: server payload said days_left=0 but trial_ends_at
+    // was 14 days away → previously "Your trial expires today". Now we
+    // recompute on the client and show the safe message.
+    // The langSpy returns the key as-is so {n} stays interpolated; we still
+    // verify the safe key is selected and that interpolation includes 14.
+    langSpy.t.and.callFake((key: string) => {
+      // Return a templated string that the component will fill via .replace()
+      if (key === 'trial_banner.expires_in_days_safe') return 'safe {n}d';
+      return key;
+    });
+    trialSpy.getCurrentTrialStatus.and.returnValue(
+      Promise.resolve(makeStatus('trial', 0, futureDate(14)))
+    );
+
+    fixture.detectChanges();
+    await Promise.resolve();
+    tick(0);
+
+    const classes = component.bannerClasses.join(' ');
+    expect(classes).toContain('bg-emerald-600');
+    expect(component.bannerMessage).toBe('safe 14d');
+  }));
+
+  it('B4 S3.6: shows expired message when trial_ends_at is in the past', fakeAsync(async () => {
+    trialSpy.getCurrentTrialStatus.and.returnValue(
+      Promise.resolve(makeStatus('trial', 0, pastDate(2)))
+    );
+
+    fixture.detectChanges();
+    await Promise.resolve();
+    tick(0);
+
+    // visible is false because guard hides trial banner when end is past and
+    // status is still 'trial' (backend should flip to past_due). Verify the
+    // computed message at least matches the expired key.
+    expect(component.bannerMessage).toBe('trial_banner.expired');
   }));
 
   it('uses pulsing red when days_left is 0', fakeAsync(async () => {

@@ -261,8 +261,12 @@ export const routes: Routes = [
       ),
     canActivate: [AuthGuard],
   },
+  // B19 fix S3.6: replace silent /dashboard redirect with a real 404 page.
   {
     path: '**',
-    redirectTo: '/dashboard',
+    loadComponent: () =>
+      import('./components/not-found/not-found.component').then(
+        (m) => m.NotFoundComponent,
+      ),
   },
 ];
