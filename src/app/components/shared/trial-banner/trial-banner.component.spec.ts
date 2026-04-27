@@ -148,6 +148,13 @@ describe('TrialBannerComponent', () => {
     // Critical regression: server payload said days_left=0 but trial_ends_at
     // was 14 days away → previously "Your trial expires today". Now we
     // recompute on the client and show the safe message.
+    // The langSpy returns the key as-is so {n} stays interpolated; we still
+    // verify the safe key is selected and that interpolation includes 14.
+    langSpy.t.and.callFake((key: string) => {
+      // Return a templated string that the component will fill via .replace()
+      if (key === 'trial_banner.expires_in_days_safe') return 'safe {n}d';
+      return key;
+    });
     trialSpy.getCurrentTrialStatus.and.returnValue(
       Promise.resolve(makeStatus('trial', 0, futureDate(14)))
     );
@@ -158,8 +165,7 @@ describe('TrialBannerComponent', () => {
 
     const classes = component.bannerClasses.join(' ');
     expect(classes).toContain('bg-emerald-600');
-    expect(component.bannerMessage).toContain('14');
-    expect(component.bannerMessage).toContain('expires_in_days_safe');
+    expect(component.bannerMessage).toBe('safe 14d');
   }));
 
   it('B4 S3.6: shows expired message when trial_ends_at is in the past', fakeAsync(async () => {
