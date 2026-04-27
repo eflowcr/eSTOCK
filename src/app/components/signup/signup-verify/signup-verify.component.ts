@@ -54,19 +54,29 @@ export class SignupVerifyComponent implements OnInit {
     this.state = 'verifying';
     try {
       const response = await this.signupService.verifySignup(token);
-      if (response.result.success && response.data?.token) {
-        // Store JWT using the same AUTH_STORAGE_KEY pattern as AuthService
-        const authData = { token: response.data.token };
-        localStorage.setItem('auth_estock', JSON.stringify(authData));
-        // Re-initialize auth state in AuthService (call a method if available, else navigate)
+      // B2 fix S3.6: defensively accept either envelope or flat shape, and
+      // ingest the JWT into AuthService so the BehaviorSubject is updated
+      // BEFORE we navigate to /onboarding (otherwise AuthGuard rejects and
+      // bounces the user to /login).
+      const flat = response as unknown as {
+        success?: boolean;
+        message?: string;
+        token?: string;
+      };
+      const success = response?.result?.success ?? flat?.success === true;
+      const issuedToken = response?.data?.token ?? flat?.token;
+
+      if (success && issuedToken) {
+        this.authService.ingestExternalToken(issuedToken);
         this.state = 'success';
-        // Brief success flash, then navigate
+        // Brief success flash, then navigate to onboarding (first-time user).
         setTimeout(() => {
           this.router.navigate(['/onboarding']);
         }, 1500);
       } else {
         this.state = 'error';
-        this.errorMessage = response.result.message || this.t('signup.verify_error');
+        this.errorMessage =
+          response?.result?.message ?? flat?.message ?? this.t('signup.verify_error');
       }
     } catch (error: any) {
       this.state = 'error';
