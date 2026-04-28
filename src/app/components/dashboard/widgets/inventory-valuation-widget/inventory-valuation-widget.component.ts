@@ -64,7 +64,12 @@ export class InventoryValuationWidgetComponent implements OnInit {
   }
 
   linkFor(item: { id: string; label: string }): string[] {
-    if (this.groupBy === 'article') return ['/articles', item.label];
+    // B9 (S3.7-W4): use stable identifier (item.id) instead of human label.
+    // The backend returns id as the article's UUID/SKU; using label embeds the
+    // article name in the URL which is fragile against renames and ugly when
+    // URL-encoded. The article-detail route falls back to UUID lookup when
+    // SKU lookup misses, so either identifier shape works.
+    if (this.groupBy === 'article') return ['/articles', item.id];
     if (this.groupBy === 'location') return ['/inventory'];
     return ['/articles'];
   }

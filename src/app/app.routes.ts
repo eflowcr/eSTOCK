@@ -177,6 +177,15 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PermissionGuard],
     data: { permissions: ['billing:read'] },
   },
+  // B18 (S3.7-W4): /billing previously fell through the wildcard route and
+  // redirected silently to the dashboard. Alias it to the real settings page
+  // so direct links from emails / docs / Stripe redirects always resolve to
+  // the billing surface.
+  {
+    path: 'billing',
+    redirectTo: '/settings/billing',
+    pathMatch: 'full',
+  },
   // S3-W4B: Sales Orders
   {
     path: 'sales-orders',

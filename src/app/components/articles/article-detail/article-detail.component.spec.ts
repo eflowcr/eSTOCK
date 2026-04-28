@@ -29,8 +29,8 @@ const MOCK_ARTICLE: Article = {
 const okResponse = (data: any) => Promise.resolve({ result: { success: true, endpoint_code: '' }, data });
 const notFoundError = () => Promise.reject({ status: 404 });
 
-const mockArticleServiceOk = { getBySku: () => okResponse(MOCK_ARTICLE) };
-const mockArticleServiceNotFound = { getBySku: () => notFoundError() };
+const mockArticleServiceOk = { getBySku: () => okResponse(MOCK_ARTICLE), getById: () => okResponse(MOCK_ARTICLE) };
+const mockArticleServiceNotFound = { getBySku: () => notFoundError(), getById: () => notFoundError() };
 const mockAlertService = { success: jasmine.createSpy('success'), error: jasmine.createSpy('error') };
 const mockAuthAdmin = { isAdmin: () => true, isAuthenticated: () => true, hasPermission: () => true, getCurrentUser: () => ({ name: 'Test', last_name: 'User', role: 'Admin', email: 'test@test.com' }) };
 const mockLanguageService = { t: (key: string) => key };
@@ -164,13 +164,51 @@ describe('ArticleDetailComponent — 404 state', () => {
     }).compileComponents();
   });
 
-  it('sets notFound=true on 404', fakeAsync(() => {
+  it('sets notFound=true on 404 from both SKU and ID lookups', fakeAsync(() => {
     const fixture = TestBed.createComponent(ArticleDetailComponent);
     const comp = fixture.componentInstance;
     comp.ngOnInit();
     tick();
+    tick(); // second tick: let the B9 ID fallback also resolve before asserting
     expect(comp.notFound).toBe(true);
     expect(comp.article).toBeNull();
+  }));
+});
+
+// B9 (S3.7-W4): when SKU lookup 404s (e.g. when navigated by UUID from the
+// dashboard valuation widget), fall back to ID lookup before declaring the
+// article missing. This lets stable identifiers work transparently while the
+// route param is still nominally `:sku`.
+describe('ArticleDetailComponent — B9 ID fallback when SKU lookup 404s', () => {
+  const ART_BY_ID: Article = { ...MOCK_ARTICLE, id: 'art-uuid-001', sku: 'PROD-001' };
+
+  beforeEach(async () => {
+    const mockServiceWithFallback = {
+      getBySku: jasmine.createSpy('getBySku').and.returnValue(notFoundError()),
+      getById: jasmine.createSpy('getById').and.returnValue(okResponse(ART_BY_ID)),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [CommonModule, RouterModule.forRoot([]), HttpClientTestingModule, ArticleDetailComponent],
+      providers: [
+        provideNoopAnimations(),
+        { provide: ArticleService, useValue: mockServiceWithFallback },
+        { provide: AlertService, useValue: mockAlertService },
+        { provide: AuthorizationService, useValue: mockAuthAdmin },
+        { provide: LanguageService, useValue: mockLanguageService },
+        { provide: ActivatedRoute, useValue: makeRoute('art-uuid-001') },
+      ],
+    }).compileComponents();
+  });
+
+  it('falls back to getById when getBySku returns 404 and resolves the article', fakeAsync(() => {
+    const fixture = TestBed.createComponent(ArticleDetailComponent);
+    const comp = fixture.componentInstance;
+    comp.ngOnInit();
+    tick();
+    tick();
+    expect(comp.article?.id).toBe('art-uuid-001');
+    expect(comp.notFound).toBe(false);
   }));
 });
 
