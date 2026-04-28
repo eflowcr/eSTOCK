@@ -80,3 +80,70 @@ describe('SidebarComponent — S3.7 W1 mobile responsive', () => {
     expect(drawer.className).toContain('md:translate-x-0');
   });
 });
+
+// ────────────────────────────────────────────────────────────────────────
+// S3.7 W3 (B11 + B12) — sidebar items + section headings resolve to Spanish.
+// Uses the real LanguageService (with the actual translation tables) so we
+// can assert that bare nav keys actually resolve to the expected strings.
+// ────────────────────────────────────────────────────────────────────────
+
+describe('SidebarComponent — S3.7 W3 i18n keys (B11 + B12)', () => {
+  class StubNavigationServiceB11 {
+    getItems() {
+      return [
+        { name: 'receiving_tasks', href: '/receiving-tasks', icon: 'Download' } as any,
+        { name: 'picking_tasks', href: '/picking-tasks', icon: 'ClipboardCheck' } as any,
+        { name: 'stock_adjustments', href: '/stock-adjustments', icon: 'Edit' } as any,
+        { name: 'categories', href: '/categories', icon: 'FolderTree' } as any,
+        { name: 'inventory', href: '/inventory', icon: 'Archive' } as any,
+        { name: 'clients', href: '/clients', icon: 'Building' } as any,
+      ];
+    }
+  }
+
+  let language: LanguageService;
+
+  beforeEach(async () => {
+    // Force ES locale before instantiation to keep the assertion stable.
+    localStorage.setItem('estock-language', 'es');
+
+    await TestBed.configureTestingModule({
+      imports: [SidebarComponent],
+      providers: [
+        provideRouter([]),
+        SidebarService,
+        LanguageService,
+        { provide: NavigationService, useClass: StubNavigationServiceB11 },
+      ],
+    }).compileComponents();
+
+    language = TestBed.inject(LanguageService);
+    language.setLanguage('es');
+    const fix = TestBed.createComponent(SidebarComponent);
+    fix.detectChanges();
+  });
+
+  afterEach(() => {
+    localStorage.removeItem('estock-language');
+  });
+
+  it('B12: bare "categories" nav key resolves to "Categorías" (Title Case)', () => {
+    expect(language.t('categories')).toBe('Categorías');
+  });
+
+  it('B11: nav item keys resolve to Spanish (no English leakage)', () => {
+    expect(language.t('receiving_tasks')).toBe('Tareas de Recepción');
+    expect(language.t('picking_tasks')).toBe('Tareas de Picking');
+    expect(language.t('stock_adjustments')).toBe('Ajustes de Stock');
+    expect(language.t('inventory')).toBe('Inventario');
+    expect(language.t('clients')).toBe('Clientes');
+    expect(language.t('articles')).toBe('Artículos');
+  });
+
+  it('B11: sidebar section heading keys resolve to Spanish', () => {
+    expect(language.t('sidebar.section.operations')).toBe('Operaciones');
+    expect(language.t('sidebar.section.inventory')).toBe('Inventario');
+    expect(language.t('sidebar.section.administration')).toBe('Administración');
+    expect(language.t('sidebar.section.overview')).toBe('Resumen');
+  });
+});

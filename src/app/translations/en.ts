@@ -100,6 +100,7 @@ export const enTranslations = {
   // Navigation items
   dashboard: 'Dashboard',
   articles: 'Master of SKUs',
+  categories: 'Categories',
   inventory: 'Inventory',
   receiving_tasks: 'Receiving Tasks',
   picking_tasks: 'Picking Tasks',
@@ -992,6 +993,9 @@ export const enTranslations = {
   receiving_task: 'Receiving Task',
   create_task: 'Create Task',
   processed_tasks: 'Processed Tasks',
+  // S3.7 W3 (B14) — Drafts tab + description for receiving + picking management
+  drafts: 'Drafts',
+  tasks_in_draft: 'Tasks in draft state',
   tasks_open_or_in_progress: 'Tasks that are open or in progress',
   tasks_completed_or_cancelled: 'Tasks completed or cancelled',
   no_tasks_found: 'No tasks found',
@@ -2155,6 +2159,9 @@ export const enTranslations = {
   'signup.creating': 'Creating account…',
   'signup.already_have_account': 'Already have an account?',
   'signup.trial_info': 'Free 14-day trial · No credit card required · Cancel anytime',
+  // S3.7 W3 (B23) — seed demo data opt-in
+  'signup.seed_demo_data_label': 'Load sample data to explore the app',
+  'signup.seed_demo_data_hint': 'Recommended for demo. Includes example SKUs, locations and tasks. You can remove them later from settings.',
   'signup.feature_trial': '14-day free trial',
   'signup.feature_trial_desc': 'Full access to all WMS features with no commitment',
   'signup.feature_setup': 'Ready in minutes',

@@ -37,7 +37,10 @@ export class ReceivingTaskManagementComponent implements OnInit {
 	isCreateDialogOpen = false;
 	isEditDialogOpen = false;
 	editingTask: ReceivingTask | null = null;
-	activeTab: 'active' | 'processed' = 'active';
+	// S3.7 W3 (B14) — added 'drafts' tab so draft tasks are visible (5 invisible
+	// drafts were previously hidden because the filter only checked open/in_progress
+	// for active and completed*/cancelled for processed).
+	activeTab: 'active' | 'processed' | 'drafts' = 'active';
 	searchQuery = '';
 
 	// Export configuration
@@ -73,11 +76,11 @@ export class ReceivingTaskManagementComponent implements OnInit {
 		return this.languageService.t.bind(this.languageService);
 	}
 
-	setActiveTab(tab: 'active' | 'processed'): void {
+	setActiveTab(tab: 'active' | 'processed' | 'drafts'): void {
 		this.activeTab = tab;
 	}
 
-	getTabClass(tab: 'active' | 'processed'): string {
+	getTabClass(tab: 'active' | 'processed' | 'drafts'): string {
 		const isActive = this.activeTab === tab;
 		const baseClasses = 'py-3 px-4 border-b-2 font-medium text-sm transition-all duration-200 cursor-pointer';
 		
@@ -88,7 +91,7 @@ export class ReceivingTaskManagementComponent implements OnInit {
 		}
 	}
 
-	getTabBadgeClass(tab: 'active' | 'processed'): string {
+	getTabBadgeClass(tab: 'active' | 'processed' | 'drafts'): string {
 		const isActive = this.activeTab === tab;
 		const baseClasses = 'ml-2 text-xs px-2.5 py-1 rounded-full font-medium';
 		
@@ -123,7 +126,7 @@ export class ReceivingTaskManagementComponent implements OnInit {
 	}
 
 	get activeTasks(): ReceivingTask[] {
-		return this.receivingTasks.filter(task => 
+		return this.receivingTasks.filter(task =>
 			task.status === 'open' || task.status === 'in_progress'
 		);
 	}
@@ -136,8 +139,19 @@ export class ReceivingTaskManagementComponent implements OnInit {
 		);
 	}
 
+	// S3.7 W3 (B14) — drafts surface tasks that don't fit active/processed buckets
+	// (e.g. backend status === 'draft' from incomplete creation flows). Without this
+	// tab, draft tasks were invisible in the UI but still consumed DB rows.
+	get draftTasks(): ReceivingTask[] {
+		return this.receivingTasks.filter(task => task.status === 'draft');
+	}
+
 	get currentTabTasks(): ReceivingTask[] {
-		const base = this.activeTab === 'active' ? this.activeTasks : this.processedTasks;
+		let base: ReceivingTask[];
+		if (this.activeTab === 'active') base = this.activeTasks;
+		else if (this.activeTab === 'drafts') base = this.draftTasks;
+		else base = this.processedTasks;
+
 		if (!this.searchQuery.trim()) return base;
 		const q = this.searchQuery.toLowerCase();
 		return base.filter(t =>
@@ -147,9 +161,15 @@ export class ReceivingTaskManagementComponent implements OnInit {
 	}
 
 	get currentTabDescription(): string {
-		return this.activeTab === 'active'
-			? this.t('tasks_open_or_in_progress')
-			: this.t('tasks_completed_or_cancelled');
+		if (this.activeTab === 'active') return this.t('tasks_open_or_in_progress');
+		if (this.activeTab === 'drafts') return this.t('tasks_in_draft');
+		return this.t('tasks_completed_or_cancelled');
+	}
+
+	get currentTabBaseTotal(): number {
+		if (this.activeTab === 'active') return this.activeTasks.length;
+		if (this.activeTab === 'drafts') return this.draftTasks.length;
+		return this.processedTasks.length;
 	}
 
 	get openTasksCount(): number {

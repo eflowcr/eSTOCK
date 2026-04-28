@@ -108,6 +108,7 @@ describe('SignupComponent', () => {
       admin_name: 'Admin User',
       admin_password: 'SecurePass123!',
       admin_password_confirm: 'SecurePass123!',
+      seed_demo_data: false,
     });
 
     await component.onSubmit();
@@ -130,6 +131,7 @@ describe('SignupComponent', () => {
       admin_name: 'Admin User',
       admin_password: 'SecurePass123!',
       admin_password_confirm: 'SecurePass123!',
+      seed_demo_data: false,
     });
 
     await component.onSubmit();
@@ -153,6 +155,7 @@ describe('SignupComponent', () => {
       admin_name: 'Admin User',
       admin_password: 'SecurePass123!',
       admin_password_confirm: 'SecurePass123!',
+      seed_demo_data: false,
     });
 
     await component.onSubmit();
@@ -170,11 +173,72 @@ describe('SignupComponent', () => {
       admin_name: 'Admin User',
       admin_password: 'SecurePass123!',
       admin_password_confirm: 'SecurePass123!',
+      seed_demo_data: false,
     });
 
     await component.onSubmit();
 
     expect(alertSpy.error).toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  // ──────────────────────────────────────────────────────────────────────
+  // S3.7 W3 (B23) — seed_demo_data opt-in checkbox
+  // ──────────────────────────────────────────────────────────────────────
+  describe('B23 S3.7 W3: seed_demo_data opt-in', () => {
+    it('renders the seed_demo_data checkbox', () => {
+      const checkbox = fixture.nativeElement.querySelector(
+        '[data-testid="seed-demo-data-checkbox"]',
+      ) as HTMLInputElement | null;
+      expect(checkbox).not.toBeNull();
+      expect(checkbox?.type).toBe('checkbox');
+    });
+
+    it('seed_demo_data defaults to false (clean signup)', () => {
+      expect(component.form.get('seed_demo_data')?.value).toBeFalse();
+    });
+
+    it('forwards seed_demo_data=true in payload when user opts in', async () => {
+      signupSpy.initiateSignup.and.returnValue(
+        Promise.resolve(mockResponse({ message: 'OK' })),
+      );
+      component.form.setValue({
+        email: 'admin@acme.com',
+        company_name: 'ACME Corp',
+        tenant_slug: 'acme-corp',
+        admin_name: 'Admin User',
+        admin_password: 'SecurePass123!',
+        admin_password_confirm: 'SecurePass123!',
+        seed_demo_data: true,
+      });
+
+      await component.onSubmit();
+
+      expect(signupSpy.initiateSignup).toHaveBeenCalledTimes(1);
+      const payload = signupSpy.initiateSignup.calls.mostRecent().args[0];
+      expect(payload.seed_demo_data).toBeTrue();
+      // password_confirm must NOT leak into the request payload
+      expect((payload as any).admin_password_confirm).toBeUndefined();
+    });
+
+    it('forwards seed_demo_data=false in payload when user keeps default off', async () => {
+      signupSpy.initiateSignup.and.returnValue(
+        Promise.resolve(mockResponse({ message: 'OK' })),
+      );
+      component.form.setValue({
+        email: 'admin@acme.com',
+        company_name: 'ACME Corp',
+        tenant_slug: 'acme-corp',
+        admin_name: 'Admin User',
+        admin_password: 'SecurePass123!',
+        admin_password_confirm: 'SecurePass123!',
+        seed_demo_data: false,
+      });
+
+      await component.onSubmit();
+
+      const payload = signupSpy.initiateSignup.calls.mostRecent().args[0];
+      expect(payload.seed_demo_data).toBeFalse();
+    });
   });
 });

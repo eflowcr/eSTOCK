@@ -183,6 +183,22 @@
               </div>
             </div>
 
+            <!-- B23 S3.7 W3 — Seed demo data opt-in -->
+            <div class="rounded-lg border border-border bg-muted/30 p-3">
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  formControlName="seed_demo_data"
+                  data-testid="seed-demo-data-checkbox"
+                  class="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
+                />
+                <span class="flex-1 text-sm">
+                  <span class="font-medium text-foreground block">{{ t('signup.seed_demo_data_label') }}</span>
+                  <span class="text-xs text-muted-foreground block mt-0.5">{{ t('signup.seed_demo_data_hint') }}</span>
+                </span>
+              </label>
+            </div>
+
             <!-- Submit -->
             <button
               type="submit"

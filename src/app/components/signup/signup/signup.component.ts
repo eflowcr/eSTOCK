@@ -52,6 +52,9 @@ export class SignupComponent implements OnInit {
         admin_name: ['', [Validators.required, Validators.minLength(2)]],
         admin_password: ['', [Validators.required, Validators.minLength(8)]],
         admin_password_confirm: ['', [Validators.required]],
+        // S3.7 W3 (B23): default OFF so new tenants start with a clean account.
+        // User must explicitly opt-in to receive demo/sample data on first run.
+        seed_demo_data: [false],
       },
       { validators: passwordMatchValidator },
     );

@@ -110,6 +110,7 @@ export const esTranslations = {
   // Navigation items
   dashboard: 'Dashboard',
   articles: 'Artículos',
+  categories: 'Categorías',
   inventory: 'Inventario',
   receiving_tasks: 'Tareas de Recepción',
   picking_tasks: 'Tareas de Picking',
@@ -1035,6 +1036,9 @@ export const esTranslations = {
   receiving_task: 'Tarea de Recepción',
   create_task: 'Crear Tarea',
   processed_tasks: 'Tareas Procesadas',
+  // S3.7 W3 (B14) — Drafts tab + description for receiving + picking management
+  drafts: 'Borradores',
+  tasks_in_draft: 'Tareas en estado borrador',
   tasks_open_or_in_progress: 'Tareas que están abiertas o en progreso',
   tasks_completed_or_cancelled: 'Tareas completadas o canceladas',
   no_tasks_found: 'No se encontraron tareas',
@@ -2282,6 +2286,9 @@ export const esTranslations = {
   'signup.creating': 'Creando cuenta…',
   'signup.already_have_account': '¿Ya tenés cuenta?',
   'signup.trial_info': 'Prueba gratuita 14 días · Sin tarjeta de crédito · Cancelá cuando quieras',
+  // S3.7 W3 (B23) — seed demo data opt-in
+  'signup.seed_demo_data_label': 'Cargar datos de muestra para explorar la app',
+  'signup.seed_demo_data_hint': 'Recomendado para demo. Incluye SKUs, ubicaciones y tareas de ejemplo. Podés borrarlos después desde la configuración.',
   'signup.feature_trial': 'Prueba gratuita 14 días',
   'signup.feature_trial_desc': 'Acceso completo a todas las funciones sin compromiso',
   'signup.feature_setup': 'Listo en minutos',
