@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { ApiResponse, AuthData, AuthState, LoginRequest, RegisterRequest, User } from '@app/models';
+import { ApiResponse, AuthData, AuthState, LoginRequest, Permission, RegisterRequest, User } from '@app/models';
 import { getApiErrorMessage, returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { BehaviorSubject } from 'rxjs';
@@ -304,12 +304,34 @@ export class AuthService {
 	 * the signup verify flow so the user lands authenticated on /onboarding
 	 * instead of being redirected to /login by AuthGuard.
 	 *
-	 * B2 fix S3.6.
+	 * B2 fix S3.6 (initial). S3.6.1: accept optional `enrichment` carrying
+	 * role+permissions+identity so the persisted AuthData matches the shape
+	 * /auth/login produces. Without this, isAdmin()/hasPermission() report
+	 * false after signup verify and the side menu collapses.
+	 *
+	 * Backend complement: S3.5.6 (B22) — verify response now includes
+	 * role+permissions+email+name in `data`.
 	 * @memberof AuthService
 	 */
-	ingestExternalToken(token: string): void {
+	ingestExternalToken(
+		token: string,
+		enrichment?: {
+			role?: string;
+			permissions?: Permission;
+			email?: string;
+			name?: string;
+			last_name?: string;
+		},
+	): void {
 		if (!token) return;
-		const authData: AuthData = { token } as AuthData;
+		const authData: AuthData = {
+			token,
+			role: enrichment?.role,
+			permissions: enrichment?.permissions,
+			email: enrichment?.email,
+			name: enrichment?.name ?? '',
+			last_name: enrichment?.last_name ?? '',
+		} as AuthData;
 		localStorage.setItem(this.AUTH_STORAGE_KEY, JSON.stringify(authData));
 		try {
 			const user = this.decodeTokenPayload(token);

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ApiResponse } from '@app/models';
+import { ApiResponse, Permission } from '@app/models';
 import { returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { FetchService } from './extras/fetch.service';
@@ -17,6 +17,11 @@ export interface SignupVerifyResponse {
   tenant_id: string;
   email: string;
   name: string;
+  // S3.6.1: backend (S3.5.6) now enriches verify response with role+permissions
+  // so the frontend can hydrate AuthService without a second /auth/me round-trip.
+  role?: string;
+  permissions?: Permission;
+  last_name?: string;
 }
 
 const GATEWAY = '/signup';
