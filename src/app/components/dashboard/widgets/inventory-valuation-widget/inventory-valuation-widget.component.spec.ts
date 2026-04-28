@@ -90,4 +90,26 @@ describe('InventoryValuationWidgetComponent', () => {
     expect(component.formatCurrency(null)).not.toContain('NaN');
     expect(component.formatCurrency(undefined)).not.toContain('NaN');
   });
+
+  // B9 (S3.7-W4): article links must use the stable identifier (item.id),
+  // not the human-readable label, to avoid name-encoded URLs like
+  // /articles/Clindamicina%20300mg%20Caps%2016s.
+  describe('B9 — renders article links with stable id, not name', () => {
+    it('linkFor returns ["/articles", item.id] when grouping by article', () => {
+      component.groupBy = 'article';
+      const link = component.linkFor({ id: 'art-uuid-001', label: 'Clindamicina 300mg Caps 16s' });
+      expect(link).toEqual(['/articles', 'art-uuid-001']);
+      expect(link[1]).not.toContain(' ');
+    });
+
+    it('linkFor returns inventory route for location grouping', () => {
+      component.groupBy = 'location';
+      expect(component.linkFor({ id: 'loc-1', label: 'Almacen A' })).toEqual(['/inventory']);
+    });
+
+    it('linkFor returns generic articles route for category grouping', () => {
+      component.groupBy = 'category';
+      expect(component.linkFor({ id: 'cat-1', label: 'Antibioticos' })).toEqual(['/articles']);
+    });
+  });
 });

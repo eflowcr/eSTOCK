@@ -74,17 +74,29 @@ export class ArticleDetailComponent implements OnInit {
     if (sku) this.loadArticle(sku);
   }
 
-  async loadArticle(sku: string): Promise<void> {
+  async loadArticle(skuOrId: string): Promise<void> {
     this.isLoading = true;
     this.notFound = false;
     try {
-      const res = await this.articleService.getBySku(sku);
+      const res = await this.articleService.getBySku(skuOrId);
       this.article = res.data ?? null;
       if (!this.article) this.notFound = true;
     } catch (error: any) {
       const status = Number(error?.status);
+      // B9 (S3.7-W4): the route param is `:sku` historically, but other parts
+      // of the app (e.g. dashboard valuation widget) route via the article's
+      // stable UUID. When SKU lookup 404s, retry as ID before giving up so
+      // both URL shapes work transparently.
       if (status === 404) {
-        this.notFound = true;
+        try {
+          const fallback = await this.articleService.getById(skuOrId as any);
+          this.article = fallback?.data ?? null;
+          if (!this.article) {
+            this.notFound = true;
+          }
+        } catch (idError: any) {
+          this.notFound = true;
+        }
       } else {
         this.alertService.error(this.t('article_detail.error_loading'));
       }
