@@ -10,6 +10,13 @@ export interface SignupRequest {
   tenant_slug: string;
   admin_name: string;
   admin_password: string;
+  // S3.7 W3 (B23): opt-in flag to load demo/sample data on tenant provisioning.
+  // Default false on the frontend so new tenants start clean unless the user
+  // explicitly checks the "load sample data" box on signup.
+  // NOTE: backend handling (conditional SeedFarma run inside SignupRepository.VerifySignup)
+  // is deferred to S3.7 backend-companion sprint. Frontend forwards the flag so
+  // the backend can act on it once the column lands.
+  seed_demo_data?: boolean;
 }
 
 export interface SignupVerifyResponse {

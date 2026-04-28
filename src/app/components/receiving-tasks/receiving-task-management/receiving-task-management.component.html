@@ -73,13 +73,19 @@
   <!-- Tabs card -->
   <div class="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
 
-    <!-- Tab nav -->
+    <!-- Tab nav — S3.7 W3 (B14): added Drafts tab so draft-status tasks are visible -->
     <div class="border-b border-border">
       <nav class="flex">
         <button (click)="setActiveTab('active')" [class]="getTabClass('active')"
           class="flex flex-1 items-center justify-center min-w-0">
           <span class="truncate">{{ t('active_tasks') }}</span>
           <span [class]="getTabBadgeClass('active')">{{ activeTasks.length }}</span>
+        </button>
+        <button (click)="setActiveTab('drafts')" [class]="getTabClass('drafts')"
+          data-testid="tab-drafts"
+          class="flex flex-1 items-center justify-center min-w-0">
+          <span class="truncate">{{ t('drafts') }}</span>
+          <span [class]="getTabBadgeClass('drafts')">{{ draftTasks.length }}</span>
         </button>
         <button (click)="setActiveTab('processed')" [class]="getTabClass('processed')"
           class="flex flex-1 items-center justify-center min-w-0">
@@ -103,7 +109,7 @@
         />
       </div>
       <span class="shrink-0 text-xs text-muted-foreground tabular-nums">
-        {{ currentTabTasks.length }} {{ t('of') }} {{ (activeTab === 'active' ? activeTasks : processedTasks).length }} {{ t('results') }}
+        {{ currentTabTasks.length }} {{ t('of') }} {{ currentTabBaseTotal }} {{ t('results') }}
       </span>
     </div>
 

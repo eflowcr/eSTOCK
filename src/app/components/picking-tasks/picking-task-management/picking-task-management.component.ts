@@ -38,7 +38,9 @@ export class PickingTaskManagementComponent implements OnInit {
   isCreateDialogOpen = false;
   isEditDialogOpen = false;
   editingTask: PickingTask | null = null;
-  activeTab: 'active' | 'processed' = 'active';
+  // S3.7 W3 (B14) — added 'drafts' tab to surface draft-status tasks that were
+  // previously invisible (only active/processed buckets existed).
+  activeTab: 'active' | 'processed' | 'drafts' = 'active';
   searchQuery = '';
 
   // Export configuration
@@ -81,11 +83,11 @@ export class PickingTaskManagementComponent implements OnInit {
     return this.languageService.t.bind(this.languageService);
   }
 
-  setActiveTab(tab: 'active' | 'processed'): void {
+  setActiveTab(tab: 'active' | 'processed' | 'drafts'): void {
     this.activeTab = tab;
   }
 
-  getTabClass(tab: 'active' | 'processed'): string {
+  getTabClass(tab: 'active' | 'processed' | 'drafts'): string {
     const isActive = this.activeTab === tab;
     const baseClasses =
       'py-3 px-4 border-b-2 font-medium text-sm transition-all duration-200 cursor-pointer';
@@ -97,7 +99,7 @@ export class PickingTaskManagementComponent implements OnInit {
     }
   }
 
-  getTabBadgeClass(tab: 'active' | 'processed'): string {
+  getTabBadgeClass(tab: 'active' | 'processed' | 'drafts'): string {
     const isActive = this.activeTab === tab;
     const baseClasses = 'ml-2 text-xs px-2.5 py-1 rounded-full font-medium';
 
@@ -145,8 +147,18 @@ export class PickingTaskManagementComponent implements OnInit {
     );
   }
 
+  // S3.7 W3 (B14) — drafts surface tasks with status === 'draft' so they
+  // are not invisible in the UI.
+  get draftTasks(): PickingTask[] {
+    return this.pickingTasks.filter((task) => task.status === 'draft');
+  }
+
   get currentTabTasks(): PickingTask[] {
-    const base = this.activeTab === 'active' ? this.activeTasks : this.processedTasks;
+    let base: PickingTask[];
+    if (this.activeTab === 'active') base = this.activeTasks;
+    else if (this.activeTab === 'drafts') base = this.draftTasks;
+    else base = this.processedTasks;
+
     if (!this.searchQuery.trim()) return base;
     const q = this.searchQuery.toLowerCase();
     return base.filter(t =>
@@ -156,9 +168,15 @@ export class PickingTaskManagementComponent implements OnInit {
   }
 
   get currentTabDescription(): string {
-    return this.activeTab === 'active'
-      ? this.t('tasks_open_or_in_progress')
-      : this.t('tasks_completed_or_cancelled');
+    if (this.activeTab === 'active') return this.t('tasks_open_or_in_progress');
+    if (this.activeTab === 'drafts') return this.t('tasks_in_draft');
+    return this.t('tasks_completed_or_cancelled');
+  }
+
+  get currentTabBaseTotal(): number {
+    if (this.activeTab === 'active') return this.activeTasks.length;
+    if (this.activeTab === 'drafts') return this.draftTasks.length;
+    return this.processedTasks.length;
   }
 
   get openTasksCount(): number {
