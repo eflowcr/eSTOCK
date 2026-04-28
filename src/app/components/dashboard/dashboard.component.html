@@ -54,14 +54,24 @@
           <div class="min-w-0 flex-1">
             <p class="text-sm font-medium text-muted-foreground">{{ t(kpi.title) }}</p>
             <p class="mt-1.5 text-2xl font-bold tracking-tight">{{ kpi.value }}</p>
-            <p class="mt-1.5 flex items-center gap-1 text-xs"
-              [class.text-red-500]="kpi.changePercent < 0"
-              [class.text-emerald-600]="kpi.changePercent > 0"
-              [class.text-muted-foreground]="kpi.changePercent === 0">
-              <span>{{ kpi.changePercent > 0 ? '↑' : kpi.changePercent < 0 ? '↓' : '→' }}</span>
-              <span>{{ kpi.changePercent }}%</span>
-              <span class="text-muted-foreground">{{ t(kpi.changeLabel || 'dashboard.vs_last_month') }}</span>
+            <!-- B7 fix: changePercent is null when there's no prev-period data
+                 (e.g. tenant created today). Show "—" + "no previous data" text
+                 instead of an absurd "↑ 2800%". -->
+            <p *ngIf="kpi.changePercent === null; else changePctTpl"
+              class="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+              <span>—</span>
+              <span>{{ t('dashboard.no_previous_data') }}</span>
             </p>
+            <ng-template #changePctTpl>
+              <p class="mt-1.5 flex items-center gap-1 text-xs"
+                [class.text-red-500]="(kpi.changePercent || 0) < 0"
+                [class.text-emerald-600]="(kpi.changePercent || 0) > 0"
+                [class.text-muted-foreground]="(kpi.changePercent || 0) === 0">
+                <span>{{ (kpi.changePercent || 0) > 0 ? '↑' : (kpi.changePercent || 0) < 0 ? '↓' : '→' }}</span>
+                <span>{{ kpi.changePercent }}%</span>
+                <span class="text-muted-foreground">{{ t(kpi.changeLabel || 'dashboard.vs_last_month') }}</span>
+              </p>
+            </ng-template>
           </div>
           <!-- Icon -->
           <div class="ml-3 shrink-0 rounded-lg p-2.5" [style.background]="kpiIconBg(kpi.icon)">

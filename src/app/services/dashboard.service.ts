@@ -29,38 +29,63 @@ export class DashboardService {
     });
   }
 
-  /** KPI cards with trend (tasksChangePercent and movChangePercent from real DB comparisons) */
+  /** KPI cards with trend (tasksChangePercent and movChangePercent from real DB comparisons).
+   *
+   *  B7 fix: when backend prev-period was 0, the % becomes Infinity / NaN / absurd
+   *  (e.g. "2800%"). Sanitize to `null` so UI renders "—" / "Sin datos previos".
+   *  Heuristic: any non-finite OR |%| > 1000 is treated as "no previous data".
+   *
+   *  B8 fix: inventory_value KPI now formatted in CRC (es-CR) — matches the
+   *  Inventory Valuation widget. No more "$70,127" vs "₡0" contradiction.
+   */
   buildKpis(stats: DashboardStats | null): DashboardKpi[] {
+    const fmtCRC = (v: number) =>
+      new Intl.NumberFormat('es-CR', {
+        style: 'currency',
+        currency: 'CRC',
+        maximumFractionDigits: 0,
+      }).format(Number.isFinite(v) ? v : 0);
+
     if (!stats) {
       return [
-        { title: 'total_skus', value: '—', changePercent: 0, changeLabel: 'dashboard.vs_last_month', icon: 'package' },
-        { title: 'inventory_value', value: '—', changePercent: 0, changeLabel: 'dashboard.vs_last_month', icon: 'trend' },
-        { title: 'low_stock_count', value: '—', changePercent: 0, changeLabel: 'dashboard.alerts_trend', icon: 'alert' },
+        { title: 'total_skus', value: '—', changePercent: null, changeLabel: 'dashboard.vs_last_month', icon: 'package' },
+        { title: 'inventory_value', value: '—', changePercent: null, changeLabel: 'dashboard.vs_last_month', icon: 'trend' },
+        { title: 'low_stock_count', value: '—', changePercent: null, changeLabel: 'dashboard.alerts_trend', icon: 'alert' },
       ];
     }
     return [
       {
         title: 'total_skus',
-        value: stats.totalSkus.toLocaleString(),
-        changePercent: stats.movChangePercent ?? 0,
+        value: (stats.totalSkus ?? 0).toLocaleString(),
+        changePercent: this.sanitizeChangePercent(stats.movChangePercent),
         changeLabel: 'dashboard.vs_last_month',
         icon: 'package',
       },
       {
         title: 'inventory_value',
-        value: `$${stats.inventoryValue.toLocaleString()}`,
-        changePercent: stats.movChangePercent ?? 0,
+        value: fmtCRC(stats.inventoryValue ?? 0),
+        changePercent: this.sanitizeChangePercent(stats.movChangePercent),
         changeLabel: 'dashboard.vs_last_month',
         icon: 'trend',
       },
       {
         title: 'low_stock_count',
-        value: stats.lowStockCount.toLocaleString(),
-        changePercent: stats.tasksChangePercent ?? 0,
+        value: (stats.lowStockCount ?? 0).toLocaleString(),
+        changePercent: this.sanitizeChangePercent(stats.tasksChangePercent),
         changeLabel: 'dashboard.alerts_trend',
         icon: 'alert',
       },
     ];
+  }
+
+  /** Returns null when the change percent is meaningless (no prev-period data). */
+  private sanitizeChangePercent(raw: number | null | undefined): number | null {
+    if (raw === null || raw === undefined) return null;
+    if (!Number.isFinite(raw)) return null;
+    // Backend prev=0 produces absurd values (e.g. 2800%). Treat anything beyond
+    // ±1000% as "no meaningful prior baseline".
+    if (Math.abs(raw) > 1000) return null;
+    return raw;
   }
 
   /** Stacked bar: movements by period — from /api/dashboard/movements-monthly?period= */
@@ -102,18 +127,42 @@ export class DashboardService {
       return { topArticles: [], locationDistribution: [] };
     }
 
-    const topArticles: DashboardTableRow[] = response.data.topArticles.map((a) => ({
+    // B6 fix: guard NaN/Infinity amounts before formatting (was rendering "₡NaN").
+    // B8 fix: switched from "$" to es-CR / CRC — single currency source of truth.
+    const fmtCRC = (v: number) => {
+      const n = Number.isFinite(v) ? v : 0;
+      return new Intl.NumberFormat('es-CR', {
+        style: 'currency',
+        currency: 'CRC',
+        maximumFractionDigits: 0,
+      }).format(n);
+    };
+
+    // B10 fix: dedup top articles by id (backend JOIN was producing duplicates,
+    // e.g. "Diclofenaco" appeared twice). Keep the highest-amount row per id.
+    const dedupedTop = new Map<string, { id: string; name: string; type: string; ratePercent: number; amount: number }>();
+    for (const a of response.data.topArticles ?? []) {
+      // Fallback key for legacy rows missing id — use composite name+type so we
+      // still collapse obvious dupes and never crash on undefined Map keys.
+      const key = a.id || `${a.name}::${a.type}`;
+      const existing = dedupedTop.get(key);
+      if (!existing || (a.amount ?? 0) > (existing.amount ?? 0)) {
+        dedupedTop.set(key, a);
+      }
+    }
+
+    const topArticles: DashboardTableRow[] = Array.from(dedupedTop.values()).map((a) => ({
       id: a.id,
       name: a.name,
       type: a.type,
-      ratePercent: Math.round(a.ratePercent),
-      amount: `$${a.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      ratePercent: Number.isFinite(a.ratePercent) ? Math.round(a.ratePercent) : 0,
+      amount: fmtCRC(a.amount),
     }));
 
-    const locationDistribution: DonutSlice[] = response.data.locationDistribution.map((l) => ({
+    const locationDistribution: DonutSlice[] = (response.data.locationDistribution ?? []).map((l) => ({
       label: l.label,
-      value: l.value,
-      amount: `$${l.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: Number.isFinite(l.value) ? l.value : 0,
+      amount: fmtCRC(l.amount),
       color: l.color,
     }));
 

@@ -184,7 +184,8 @@ export class DashboardComponent implements OnInit {
         Section: 'KPI',
         Metric: this.t(k.title),
         Value: k.value,
-        'Change %': `${k.changePercent}%`,
+        // B7: changePercent may be null (no prev-period data) — export "—" not "null%".
+        'Change %': k.changePercent === null ? '—' : `${k.changePercent}%`,
       })),
       ...this.tableRows.map(r => ({
         Section: 'Top Articles',

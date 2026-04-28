@@ -82,4 +82,12 @@ describe('InventoryValuationWidgetComponent', () => {
     const formatted = component.formatCurrency(1000);
     expect(formatted).toContain('1');
   });
+
+  // B6: prevents "₡NaN" rendering when value is NaN/Infinity/null/undefined.
+  it('formatCurrency guards against NaN/Infinity/null (B6)', () => {
+    expect(component.formatCurrency(NaN)).not.toContain('NaN');
+    expect(component.formatCurrency(Infinity)).not.toContain('NaN');
+    expect(component.formatCurrency(null)).not.toContain('NaN');
+    expect(component.formatCurrency(undefined)).not.toContain('NaN');
+  });
 });

@@ -218,6 +218,7 @@ export const esTranslations = {
   manage_all_alerts: 'Gestionar alertas',
   'dashboard.vs_last_month': 'vs mes anterior',
   'dashboard.alerts_trend': 'tendencia alertas',
+  'dashboard.no_previous_data': 'sin datos previos',
   'dashboard.movements_overview': 'Resumen de movimientos',
   'dashboard.tasks_this_week': 'Tareas esta semana',
   'dashboard.inventory_distribution': 'Distribución de inventario',

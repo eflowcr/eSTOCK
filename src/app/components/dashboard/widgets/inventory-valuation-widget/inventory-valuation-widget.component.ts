@@ -75,12 +75,19 @@ export class InventoryValuationWidgetComponent implements OnInit {
     return {};
   }
 
-  formatCurrency(value: number): string {
+  /**
+   * B6 fix: guard against NaN/null/undefined/Infinity before format.
+   * Returns localized "₡0" instead of "₡NaN" when value is not a finite number.
+   * B8 fix: tenant locale defaults to es-CR (CRC) — single source of truth for currency
+   * across the dashboard. KPI cards must use this same formatter (no $ mixing).
+   */
+  formatCurrency(value: number | null | undefined): string {
+    const n = typeof value === 'number' && Number.isFinite(value) ? value : 0;
     return new Intl.NumberFormat('es-CR', {
       style: 'currency',
       currency: 'CRC',
       maximumFractionDigits: 0,
-    }).format(value);
+    }).format(n);
   }
 
   t(key: string): string {

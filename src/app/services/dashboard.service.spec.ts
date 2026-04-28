@@ -67,7 +67,9 @@ describe('DashboardService', () => {
       const kpis = service.buildKpis(MOCK_STATS);
       expect(kpis.length).toBe(3);
       expect(kpis[0].value).toBe('120');
-      expect(kpis[1].value).toContain('50,000');
+      // B8: inventory_value uses CRC formatter (es-CR), not "$".
+      expect(kpis[1].value).toContain('50');
+      expect(kpis[1].value).not.toContain('$');
       expect(kpis[2].value).toBe('3');
     });
 
@@ -80,6 +82,30 @@ describe('DashboardService', () => {
     it('uses tasksChangePercent for low_stock_count', () => {
       const kpis = service.buildKpis(MOCK_STATS);
       expect(kpis[2].changePercent).toBe(10);
+    });
+
+    // B7 — sentinel: when prev was 0 the backend returns Infinity / absurd %.
+    it("shows '—' for KPI when prev=0 (changePercent is null)", () => {
+      const kpisInf = service.buildKpis({ ...MOCK_STATS, movChangePercent: Infinity } as any);
+      expect(kpisInf[0].changePercent).toBeNull();
+      expect(kpisInf[1].changePercent).toBeNull();
+
+      const kpisHuge = service.buildKpis({ ...MOCK_STATS, movChangePercent: 2800 } as any);
+      expect(kpisHuge[0].changePercent).toBeNull();
+
+      const kpisNaN = service.buildKpis({ ...MOCK_STATS, tasksChangePercent: NaN } as any);
+      expect(kpisNaN[2].changePercent).toBeNull();
+
+      const kpisNull = service.buildKpis({ ...MOCK_STATS, movChangePercent: null } as any);
+      expect(kpisNull[0].changePercent).toBeNull();
+    });
+
+    // B8 — Inventory Value uses tenant locale (es-CR / CRC).
+    it('Inventory Value uses currency from tenant locale', () => {
+      const kpis = service.buildKpis({ ...MOCK_STATS, inventoryValue: 70127 } as any);
+      // CRC symbol "₡" or "CRC" prefix per Intl runtime; never plain "$".
+      expect(kpis[1].value).not.toContain('$');
+      expect(kpis[1].value).toMatch(/CRC|₡/);
     });
   });
 
@@ -149,6 +175,70 @@ describe('DashboardService', () => {
       expect(result.length).toBe(1);
       expect(result[0].period).toBe('Jan');
       expect(result[0].segments.length).toBe(3);
+    });
+  });
+
+  // ─── getInventorySummary ──────────────────────────────────────────────────
+
+  describe('getInventorySummary()', () => {
+    // B10 fix
+    it('Top Articles deduplicates by article_id', async () => {
+      fetchSpy.get.and.returnValue(
+        Promise.resolve(
+          mockResponse({
+            topArticles: [
+              { id: 'a1', name: 'Diclofenaco 75mg/3mL Inj', type: 'Inj', ratePercent: 80, amount: 1305 },
+              { id: 'a1', name: 'Diclofenaco 75mg/3mL Inj', type: 'Inj', ratePercent: 80, amount: 1305 }, // dup
+              { id: 'a2', name: 'Ketorolaco 30mg/1mL Inj', type: 'Inj', ratePercent: 70, amount: 1260 },
+              { id: 'a2', name: 'Ketorolaco 30mg/1mL Inj', type: 'Inj', ratePercent: 70, amount: 1260 }, // dup
+            ],
+            locationDistribution: [],
+          })
+        )
+      );
+
+      const { topArticles } = await service.getInventorySummary();
+      expect(topArticles.length).toBe(2);
+      expect(topArticles.map((r) => r.id).sort()).toEqual(['a1', 'a2']);
+    });
+
+    // B6 fix
+    it('guards NaN amounts (does not render "₡NaN")', async () => {
+      fetchSpy.get.and.returnValue(
+        Promise.resolve(
+          mockResponse({
+            topArticles: [
+              { id: 'x', name: 'Clindamicina', type: 'Cap', ratePercent: NaN, amount: NaN },
+            ],
+            locationDistribution: [
+              { label: 'A', value: NaN, amount: NaN, color: '#000' },
+            ],
+          })
+        )
+      );
+
+      const { topArticles, locationDistribution } = await service.getInventorySummary();
+      expect(topArticles[0].amount).not.toContain('NaN');
+      expect(topArticles[0].ratePercent).toBe(0);
+      expect(locationDistribution[0].amount).not.toContain('NaN');
+      expect(locationDistribution[0].value).toBe(0);
+    });
+
+    // B8 fix
+    it('Top Articles amounts use CRC currency (no "$")', async () => {
+      fetchSpy.get.and.returnValue(
+        Promise.resolve(
+          mockResponse({
+            topArticles: [{ id: 'x', name: 'X', type: 'T', ratePercent: 10, amount: 70127 }],
+            locationDistribution: [{ label: 'A', value: 100, amount: 1000, color: '#000' }],
+          })
+        )
+      );
+
+      const { topArticles, locationDistribution } = await service.getInventorySummary();
+      expect(topArticles[0].amount).not.toContain('$');
+      expect(topArticles[0].amount).toMatch(/CRC|₡/);
+      expect(locationDistribution[0].amount).not.toContain('$');
     });
   });
 
