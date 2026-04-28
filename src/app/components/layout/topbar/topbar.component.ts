@@ -39,17 +39,17 @@ import { NotificationsBellComponent } from './notifications-bell.component';
   ],
   template: `
     <header
-      class="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-t border-b border-border bg-background px-4 shadow-sm"
+      class="sticky top-0 z-30 flex h-14 w-full min-w-0 items-center justify-between border-t border-b border-border bg-background px-3 shadow-sm sm:px-4"
     >
       <!-- Left side -->
-      <div class="flex min-w-0 items-center gap-4">
+      <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
         <button
           z-button
           zType="ghost"
           zSize="icon"
           type="button"
           (click)="toggleSidebar()"
-          class="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          class="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:size-9"
           aria-label="Toggle sidebar"
         >
           <svg
@@ -81,10 +81,10 @@ import { NotificationsBellComponent } from './notifications-bell.component';
           <span class="text-base">eSTOCK</span>
         </a>
 
-        <div class="h-6 w-px bg-border" aria-hidden="true"></div>
+        <div class="hidden h-6 w-px bg-border sm:block" aria-hidden="true"></div>
 
         <div
-          class="relative w-full max-w-md min-w-0"
+          class="relative w-full max-w-md min-w-0 flex-1"
           data-topbar-search-root
           (keydown)="$event.stopPropagation()"
         >
@@ -153,11 +153,11 @@ import { NotificationsBellComponent } from './notifications-bell.component';
       </div>
 
       <!-- Right side -->
-      <div class="flex shrink-0 items-center gap-6">
-        <div class="flex items-center gap-2">
+      <div class="flex shrink-0 items-center gap-2 sm:gap-6">
+        <div class="flex items-center gap-1 sm:gap-2">
           <a
             [routerLink]="['/gamification']"
-            class="inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            class="hidden size-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex sm:size-9"
             [title]="t('nav.rewards')"
             aria-label="Rewards"
           >
@@ -178,7 +178,7 @@ import { NotificationsBellComponent } from './notifications-bell.component';
           <app-notifications-bell></app-notifications-bell>
           <a
             routerLink="/articles"
-            class="inline-flex size-9 items-center justify-center rounded-full border border-border bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            class="hidden size-11 items-center justify-center rounded-full border border-border bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex sm:size-9"
             [title]="t('nav.quick_add')"
             aria-label="Quick add"
           >
@@ -198,7 +198,7 @@ import { NotificationsBellComponent } from './notifications-bell.component';
           </a>
         </div>
 
-        <div class="h-8 w-px bg-border" aria-hidden="true"></div>
+        <div class="hidden h-8 w-px bg-border sm:block" aria-hidden="true"></div>
 
         <div class="user-menu-zone relative">
           <button

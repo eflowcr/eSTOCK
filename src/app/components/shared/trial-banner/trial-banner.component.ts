@@ -142,8 +142,8 @@ export class TrialBannerComponent implements OnInit {
 
   get bannerClasses(): string[] {
     const base = [
-      'flex', 'items-center', 'justify-between', 'gap-3',
-      'px-4', 'py-2.5', 'text-white', 'shadow-sm',
+      'flex', 'flex-col', 'sm:flex-row', 'sm:items-center', 'justify-between', 'gap-2', 'sm:gap-3',
+      'px-3', 'sm:px-4', 'py-2.5', 'text-white', 'shadow-sm',
     ];
 
     if (this.isPastDue) {

@@ -89,6 +89,12 @@
   * {
     @apply border-border;
   }
+  /* S3.7 W1 — mobile responsive guard: prevent any child from forcing a
+     horizontal scroll on small viewports. Individual scroll containers
+     (tables, code blocks, etc.) opt-in with overflow-x-auto. */
+  html, body {
+    @apply max-w-full overflow-x-hidden;
+  }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
