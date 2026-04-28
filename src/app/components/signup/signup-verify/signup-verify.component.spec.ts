@@ -83,7 +83,14 @@ describe('SignupVerifyComponent', () => {
 
   it('B2 S3.6: ingests JWT into AuthService and navigates to /onboarding on verify success', fakeAsync(async () => {
     const { fixture, component, signupSpy, router } = await createFixture('valid-token');
-    const verifyData = { token: MOCK_JWT, tenant_id: 't1', email: 'a@b.com', name: 'Admin' };
+    const verifyData = {
+      token: MOCK_JWT,
+      tenant_id: 't1',
+      email: 'a@b.com',
+      name: 'Admin',
+      role: 'Admin',
+      permissions: { all: true },
+    };
     signupSpy.verifySignup.and.returnValue(Promise.resolve(mockResponse(verifyData)));
 
     fixture.detectChanges();
@@ -91,7 +98,17 @@ describe('SignupVerifyComponent', () => {
 
     // AuthService.ingestExternalToken() must be called BEFORE the navigate
     // so AuthGuard sees an authenticated state on /onboarding.
-    expect(authSpy.ingestExternalToken).toHaveBeenCalledWith(MOCK_JWT);
+    // S3.6.1: caller must forward role+permissions so persisted AuthData
+    // matches the /auth/login shape (otherwise isAdmin/hasPermission fail).
+    expect(authSpy.ingestExternalToken).toHaveBeenCalledWith(
+      MOCK_JWT,
+      jasmine.objectContaining({
+        role: 'Admin',
+        permissions: { all: true },
+        email: 'a@b.com',
+        name: 'Admin',
+      }),
+    );
     expect(router.navigate).toHaveBeenCalledWith(['/onboarding']);
   }));
 

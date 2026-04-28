@@ -179,6 +179,47 @@ describe('AuthService', () => {
     });
   });
 
+  // ─── ingestExternalToken ──────────────────────────────────────────────────
+
+  describe('ingestExternalToken()', () => {
+    it('persists token-only AuthData when no enrichment provided (back-compat)', () => {
+      service.ingestExternalToken(MOCK_JWT);
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      expect(stored.token).toBe(MOCK_JWT);
+      expect(stored.role).toBeUndefined();
+      expect(stored.permissions).toBeUndefined();
+      expect(service.isAuthenticated()).toBeTrue();
+    });
+
+    it('S3.6.1: persists role+permissions when enrichment provided', () => {
+      service.ingestExternalToken(MOCK_JWT, {
+        role: 'Admin',
+        permissions: { all: true },
+        email: 'a@b.com',
+        name: 'Alice',
+      });
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      expect(stored.token).toBe(MOCK_JWT);
+      expect(stored.role).toBe('Admin');
+      expect(stored.permissions).toEqual({ all: true });
+      expect(stored.email).toBe('a@b.com');
+      expect(stored.name).toBe('Alice');
+      expect(service.isAuthenticated()).toBeTrue();
+    });
+
+    it('does nothing when token is empty', () => {
+      service.ingestExternalToken('');
+      expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+      expect(service.isAuthenticated()).toBeFalse();
+    });
+
+    it('clears state when token is malformed', () => {
+      service.ingestExternalToken('not.a.jwt', { role: 'Admin' });
+      expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+      expect(service.isAuthenticated()).toBeFalse();
+    });
+  });
+
   // ─── changePassword ───────────────────────────────────────────────────────
 
   describe('changePassword()', () => {

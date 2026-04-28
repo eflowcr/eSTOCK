@@ -62,12 +62,25 @@ export class SignupVerifyComponent implements OnInit {
         success?: boolean;
         message?: string;
         token?: string;
+        role?: string;
+        permissions?: any;
+        email?: string;
+        name?: string;
       };
       const success = response?.result?.success ?? flat?.success === true;
       const issuedToken = response?.data?.token ?? flat?.token;
 
       if (success && issuedToken) {
-        this.authService.ingestExternalToken(issuedToken);
+        // S3.6.1: forward role+permissions from verify response so AuthService
+        // hydrates the same fields /auth/login produces. Without this the
+        // sidebar permission checks fall back to false and the menu collapses.
+        const data = response?.data as any;
+        this.authService.ingestExternalToken(issuedToken, {
+          role: data?.role ?? flat?.role,
+          permissions: data?.permissions ?? flat?.permissions,
+          email: data?.email ?? flat?.email,
+          name: data?.name ?? flat?.name,
+        });
         this.state = 'success';
         // Brief success flash, then navigate to onboarding (first-time user).
         setTimeout(() => {
