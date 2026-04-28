@@ -190,6 +190,7 @@ export const enTranslations = {
   manage_all_alerts: 'Manage alerts',
   'dashboard.vs_last_month': 'vs last month',
   'dashboard.alerts_trend': 'alerts trend',
+  'dashboard.no_previous_data': 'no previous data',
   'dashboard.movements_overview': 'Movements Overview',
   'dashboard.tasks_this_week': 'Tasks This Week',
   'dashboard.inventory_distribution': 'Inventory Distribution',

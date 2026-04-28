@@ -18,11 +18,13 @@ export interface StockAlert {
   alertLevel: AlertLevel;
 }
 
-/** KPI card with optional trend for dashboard overview */
+/** KPI card with optional trend for dashboard overview.
+ *  changePercent is `null` when no previous-period data exists
+ *  (e.g. tenant created today). UI must render '—' / "no prev data". */
 export interface DashboardKpi {
   title: string;
   value: string;
-  changePercent: number;
+  changePercent: number | null;
   changeLabel?: string;
   icon: string;
 }
